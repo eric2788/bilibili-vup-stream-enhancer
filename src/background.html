@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<head>
+    <title>字幕過濾設定</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="icons/icon.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-4">字幕過濾設定</h1>
+            <p class="lead">設定頁面</p>
+            <hr class="my-4">
+            <p>儲存後需要到目標頁面進行刷新才能生效。</p>
+          </div>
+        <form id="setting">
+            <div class="form-group">
+                <label for="reg-cap">過濾使用的正則表達式</label>
+                <input type="text" class="form-control" id="reg-cap" aria-describedby="reg-help">
+                <small id="reg-help" class="form-text text-muted">有關正則表達式可以到<a href="https://regex101.com">這裏</a>進行測試。</small>
+                <small id="reg-help" class="form-text text-muted">必須包含名稱為cc的正則組別以捕捉字幕。</small>
+            </div>
+            <div class="form-group">
+                <label for="opacity-jimaku">同傳彈幕透明度</label>
+                <input type="number" class="form-control" id="opacity-jimaku" aria-describedby="opacity-help" max="100" min="-1">
+                <small id="opacity-help" class="form-text text-muted">範圍 0 ~ 100, -1 代表不改變。</small>
+            </div>
+            <div class="form-group">
+                <label for="color-jimaku">同傳彈幕顏色</label>
+                <input type="text" class="form-control" id="color-jimaku" aria-describedby="color-help">
+                <small id="color-help" clas="form-text text-muted">格式 #FFFFFF, 留空不改變。</small>
+
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="hide-jimaku-danmaku">
+                    <label class="custom-control-label" for="hide-jimaku-danmaku">隱藏同傳彈幕</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="enable-record">
+                    <label class="custom-control-label" for="enable-record">啟用記錄功能</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="vtb-only">
+                    <label class="custom-control-label" for="vtb-only">僅限虛擬主播</label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="save-settings">保存設定</button>
+          </form>
+        </div>
+      </div>
+</body>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+<script src="browser-polyfill.js"></script>
+<script src="cdn/jquery.js"></script>
+<!--script>
+const defaultSettings = {
+    regex: '^【(?<cc>.+)】$',
+    opacity: -1,
+    color: '',
+    hideJimakuDanmaku: false,
+    vtbOnly: true,
+    record: false
+}
+
+    function getCurrentInput(){
+        const setting = {}
+        setting.regex = $('#reg-cap')[0].value
+        setting.opacity = $('#opacity-jimaku')[0].valueAsNumber
+        setting.color = $('#color-jimaku')[0].value
+        setting.hideJimakuDanmaku = $('#hide-jimaku-danmaku').prop('checked')
+        setting.record = $('#enable-record').prop('checked')
+        setting.vtbOnly = $('#vtb-only').prop('checked')
+        return setting
+    }
+
+    function saveCurrentInput(setting = defaultSettings){
+        $('#reg-cap')[0].value = setting.regex
+        $('#opacity-jimaku')[0].valueAsNumber = setting.opacity
+        $('#color-jimaku')[0].value = setting.color
+        $('#hide-jimaku-danmaku').prop('checked', setting.hideJimakuDanmaku)
+        $('#enable-record').prop('checked', setting.record)
+        $('#vtb-only').prop('checked', setting.vtbOnly)
+    }
+
+    saveCurrentInput()
+
+    $('#save-settings').on('click', e => {
+        if($('form#setting')[0].checkValidity()){
+            e.preventDefault()
+            console.log(getCurrentInput())
+        } 
+    }) 
+</script-->
+<script src="background.js"></script>

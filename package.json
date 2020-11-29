@@ -1,0 +1,35 @@
+{
+  "name": "bilibili-jimaku-filter",
+  "version": "0.0.1",
+  "description": "jimaku filter for bilibili",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rmdir /S /Q dist 1>nul",
+    "build": "webpack",
+    "rebuild": "npm run clean && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eric2788/bilibili-jimaku-filter.git"
+  },
+  "keywords": [
+    "bilibili",
+    "jimaku"
+  ],
+  "author": "eric lam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eric2788/bilibili-jimaku-filter/issues"
+  },
+  "homepage": "https://github.com/eric2788/bilibili-jimaku-filter#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "copy-webpack-plugin": "^6.3.2",
+    "eslint": "^7.14.0",
+    "size-plugin": "^2.0.1",
+    "terser-webpack-plugin": "^5.0.3",
+    "webextension-polyfill": "^0.7.0",
+    "webpack": "^5.9.0",
+    "webpack-cli": "^4.2.0"
+  }
+}
