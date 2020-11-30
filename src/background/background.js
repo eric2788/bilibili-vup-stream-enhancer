@@ -18,6 +18,7 @@ function getCurrentInput(){
     const setting = {}
     setting.regex = $('#reg-cap')[0].value
     setting.opacity = $('#opacity-jimaku')[0].valueAsNumber
+    //setting.danmakuCheckDelay = $('#interval-jimaku-check')[0].valueAsNumber
     setting.color = $('#color-jimaku')[0].value
     setting.hideJimakuDanmaku = $('#hide-jimaku-danmaku').prop('checked')
     setting.record = $('#enable-record').prop('checked')
@@ -28,7 +29,9 @@ function getCurrentInput(){
 function saveCurrentInput(setting){
     $('#reg-cap')[0].value = setting.regex
     $('#opacity-jimaku')[0].valueAsNumber = setting.opacity
+    //$('#interval-jimaku-check')[0].valueAsNumber = setting.danmakuCheckDelay
     $('#color-jimaku')[0].value = setting.color
+    $('.color-picker')[0].value = setting.color
     $('#hide-jimaku-danmaku').prop('checked', setting.hideJimakuDanmaku)
     $('#enable-record').prop('checked', setting.record)
     $('#vtb-only').prop('checked', setting.vtbOnly)
@@ -50,7 +53,10 @@ $('#save-settings').on('click', e => {
     } 
 })
 
-sendNotify({title: 'hello', message: 'hello world!!'})
+$('.color-picker').on('change', e => {
+    console.log('color changed: '+e.target.value)
+    $('#color-jimaku')[0].value = e.target.value
+})
 
 async function sendNotify({title, message}){
     console.log('sending notification')

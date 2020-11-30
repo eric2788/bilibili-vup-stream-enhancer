@@ -27,13 +27,14 @@
         "js": [
           "browser-polyfill.js",
           "cdn/jquery.js",
+          "cdn/jquery-ui.js",
           "index.js"
         ]
       }
     ],
 
     "background":{
-        "page": "background.html"
+      "page": "background.html"
     },
 
     "browser_action": {
