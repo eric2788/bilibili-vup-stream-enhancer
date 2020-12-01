@@ -27,8 +27,11 @@
         "js": [
           "browser-polyfill.js",
           "cdn/jquery.js",
-          "cdn/jquery-ui.js",
+          "cdn/jquery-ui.min.js",
           "index.js"
+        ],
+        "css": [
+          "cdn/jquery-ui.min.css"
         ]
       }
     ],

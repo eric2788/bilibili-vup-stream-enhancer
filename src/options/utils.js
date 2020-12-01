@@ -1,15 +1,19 @@
 const defaultSettings = {
-    regex: '^【(?<cc>.+)】$',
+    regex: '^【(?<cc>.+?)】*$',
     opacity: -1,
     color: '',
     hideJimakuDanmaku: false,
     vtbOnly: true,
-    record: false
+    record: false,
+    backgroundSubtitleOpacity: 40,
+    backgroundColor: '#808080',
+    subtitleColor: '#FFFFFF',
+    blacklistRooms: []
 }
 
 async function getSettings(){
     const res = await browser.storage.local.get()
-    return Object.keys(res).length == 0 ? defaultSettings : res
+    return {...defaultSettings, ...res}
 }
 
 export default getSettings

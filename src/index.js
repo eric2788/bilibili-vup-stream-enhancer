@@ -5,6 +5,9 @@ const danmakuScreen = document.getElementsByClassName('bilibili-live-player-vide
 
 const config = { attributes: false, childList: true, subtree: true };
 
+// for reassign
+let $$$ = $
+
 let subtitles = []
 const danmakuTargets = new Set()
 
@@ -27,13 +30,13 @@ const callback = async function(mutationsList, settings) {
     for(const mu of mutationsList){
         if (mu.addedNodes.length < 1) continue
         for (const node of mu.addedNodes){
-            const danmaku = $(node)?.attr('data-danmaku')?.trim()
+            const danmaku = $$$(node)?.attr('data-danmaku')?.trim()
             if(danmaku !== undefined){
                 console.debug(danmaku)
                 const reg = new RegExp(settings.regex)
                 const subtitle = reg.exec(danmaku)?.groups?.cc
                 if (subtitle !== undefined && subtitle !== ""){
-                    appendSubtitle(subtitle)
+                    appendSubtitle(subtitle, settings)
                     if (settings.record){
                         subtitles.push({
                             date: new Date(),
@@ -50,28 +53,13 @@ const callback = async function(mutationsList, settings) {
     }
 }
 
-function appendSubtitle(subtitle){
-    $('div#subtitle-list').prepend(`<h2 style="color: white">${subtitle}</h2>`)
-}
-
-function hightlight(danmaku, {opacity, color} = {opacity: 1.0, color: undefined}){
-    $('div.bilibili-danmaku').filter((i, e) => e.innerText.trim() === danmaku.trim()).each((i, e) => {
-        if (opacity !== -1){
-            $(e).css('opacity', opacity)
-        }
-        if (color !== undefined){
-            $(e).css('color', color)
-        }
-    })
-}
-
-function hide(danmaku){
-    $('div.bilibili-danmaku').filter((i, e) => e.innerText.trim() === danmaku.trim()).remove()
+function appendSubtitle(subtitle, settings){
+    $$$('div#subtitle-list').prepend(`<h2 style="color: ${settings.subtitleColor}; opacity: 1.0">${subtitle}</h2>`)
 }
 
 function launchBottomInterval(){
     return setInterval(() => {
-        const btn = $('div#danmaku-buffer-prompt')
+        const btn = $$$('div#danmaku-buffer-prompt')
         if (btn.css('display') !== 'none'){
             btn.trigger('click')
         }
@@ -88,13 +76,13 @@ async function danmakuCheckCallback(mutationsList, settings, {hideJimakuDisable,
                 const subtitle = reg.exec(danmaku)?.groups?.cc
                 if (subtitle !== undefined && subtitle !== ""){
                     const n = node.innerText !== undefined ? node : node.parentElement
-                    const jimaku = $(n)
+                    const jimaku = $$$(n)
                     if (!hideJimakuDisable){
                         jimaku.css('display', 'none')
                         return  
                     }
                     if (!opacityDisable){
-                        const o = Math.round(settings.opacity / 100)
+                        const o = (settings.opacity / 100).toFixed(1)
                         jimaku.css('opacity', o)
                     }
                     if (!colorDisable){
@@ -118,7 +106,17 @@ function launchDanmakuStyleChanger(settings){
 // start
 async function process() {
     console.log('this page is using bilibili jimaku filter')
+    const roomLink =  $$$('a.room-cover.dp-i-block.p-relative.bg-cover').attr('href')
+    if (!roomLink){
+        console.log('the room is theme room')
+        $$$ = (s) => $($("iframe")[1].contentWindow.document).find(s)
+        return await process()
+    }
     const settings = await getSettings()
+    if (settings.blacklistRooms.includes(`${roomId}`)){
+        console.log('房間ID在黑名單上，已略過。')
+        return
+    }
     if (settings.vtbOnly){
         console.log('啟用僅限虛擬主播。')
         try{
@@ -139,13 +137,25 @@ async function process() {
             return await process()
         }
     }
-    $('#gift-control-vm').before(`
-        <div id="subtitle-list" style="background-color: gray; width: 100%; height: 100px; position: relative ;z-index: 3;overflow-y: auto; text-align: center">
+    $$$('#gift-control-vm').before(`
+        <div id="subtitle-list" class="subtitle-normal">
         </div>
         <div id="button-list" style="text-align: center; background-color: white">
             <button id="clear-record" class="button">刪除所有字幕記錄</button>
         </div>
         <style>
+        .subtitle-normal {
+            background-color: ${settings.backgroundColor}; 
+            width: 100%; 
+            height: 100px; 
+            position: relative;
+            z-index: 3;
+            overflow-y: auto; 
+            text-align: center;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: ${settings.subtitleColor} ${settings.backgroundColor};
+        }
         .button {
             background-color: black;
             border: none;
@@ -178,31 +188,47 @@ async function process() {
     `)
     if (settings.record){
         console.log('啟用同傳彈幕記錄')
-        $('#button-list').append('<button id="download-record" class="button">下載字幕記錄</button>')
-        $('button#download-record').on('click', downloadLog)
+        $$$('#button-list').append('<button id="download-record" class="button">下載字幕記錄</button>')
+        $$$('button#download-record').on('click', downloadLog)
     }
-    $('button#clear-record').on('click', clearRecords)
-    $('#button-list').append(`
+    $$$('button#clear-record').on('click', clearRecords)
+    $$$('#button-list').append(`
         <input type="checkbox" id="keep-bottom" value="Bike">
         <label for="keep-bottom">保持聊天欄最底(否則字幕無法出現)</label><br>
     `)
-    $('input#keep-bottom').on('click', e =>{
-        const checked = $(e.target).prop('checked')
+    $$$('input#keep-bottom').on('click', e =>{
+        const checked = $$$(e.target).prop('checked')
         if (checked){
             bottomInterval = launchBottomInterval()
         }else{
             clearInterval(bottomInterval)
         }
     })
+
+    // 屏幕彈幕監控
     launchDanmakuStyleChanger(settings)
+
     const previousRecord = getLocalRecord()
     for (const rec of previousRecord){
         subtitles.push(rec)
-        appendSubtitle(rec.text)
+        appendSubtitle(rec.text, settings)
     }
+
+    // 聊天室監控
     const observer = new Observer((mlist, obs) => callback(mlist, settings).catch(console.warn));
     observer.observe(list, config);
+
+    // 全屏切換監控
+    new Observer((mu, obs) => {
+        const currentState = $$$(mu[0].target).attr('data-player-state')
+        if (currentState === lastState) return
+        const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
+        fullScreenTrigger(fullScreen, settings)
+        lastState = currentState
+    }).observe(document.getElementsByClassName('bilibili-live-player relative')[0], {attributes: true})
 }
+
+let lastState = 'normal'
 
 function getLocalRecord(){
     try {
@@ -232,31 +258,53 @@ function downloadLog() {
 
 function clearRecords(){
     console.debug('deleting log...')
-    const st = $('div#subtitle-list > h2')
+    const st = $$$('div#subtitle-list > h2')
     if (st.length == 0){
         browser.runtime.sendMessage({title: '刪除失敗', message: '字幕記錄為空。'})
         return
     }
     subtitles = []
     localStorage.removeItem(key)
-    $('div#subtitle-list > h2').remove()
+    $$$('div#subtitle-list > h2').remove()
     browser.runtime.sendMessage({title: '刪除成功', message: '此直播房間的字幕記錄已被清空。'})
 }
 
-function draggable(element, check){
-    element.draggable({
-        disabled: !check,
-        revert: !check
-    })
+function toRgba(hex, opacity){
+    let c;
+        if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+            c= hex.substring(1).split('');
+            if(c.length== 3){
+                c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c= '0x'+c.join('');
+            return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+`,${opacity})`;
+        }
+        console.warn('bad Hex: '+hex);
+        return hex
+}
+
+function fullScreenTrigger(check, settings){
+    const element = $$$('div#subtitle-list')
+    const cfg = {disabled: !check}
+    element.draggable(cfg)
+    element.resizable(cfg)
       
       if (!check) {
-        element.css({
-          'top': '0',
-          'bottom': '0',
-          'right': '0',
-          'left': '0'
-        })
+        element.removeAttr('style')
+        $$$('div#button-list').before(element)
+      }else{
+          element.css({
+            'z-index': '9',
+            'cursor': 'move',
+            'position': 'absolute',
+            'bottom': '100px',
+            'background-color': toRgba(settings.backgroundColor, (settings.backgroundSubtitleOpacity / 100).toFixed(1)),
+            'width': '50%'
+          })
+          element.prependTo($$$('div.bilibili-live-player-video-area'))
       }
+
+      console.debug('fullscreen is now '+check)
 }
 
 async function sleep(ms){
