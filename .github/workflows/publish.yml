@@ -27,7 +27,7 @@ jobs:
         check-latest: true
     - name: Npm init and build
       run: |
-        npm install -g rollup
+        npm install -g webpack-cli
         npm install -g web-ext
         npm install
         npm run build
