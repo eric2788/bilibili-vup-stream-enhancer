@@ -2,7 +2,7 @@ env:
     version: 0.0.1
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
-name: Publish for this firefox extension
+name: bilibili jimaku filter publish sign
   
 on:
  push:
@@ -12,7 +12,7 @@ on:
   
 jobs:
  build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
   
     steps:
     - name: Checkout Source Code
