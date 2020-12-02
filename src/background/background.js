@@ -31,6 +31,10 @@ function getCurrentInput(){
         rooms.add(room)
     })
     setting.blacklistRooms = [...rooms]
+
+    setting.lineGap = $('#line-gap')[0].valueAsNumber
+    setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
+
     return setting
 }
 
@@ -63,6 +67,10 @@ function saveCurrentInput(setting){
     $('#color-subtitle')[0].value = setting.subtitleColor
     $('#color-subtitle-picker')[0].value = setting.subtitleColor
 
+    $('#line-gap')[0].valueAsNumber = setting.lineGap
+
+    $('#subtitle-size')[0].valueAsNumber = setting.subtitleSize
+
     for (const room of (setting.blacklistRooms ?? [])){
         appendBlackList(room)
     }
@@ -82,7 +90,7 @@ $('#save-settings').on('click', e => {
         console.log('prepare to save:')
         const set = getCurrentInput()
         console.log(set)
-        browser.storage.local.set(set).then(() => sendNotify({title: '設置成功', message: '你的設定已成功保存。'}))
+        browser.storage.sync.set(set).then(() => sendNotify({title: '设置成功', message: '你的设定已成功保存。'}))
     } 
 })
 

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <title>字幕過濾設定</title>
+    <title>字幕过滤设定</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="icons/icon.png">
@@ -20,30 +20,50 @@
 <body>
     <div class="container">
         <div class="jumbotron">
-            <h1 class="display-4">字幕過濾設定</h1>
-            <p class="lead">設定頁面</p>
+            <h1 class="display-4">字幕过滤设定</h1>
+            <p class="lead">设定页面</p>
             <hr class="my-4">
-            <p>儲存後需要到目標頁面進行刷新才能生效。</p>
+            <p>储存后需要到目标页面进行刷新才能生效。</p>
           </div>
         <form id="setting">
             <div class="form-group">
-                <label for="reg-cap">過濾使用的正則表達式</label>
+                <label for="reg-cap">过滤使用的正则表达式</label>
                 <input type="text" class="form-control" id="reg-cap" aria-describedby="reg-help">
-                <small id="reg-help" class="form-text text-muted">有關正則表達式可以到<a href="https://regex101.com">這裏</a>進行測試。</small>
-                <small id="reg-help" class="form-text text-muted">必須包含名稱為cc的正則組別以捕捉字幕。</small>
+                <small id="reg-help" class="form-text text-muted">有关正则表达式可以到<a href="https://regex101.com">这里</a>进行测试。</small>
+                <small id="reg-help" class="form-text text-muted">必须包含名称为cc的正则组别以捕捉字幕。</small>
             </div>
             <div class="form-group">
-                <label for="opacity-jimaku">同傳彈幕透明度</label>
+                <label for="opacity-jimaku">同传弹幕透明度</label>
                 <input type="number" class="form-control" id="opacity-jimaku" aria-describedby="opacity-help" max="100" min="-1">
-                <small id="opacity-help" class="form-text text-muted">範圍 0 ~ 100, -1 代表不改變。</small>
+                <small id="opacity-help" class="form-text text-muted">范围 0 ~ 100, -1 代表不改变。</small>
             </div>
             <div class="form-group">
-                <label for="opacity-background">全屏時字幕背景透明度</label>
+                <label for="opacity-background">全屏时字幕背景透明度</label>
                 <input type="number" class="form-control" id="opacity-background" aria-describedby="op-bg-help" max="100" min="0" required>
-                <small id="op-bg-help" class="form-text text-muted">範圍 0 ~ 100</small>
+                <small id="op-bg-help" class="form-text text-muted">范围 -50 ~ 100</small>
             </div>
             <div class="form-group">
-                <label for="color-jimaku">同傳彈幕顏色</label>
+                <label for="line-gap">字幕行距间隔</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="line-gap" aria-describedby="gap-help" max="100" min="-50" required>
+                    <div class="input-group-append">
+                        <span class="input-group-text">px</span>
+                    </div>
+                </div>
+                <small id="gap-help" class="form-text text-muted">范围 0 ~ 100</small>
+            </div>
+            <div class="form-group">
+                <label for="subtitle-size">字幕大小</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="subtitle-size" aria-describedby="size-help" max="100" min="0" required>
+                    <div class="input-group-append">
+                        <span class="input-group-text">px</span>
+                    </div>
+                </div>
+                <small id="size-help" class="form-text text-muted">范围 0 ~ 100</small>
+            </div>
+            <div class="form-group">
+                <label for="color-jimaku">同传弹幕颜色</label>
                 <div class="input-group">
                     <input type="text" class="form-control" id="color-jimaku" aria-describedby="color-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF">
                     <div class="input-group-append">
@@ -53,10 +73,10 @@
                         
                     </div>
                 </div>
-                <small id="color-help" clas="form-text text-muted">格式 #FFFFFF, 留空不改變。</small>
+                <small id="color-help" clas="form-text text-muted">格式 #FFFFFF, 留空不改变。</small>
             </div>
             <div class="form-group">
-                <label for="background-jimaku">字幕背景顏色</label>
+                <label for="background-jimaku">字幕背景颜色</label>
                 <div class="input-group">
                     <input type="text" class="form-control" id="background-jimaku" aria-describedby="bg-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
                     <div class="input-group-append">
@@ -80,33 +100,33 @@
                 <small id="st-help" clas="form-text text-muted">格式 #FFFFFF</small>
             </div>
             <div>
-                    <h3>房間 ID 黑名單</h3>
+                    <h3>房间 ID 黑名单</h3>
                     <ul id="blacklist" class="list-group list-group-flush" style="overflow-y: auto; height: 200px; border: black solid">
                     </ul>
-                    <label for="add-blacklist">添加房間 ID</label>
+                    <label for="add-blacklist">添加房间 ID</label>
                     <div class="input-group">
                         <input type="number" class="form-control" id="add-blacklist" aria-describedby="bl-help" min="1">
                         <div class="input-group-append">
                             <button class="btn btn-primary" id="blacklist-add-btn">新增</button>
                         </div>
                     </div>
-                    <small id="bl-help" clas="form-text text-muted">輸入必須為數字</small>
+                    <small id="bl-help" clas="form-text text-muted">输入必须为数字</small>
             </div>
             <div class="form-group">
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="hide-jimaku-danmaku">
-                    <label class="custom-control-label" for="hide-jimaku-danmaku">隱藏同傳彈幕</label>
+                    <label class="custom-control-label" for="hide-jimaku-danmaku">隐藏同传弹幕</label>
                 </div>
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="enable-record">
-                    <label class="custom-control-label" for="enable-record">啟用記錄功能</label>
+                    <label class="custom-control-label" for="enable-record">启用记录功能</label>
                 </div>
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="vtb-only">
-                    <label class="custom-control-label" for="vtb-only">僅限虛擬主播</label>
+                    <label class="custom-control-label" for="vtb-only">仅限虚拟主播</label>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary" id="save-settings">保存設定</button>
+            <button type="submit" class="btn btn-primary" id="save-settings">保存设定</button>
           </form>
         </div>
       </div>

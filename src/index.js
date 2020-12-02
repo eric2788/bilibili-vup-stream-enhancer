@@ -54,7 +54,12 @@ const callback = async function(mutationsList, settings) {
 }
 
 function appendSubtitle(subtitle, settings){
-    $$$('div#subtitle-list').prepend(`<h2 style="color: ${settings.subtitleColor}; opacity: 1.0">${subtitle}</h2>`)
+    $$$('div#subtitle-list').prepend(`<h2 style="
+    color: ${settings.subtitleColor}; 
+    opacity: 1.0; 
+    margin-bottom: ${settings.lineGap}px; 
+    font-size: ${settings.subtitleSize}px
+    ">${subtitle}</h2>`)
 }
 
 function launchBottomInterval(){
@@ -141,7 +146,7 @@ async function process() {
         <div id="subtitle-list" class="subtitle-normal">
         </div>
         <div id="button-list" style="text-align: center; background-color: white">
-            <button id="clear-record" class="button">刪除所有字幕記錄</button>
+            <button id="clear-record" class="button">删除所有字幕记录</button>
         </div>
         <style>
         .subtitle-normal {
@@ -188,13 +193,13 @@ async function process() {
     `)
     if (settings.record){
         console.log('啟用同傳彈幕記錄')
-        $$$('#button-list').append('<button id="download-record" class="button">下載字幕記錄</button>')
+        $$$('#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
         $$$('button#download-record').on('click', downloadLog)
     }
     $$$('button#clear-record').on('click', clearRecords)
     $$$('#button-list').append(`
         <input type="checkbox" id="keep-bottom" value="Bike">
-        <label for="keep-bottom">保持聊天欄最底(否則字幕無法出現)</label><br>
+        <label for="keep-bottom">保持聊天栏最底(否则字幕无法出现)</label><br>
     `)
     $$$('input#keep-bottom').on('click', e =>{
         const checked = $$$(e.target).prop('checked')
@@ -243,7 +248,7 @@ function downloadLog() {
     console.debug('downloading log...')
     const st = getLocalRecord()
     if (st.length == 0){
-        browser.runtime.sendMessage({title: '下載失敗', message: '字幕記錄為空。'})
+        browser.runtime.sendMessage({title: '下载失败', message: '字幕记录为空。'})
         return
     }
     const a = document.createElement("a");
@@ -253,20 +258,20 @@ function downloadLog() {
     a.download = `subtitles-${roomId}-${new Date().toISOString().substring(0, 10)}.log`
     a.click();
     URL.revokeObjectURL(url)
-    browser.runtime.sendMessage({title: '下載成功', message: '你的字幕記錄已保存。'})
+    browser.runtime.sendMessage({title: '下载成功', message: '你的字幕记录已保存。'})
 }
 
 function clearRecords(){
     console.debug('deleting log...')
     const st = $$$('div#subtitle-list > h2')
     if (st.length == 0){
-        browser.runtime.sendMessage({title: '刪除失敗', message: '字幕記錄為空。'})
+        browser.runtime.sendMessage({title: '刪除失敗', message: '字幕记录为空。'})
         return
     }
     subtitles = []
     localStorage.removeItem(key)
     $$$('div#subtitle-list > h2').remove()
-    browser.runtime.sendMessage({title: '刪除成功', message: '此直播房間的字幕記錄已被清空。'})
+    browser.runtime.sendMessage({title: '刪除成功', message: '此直播房间的字幕记录已被清空。'})
 }
 
 function toRgba(hex, opacity){

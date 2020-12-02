@@ -8,11 +8,13 @@ const defaultSettings = {
     backgroundSubtitleOpacity: 40,
     backgroundColor: '#808080',
     subtitleColor: '#FFFFFF',
-    blacklistRooms: []
+    blacklistRooms: [],
+    subtitleSize: 16,
+    lineGap: 0
 }
 
 async function getSettings(){
-    const res = await browser.storage.local.get()
+    const res = await browser.storage.sync.get()
     return {...defaultSettings, ...res}
 }
 

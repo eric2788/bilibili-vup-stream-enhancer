@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.0.1",
+    "version": "0.0.2",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
@@ -12,6 +12,13 @@
     },
     "icons": {
       "96": "icons/icon.png"
+    },
+
+    "applications": {
+      "gecko": {
+        "id": "{041b8202-e9d4-4a78-a9da-465c749ed26c}",
+        "strict_min_version": "42.0"
+      }
     },
 
     "permissions": [
