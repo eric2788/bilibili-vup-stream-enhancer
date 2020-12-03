@@ -204,7 +204,7 @@ async function process() {
     for (const rec of previousRecord){
         subtitles.push(rec)
         appendSubtitle(rec.text, settings)
-        beforeInsert.push(rec.text)
+        if(!settings.useWebSocket) beforeInsert.push(rec.text)
     }
 
     if (settings.useWebSocket){
