@@ -99,6 +99,18 @@
                 </div>
                 <small id="st-help" clas="form-text text-muted">格式 #FFFFFF</small>
             </div>
+            <div class="form-group">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="use-web-socket">
+                    <label class="custom-control-label" for="use-web-socket">使用 WebSocket 侦测文字</label>
+                </div>
+                <label for="danmaku-position">弹幕位置</label>
+                <select class="custom-select" id="danmaku-position" disabled>                
+                    <option value="normal">不改变</option>
+                    <option value="top">置顶</option>
+                    <option value="bottom">置底</option>
+                </select>
+            </div>
             <div>
                     <h3>房间 ID 黑名单</h3>
                     <ul id="blacklist" class="list-group list-group-flush" style="overflow-y: auto; height: 200px; border: black solid">

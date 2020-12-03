@@ -10,7 +10,11 @@ const defaultSettings = {
     subtitleColor: '#FFFFFF',
     blacklistRooms: [],
     subtitleSize: 16,
-    lineGap: 0
+    lineGap: 0,
+    useWebSocket: false,
+    webSocketSettings: {
+        danmakuPosition: 'normal'
+    }
 }
 
 async function getSettings(){

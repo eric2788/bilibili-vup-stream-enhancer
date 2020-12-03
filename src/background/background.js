@@ -34,7 +34,10 @@ function getCurrentInput(){
 
     setting.lineGap = $('#line-gap')[0].valueAsNumber
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
-
+    setting.useWebSocket = $('#use-web-socket').prop('checked')
+    setting.webSocketSettings = {
+        danmakuPosition: $('#danmaku-position')[0].value
+    }
     return setting
 }
 
@@ -74,6 +77,10 @@ function saveCurrentInput(setting){
     for (const room of (setting.blacklistRooms ?? [])){
         appendBlackList(room)
     }
+
+    $('#use-web-socket').prop('checked', setting.useWebSocket)
+    $('#danmaku-position')[0].value = setting.webSocketSettings.danmakuPosition
+    $('#danmaku-position').attr('disabled', !setting.useWebSocket)
 }
 
 
@@ -106,6 +113,14 @@ $('#blacklist-add-btn').on('click', e => {
     $('#add-blacklist')[0].value = ''
 })
 
+$('#use-web-socket').on('change', e => {
+    const checked =  $(e.target).prop('checked')
+    $('#danmaku-position').attr('disabled', !checked)
+    if (!checked){
+        $('#danmaku-position')[0].value = 'normal'
+    }
+})
+
 function hookColor(from){
     $(`#${from}-picker`).on('change', e => {
         $(`#${from}`)[0].value = e.target.value
@@ -122,4 +137,12 @@ async function sendNotify({title, message}){
     })
 }
 
-browser.runtime.onMessage.addListener(sendNotify)
+browser.runtime.onMessage.addListener((message, {tab}) => {
+    switch (message.type){
+        case "notify":
+            sendNotify(message.data);
+            break;
+        default:
+            break;
+    }
+})

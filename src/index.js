@@ -9,7 +9,8 @@ const config = { attributes: false, childList: true, subtree: true };
 let $$$ = $
 
 let subtitles = []
-const danmakuTargets = new Set()
+
+const beforeInsert = []
 
 const roomReg = /^\/(?<id>\d+)/g
 const roomId = parseInt(roomReg.exec(location.pathname)?.groups?.id)
@@ -26,32 +27,7 @@ const key = `jimaku.${roomId}`
 
 const Observer = window.MutationObserver || window.MozMutationObserver
 
-const callback = async function(mutationsList, settings) {
-    for(const mu of mutationsList){
-        if (mu.addedNodes.length < 1) continue
-        for (const node of mu.addedNodes){
-            const danmaku = $$$(node)?.attr('data-danmaku')?.trim()
-            if(danmaku !== undefined){
-                console.debug(danmaku)
-                const reg = new RegExp(settings.regex)
-                const subtitle = reg.exec(danmaku)?.groups?.cc
-                if (subtitle !== undefined && subtitle !== ""){
-                    appendSubtitle(subtitle, settings)
-                    if (settings.record){
-                        subtitles.push({
-                            date: new Date(),
-                            text: subtitle
-                        })
-                        localStorage.setItem(key, JSON.stringify(subtitles))
-                    }
-                    if (settings.hideJimakuDanmaku || colorReg.test(settings.color) || settings.opacity > -1){
-                       danmakuTargets.add(danmaku)
-                    }
-                }
-            }
-        }
-    }
-}
+
 
 function appendSubtitle(subtitle, settings){
     $$$('div#subtitle-list').prepend(`<h2 style="
@@ -71,28 +47,37 @@ function launchBottomInterval(){
     }, 1000)
 }
 
+
+function toJimaku(danmaku, regex){
+    if(danmaku !== undefined){
+        //console.debug(danmaku)
+        const reg = new RegExp(regex)
+        danmaku = reg.exec(danmaku)?.groups?.cc
+        if (danmaku === ""){
+            danmaku = undefined
+        }
+    }
+    return danmaku
+}
+
 async function danmakuCheckCallback(mutationsList, settings, {hideJimakuDisable, opacityDisable, colorDisable}){
     for(const mu of mutationsList){
         if (mu.addedNodes.length < 1) continue
         for (const node of mu.addedNodes){
             const danmaku = node?.innerText?.trim() ?? node?.data?.trim()
-            if(danmaku !== undefined){
-                const reg = new RegExp(settings.regex)
-                const subtitle = reg.exec(danmaku)?.groups?.cc
-                if (subtitle !== undefined && subtitle !== ""){
-                    const n = node.innerText !== undefined ? node : node.parentElement
-                    const jimaku = $$$(n)
-                    if (!hideJimakuDisable){
-                        jimaku.css('display', 'none')
-                        return  
-                    }
-                    if (!opacityDisable){
-                        const o = (settings.opacity / 100).toFixed(1)
-                        jimaku.css('opacity', o)
-                    }
-                    if (!colorDisable){
-                        jimaku.css('color', settings.color)
-                    }
+            if(toJimaku(danmaku, settings.regex) !== undefined){
+                const n = node.innerText !== undefined ? node : node.parentElement
+                const jimaku = $$$(n)
+                if (!hideJimakuDisable){
+                    jimaku.css('display', 'none')
+                    return  
+                }
+                if (!opacityDisable){
+                    const o = (settings.opacity / 100).toFixed(1)
+                    jimaku.css('opacity', o)
+                }
+                if (!colorDisable){
+                    jimaku.css('color', settings.color)
                 }
             }
         }
@@ -197,10 +182,12 @@ async function process() {
         $$$('button#download-record').on('click', downloadLog)
     }
     $$$('button#clear-record').on('click', clearRecords)
-    $$$('#button-list').append(`
-        <input type="checkbox" id="keep-bottom" value="Bike">
-        <label for="keep-bottom">保持聊天栏最底(否则字幕无法出现)</label><br>
-    `)
+    if(!settings.useWebSocket){
+        $$$('#button-list').append(`
+            <input type="checkbox" id="keep-bottom">
+            <label for="keep-bottom">保持聊天栏最底(否则字幕无法出现)</label><br>
+        `)
+    }
     $$$('input#keep-bottom').on('click', e =>{
         const checked = $$$(e.target).prop('checked')
         if (checked){
@@ -217,11 +204,16 @@ async function process() {
     for (const rec of previousRecord){
         subtitles.push(rec)
         appendSubtitle(rec.text, settings)
+        beforeInsert.push(rec.text)
     }
 
-    // 聊天室監控
-    const observer = new Observer((mlist, obs) => callback(mlist, settings).catch(console.warn));
-    observer.observe(list, config);
+    if (settings.useWebSocket){
+        // WebSocket 监控
+        wsMonitor(settings)
+    }else{
+        // 聊天室監控
+        chatMonitor(settings)
+    }
 
     // 全屏切換監控
     new Observer((mu, obs) => {
@@ -231,6 +223,82 @@ async function process() {
         fullScreenTrigger(fullScreen, settings)
         lastState = currentState
     }).observe(document.getElementsByClassName('bilibili-live-player relative')[0], {attributes: true})
+}
+
+function pushSubtitle(subtitle, settings){
+    appendSubtitle(subtitle, settings)
+    if (settings.record){
+        subtitles.push({
+            date: new Date(),
+            text: subtitle
+        })
+        localStorage.setItem(key, JSON.stringify(subtitles))
+    }
+}
+
+function chatMonitor(settings){
+    const callback = async function(mutationsList) {
+        for(const mu of mutationsList){
+            if (mu.addedNodes.length < 1) continue
+            for (const node of mu.addedNodes){
+                const danmaku = $$$(node)?.attr('data-danmaku')?.trim()
+                if (danmaku !== undefined) console.debug(danmaku)
+                const subtitle = toJimaku(danmaku, settings.regex)
+                if(subtitle !== undefined){
+                    if (beforeInsert.shift() === subtitle){
+                        continue
+                    }
+                    pushSubtitle(subtitle, settings)
+                }
+            }
+        }
+    }
+    const observer = new Observer((mlist, obs) => callback(mlist).catch(console.warn));
+    observer.observe(list, config);
+}
+
+function wsMonitor(settings){
+    /*
+    const a = `
+            <script>
+                WebSocket.prototype._send = WebSocket.prototype.send;
+                WebSocket.prototype.send = function(data) {
+                    this._send(data);
+                    this.addEventListener('message', function(msg) {
+                        const event = new CustomEvent('ws:message', {detail: msg})
+                        window.dispatchEvent(event)
+                    },{ cature: true } true);
+                    this.send = this._send
+                }
+                console.log('ws is injected')
+            </script>
+     `
+     */
+     const b = `
+                <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
+                <script src="${browser.runtime.getURL('cdn/blive-proxy.js')}"></script>
+     `
+    $$$(document.head).append(b)
+    window.addEventListener('ws:bilibili-live', ({detail: {cmd, command}}) => {
+        if (cmd === 'DANMU_MSG'){
+            const danmaku = command.info[1]
+            const jimaku = toJimaku(danmaku, settings.regex)
+            if (jimaku !== undefined){
+                pushSubtitle(jimaku, settings)
+                //在使用 websocket 的情况下，可以强制置顶和置底弹幕
+                switch(settings.webSocketSettings.danmakuPosition){
+                    case "top":
+                        command.info[0][1] = 5
+                        break;
+                    case "bottom":
+                        command.info[0][1] = 4
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    })
 }
 
 let lastState = 'normal'
@@ -244,11 +312,15 @@ function getLocalRecord(){
     }
 }
 
+function sendNotify(data){
+    browser.runtime.sendMessage({type: 'notify', data}).catch(console.warn)
+}
+
 function downloadLog() {
     console.debug('downloading log...')
     const st = getLocalRecord()
     if (st.length == 0){
-        browser.runtime.sendMessage({title: '下载失败', message: '字幕记录为空。'})
+        sendNotify({title: '下载失败', message: '字幕记录为空。'})
         return
     }
     const a = document.createElement("a");
@@ -258,20 +330,20 @@ function downloadLog() {
     a.download = `subtitles-${roomId}-${new Date().toISOString().substring(0, 10)}.log`
     a.click();
     URL.revokeObjectURL(url)
-    browser.runtime.sendMessage({title: '下载成功', message: '你的字幕记录已保存。'})
+    sendNotify({title: '下载成功', message: '你的字幕记录已保存。'})
 }
 
 function clearRecords(){
     console.debug('deleting log...')
     const st = $$$('div#subtitle-list > h2')
     if (st.length == 0){
-        browser.runtime.sendMessage({title: '刪除失敗', message: '字幕记录为空。'})
+        sendNotify({title: '刪除失敗', message: '字幕记录为空。'})
         return
     }
     subtitles = []
     localStorage.removeItem(key)
     $$$('div#subtitle-list > h2').remove()
-    browser.runtime.sendMessage({title: '刪除成功', message: '此直播房间的字幕记录已被清空。'})
+    sendNotify({title: '刪除成功', message: '此直播房间的字幕记录已被清空。'})
 }
 
 function toRgba(hex, opacity){
