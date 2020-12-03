@@ -279,19 +279,19 @@ function wsMonitor(settings){
                 <script src="${browser.runtime.getURL('cdn/blive-proxy.js')}"></script>
      `
     $$$(document.head).append(b)
-    window.addEventListener('ws:bilibili-live', ({detail: {cmd, command}}) => {
-        if (cmd === 'DANMU_MSG'){
-            const danmaku = command.info[1]
+    window.addEventListener('ws:bilibili-live', ({detail: e}) => {
+        if (e.cmd === 'DANMU_MSG'){
+            const danmaku = e.command.info[1]
             const jimaku = toJimaku(danmaku, settings.regex)
             if (jimaku !== undefined){
                 pushSubtitle(jimaku, settings)
                 //在使用 websocket 的情况下，可以强制置顶和置底弹幕
                 switch(settings.webSocketSettings.danmakuPosition){
                     case "top":
-                        command.info[0][1] = 5
+                        e.command.info[0][1] = 5
                         break;
                     case "bottom":
-                        command.info[0][1] = 4
+                        e.command.info[0][1] = 4
                         break;
                     default:
                         break;
