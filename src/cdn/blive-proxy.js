@@ -40,12 +40,14 @@
     }
   
     function hook() {
+      console.log('injecting blive proxy..')
       window.WebSocket = new Proxy(window.WebSocket, {
         construct(target, args) {
           let obj = new target(...args)
           return new Proxy(obj, proxyHandler)
         }
       })
+      console.log('injected successfull')
     }
   
     let proxyHandler = {

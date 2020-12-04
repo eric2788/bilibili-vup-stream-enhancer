@@ -5,6 +5,13 @@ const danmakuScreen = document.getElementsByClassName('bilibili-live-player-vide
 
 const config = { attributes: false, childList: true, subtree: true };
 
+// Injecting web socket inspector on start
+const b = `
+    <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
+    <script src="${browser.runtime.getURL('cdn/blive-proxy.js')}"></script>
+`
+$(document.head).append(b)
+
 // for reassign
 let $$$ = $
 
@@ -274,24 +281,20 @@ function wsMonitor(settings){
             </script>
      `
      */
-     const b = `
-                <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
-                <script src="${browser.runtime.getURL('cdn/blive-proxy.js')}"></script>
-     `
-    $$$(document.head).append(b)
-    window.addEventListener('ws:bilibili-live', ({detail: e}) => {
-        if (e.cmd === 'DANMU_MSG'){
-            const danmaku = e.command.info[1]
+    window.addEventListener('ws:bilibili-live', ({detail: {cmd, command}}) => {
+        if (cmd === 'DANMU_MSG'){
+            const danmaku = command.info[1]
+            if (danmaku !== undefined) console.debug(danmaku)
             const jimaku = toJimaku(danmaku, settings.regex)
             if (jimaku !== undefined){
                 pushSubtitle(jimaku, settings)
                 //在使用 websocket 的情况下，可以强制置顶和置底弹幕
                 switch(settings.webSocketSettings.danmakuPosition){
                     case "top":
-                        e.command.info[0][1] = 5
+                        command.info[0][1] = 5
                         break;
                     case "bottom":
-                        e.command.info[0][1] = 4
+                        command.info[0][1] = 4
                         break;
                     default:
                         break;
