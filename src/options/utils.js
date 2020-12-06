@@ -9,6 +9,7 @@ const defaultSettings = {
     backgroundColor: '#808080',
     subtitleColor: '#FFFFFF',
     blacklistRooms: [],
+    useAsWhitelist: false,
     subtitleSize: 16,
     lineGap: 0,
     useWebSocket: false,

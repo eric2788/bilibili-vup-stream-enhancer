@@ -39,6 +39,7 @@ function getCurrentInput(){
         danmakuPosition: $('#danmaku-position')[0].value
     }
     setting.useStreamingTime = $('#use-streaming-time').prop('checked')
+    setting.useAsWhitelist = $('#use-whitelist').prop('checked')
     return setting
 }
 
@@ -84,6 +85,8 @@ function saveCurrentInput(setting){
     $('#danmaku-position').attr('disabled', !setting.useWebSocket)
     $('#use-streaming-time').prop('checked', setting.useStreamingTime)
     $('label[for=use-streaming-time]')[0].innerText = setting.useStreamingTime ? '使用串流时间戳记' : '使用真实时间戳记'
+
+    $('#use-whitelist').prop('checked', setting.useAsWhitelist)
 }
 
 

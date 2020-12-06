@@ -22,6 +22,7 @@ const roomId = parseInt(roomReg.exec(location.pathname)?.groups?.id)
 const colorReg = /^#[0-9A-F]{6}$/ig
 
 if (isNaN(roomId)){
+    console.warn('未知直播房間。')
     throw new Error('未知直播房間。')
 }
 
@@ -116,7 +117,7 @@ async function process() {
         return
     }
     const settings = await getSettings()
-    if (settings.blacklistRooms.includes(`${roomId}`)){
+    if (settings.blacklistRooms.includes(`${roomId}`) === !settings.useAsWhitelist){
         console.log('房間ID在黑名單上，已略過。')
         return
     }
