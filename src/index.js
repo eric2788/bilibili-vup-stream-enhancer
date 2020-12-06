@@ -53,7 +53,7 @@ function launchBottomInterval(){
 }
 
 function getTimeStamp(){
-    return new Date(s.date).toTimeString().substring(0, 8)
+    return new Date().toTimeString().substring(0, 8)
 }
 
 function getStreamingTime(){
