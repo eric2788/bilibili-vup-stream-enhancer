@@ -38,6 +38,7 @@ function getCurrentInput(){
     setting.webSocketSettings = {
         danmakuPosition: $('#danmaku-position')[0].value
     }
+    setting.useStreamingTime = $('#use-streaming-time').prop('checked')
     return setting
 }
 
@@ -81,7 +82,10 @@ function saveCurrentInput(setting){
     $('#use-web-socket').prop('checked', setting.useWebSocket)
     $('#danmaku-position')[0].value = setting.webSocketSettings.danmakuPosition
     $('#danmaku-position').attr('disabled', !setting.useWebSocket)
+    $('#use-streaming-time').prop('checked', setting.useStreamingTime)
+    $('label[for=use-streaming-time]')[0].innerText = setting.useStreamingTime ? '使用串流时间戳记' : '使用真实时间戳记'
 }
+
 
 
 hookColor('color-jimaku')
@@ -97,9 +101,15 @@ $('#save-settings').on('click', e => {
         console.log('prepare to save:')
         const set = getCurrentInput()
         console.log(set)
-        browser.storage.sync.set(set).then(() => sendNotify({title: '设置成功', message: '你的设定已成功保存。'}))
+        browser.storage.sync.set(set).then(() => {
+            if (!sendNotify({title: '设置成功', message: '你的设定已成功保存。'})){
+                window.alert('你的设定已成功保存。')
+            }
+        }).catch(console.error)
     } 
 })
+
+
 
 $('#blacklist-add-btn').on('click', e => {
     console.log('blacklist button')
@@ -121,6 +131,11 @@ $('#use-web-socket').on('change', e => {
     }
 })
 
+$('#use-streaming-time').on('change', e => {
+    const s = $(e.target).prop('checked')
+    $('label[for=use-streaming-time]')[0].innerText = s ? '使用串流时间戳记' : '使用真实时间戳记'
+  })
+
 function hookColor(from){
     $(`#${from}-picker`).on('change', e => {
         $(`#${from}`)[0].value = e.target.value
@@ -130,17 +145,18 @@ function hookColor(from){
 
 async function sendNotify({title, message}){
     console.log('sending notification')
-    return browser.notifications.create({
+    return browser?.notifications?.create({
         type: 'basic',
         title,
-        message
-    })
+        message,
+        iconUrl: browser.runtime.getURL('icons/icon.png')
+    }).catch(console.error)
 }
 
 browser.runtime.onMessage.addListener((message, {tab}) => {
     switch (message.type){
         case "notify":
-            sendNotify(message.data);
+            sendNotify(message.data)
             break;
         default:
             break;

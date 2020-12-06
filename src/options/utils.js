@@ -1,5 +1,5 @@
 const defaultSettings = {
-    regex: '^【(?<cc>.+?)】*$',
+    regex: '^(?<n>.+?)?【(?<cc>.+?)】*$',
     opacity: -1,
     color: '',
     hideJimakuDanmaku: false,
@@ -14,7 +14,8 @@ const defaultSettings = {
     useWebSocket: false,
     webSocketSettings: {
         danmakuPosition: 'normal'
-    }
+    },
+    useStreamingTime: false
 }
 
 async function getSettings(){

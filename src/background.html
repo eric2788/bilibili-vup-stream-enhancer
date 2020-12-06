@@ -31,6 +31,7 @@
                 <input type="text" class="form-control" id="reg-cap" aria-describedby="reg-help">
                 <small id="reg-help" class="form-text text-muted">有关正则表达式可以到<a href="https://regex101.com">这里</a>进行测试。</small>
                 <small id="reg-help" class="form-text text-muted">必须包含名称为cc的正则组别以捕捉字幕。</small>
+                <small id="reg-help" class="form-text text-muted">可包含名称为n的正则组别以捕捉说话者。</small>
             </div>
             <div class="form-group">
                 <label for="opacity-jimaku">同传弹幕透明度</label>
@@ -98,6 +99,12 @@
                     </div>
                 </div>
                 <small id="st-help" clas="form-text text-muted">格式 #FFFFFF</small>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="use-streaming-time">
+                    <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
+                </div>
             </div>
             <div class="form-group">
                 <div class="custom-control custom-switch">

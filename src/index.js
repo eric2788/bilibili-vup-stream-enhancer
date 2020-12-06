@@ -1,8 +1,5 @@
 import getSettings from './options/utils'
 
-const list = document.getElementById('chat-items')
-const danmakuScreen = document.getElementsByClassName('bilibili-live-player-video-danmaku')[0]
-
 const config = { attributes: false, childList: true, subtree: true };
 
 // Injecting web socket inspector on start
@@ -13,7 +10,7 @@ const b = `
 $(document.head).append(b)
 
 // for reassign
-let $$$ = $
+//let $$$ = $
 
 let subtitles = []
 
@@ -37,7 +34,7 @@ const Observer = window.MutationObserver || window.MozMutationObserver
 
 
 function appendSubtitle(subtitle, settings){
-    $$$('div#subtitle-list').prepend(`<h2 style="
+    $('div#subtitle-list').prepend(`<h2 style="
     color: ${settings.subtitleColor}; 
     opacity: 1.0; 
     margin-bottom: ${settings.lineGap}px; 
@@ -47,22 +44,32 @@ function appendSubtitle(subtitle, settings){
 
 function launchBottomInterval(){
     return setInterval(() => {
-        const btn = $$$('div#danmaku-buffer-prompt')
+        const btn = $('div#danmaku-buffer-prompt')
         if (btn.css('display') !== 'none'){
             btn.trigger('click')
         }
     }, 1000)
 }
 
+function getTimeStamp(){
+    return new Date(s.date).toTimeString().substring(0, 8)
+}
+
+function getStreamingTime(){
+    return $('[data-title=直播持续时间] > span')[0].innerText
+}
 
 function toJimaku(danmaku, regex){
     if(danmaku !== undefined){
-        //console.debug(danmaku)
+        console.debug(danmaku)
         const reg = new RegExp(regex)
-        danmaku = reg.exec(danmaku)?.groups?.cc
+        const g = reg.exec(danmaku)?.groups
+        danmaku = g?.cc
+        const name = g?.n
         if (danmaku === ""){
             danmaku = undefined
         }
+        return name && danmaku ? `${name}: ${danmaku}` : danmaku
     }
     return danmaku
 }
@@ -74,7 +81,7 @@ async function danmakuCheckCallback(mutationsList, settings, {hideJimakuDisable,
             const danmaku = node?.innerText?.trim() ?? node?.data?.trim()
             if(toJimaku(danmaku, settings.regex) !== undefined){
                 const n = node.innerText !== undefined ? node : node.parentElement
-                const jimaku = $$$(n)
+                const jimaku = $(n)
                 if (!hideJimakuDisable){
                     jimaku.css('display', 'none')
                     return  
@@ -97,17 +104,16 @@ function launchDanmakuStyleChanger(settings){
     const hideJimakuDisable = !settings.hideJimakuDanmaku
     if (opacityDisable && colorDisable && hideJimakuDisable) return
     const danmakuObserver = new Observer((mu, obs) => danmakuCheckCallback(mu, settings, {hideJimakuDisable, opacityDisable, colorDisable}).catch(console.warn))
-    danmakuObserver.observe(danmakuScreen, config)
+    danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0], config)
 }
 
 // start
 async function process() {
     console.log('this page is using bilibili jimaku filter')
-    const roomLink =  $$$('a.room-cover.dp-i-block.p-relative.bg-cover').attr('href')
+    const roomLink =  $('a.room-owner-username').attr('href')
     if (!roomLink){
-        console.log('the room is theme room')
-        $$$ = (s) => $($("iframe")[1].contentWindow.document).find(s)
-        return await process()
+        console.log('the room is theme room, skipped')
+        return
     }
     const settings = await getSettings()
     if (settings.blacklistRooms.includes(`${roomId}`)){
@@ -134,7 +140,7 @@ async function process() {
             return await process()
         }
     }
-    $$$('#gift-control-vm').before(`
+    $('#gift-control-vm').before(`
         <div id="subtitle-list" class="subtitle-normal">
         </div>
         <div id="button-list" style="text-align: center; background-color: white">
@@ -152,6 +158,17 @@ async function process() {
             overflow-x: hidden;
             scrollbar-width: thin;
             scrollbar-color: ${settings.subtitleColor} ${settings.backgroundColor};
+        }
+        .subtitle-normal::-webkit-scrollbar {
+            width: 5px;
+        }
+         
+        .subtitle-normal::-webkit-scrollbar-track {
+            background-color: ${settings.backgroundColor};
+        }
+         
+        .subtitle-normal::-webkit-scrollbar-thumb {
+            background-color: ${settings.subtitleColor};
         }
         .button {
             background-color: black;
@@ -185,18 +202,18 @@ async function process() {
     `)
     if (settings.record){
         console.log('啟用同傳彈幕記錄')
-        $$$('#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
-        $$$('button#download-record').on('click', downloadLog)
+        $('#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
+        $('button#download-record').on('click', downloadLog)
     }
-    $$$('button#clear-record').on('click', clearRecords)
+    $('button#clear-record').on('click', clearRecords)
     if(!settings.useWebSocket){
-        $$$('#button-list').append(`
+        $('#button-list').append(`
             <input type="checkbox" id="keep-bottom">
             <label for="keep-bottom">保持聊天栏最底(否则字幕无法出现)</label><br>
         `)
     }
-    $$$('input#keep-bottom').on('click', e =>{
-        const checked = $$$(e.target).prop('checked')
+    $('input#keep-bottom').on('click', e =>{
+        const checked = $(e.target).prop('checked')
         if (checked){
             bottomInterval = launchBottomInterval()
         }else{
@@ -224,19 +241,20 @@ async function process() {
 
     // 全屏切換監控
     new Observer((mu, obs) => {
-        const currentState = $$$(mu[0].target).attr('data-player-state')
+        const currentState = $(mu[0].target).attr('data-player-state')
         if (currentState === lastState) return
         const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
         fullScreenTrigger(fullScreen, settings)
         lastState = currentState
-    }).observe(document.getElementsByClassName('bilibili-live-player relative')[0], {attributes: true})
+    }).observe($('.bilibili-live-player.relative')[0], {attributes: true})
 }
 
 function pushSubtitle(subtitle, settings){
     appendSubtitle(subtitle, settings)
+    const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
     if (settings.record){
         subtitles.push({
-            date: new Date(),
+            date,
             text: subtitle
         })
         localStorage.setItem(key, JSON.stringify(subtitles))
@@ -248,8 +266,7 @@ function chatMonitor(settings){
         for(const mu of mutationsList){
             if (mu.addedNodes.length < 1) continue
             for (const node of mu.addedNodes){
-                const danmaku = $$$(node)?.attr('data-danmaku')?.trim()
-                if (danmaku !== undefined) console.debug(danmaku)
+                const danmaku = $(node)?.attr('data-danmaku')?.trim()
                 const subtitle = toJimaku(danmaku, settings.regex)
                 if(subtitle !== undefined){
                     if (beforeInsert.shift() === subtitle){
@@ -261,7 +278,7 @@ function chatMonitor(settings){
         }
     }
     const observer = new Observer((mlist, obs) => callback(mlist).catch(console.warn));
-    observer.observe(list, config);
+    observer.observe($('#chat-items')[0], config);
 }
 
 function wsMonitor(settings){
@@ -284,7 +301,6 @@ function wsMonitor(settings){
     window.addEventListener('ws:bilibili-live', ({detail: {cmd, command}}) => {
         if (cmd === 'DANMU_MSG'){
             const danmaku = command.info[1]
-            if (danmaku !== undefined) console.debug(danmaku)
             const jimaku = toJimaku(danmaku, settings.regex)
             if (jimaku !== undefined){
                 pushSubtitle(jimaku, settings)
@@ -316,7 +332,7 @@ function getLocalRecord(){
 }
 
 function sendNotify(data){
-    browser.runtime.sendMessage({type: 'notify', data}).catch(console.warn)
+    browser.runtime.sendMessage({type: 'notify', data}).catch(console.error)
 }
 
 function downloadLog() {
@@ -327,7 +343,7 @@ function downloadLog() {
         return
     }
     const a = document.createElement("a");
-    const file = new Blob([st.map(s => `[${new Date(s.date).toTimeString().substring(0, 8)}] ${s.text}`).join('\n')], {type: 'text/plain'});
+    const file = new Blob([st.map(s => `[${s.date}] ${s.text}`).join('\n')], {type: 'text/plain'});
     const url = URL.createObjectURL(file);
     a.href = url;
     a.download = `subtitles-${roomId}-${new Date().toISOString().substring(0, 10)}.log`
@@ -338,14 +354,14 @@ function downloadLog() {
 
 function clearRecords(){
     console.debug('deleting log...')
-    const st = $$$('div#subtitle-list > h2')
+    const st = $('div#subtitle-list > h2')
     if (st.length == 0){
         sendNotify({title: '刪除失敗', message: '字幕记录为空。'})
         return
     }
     subtitles = []
     localStorage.removeItem(key)
-    $$$('div#subtitle-list > h2').remove()
+    $('div#subtitle-list > h2').remove()
     sendNotify({title: '刪除成功', message: '此直播房间的字幕记录已被清空。'})
 }
 
@@ -364,14 +380,14 @@ function toRgba(hex, opacity){
 }
 
 function fullScreenTrigger(check, settings){
-    const element = $$$('div#subtitle-list')
+    const element = $('div#subtitle-list')
     const cfg = {disabled: !check}
     element.draggable(cfg)
     element.resizable(cfg)
       
       if (!check) {
         element.removeAttr('style')
-        $$$('div#button-list').before(element)
+        $('div#button-list').before(element)
       }else{
           element.css({
             'z-index': '9',
@@ -381,7 +397,7 @@ function fullScreenTrigger(check, settings){
             'background-color': toRgba(settings.backgroundColor, (settings.backgroundSubtitleOpacity / 100).toFixed(1)),
             'width': '50%'
           })
-          element.prependTo($$$('div.bilibili-live-player-video-area'))
+          element.prependTo($('div.bilibili-live-player-video-area'))
       }
 
       console.debug('fullscreen is now '+check)
