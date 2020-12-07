@@ -1,6 +1,6 @@
 ---
 name: Bug 回报范例
-about: Create a report to help us improve
+about: 回报问题並反映
 title: ''
 labels: BUG, 求助
 assignees: ''
