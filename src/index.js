@@ -35,12 +35,9 @@ const Observer = window.MutationObserver || window.MozMutationObserver
 
 
 function appendSubtitle(subtitle, settings){
-    $('div#subtitle-list').prepend(`<h2 style="
-    color: ${settings.subtitleColor}; 
-    opacity: 1.0; 
-    margin-bottom: ${settings.lineGap}px; 
-    font-size: ${settings.subtitleSize}px
-    ">${subtitle}</h2>`)
+    $('div#subtitle-list').prepend(`
+        <p>${subtitle}</p>
+    `)
 }
 
 function launchBottomInterval(){
@@ -171,7 +168,7 @@ async function process() {
         }
          
         .subtitle-normal::-webkit-scrollbar-thumb {
-            background-color: ${bgc};
+            background-color: ${stc};
         }
         .button {
             background-color: ${bc};
@@ -198,8 +195,13 @@ async function process() {
               opacity: 0;
             }
           }
-          div#subtitle-list h2 {
+          div#subtitle-list p {
               animation: trans .3s ease-out;
+              font-weight: bold;
+              color: ${settings.subtitleColor}; 
+              opacity: 1.0; 
+              margin: ${settings.lineGap}px;
+              font-size: ${settings.subtitleSize}px;  
           }
         </style>
     `)
@@ -359,14 +361,14 @@ function downloadLog() {
 
 function clearRecords(){
     console.debug('deleting log...')
-    const st = $('div#subtitle-list > h2')
+    const st = $('div#subtitle-list > p')
     if (st.length == 0){
         sendNotify({title: '刪除失敗', message: '字幕记录为空。'})
         return
     }
     subtitles = []
     localStorage.removeItem(key)
-    $('div#subtitle-list > h2').remove()
+    $('div#subtitle-list > p').remove()
     sendNotify({title: '刪除成功', message: '此直播房间的字幕记录已被清空。'})
 }
 

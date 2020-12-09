@@ -16,7 +16,7 @@ const defaultSettings = {
     blacklistRooms: [],
     useAsWhitelist: false,
     subtitleSize: 16,
-    lineGap: 0,
+    lineGap: 10,
     useWebSocket: false,
     webSocketSettings: {
         danmakuPosition: 'normal'
