@@ -3,3 +3,4 @@
 package-lock.json
 size-plugin.json
 /web-ext-artifacts/
+dist.**

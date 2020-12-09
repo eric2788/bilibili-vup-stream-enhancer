@@ -62,7 +62,6 @@ function getStreamingTime(){
 
 function toJimaku(danmaku, regex){
     if(danmaku !== undefined){
-        console.debug(danmaku)
         const reg = new RegExp(regex)
         const g = reg.exec(danmaku)?.groups
         danmaku = g?.cc
@@ -141,40 +140,43 @@ async function process() {
             return await process()
         }
     }
+    const {backgroundListColor: blc, backgroundColor: bc, textColor: tc} = settings.buttonSettings
+    const {backgroundColor: bgc, subtitleColor: stc, backgroundHeight: bgh} = settings
+
     $('#gift-control-vm').before(`
         <div id="subtitle-list" class="subtitle-normal">
         </div>
-        <div id="button-list" style="text-align: center; background-color: white">
+        <div id="button-list" style="text-align: center; background-color: ${blc}">
             <button id="clear-record" class="button">删除所有字幕记录</button>
         </div>
         <style>
         .subtitle-normal {
-            background-color: ${settings.backgroundColor}; 
+            background-color: ${bgc}; 
             width: 100%; 
-            height: 100px; 
+            height: ${bgh}px; 
             position: relative;
             z-index: 3;
             overflow-y: auto; 
             text-align: center;
             overflow-x: hidden;
             scrollbar-width: thin;
-            scrollbar-color: ${settings.subtitleColor} ${settings.backgroundColor};
+            scrollbar-color: ${stc} ${bgc};
         }
         .subtitle-normal::-webkit-scrollbar {
             width: 5px;
         }
          
         .subtitle-normal::-webkit-scrollbar-track {
-            background-color: ${settings.backgroundColor};
+            background-color: ${bgc};
         }
          
         .subtitle-normal::-webkit-scrollbar-thumb {
-            background-color: ${settings.subtitleColor};
+            background-color: ${bgc};
         }
         .button {
-            background-color: black;
+            background-color: ${bc};
             border: none;
-            color: white;
+            color: ${tc};
             padding: 10px 20px;
             text-align: center;
             text-decoration: none;
@@ -212,15 +214,15 @@ async function process() {
             <input type="checkbox" id="keep-bottom">
             <label for="keep-bottom">保持聊天栏最底(否则字幕无法出现)</label><br>
         `)
+        $('input#keep-bottom').on('click', e =>{
+            const checked = $(e.target).prop('checked')
+            if (checked){
+                bottomInterval = launchBottomInterval()
+            }else{
+                clearInterval(bottomInterval)
+            }
+        })
     }
-    $('input#keep-bottom').on('click', e =>{
-        const checked = $(e.target).prop('checked')
-        if (checked){
-            bottomInterval = launchBottomInterval()
-        }else{
-            clearInterval(bottomInterval)
-        }
-    })
 
     // 屏幕彈幕監控
     launchDanmakuStyleChanger(settings)
@@ -268,6 +270,7 @@ function chatMonitor(settings){
             if (mu.addedNodes.length < 1) continue
             for (const node of mu.addedNodes){
                 const danmaku = $(node)?.attr('data-danmaku')?.trim()
+                if (danmaku) console.debug(danmaku)
                 const subtitle = toJimaku(danmaku, settings.regex)
                 if(subtitle !== undefined){
                     if (beforeInsert.shift() === subtitle){
@@ -302,6 +305,7 @@ function wsMonitor(settings){
     window.addEventListener('ws:bilibili-live', ({detail: {cmd, command}}) => {
         if (cmd === 'DANMU_MSG'){
             const danmaku = command.info[1]
+            if (danmaku) console.debug(danmaku)
             const jimaku = toJimaku(danmaku, settings.regex)
             if (jimaku !== undefined){
                 pushSubtitle(jimaku, settings)
@@ -380,6 +384,7 @@ function toRgba(hex, opacity){
         return hex
 }
 
+let lastStyle = undefined
 function fullScreenTrigger(check, settings){
     const element = $('div#subtitle-list')
     const cfg = {disabled: !check}
@@ -387,6 +392,7 @@ function fullScreenTrigger(check, settings){
     element.resizable(cfg)
       
       if (!check) {
+        lastStyle = element.attr('style')
         element.removeAttr('style')
         $('div#button-list').before(element)
       }else{
@@ -398,6 +404,7 @@ function fullScreenTrigger(check, settings){
             'background-color': toRgba(settings.backgroundColor, (settings.backgroundSubtitleOpacity / 100).toFixed(1)),
             'width': '50%'
           })
+          if (lastStyle) element.attr('style', lastStyle)
           element.prependTo($('div.bilibili-live-player-video-area'))
       }
 

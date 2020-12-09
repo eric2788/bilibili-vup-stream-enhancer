@@ -1,12 +1,17 @@
+export const isFirefox = typeof InstallTrigger !== 'undefined'
+
 const defaultSettings = {
-    regex: '^(?<n>.+?)?【(?<cc>.+?)】*$',
+    regex: '^(?<n>[^【】]+?)?\:*\s*【(?<cc>[^【】]+?)】*$',
     opacity: -1,
     color: '',
     hideJimakuDanmaku: false,
-    vtbOnly: true,
+    vtbOnly: isFirefox,
     record: false,
+
     backgroundSubtitleOpacity: 40,
     backgroundColor: '#808080',
+    backgroundHeight: 100,
+
     subtitleColor: '#FFFFFF',
     blacklistRooms: [],
     useAsWhitelist: false,
@@ -16,7 +21,12 @@ const defaultSettings = {
     webSocketSettings: {
         danmakuPosition: 'normal'
     },
-    useStreamingTime: false
+    useStreamingTime: false,
+    buttonSettings: {
+        backgroundListColor: '#FFFFFF',
+        backgroundColor: '#000000',
+        textColor: '#FFFFFF'
+    }
 }
 
 async function getSettings(){

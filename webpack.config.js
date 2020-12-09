@@ -5,7 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 var glob = require("glob");
 
 module.exports = {
-	devtool: 'source-map',
+	//devtool: 'source-map',
     stats: 'errors-only',
 	entry: {
         background: glob.sync('./src/background/*.js'),
@@ -15,7 +15,8 @@ module.exports = {
 	output: {
 		path: path.join(__dirname, './dist'),
         filename: '[name].js'
-	},
+    },
+    mode: 'production',
 	plugins: [
         new SizePlugin(),
 		new CopyWebpackPlugin({

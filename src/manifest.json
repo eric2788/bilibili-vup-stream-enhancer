@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.0.4.1",
+    "version": "0.0.5",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
@@ -48,6 +48,8 @@
       "cdn/blive-proxy.js",
       "cdn/pako.min.js"
     ],
+
+    "content_security_policy": "script-src 'self' https://stackpath.bootstrapcdn.com; object-src 'self'",
 
 
 

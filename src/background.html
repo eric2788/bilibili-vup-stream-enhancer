@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="icons/icon.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="cdn/jquery.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
 </head>
 <style>
     .color-picker {
@@ -15,6 +16,10 @@
         text-align: center;
         text-decoration: none;
         display: inline-block;
+    }
+    div.card-header a {
+        color: black;
+        text-decoration: none;
     }
 </style>
 <body>
@@ -33,73 +38,174 @@
                 <small id="reg-help" class="form-text text-muted">必须包含名称为cc的正则组别以捕捉字幕。</small>
                 <small id="reg-help" class="form-text text-muted">可包含名称为n的正则组别以捕捉说话者。</small>
             </div>
-            <div class="form-group">
-                <label for="opacity-jimaku">同传弹幕透明度</label>
-                <input type="number" class="form-control" id="opacity-jimaku" aria-describedby="opacity-help" max="100" min="-1">
-                <small id="opacity-help" class="form-text text-muted">范围 0 ~ 100, -1 代表不改变。</small>
-            </div>
-            <div class="form-group">
-                <label for="opacity-background">全屏时字幕背景透明度</label>
-                <input type="number" class="form-control" id="opacity-background" aria-describedby="op-bg-help" max="100" min="0" required>
-                <small id="op-bg-help" class="form-text text-muted">范围 0 ~ 100</small>
-            </div>
-            <div class="form-group">
-                <label for="line-gap">字幕行距间隔</label>
-                <div class="input-group">
-                    <input type="number" class="form-control" id="line-gap" aria-describedby="gap-help" max="100" min="-50" required>
-                    <div class="input-group-append">
-                        <span class="input-group-text">px</span>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#tongchuan" data-toggle="collapse">➵ 同传弹幕设定</a>
+                </div>
+                <div class="form-group collapse" id="tongchuan">
+                    <div class="card-body">
+                        <label for="opacity-jimaku">同传弹幕透明度</label>
+                        <input type="number" class="form-control" id="opacity-jimaku" aria-describedby="opacity-help" max="100" min="-1">
+                        <small id="opacity-help" class="form-text text-muted">范围 0 ~ 100, -1 代表不改变。</small>
+                        <label for="color-jimaku">同传弹幕颜色</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="color-jimaku" aria-describedby="color-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <input type="color" class="color-picker" id="color-jimaku-picker"></input>
+                                </span>
+                                
+                            </div>
+                        </div>
+                        <small id="color-help" clas="form-text text-muted">格式 #FFFFFF, 留空不改变。</small>
                     </div>
                 </div>
-                <small id="gap-help" class="form-text text-muted">范围 -50 ~ 100</small>
             </div>
-            <div class="form-group">
-                <label for="subtitle-size">字幕大小</label>
-                <div class="input-group">
-                    <input type="number" class="form-control" id="subtitle-size" aria-describedby="size-help" max="100" min="0" required>
-                    <div class="input-group-append">
-                        <span class="input-group-text">px</span>
-                    </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#zimu" data-toggle="collapse">➵ 字幕设定</a>
                 </div>
-                <small id="size-help" class="form-text text-muted">范围 0 ~ 100</small>
-            </div>
-            <div class="form-group">
-                <label for="color-jimaku">同传弹幕颜色</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="color-jimaku" aria-describedby="color-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF">
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            <input type="color" class="color-picker" id="color-jimaku-picker"></input>
-                        </span>
+                <div class="form-group collapse" id="zimu">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="subtitle-size">字幕大小</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="subtitle-size" aria-describedby="size-help" max="100" min="0" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">px</span>
+                                </div>
+                            </div>
+                            <small id="size-help" class="form-text text-muted">范围 0 ~ 100</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="line-gap">字幕行距间隔</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="line-gap" aria-describedby="gap-help" max="100" min="-50" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">px</span>
+                                </div>
+                            </div>
+                            <small id="gap-help" class="form-text text-muted">范围 -50 ~ 100</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="background-jimaku">字幕背景颜色</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="background-jimaku" aria-describedby="bg-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <input type="color" class="color-picker" id="background-jimaku-picker"></input>
+                                    </span>
+                                </div>
+                            </div>
+                            <small id="bg-help" clas="form-text text-muted">格式 #FFFFFF</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="opacity-background">全屏时字幕背景透明度</label>
+                            <input type="number" class="form-control" id="opacity-background" aria-describedby="op-bg-help" max="100" min="0" required>
+                            <small id="op-bg-help" class="form-text text-muted">范围 0 ~ 100</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="color-subtitle">字幕顏色</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="color-subtitle" aria-describedby="st-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <input type="color" class="color-picker" id="color-subtitle-picker"></input>
+                                    </span>
+                                </div>
+                            </div>
+                            <small id="st-help" clas="form-text text-muted">格式 #FFFFFF</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="height-background">字幕背景高度</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="height-background" aria-describedby="height-bg-help" max="700" min="100" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        px
+                                    </span>
+                                </div>
+                            </div>
+                            <small id="height-bg-help" class="form-text text-muted">范围 100 ~ 700</small>
+                        </div>
                         
                     </div>
                 </div>
-                <small id="color-help" clas="form-text text-muted">格式 #FFFFFF, 留空不改变。</small>
             </div>
-            <div class="form-group">
-                <label for="background-jimaku">字幕背景颜色</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="background-jimaku" aria-describedby="bg-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            <input type="color" class="color-picker" id="background-jimaku-picker"></input>
-                        </span>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#anniu" data-toggle="collapse">➵ 按钮设定</a>
+                </div>
+                <div class="collapse" id="anniu">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="color-button-list-background">按钮列表背景顏色</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="color-button-list-background" aria-describedby="bbl-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <input type="color" class="color-picker" id="color-button-list-background-picker"></input>
+                                    </span>
+                                </div>
+                            </div>
+                            <small id="bbl-help" clas="form-text text-muted">格式 #FFFFFF</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="color-button-background">按钮背景顏色</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="color-button-background" aria-describedby="bb-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <input type="color" class="color-picker" id="color-button-background-picker"></input>
+                                    </span>
+                                </div>
+                            </div>
+                            <small id="bb-help" clas="form-text text-muted">格式 #FFFFFF</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="color-button-text">按钮文字顏色</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="color-button-text" aria-describedby="bt-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <input type="color" class="color-picker" id="color-button-text-picker"></input>
+                                    </span>
+                                </div>
+                            </div>
+                            <small id="bt-help" clas="form-text text-muted">格式 #FFFFFF</small>
+                        </div>
                     </div>
                 </div>
-                <small id="bg-help" clas="form-text text-muted">格式 #FFFFFF</small>
             </div>
-            <div class="form-group">
-                <label for="color-subtitle">字幕顏色</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="color-subtitle" aria-describedby="st-help" pattern="^#[0-9A-Fa-f]{6}$" title="#FFFFFF" required>
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            <input type="color" class="color-picker" id="color-subtitle-picker"></input>
-                        </span>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#heimingdan" data-toggle="collapse">➵ 使用黑名单</a>
+                </div>
+                <div class="collapse" id="heimingdan">
+                    <div class="card-body">
+                        <h3>房间 ID 黑名单</h3>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="use-whitelist">
+                            <label class="custom-control-label" for="use-whitelist">使用为白名单</label>
+                        </div>
+                        <ul id="blacklist" class="list-group list-group-flush" style="overflow-y: auto; height: 200px; border: black solid">
+                        </ul>
+                        <label for="add-blacklist">添加房间 ID</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="add-blacklist" aria-describedby="bl-help" min="1">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="blacklist-add-btn">新增</button>
+                            </div>
+                        </div>
+                        <small id="bl-help" clas="form-text text-muted">输入必须为数字</small>
                     </div>
                 </div>
-                <small id="st-help" clas="form-text text-muted">格式 #FFFFFF</small>
             </div>
+            
             <div class="form-group">
                 <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" id="use-streaming-time">
@@ -118,23 +224,6 @@
                     <option value="bottom">置底</option>
                 </select>
             </div>
-            <div>
-                    <h3>房间 ID 黑名单</h3>
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="use-whitelist">
-                        <label class="custom-control-label" for="use-whitelist">使用为白名单</label>
-                    </div>
-                    <ul id="blacklist" class="list-group list-group-flush" style="overflow-y: auto; height: 200px; border: black solid">
-                    </ul>
-                    <label for="add-blacklist">添加房间 ID</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="add-blacklist" aria-describedby="bl-help" min="1">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" id="blacklist-add-btn">新增</button>
-                        </div>
-                    </div>
-                    <small id="bl-help" clas="form-text text-muted">输入必须为数字</small>
-            </div>
             <div class="form-group">
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="hide-jimaku-danmaku">
@@ -145,7 +234,7 @@
                     <label class="custom-control-label" for="enable-record">启用记录功能</label>
                 </div>
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="vtb-only">
+                    <input type="checkbox" class="custom-control-input" id="vtb-only" aria-describedby="vtb-only-help">
                     <label class="custom-control-label" for="vtb-only">仅限虚拟主播</label>
                 </div>
             </div>
@@ -155,5 +244,4 @@
       </div>
 </body>
 <script src="browser-polyfill.js"></script>
-<script src="cdn/jquery.js"></script>
 <script src="background.js"></script>

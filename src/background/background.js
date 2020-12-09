@@ -1,4 +1,4 @@
-import getSettings from '../options/utils'
+import getSettings, { isFirefox } from '../options/utils'
 
 console.log('background is working...')
 
@@ -40,6 +40,14 @@ function getCurrentInput(){
     }
     setting.useStreamingTime = $('#use-streaming-time').prop('checked')
     setting.useAsWhitelist = $('#use-whitelist').prop('checked')
+
+    setting.backgroundHeight = $('#height-background')[0].valueAsNumber
+
+    setting.buttonSettings = {
+        backgroundListColor: $('#color-button-list-background')[0].value,
+        backgroundColor: $('#color-button-background')[0].value,
+        textColor: $('#color-button-text')[0].value
+    }
     return setting
 }
 
@@ -87,6 +95,19 @@ function saveCurrentInput(setting){
     $('label[for=use-streaming-time]')[0].innerText = setting.useStreamingTime ? '使用串流时间戳记' : '使用真实时间戳记'
 
     $('#use-whitelist').prop('checked', setting.useAsWhitelist)
+
+    $('#height-background')[0].valueAsNumber = setting.backgroundHeight
+
+    const { backgroundListColor, backgroundColor, textColor } = setting.buttonSettings
+
+    $('#color-button-list-background')[0].value = backgroundListColor
+    $('#color-button-list-background-picker')[0].value = backgroundListColor
+
+    $('#color-button-background')[0].value = backgroundColor
+    $('#color-button-background-picker')[0].value = backgroundColor
+
+    $('#color-button-text')[0].value = textColor
+    $('#color-button-text-picker')[0].value = textColor
 }
 
 
@@ -94,12 +115,16 @@ function saveCurrentInput(setting){
 hookColor('color-jimaku')
 hookColor('background-jimaku')
 hookColor('color-subtitle')
+hookColor('color-button-list-background')
+hookColor('color-button-background')
+hookColor('color-button-text')
 
 
 assignValue().catch(console.error)
 
 $('#save-settings').on('click', e => {
-    if($('form#setting')[0].checkValidity()){
+    const form = $('form#setting')
+    if(form[0].checkValidity()){
         e.preventDefault()
         console.log('prepare to save:')
         const set = getCurrentInput()
@@ -109,8 +134,18 @@ $('#save-settings').on('click', e => {
                 window.alert('你的设定已成功保存。')
             }
         }).catch(console.error)
-    } 
+    }else{
+        console.log(form.find(":invalid"))
+        form.find(":invalid").parents('.collapse').collapse('show')
+        if (!sendNotify({title: '设置失败', message: '请检查是否有缺漏或格式错误。'})){
+            window.alert('请检查是否有缺漏或格式错误。')
+        }
+    }
 })
+
+if (!isFirefox){
+    $('label[for=vtb-only]').after(`<small id="vtb-only-help">(非火狐浏览器不建议开启此选项)</small>`)
+}
 
 
 
