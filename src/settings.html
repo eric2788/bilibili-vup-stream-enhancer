@@ -215,7 +215,7 @@
             <div class="form-group">
                 <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" id="use-web-socket">
-                    <label class="custom-control-label" for="use-web-socket">使用 WebSocket 侦测文字</label>
+                    <label class="custom-control-label" for="use-web-socket">使用 WebSocket 監控</label>
                 </div>
                 <label for="danmaku-position">弹幕位置</label>
                 <select class="custom-select" id="danmaku-position" disabled>                
@@ -234,8 +234,13 @@
                     <label class="custom-control-label" for="enable-record">启用记录功能</label>
                 </div>
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="vtb-only" aria-describedby="vtb-only-help">
+                    <input type="checkbox" class="custom-control-input" id="vtb-only">
                     <label class="custom-control-label" for="vtb-only">仅限虚拟主播</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="no-cn-v" aria-describedby="no-cn-v-help">
+                    <label class="custom-control-label" for="no-cn-v">自动过滤国V</label>
+                    <small id="no-cn-v-help">(此功能仍在试验阶段)</small>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary" id="save-settings">保存设定</button>
@@ -244,4 +249,4 @@
       </div>
 </body>
 <script src="browser-polyfill.js"></script>
-<script src="background.js"></script>
+<script src="settings.js"></script>

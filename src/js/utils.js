@@ -17,7 +17,7 @@ const defaultSettings = {
     useAsWhitelist: false,
     subtitleSize: 16,
     lineGap: 10,
-    useWebSocket: false,
+    useWebSocket: true,
     webSocketSettings: {
         danmakuPosition: 'normal'
     },
@@ -26,7 +26,8 @@ const defaultSettings = {
         backgroundListColor: '#FFFFFF',
         backgroundColor: '#000000',
         textColor: '#FFFFFF'
-    }
+    },
+    filterCNV: false
 }
 
 async function getSettings(){

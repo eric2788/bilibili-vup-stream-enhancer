@@ -9,8 +9,8 @@ module.exports = {
     stats: 'errors-only',
 	entry: {
         background: glob.sync('./src/background/*.js'),
-        utils: glob.sync('./src/options/*.js'),
-        index: './src/index.js'
+        index: './src/index.js',
+        settings: glob.sync('./src/assets/*.js')
     },
 	output: {
 		path: path.join(__dirname, './dist'),
