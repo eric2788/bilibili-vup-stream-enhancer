@@ -57,7 +57,7 @@ function createObjectStoreIfNotExist(db, key, rej){
         if (!db.objectStoreNames.contains(key)) {
             log(`objectStore ${key} does not exist, creating new one.`)
             const objectStore = db.createObjectStore(key, { autoIncrement: true })
-            objectStore.createIndex('date','date', {unique: true})
+            objectStore.createIndex('date','date', {unique: false})
             objectStore.createIndex('text', 'text', {unique: false})
             log('successfully created.')
         }

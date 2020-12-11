@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.0.6",
+    "version": "0.0.6.1",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
@@ -26,8 +26,11 @@
         "webRequest",
         "*://vup.darkflame.ga/*",
         "*://api.live.bilibili.com/*",
+        "*://live.bilibili.com/*",
         "notifications",
-        "storage"
+        "storage",
+        "tabs",
+        "activeTab"
     ],
 
     "content_scripts": [

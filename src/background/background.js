@@ -37,6 +37,12 @@ browser.runtime.onMessage.addListener((message, {tab}) => {
             return browser.storage.sync.set(message.data)
         case "request":
             return webRequest(message.url)
+        case "log-info":
+            console.info(message.data)
+            break;    
+        case "log-error":
+            console.error(message.data)
+            break;  
         default:
             break;
     }

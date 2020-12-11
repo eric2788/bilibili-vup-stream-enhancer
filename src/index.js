@@ -194,6 +194,9 @@ async function process() {
         if (window.indexedDB) {
             try {
                 await connect(key)
+                if (localStorage.getItem(key) == null){
+                    localStorage.setItem(key, JSON.stringify({hasLog: false}))
+                }
             } catch (err) {
                 alert(`連接資料庫時出現錯誤: ${err.message}, 自動取消同傳彈幕記錄。`)
                 close()

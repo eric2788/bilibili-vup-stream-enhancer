@@ -139,6 +139,50 @@ $('#save-settings').on('click', e => {
 })
 
 
+$('#clear-data').on('click', e =>{
+    e.preventDefault()
+    processDelete().catch(console.error)
+})
+const url = browser.runtime.getURL("")
+
+
+window.addEventListener('message', e => {
+    console.log('received message from: '+e.origin)
+    console.log(e.data)
+}, false)
+
+async function processDelete(){
+    if(window.confirm('决定删除所有直播房间的字幕记录?')){
+        const tabs = await browser.tabs.query({url: '*://live.bilibili.com/*'})
+        if (tabs.length > 0){
+            await sendNotify({
+                title: '删除失败',
+                message: '检测到你有直播房间分页未关闭，请先关闭所有直播房间分页'
+            })
+        }else{
+            const tab = await browser.tabs.create({
+                active: false,
+                url: 'https://live.bilibili.com'
+            })
+            
+            await browser.tabs.executeScript(tab.id, {
+                code: `
+                    for (const db of Object.keys(localStorage).filter(s => s.startsWith('live_room'))){
+                        window.indexedDB.deleteDatabase(db)
+                    }
+                    true
+                `
+            })
+            await browser.tabs.remove(tab.id)
+            await sendNotify({
+                title: '删除成功',
+                message: '资料库已被清空。'
+            })
+        }
+    }
+}
+
+
 $('#blacklist-add-btn').on('click', e => {
     console.log('blacklist button')
     e.preventDefault()
