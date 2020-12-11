@@ -45,7 +45,7 @@
 
 别问为什么我盖住了主播 
 
-![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/hide-jimaku.gif)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/remember-size.gif)
 
 ### 下载同传字幕记录
 
