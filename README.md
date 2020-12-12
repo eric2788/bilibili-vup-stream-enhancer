@@ -96,6 +96,14 @@
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/auto-update-3.png)
 
+### 仅限虚拟主播
+
+![](https://media.discordapp.net/attachments/415882741092057088/787286599947517962/unknown.png)
+
+### 过滤国V(试验阶段)
+
+![](https://media.discordapp.net/attachments/415882741092057088/787286308790861824/unknown.png)
+
 ### ➵ 其他功能
 
 一些小功能我就不上图了，直接列出来
@@ -103,7 +111,6 @@
 - 字幕行距与缩放
 - 按钮风格设定
 - 字幕文字与背景风格设定
-- 过滤国V(试验阶段)
 
 ## > 把本插件使用到Chrome
 
