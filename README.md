@@ -96,11 +96,11 @@
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/auto-update-3.png)
 
-### 仅限虚拟主播
+### ➵ 仅限虚拟主播
 
 ![](https://media.discordapp.net/attachments/415882741092057088/787286599947517962/unknown.png)
 
-### 过滤国V(试验阶段)
+### ➵ 过滤国V(试验阶段)
 
 ![](https://media.discordapp.net/attachments/415882741092057088/787286308790861824/unknown.png)
 
