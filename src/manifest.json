@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.0.6.1",
+    "version": "0.0.6.2",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
@@ -18,7 +18,7 @@
       "gecko": {
         "id": "{041b8202-e9d4-4a78-a9da-465c749ed26c}",
         "update_url": "https://eric2788.github.io/bilibili-jimaku-filter/updates.json",
-        "strict_min_version": "42.0"
+        "strict_min_version": "78.0"
       }
     },
 
@@ -29,8 +29,7 @@
         "*://live.bilibili.com/*",
         "notifications",
         "storage",
-        "tabs",
-        "activeTab"
+        "tabs"
     ],
 
     "content_scripts": [

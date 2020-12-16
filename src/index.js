@@ -53,7 +53,28 @@ function getTimeStamp() {
 }
 
 function getStreamingTime() {
-    return $('[data-title=直播持续时间] > span')[0].innerText
+    try {
+        const ele = $('[data-title=直播持续时间] > span')
+        // 舊直播 UI
+        if (ele.length > 0){
+            return ele[0].innerText
+        }
+        // 新直播UI
+        const ev = new MouseEvent("mousemove", {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+            clientX: 554,
+            clientY: 665
+        });
+        // 強行召喚時間戳記條
+        $('.bilibili-live-player-video-controller')[0].dispatchEvent(ev)
+        return $('.tip-wrap')[0].innerText
+    }catch(err){
+        console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
+        console.error(err)
+        return getTimeStamp()
+    }
 }
 
 function toJimaku(danmaku, regex) {
@@ -127,6 +148,7 @@ async function filterNotV(settings) {
 
             }
         } catch (err) {
+            console.warn(err)
             console.warn(`索取資源時出現錯誤: ${err.message}`)
             console.warn('三秒後重新刷新')
             await sleep(3000)
@@ -160,6 +182,7 @@ async function filterCNV(settings) {
                     }
                 }
             } catch (err) {
+                console.warn(err)
                 console.warn('error while fetching data: ' + err.message)
                 console.warn('try after 5 secs')
                 await sleep(5000)
@@ -198,6 +221,7 @@ async function process() {
                     localStorage.setItem(key, JSON.stringify({hasLog: false}))
                 }
             } catch (err) {
+                console.error(err)
                 alert(`連接資料庫時出現錯誤: ${err.message}, 自動取消同傳彈幕記錄。`)
                 close()
                 settings.record = false

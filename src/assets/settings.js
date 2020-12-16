@@ -143,13 +143,6 @@ $('#clear-data').on('click', e =>{
     e.preventDefault()
     processDelete().catch(console.error)
 })
-const url = browser.runtime.getURL("")
-
-
-window.addEventListener('message', e => {
-    console.log('received message from: '+e.origin)
-    console.log(e.data)
-}, false)
 
 async function processDelete(){
     if(window.confirm('决定删除所有直播房间的字幕记录?')){
