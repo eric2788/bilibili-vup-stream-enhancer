@@ -12,9 +12,10 @@
 
 然后开启字幕记录后可以离线储存上次的字幕记录，重入直播间可以获取先前所有的字幕记录，删除记录需要手动
 
-## > 功能简介
+## ➵ 功能简介
 
-### ➵ 设定界面
+<details>
+<summary>设定界面</summary>
 
 ![icon](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/icon.png)
 
@@ -22,42 +23,64 @@
 
 *黑名单用于过滤国v等等的名单*
 
-### ➵ 支援各种全屏
+</details>
+
+<details>
+<summary>支援各种全屏</summary>
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/screen-show.gif)
 
+</details>
 
-### ➵ 字幕版面縮放
+<details>
+<summary>字幕版面縮放</summary>
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/sub-resize.gif)
+</details>
 
-### ➵ 同传弹幕风格
+<details>
+<summary>同传弹幕风格</summary>
 
 主要是颜色和透明度
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/jimaku-style-change.gif)
 
-### ➵ 隐藏同传弹幕
+</details>
+
+<details>
+<summary>隐藏同传弹幕</summary>
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/hide-jimaku.gif)
 
-### ➵ 记住上一次全屏的字幕背景位置/大小 
+</details>
+
+<details>
+<summary>记住上一次全屏的字幕背景位置/大小</summary>
 
 别问为什么我盖住了主播 
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/remember-size.gif)
 
-### ➵ 下载同传字幕记录
+</details>
+
+<details>
+<summary>下载同传字幕记录</summary>
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/download-log.gif)
 
-### ➵ 弹幕置顶置底(仅限采用WebSocket监控时)
+</details>
+
+<details>
+<summary>弹幕置顶置底(仅限采用WebSocket监控时)</summary>
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/ws-top.png)
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/ws-top-2.png)
 
-### ➵ 带名同传
+</details>
+
+<details>
+<summary>带名同传</summary>
 
 新增了带名为 n 的正则捕捉群组
 
@@ -68,7 +91,10 @@
     "我:【你是谁】"
     "你 【是谁啊】"
 
-### ➵ 字幕记录的时间戳记
+</details>
+
+<details>
+<summary>字幕记录的时间戳记</summary>
 
 串流时间戳记
 
@@ -82,7 +108,10 @@
 
 `[18:16:50]` => 真实时间: 下午六点十六分五十秒
 
-### ➵ 自动更新(仅限火狐)
+</details>
+
+<details>
+<summary>自动更新(仅限火狐)</summary>
 
 可手动更新或者勾选自动更新(默认每天检查一次)
 
@@ -96,15 +125,24 @@
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/auto-update-3.png)
 
-### ➵ 仅限虚拟主播
+</details>
+
+<details>
+<summary>仅限虚拟主播</summary>
 
 ![](https://media.discordapp.net/attachments/415882741092057088/787286599947517962/unknown.png)
 
-### ➵ 过滤国V(试验阶段)
+</details>
+
+<details>
+<summary>过滤国V(试验阶段)</summary>
 
 ![](https://media.discordapp.net/attachments/415882741092057088/787286308790861824/unknown.png)
 
-### ➵ 其他功能
+</details>
+
+<details>
+<summary>其他功能</summary>
 
 一些小功能我就不上图了，直接列出来
 
@@ -112,9 +150,12 @@
 - 按钮风格设定
 - 字幕文字与背景风格设定
 
-## > 把本插件使用到Chrome
+</details>
 
-### ➵ 把插件载入到 Chrome
+## ➵ 把本插件使用到Chrome
+
+<details>
+<summary>把插件载入到 Chrome</summary>
 
 首先下载xpi档案
 
@@ -138,13 +179,19 @@
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/to-chrome-2.png)
 
-### ➵ Chrome 打开设定页面
+</details>
+
+<details>
+<summary>Chrome 打开设定页面</summary>
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/icon-see.png)
 
 这个点一下就有 icon 按钮出现了
 
-### ➵ Chrome 更新而不影响之前的设定
+</details>
+
+<details>
+<summary>Chrome 更新而不影响之前的设定</summary>
 
 1. 关闭浏览器
 2. 把文件夹内旧的东西删掉
@@ -152,11 +199,18 @@
 4. 把里面的东西放到文件夹
 5. 重新打开浏览器
 
-### ➵ 目前已知放Chrome的bug
+__**现在已有导入导出设定档功能**__
+
+</details>
+
+<details>
+<summary>目前已知放Chrome的bug</summary>
 
 - 无法使用置顶置底弹幕
 
-## > 有用连结
+</details>
+
+## ➵ 有用连结
 
 [NGA帖文](https://ngabbs.com/read.php?tid=24434809)
 
