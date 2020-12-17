@@ -387,7 +387,15 @@ function chatMonitor(settings) {
     observer.observe($('#chat-items')[0], config);
 }
 
+let proxyActivated = false
+
+window.addEventListener('ws:proxy-initialized', () => {
+    proxyActivated = true
+    console.log('proxy activated.')
+})
+
 function wsMonitor(settings) {
+    const { danmakuPosition, forceAlterWay } = settings.webSocketSettings
     window.addEventListener('ws:bilibili-live', ({ detail: { cmd, command } }) => {
         if (cmd === 'DANMU_MSG') {
             const danmaku = command.info[1]
@@ -396,7 +404,7 @@ function wsMonitor(settings) {
             if (jimaku !== undefined) {
                 pushSubtitle(jimaku, settings)
                 //在使用 websocket 的情况下，可以强制置顶和置底弹幕
-                switch (settings.webSocketSettings.danmakuPosition) {
+                switch (danmakuPosition) {
                     case "top":
                         command.info[0][1] = 5
                         break;
@@ -409,6 +417,29 @@ function wsMonitor(settings) {
             }
         }
     })
+    setTimeout(() => {
+        if (!proxyActivated && (forceAlterWay || window.confirm('Bliveproxy 貌似挂接失败，需要切换第三方监控WebSocket吗？\n如果本直播间尚在初始化，则可能为误判'))){
+            const s = 
+            `<script>
+                WebSocket.prototype._send = WebSocket.prototype.send;
+                WebSocket.prototype.send = function (data) {
+                    this._send(data);
+                    this.addEventListener('message', function (msg) {
+                        const event = new CustomEvent('ws:bliveproxy', { detail: msg })
+                        window.dispatchEvent(event)
+                    }, true);
+                    this.send = this._send
+                }
+                console.log('websocket injected by alternative way')
+            </script>
+            `
+            $(document.body).prepend(s)
+            sendNotify({
+                title: '正在採用第三方监控 WebSocket....',
+                message: '挂接过程可能长达十五秒, 且将无法置顶置底弹幕'
+            })
+        }
+    }, 5000)
 }
 
 let lastState = 'normal'

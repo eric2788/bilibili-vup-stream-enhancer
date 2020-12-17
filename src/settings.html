@@ -205,6 +205,22 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#daorudaochu" data-toggle="collapse">➵ 设定导入/导出</a>
+                </div>
+                <div class="collapse" id="daorudaochu">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">导入JSON设定档</label>
+                            <input class="form-control" type="file" id="setting-file" accept=".json">
+                        </div>
+                        <button class="btn btn-primary" id="input-setting">导入</button>
+                        <button class="btn btn-primary" id="output-setting">导出设定档</button>
+                    </div>
+                </div>
+            </div>
             
             <div class="form-group">
                 <div class="custom-control custom-switch">
@@ -214,8 +230,15 @@
             </div>
             <div class="form-group">
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="use-web-socket">
+                    <input type="checkbox" class="custom-control-input" id="use-web-socket" aria-describedby="uws-help">
                     <label class="custom-control-label" for="use-web-socket">使用 WebSocket 監控</label>
+                    <small id="uws-help">(默认采用bliveproxy进行WebSocket监控，成功率70%,默认失败时询问切换到第三方监控。)</small>
+                </div>
+                >> 挂接失败时:
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="force-alter-way" aria-describedby="faw-help" disabled>
+                    <label class="custom-control-label" for="force-alter-way">询问切换到第三方監控。</label>
+                    <small>(第三方监控将100%成功捕捉WebSocket讯息，但无法使用置顶置底弹幕。)</small>
                 </div>
                 <label for="danmaku-position">弹幕位置</label>
                 <select class="custom-select" id="danmaku-position" disabled>                

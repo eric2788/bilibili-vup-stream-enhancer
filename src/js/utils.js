@@ -19,7 +19,8 @@ const defaultSettings = {
     lineGap: 10,
     useWebSocket: true,
     webSocketSettings: {
-        danmakuPosition: 'normal'
+        danmakuPosition: 'normal',
+        forceAlterWay: false
     },
     useStreamingTime: false,
     buttonSettings: {

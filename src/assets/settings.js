@@ -22,7 +22,8 @@ function getCurrentInput(){
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
     setting.useWebSocket = $('#use-web-socket').prop('checked')
     setting.webSocketSettings = {
-        danmakuPosition: $('#danmaku-position')[0].value
+        danmakuPosition: $('#danmaku-position')[0].value,
+        forceAlterWay: $('#force-alter-way').prop('checked')
     }
     setting.useStreamingTime = $('#use-streaming-time').prop('checked')
     setting.useAsWhitelist = $('#use-whitelist').prop('checked')
@@ -77,8 +78,13 @@ function saveCurrentInput(setting){
     }
 
     $('#use-web-socket').prop('checked', setting.useWebSocket)
-    $('#danmaku-position')[0].value = setting.webSocketSettings.danmakuPosition
+    const { danmakuPosition, forceAlterWay } = setting.webSocketSettings
+    $('#danmaku-position')[0].value = danmakuPosition
     $('#danmaku-position').attr('disabled', !setting.useWebSocket)
+    $('#force-alter-way').prop('checked', forceAlterWay)
+    $('label[for=force-alter-way]')[0].innerText = forceAlterWay ? '自动切换到第三方監控' : '询问切换到第三方監控'
+    $('#force-alter-way').attr('disabled', !setting.useWebSocket)
+    
     $('#use-streaming-time').prop('checked', setting.useStreamingTime)
     $('label[for=use-streaming-time]')[0].innerText = setting.useStreamingTime ? '使用串流时间戳记' : '使用真实时间戳记'
 
@@ -191,6 +197,7 @@ $('#blacklist-add-btn').on('click', e => {
 $('#use-web-socket').on('change', e => {
     const checked =  $(e.target).prop('checked')
     $('#danmaku-position').attr('disabled', !checked)
+    $('#force-alter-way').attr('disabled', !checked)
     if (!checked){
         $('#danmaku-position')[0].value = 'normal'
     }
@@ -199,7 +206,12 @@ $('#use-web-socket').on('change', e => {
 $('#use-streaming-time').on('change', e => {
     const s = $(e.target).prop('checked')
     $('label[for=use-streaming-time]')[0].innerText = s ? '使用串流时间戳记' : '使用真实时间戳记'
-  })
+})
+
+$('#force-alter-way').on('change', e => {
+    const s = $(e.target).prop('checked')
+    $('label[for=force-alter-way]')[0].innerText = s ? '自动切换到第三方監控' : '询问切换到第三方監控'
+})
 
 function hookColor(from){
     $(`#${from}-picker`).on('change', e => {
@@ -212,6 +224,85 @@ async function assignValue(){
     const setting = await getSettings()
     console.log(setting)
     saveCurrentInput(setting)
+}
+
+$('#input-setting').on('click', e =>{
+    e.preventDefault()
+    const files = $('#setting-file')[0].files
+    if (files.length == 0){
+        sendNotify({
+            title: '导入失败',
+            message: '你未选择你的档案。'
+        })
+        return
+    }
+    const json = files[0]
+    if (json.type !== 'application/json'){
+        sendNotify({
+            title: '导入失败',
+            message: '你的档案格式不是json。'
+        })
+        return
+    }
+    inputProcess(json).catch(console.error).finally(() => {
+        $('#setting-file').val('')
+    })
+})
+
+$('#output-setting').on('click', e => {
+    e.preventDefault()
+    getSettings().then(set => {
+        const txt = JSON.stringify(set)
+        const a = document.createElement("a");
+        const file = new Blob([txt], { type: 'application/json' });
+        const url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = `bilibili-jimaku-filter-settings.json`
+        a.click();
+        URL.revokeObjectURL(url)
+        sendNotify({ title: '导出成功', message: '你的设定档已成功导出。' })
+    }).catch(err => {
+        console.error(err)
+        sendNotify({
+            title: '导出失败',
+            message: err.message ?? err
+        })
+    })
+})
+
+async function inputProcess(json){
+    try {
+        const settings = await readAsJson(json)
+        await setSettings(settings)
+        const newSetting = await getSettings()
+        saveCurrentInput(newSetting)
+        await sendNotify({
+            title: '导入成功',
+            message: '你的设定档已成功导入并储存。'
+        })
+    }catch(err){
+        await sendNotify({
+            title: '导入失败',
+            message: err.message ?? err
+        })
+    }
+}
+
+async function readAsJson(json){
+    return new Promise((res, rej)=>{
+        const reader = new FileReader()
+        reader.onload = function(e){
+            try{
+                res(JSON.parse(e.target.result))
+            }catch(err){
+                rej(err)
+            }
+        }
+        reader.onerror = function(){
+            rej(reader.error)
+        }
+        reader.readAsText(json)
+    })
 }
 
 

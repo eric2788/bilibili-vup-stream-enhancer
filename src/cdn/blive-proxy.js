@@ -47,8 +47,13 @@
           return new Proxy(obj, proxyHandler)
         }
       })
+      window.addEventListener('ws:bliveproxy', e => {
+        myOnMessage(e.detail, () => {})
+      })
       console.log('injected successfull')
     }
+
+    
   
     let proxyHandler = {
       get(target, property) {
@@ -61,6 +66,8 @@
       set(target, property, value) {
         if (property === 'onmessage') {
           let realOnMessage = value
+          const event = new CustomEvent('ws:proxy-initialized')
+          window.dispatchEvent(event)
           value = function(event) {
             myOnMessage(event, realOnMessage)
           }
