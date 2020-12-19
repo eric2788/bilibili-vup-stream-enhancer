@@ -1,4 +1,4 @@
-import {getSettings, setSettings, sendNotify} from '../js/messaging'
+import {getSettings, setSettings, sendNotify, checkUpdate} from '../js/messaging'
 
 function getCurrentInput(){
     const setting = {}
@@ -20,6 +20,8 @@ function getCurrentInput(){
 
     setting.lineGap = $('#line-gap')[0].valueAsNumber
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
+    setting.jimakuAnimation = $('#jimaku-animation')[0].value
+
     setting.useWebSocket = $('#use-web-socket').prop('checked')
     setting.webSocketSettings = {
         danmakuPosition: $('#danmaku-position')[0].value,
@@ -104,6 +106,8 @@ function saveCurrentInput(setting){
     $('#color-button-text-picker')[0].value = textColor
 
     $('#no-cn-v').prop('checked', setting.filterCNV)
+
+    $('#jimaku-animation')[0].value = setting.jimakuAnimation
 }
 
 
@@ -126,61 +130,58 @@ $('#save-settings').on('click', e => {
         const set = getCurrentInput()
         console.log(set)
         setSettings(set).then(() => {
-            if (!sendNotify({title: '设置成功', message: '你的设定已成功保存。'})){
-                window.alert('你的设定已成功保存。')
-            }
+            sendNotify({title: '设置成功', message: '你的设定已成功保存。'})
         }).catch(err => {
             console.error(err)
-            if (!sendNotify({title: '设置失敗', message: err.message})){
-                window.alert(err.message)
-            }
+            sendNotify({title: '设置失敗', message: err.message})
         })
     }else{
         console.log(form.find(":invalid"))
         form.find(":invalid").parents('.collapse').collapse('show')
-        if (!sendNotify({title: '设置失败', message: '请检查是否有缺漏或格式错误。'})){
-            window.alert('请检查是否有缺漏或格式错误。')
-        }
+        sendNotify({title: '设置失败', message: '请检查是否有缺漏或格式错误。'})
     }
 })
 
 
-$('#clear-data').on('click', e =>{
+$('#clear-data').on('click', async e =>{
     e.preventDefault()
-    processDelete().catch(console.error)
-})
-
-async function processDelete(){
-    if(window.confirm('决定删除所有直播房间的字幕记录?')){
-        const tabs = await browser.tabs.query({url: '*://live.bilibili.com/*'})
-        if (tabs.length > 0){
-            await sendNotify({
-                title: '删除失败',
-                message: '检测到你有直播房间分页未关闭，请先关闭所有直播房间分页'
-            })
-        }else{
-            const tab = await browser.tabs.create({
-                active: false,
-                url: 'https://live.bilibili.com'
-            })
-            
-            await browser.tabs.executeScript(tab.id, {
-                code: `
-                    for (const db of Object.keys(localStorage).filter(s => s.startsWith('live_room'))){
-                        window.indexedDB.deleteDatabase(db)
-                    }
-                    true
-                `
-            })
-            await browser.tabs.remove(tab.id)
-            await sendNotify({
-                title: '删除成功',
-                message: '资料库已被清空。'
-            })
+    try{
+        if(window.confirm('决定删除所有直播房间的字幕记录?')){
+            const tabs = await browser.tabs.query({url: '*://live.bilibili.com/*'})
+            if (tabs.length > 0){
+                await sendNotify({
+                    title: '删除失败',
+                    message: '检测到你有直播房间分页未关闭，请先关闭所有直播房间分页'
+                })
+            }else{
+                const tab = await browser.tabs.create({
+                    active: false,
+                    url: 'https://live.bilibili.com'
+                })
+                
+                await browser.tabs.executeScript(tab.id, {
+                    code: `
+                        for (const db of Object.keys(localStorage).filter(s => s.startsWith('live_room'))){
+                            window.indexedDB.deleteDatabase(db)
+                        }
+                        true
+                    `
+                })
+                await browser.tabs.remove(tab.id)
+                await sendNotify({
+                    title: '删除成功',
+                    message: '资料库已被清空。'
+                })
+            }
         }
+    }catch(err){
+        console.error(err)
+        await sendNotify({
+            title: '删除失敗',
+            message: err.message
+        })
     }
-}
-
+})
 
 $('#blacklist-add-btn').on('click', e => {
     console.log('blacklist button')
@@ -226,11 +227,11 @@ async function assignValue(){
     saveCurrentInput(setting)
 }
 
-$('#input-setting').on('click', e =>{
+$('#input-setting').on('click', async e =>{
     e.preventDefault()
     const files = $('#setting-file')[0].files
     if (files.length == 0){
-        sendNotify({
+        await sendNotify({
             title: '导入失败',
             message: '你未选择你的档案。'
         })
@@ -238,39 +239,12 @@ $('#input-setting').on('click', e =>{
     }
     const json = files[0]
     if (json.type !== 'application/json'){
-        sendNotify({
+        await sendNotify({
             title: '导入失败',
             message: '你的档案格式不是json。'
         })
         return
     }
-    inputProcess(json).catch(console.error).finally(() => {
-        $('#setting-file').val('')
-    })
-})
-
-$('#output-setting').on('click', e => {
-    e.preventDefault()
-    getSettings().then(set => {
-        const txt = JSON.stringify(set)
-        const a = document.createElement("a");
-        const file = new Blob([txt], { type: 'application/json' });
-        const url = URL.createObjectURL(file);
-        a.href = url;
-        a.download = `bilibili-jimaku-filter-settings.json`
-        a.click();
-        URL.revokeObjectURL(url)
-        sendNotify({ title: '导出成功', message: '你的设定档已成功导出。' })
-    }).catch(err => {
-        console.error(err)
-        sendNotify({
-            title: '导出失败',
-            message: err.message ?? err
-        })
-    })
-})
-
-async function inputProcess(json){
     try {
         const settings = await readAsJson(json)
         await setSettings(settings)
@@ -281,12 +255,40 @@ async function inputProcess(json){
             message: '你的设定档已成功导入并储存。'
         })
     }catch(err){
+        console.error(err)
         await sendNotify({
             title: '导入失败',
             message: err.message ?? err
         })
+    }finally{
+        $('#setting-file').val('')
     }
-}
+})
+
+$('#output-setting').on('click', async e => {
+    e.preventDefault()
+    try {
+        const set = await getSettings()
+        const txt = JSON.stringify(set)
+        const a = document.createElement("a");
+        const file = new Blob([txt], { type: 'application/json' });
+        const url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = `bilibili-jimaku-filter-settings.json`
+        a.click();
+        URL.revokeObjectURL(url)
+        await sendNotify({ title: '导出成功', message: '你的设定档已成功导出。' })
+    }catch(err){
+        console.error(err)
+        await sendNotify({
+            title: '导出失败',
+            message: err.message ?? err
+        })
+    }
+})
+
+
+$('#check-update').on('click', checkUpdate)
 
 async function readAsJson(json){
     return new Promise((res, rej)=>{

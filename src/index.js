@@ -71,8 +71,8 @@ function getStreamingTime() {
         $('.bilibili-live-player-video-controller')[0].dispatchEvent(ev)
         return $('.tip-wrap')[0].innerText
     }catch(err){
+        console.warn(err)
         console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
-        console.error(err)
         return getTimeStamp()
     }
 }
@@ -93,7 +93,6 @@ function toJimaku(danmaku, regex) {
 
 async function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable, colorDisable }) {
     for (const mu of mutationsList) {
-        if (mu.addedNodes.length < 1) continue
         for (const node of mu.addedNodes) {
             const danmaku = node?.innerText?.trim() ?? node?.data?.trim()
             if (toJimaku(danmaku, settings.regex) !== undefined) {
@@ -158,7 +157,7 @@ async function filterNotV(settings) {
     return { buttonOnly, skipped }
 }
 
-async function filterCNV(settings) {
+async function filterCNV(settings, retry = 0) {
     if (settings.filterCNV) {
         console.log('已啟用自動過濾國v')
         console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
@@ -182,11 +181,15 @@ async function filterCNV(settings) {
                     }
                 }
             } catch (err) {
+                if (retry >= 5){
+                    console.warn(`已重試${retry}次，放棄過濾。`)
+                    return false
+                }
                 console.warn(err)
-                console.warn('error while fetching data: ' + err.message)
-                console.warn('try after 5 secs')
+                console.warn('檢測國V時出現錯誤: ' + err.message)
+                console.warn(`重試第${retry}次，五秒後重試`)
                 await sleep(5000)
-                return await filterCNV(settings)
+                return await filterCNV(settings, ++retry)
             }
         }
     }
@@ -289,20 +292,32 @@ async function process() {
         .subtitle-normal::-webkit-scrollbar-thumb {
             background-color: ${stc};
         }
-        @keyframes trans {
+        @keyframes top {
             from {
               transform: translateY(-30px);
               opacity: 0;
             }
-          }
-          div#subtitle-list p {
-              animation: trans .3s ease-out;
-              font-weight: bold;
-              color: ${settings.subtitleColor}; 
-              opacity: 1.0; 
-              margin: ${settings.lineGap}px;
-              font-size: ${settings.subtitleSize}px;  
-          }
+        }
+        @keyframes left {
+            from {
+              transform: translatex(-50px);
+              opacity: 0;
+            }
+        }
+        @keyframes size {
+            from {
+              font-size: 5px;
+              opacity: 0;
+            }
+        }
+        div#subtitle-list p {
+            animation: ${settings.jimakuAnimation} .3s ease-out;
+            font-weight: bold;
+            color: ${settings.subtitleColor}; 
+            opacity: 1.0; 
+            margin: ${settings.lineGap}px;
+            font-size: ${settings.subtitleSize}px;  
+        }
         </style>
     `)
     if (!settings.useWebSocket) {
@@ -369,7 +384,6 @@ function pushSubtitle(subtitle, settings) {
 function chatMonitor(settings) {
     const callback = async function (mutationsList) {
         for (const mu of mutationsList) {
-            if (mu.addedNodes.length < 1) continue
             for (const node of mu.addedNodes) {
                 const danmaku = $(node)?.attr('data-danmaku')?.trim()
                 if (danmaku) console.debug(danmaku)
@@ -389,17 +403,47 @@ function chatMonitor(settings) {
 
 let proxyActivated = false
 
-window.addEventListener('ws:proxy-initialized', () => {
-    proxyActivated = true
-    console.log('proxy activated.')
-})
+function generateToken() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+}
+
+let csrfToken = generateToken()
+
+window.addEventListener('bjf:command', ({ detail: { cmd, data } }) => {
+    if (!cmd.startsWith('e') && data.csrfToken !== csrfToken){
+        console.warn('token not match, skipped command')
+        return
+    }
+    switch(cmd){
+        case "e-proxy-activated":
+            proxyActivated = true
+            console.log('proxy activated.')
+            break;
+        case "send-notify":
+            sendNotify(data)
+            break;
+        default:
+            break;
+    }
+    if (!cmd.startsWith('e')){
+        csrfToken = generateToken()
+    }
+}, true)
 
 function wsMonitor(settings) {
     const { danmakuPosition, forceAlterWay } = settings.webSocketSettings
     window.addEventListener('ws:bilibili-live', ({ detail: { cmd, command } }) => {
         if (cmd === 'DANMU_MSG') {
             const danmaku = command.info[1]
-            if (danmaku) console.debug(danmaku)
+            if (danmaku) {
+                const id = `${danmaku}-${command.info[2][0]}`
+                if (beforeInsert.shift() === id) return
+                console.debug(danmaku)
+                beforeInsert.push(id)
+            }
             const jimaku = toJimaku(danmaku, settings.regex)
             if (jimaku !== undefined) {
                 pushSubtitle(jimaku, settings)
@@ -428,9 +472,18 @@ function wsMonitor(settings) {
                         const event = new CustomEvent('ws:bliveproxy', { detail: msg })
                         window.dispatchEvent(event)
                     }, true);
+                    console.log('websocket injected by alternative way')
+                    const event = new CustomEvent('bjf:command', {detail: {
+                        cmd: 'send-notify',
+                        data: {
+                            title: '第三方监控挂接成功',
+                            message: 'WebSocket 已被成功挂接。',
+                            csrfToken: '${csrfToken}'
+                        }
+                    }})
+                    window.dispatchEvent(event)
                     this.send = this._send
                 }
-                console.log('websocket injected by alternative way')
             </script>
             `
             $(document.body).prepend(s)

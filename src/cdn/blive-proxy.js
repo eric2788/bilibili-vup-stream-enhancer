@@ -49,7 +49,7 @@
       })
       window.addEventListener('ws:bliveproxy', e => {
         myOnMessage(e.detail, () => {})
-      })
+      }, true)
       console.log('injected successfull')
     }
 
@@ -66,7 +66,8 @@
       set(target, property, value) {
         if (property === 'onmessage') {
           let realOnMessage = value
-          const event = new CustomEvent('ws:proxy-initialized')
+          console.log('proxy initialized.')
+          const event = new CustomEvent('bjf:command', {detail: {cmd: 'e-proxy-activated'}})
           window.dispatchEvent(event)
           value = function(event) {
             myOnMessage(event, realOnMessage)

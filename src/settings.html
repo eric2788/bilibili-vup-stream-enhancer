@@ -29,6 +29,7 @@
             <p class="lead">设定页面</p>
             <hr class="my-4">
             <p>储存后需要到目标页面进行刷新才能生效。</p>
+            <button class="btn btn-success" id="check-update">检查更新</button>
           </div>
         <form id="setting">
             <div class="form-group">
@@ -132,7 +133,14 @@
                             </div>
                             <small id="height-bg-help" class="form-text text-muted">范围 100 ~ 700</small>
                         </div>
-                        
+                        <div class="form-group">
+                            <label for="jimaku-animation">字幕动画</label>
+                            <select class="custom-select" id="jimaku-animation">                
+                                <option value="left">右移</option>
+                                <option value="top">下移</option>
+                                <option value="size">缩放</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -217,7 +225,7 @@
                             <input class="form-control" type="file" id="setting-file" accept=".json">
                         </div>
                         <button class="btn btn-primary" id="input-setting">导入</button>
-                        <button class="btn btn-primary" id="output-setting">导出设定档</button>
+                        <button class="btn btn-danger" id="output-setting">导出设定档</button>
                     </div>
                 </div>
             </div>
@@ -267,7 +275,7 @@
                 </div>
             </div>
             <button type="submit" class="btn btn-primary" id="save-settings">保存设定</button>
-            <button class="btn btn-warning" id="clear-data">清空字幕记录储存库</button>
+            <button class="btn btn-danger" id="clear-data">清空字幕记录储存库</button>
           </form>
         </div>
       </div>
