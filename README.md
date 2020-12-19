@@ -39,6 +39,24 @@
 </details>
 
 <details>
+<summary>字幕动画设定</summary>
+
+右移
+
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/animate-left.gif)
+
+下移
+
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/animate-top.gif)
+
+缩放
+
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/aniamte-size.gif)
+
+
+</details>
+
+<details>
 <summary>同传弹幕风格</summary>
 
 主要是颜色和透明度
