@@ -2,13 +2,13 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.7.1",
+    "version": "0.7.2",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
     "developer": {
       "name": "Eric Lam",
-      "url": "https://eric2788.github.io/bilibili-jimaku-filter/"
+      "url": "https://github.com/eric2788/bilibili-jimaku-filter"
     },
     "icons": {
       "96": "icons/icon.png"

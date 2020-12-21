@@ -144,10 +144,10 @@ function logLink(version){
 }
 
 
-browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
-    if (nid !== 'bjf:update') {
+browser.notifications.onButtonClicked.addListener((nid, bi) => {
+    if (nid === 'bjf:update') {
         if (latest === undefined) {
-            await sendNotify({
+            sendNotify({
                 title: '索取新版本信息失败。',
                 message: '请稍后再尝试。'
             })
@@ -156,17 +156,16 @@ browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
         switch (bi) {
             case 0:
                 //下载更新
-                await browser.tabs.create({ url: latest.update_link })
+                browser.tabs.create({ url: latest.update_link })
                 break;
             case 1:
                 //查看更新日志
-                await browser.tabs.create({ url: logLink(latest.version) })
+                browser.tabs.create({ url: logLink(latest.version) })
                 break;
         }
-    } else if (nid !== 'bjf:updated'){
-        await browser.tabs.create({url: logLink(currentVersion)})
+    } else if (nid === 'bjf:updated'){
+        browser.tabs.create({url: logLink(currentVersion)})
     }
-    
 })
 
 browser.runtime.onInstalled.addListener(async data => {
