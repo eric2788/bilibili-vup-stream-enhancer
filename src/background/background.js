@@ -1,4 +1,4 @@
-import getSettings from '../js/utils'
+import getSettings, { isFirefox } from '../js/utils'
 
 console.log('background is working...')
 
@@ -28,47 +28,61 @@ async function sendNotifyId(id, data){
 }
 
 const currentVersion = browser.runtime.getManifest().version
-let latestVersion = undefined
+const updateApi = browser.runtime.getManifest().applications.gecko.update_url
+const eid = browser.runtime.getManifest().applications.gecko.id
 
+let latest = undefined
 
-async function checkUpdate(notify = false){
+async function checkUpdate(notify = false) {
     try {
-        const {status, details} = await browser.runtime.requestUpdateCheck()
-        switch (status) {
-            case "throttled":
-                if (notify){
+        const addons = (await webRequest(updateApi)).addons
+        if (addons) {
+            const verList = addons[eid]?.updates
+            if (verList){
+                for (const update of verList) {
+                    if (update.version.newerThan(latest?.version ?? "")){
+                        latest = update
+                    }
+                }
+            }
+        }
+        if (!latest) {
+            if (notify){
                     await sendNotify({
                         title: '检查版本失败',
                         message: '无法索取最新版本讯息。'
                     })
-                }
-                break;
-            case "no_update":
-                if (notify){
-                    await sendNotify({
-                        title: '没有可用的更新',
-                        message: '你的版本已经是最新版本。'
-                    })
-                }
-                break;
-            case "update_available":
-                await sendNotifyId('bjf:update', {
-                    title: 'bilibili-jimaku-filter 有可用的更新',
-                    message: `新版本 v${details.version}`,
-                    buttons: [
-                        {
-                            title: '下载更新'
-                        },
-                        {
-                            title: '查看更新日志'
-                        }
-                    ]
+            }
+            return
+        } else if (currentVersion.newerThan(latest.version)){
+            if (notify){
+                await sendNotify({
+                    title: '没有可用的更新',
+                    message: '你的版本已经是最新版本。'
                 })
-                break;
+            }
+            return
         }
-        if (!details) return
-        console.log(details)
-        latestVersion = details.version
+
+        if (isFirefox){
+            await sendNotifyId('bjf:update', {
+                title: 'bilibili-jimaku-filter 有可用的更新',
+                message: `新版本 v${latest.version}\n可到扩充管理手动更新或等待自动更新`
+            })
+        }else{
+            await sendNotifyId('bjf:update', {
+                title: 'bilibili-jimaku-filter 有可用的更新',
+                message: `新版本 v${latest.version}`,
+                buttons: [
+                    {
+                        title: '下载更新'
+                    },
+                    {
+                        title: '查看更新日志'
+                    }
+                ]
+            })
+        }
     } catch (err) {
         console.error(err)
         await sendNotify({
@@ -76,11 +90,29 @@ async function checkUpdate(notify = false){
             message: err.message
         })
     }
+    return latest
+}
+
+//火狐可以自动更新
+if (!isFirefox){
+    checkUpdate()
 }
 
 
-
-checkUpdate()
+String.prototype.newerThan = function (version) {
+    const current = this.split('.')
+    const target = version.split('.')
+    for (let i = 0; i < Math.max(current.length, target.length); i++) {
+        const cv = i < current.length ? parseInt(current[i]) : 0
+        const tv = i < target.length ? parseInt(target[i]) : 0
+        if (cv > tv) {
+            return true
+        } else if (cv < tv) {
+            return false
+        }
+    }
+    return true
+}
 
 
 
@@ -121,14 +153,10 @@ function logLink(version){
     return `https://github.com/eric2788/bilibili-jimaku-filter/releases/tag/${version}`
 }
 
-function downloadLink(version){
-    return `https://github.com/eric2788/bilibili-jimaku-filter/releases/download/${version}/bilibili_jimaku_filter-${version}-an+fx.xpi`
-}
-
 
 browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
     if (nid === 'bjf:update') {
-        if (!latestVersion) {
+        if (latest === undefined) {
             await sendNotify({
                 title: '索取新版本信息失败。',
                 message: '请稍后再尝试。'
@@ -138,27 +166,35 @@ browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
         switch (bi) {
             case 0:
                 //下载更新
-                await browser.tabs.create({ url: downloadLink(latestVersion) })
+                await browser.tabs.create({ url: latest.update_link })
                 break;
             case 1:
                 //查看更新日志
-                await browser.tabs.create({ url: logLink(latestVersion) })
+                await browser.tabs.create({ url: logLink(latest.version) })
                 break;
         }
     } else if (nid === 'bjf:updated'){
         await browser.tabs.create({url: logLink(currentVersion)})
     }
+    
 })
 
 browser.runtime.onInstalled.addListener(async data => {
     if (data.reason !== 'update') return
-    await sendNotifyId('bjf:updated', {
-        title: 'bilibili-jimaku-filter 已更新',
-        message: `已更新到版本 v${currentVersion}`,
-        buttons: [
-            {
-                title: '查看更新日志'
-            }
-        ]
-    })
+    if (isFirefox){
+        await sendNotifyId('bjf:updated', {
+            title: 'bilibili-jimaku-filter 已更新',
+            message: `已更新到版本 v${currentVersion}`
+        })
+    }else{
+        await sendNotifyId('bjf:updated', {
+            title: 'bilibili-jimaku-filter 已更新',
+            message: `已更新到版本 v${currentVersion}`,
+            buttons: [
+                {
+                    title: '查看更新日志'
+                }
+            ]
+        })
+    }
 })
