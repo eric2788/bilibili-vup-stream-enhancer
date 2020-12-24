@@ -69,7 +69,7 @@ function getStreamingTime() {
         });
         // 強行召喚時間戳記條
         $('.bilibili-live-player-video-controller')[0].dispatchEvent(ev)
-        return $('.tip-wrap')[0].innerText
+        return /[\d:]+/g.exec($('.tip-wrap')[0].innerText).pop()
     }catch(err){
         console.warn(err)
         console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
