@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.8.1",
+    "version": "0.8.2",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",

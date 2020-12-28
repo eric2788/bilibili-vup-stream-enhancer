@@ -387,7 +387,7 @@ function chatMonitor(settings) {
             for (const node of mu.addedNodes) {
                 const danmaku = $(node)?.attr('data-danmaku')?.trim()
                 const userId = $(node)?.attr('data-uid')?.trim()
-                const isTongChuan = settings.tongchuanMans.includes(userId)
+                const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
                 if (danmaku) console.debug(danmaku)
                 const subtitle = isTongChuan ? danmaku : toJimaku(danmaku, settings.regex)
                 if (subtitle !== undefined) {
@@ -447,7 +447,7 @@ function wsMonitor(settings) {
                 console.debug(danmaku)
                 beforeInsert.push(id)
             }
-            const isTongChuan = settings.tongchuanMans.includes(userId)
+            const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
             const jimaku = isTongChuan ? danmaku : toJimaku(danmaku, settings.regex)
             if (jimaku !== undefined) {
                 pushSubtitle(jimaku, settings)
