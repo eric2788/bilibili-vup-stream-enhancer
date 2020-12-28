@@ -11,7 +11,7 @@ const defaultSettings = {
     backgroundSubtitleOpacity: 40,
     backgroundColor: '#808080',
     backgroundHeight: 100,
-
+    tongchuanMans: [],
     subtitleColor: '#FFFFFF',
     blacklistRooms: [],
     useAsWhitelist: false,

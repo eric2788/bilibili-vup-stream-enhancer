@@ -386,8 +386,10 @@ function chatMonitor(settings) {
         for (const mu of mutationsList) {
             for (const node of mu.addedNodes) {
                 const danmaku = $(node)?.attr('data-danmaku')?.trim()
+                const userId = $(node)?.attr('data-uid')?.trim()
+                const isTongChuan = settings.tongchuanMans.includes(userId)
                 if (danmaku) console.debug(danmaku)
-                const subtitle = toJimaku(danmaku, settings.regex)
+                const subtitle = isTongChuan ? danmaku : toJimaku(danmaku, settings.regex)
                 if (subtitle !== undefined) {
                     if (beforeInsert.shift() === subtitle) {
                         continue
@@ -437,6 +439,7 @@ function wsMonitor(settings) {
     const { danmakuPosition, forceAlterWay } = settings.webSocketSettings
     window.addEventListener('ws:bilibili-live', ({ detail: { cmd, command } }) => {
         if (cmd === 'DANMU_MSG') {
+            const userId = command.info[2][0]
             const danmaku = command.info[1]
             if (danmaku) {
                 const id = `${danmaku}-${command.info[2][0]}`
@@ -444,7 +447,8 @@ function wsMonitor(settings) {
                 console.debug(danmaku)
                 beforeInsert.push(id)
             }
-            const jimaku = toJimaku(danmaku, settings.regex)
+            const isTongChuan = settings.tongchuanMans.includes(userId)
+            const jimaku = isTongChuan ? danmaku : toJimaku(danmaku, settings.regex)
             if (jimaku !== undefined) {
                 pushSubtitle(jimaku, settings)
                 //在使用 websocket 的情况下，可以强制置顶和置底弹幕

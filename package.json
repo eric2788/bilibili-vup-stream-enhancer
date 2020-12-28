@@ -1,6 +1,6 @@
 {
   "name": "bilibili-jimaku-filter",
-  "version": "0.7.3",
+  "version": "0.8.1",
   "description": "jimaku filter for bilibili",
   "main": "index.js",
   "scripts": {

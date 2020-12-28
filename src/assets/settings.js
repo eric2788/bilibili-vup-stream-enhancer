@@ -18,6 +18,15 @@ function getCurrentInput(){
     })
     setting.blacklistRooms = [...rooms]
 
+    const tcmans = new Set()
+    $('ul#tongchuan-mans').children('li').each((i, e) => {
+        const user = $(e).attr('tc-man-id')
+        tcmans.add(user)
+    })
+
+    setting.tongchuanMans = [...tcmans]
+    
+
     setting.lineGap = $('#line-gap')[0].valueAsNumber
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
     setting.jimakuAnimation = $('#jimaku-animation')[0].value
@@ -52,6 +61,38 @@ function appendBlackList(room){
     })
 }
 
+$('#blacklist-add-btn').on('click', e => {
+    e.preventDefault()
+    if (!$('#add-blacklist')[0].checkValidity()){
+        return
+    }
+    const room = $('#add-blacklist')[0].value
+    if (room === undefined || room === '') return
+    appendBlackList(room)
+    $('#add-blacklist')[0].value = ''
+})
+
+function appendTongChuan(user){
+    $('ul#tongchuan-mans').prepend(`<li class="list-group-item" tc-man-id="${user}">
+            <span>${user}</span>
+            <a style="float: right" href="javascript: void(0)" id="${user}">刪除</a>
+    </li>`)
+    $(`a#${user}`).on('click', e => {
+        $('ul#tongchuan-mans').children('li').filter((i, e) => $(e).attr('tc-man-id') == user).each((i, e) => e.remove())
+    })
+}
+
+$('#tcman-add-btn').on('click', e => {
+    e.preventDefault()
+    if (!$('#add-tcman')[0].checkValidity()){
+        return
+    }
+    const user = $('#add-tcman')[0].value
+    if (user === undefined || user === '') return
+    appendTongChuan(user)
+    $('#add-tcman')[0].value = ''
+})
+
 function saveCurrentInput(setting){
     $('#reg-cap')[0].value = setting.regex
     $('#opacity-jimaku')[0].valueAsNumber = setting.opacity
@@ -77,6 +118,10 @@ function saveCurrentInput(setting){
 
     for (const room of (setting.blacklistRooms ?? [])){
         appendBlackList(room)
+    }
+
+    for (const user of (setting.tongchuanMans ?? [])){
+        appendTongChuan(user)
     }
 
     $('#use-web-socket').prop('checked', setting.useWebSocket)
@@ -183,17 +228,7 @@ $('#clear-data').on('click', async e =>{
     }
 })
 
-$('#blacklist-add-btn').on('click', e => {
-    console.log('blacklist button')
-    e.preventDefault()
-    if (!$('#add-blacklist')[0].checkValidity()){
-        return
-    }
-    const room = $('#add-blacklist')[0].value
-    if (room === undefined || room === '') return
-    appendBlackList(room)
-    $('#add-blacklist')[0].value = ''
-})
+
 
 $('#use-web-socket').on('change', e => {
     const checked =  $(e.target).prop('checked')
