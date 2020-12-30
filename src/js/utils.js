@@ -46,4 +46,19 @@ async function getSettings(){
     return {...defaultSettings, ...res}
 }
 
+export function getUserAgent(){
+    if (isEdge){
+        return "edge"
+    }else if (isChrome){
+        return "chrome"
+    } else if (isFirefox){
+        return "firefox"
+    } else if (isOpera){
+        return "opera"
+    } else {
+        return "not-supported"
+    }
+}
+
+
 export default getSettings

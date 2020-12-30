@@ -52,7 +52,38 @@ function getTimeStamp() {
     return new Date().toTimeString().substring(0, 8)
 }
 
-function getStreamingTime() {
+function getStreamingTimeFromHtml(){
+    const ev = new MouseEvent("mousemove", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: 554,
+        clientY: 665
+    });
+    // 強行召喚時間戳記條
+    $('.bilibili-live-player-video-controller')[0].dispatchEvent(ev)
+    return /[\d:]+/g.exec($('.tip-wrap')[0].innerText).pop()
+}
+
+function toTimer(secs){
+    let min = 0;
+    let hr = 0;
+    while(secs >= 60){
+        secs -= 60
+        min++
+    }
+    while (min >= 60){
+        min -= 60
+        hr++
+    }
+    const mu = min > 9 ? `${min}`: `0${min}`
+    const ms = secs > 9 ? `${secs}` : `0${secs}`
+    return `${hr}:${mu}:${ms}`
+}
+
+let live_time = undefined
+
+async function getStreamingTime() {
     try {
         const ele = $('[data-title=直播持续时间] > span')
         // 舊直播 UI
@@ -60,16 +91,22 @@ function getStreamingTime() {
             return ele[0].innerText
         }
         // 新直播UI
-        const ev = new MouseEvent("mousemove", {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-            clientX: 554,
-            clientY: 665
-        });
-        // 強行召喚時間戳記條
-        $('.bilibili-live-player-video-controller')[0].dispatchEvent(ev)
-        return /[\d:]+/g.exec($('.tip-wrap')[0].innerText).pop()
+        try {
+            if (!live_time){
+                const response = await webRequest(`https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomId}`)
+                if (response?.data?.live_time){
+                    live_time = response.data.live_time
+                }else{
+                    throw new Error(response?.message ?? response.code)
+                }   
+            }
+            return toTimer(Math.round(Date.now() / 1000) - live_time)
+        }catch(err){
+            console.warn(`使用網絡請求時間失敗`)
+            console.warn(err)
+            console.warn(`嘗試改為使用html元素獲取`)
+            return getStreamingTimeFromHtml()
+        }
     }catch(err){
         console.warn(err)
         console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
@@ -369,20 +406,20 @@ const logSettings = {
 
 function pushSubtitle(subtitle, settings) {
     appendSubtitle(subtitle)
-    const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
     if (settings.record) {
-        pushRecord({
-            date,
-            text: subtitle
-        }).then(() => {
+        const dateGet = settings.useStreamingTime ? getStreamingTime() : Promise((res,)=> res(getTimeStamp()))
+        dateGet
+        .then((date) => pushRecord({date, text: subtitle}))
+        .then(() => {
             logSettings.hasLog = true
             logSettings.changed = true
-        }).catch(console.warn)
+        })
+        .catch(console.warn)
     }
 }
 
 function chatMonitor(settings) {
-    const callback = async function (mutationsList) {
+    const callback = function (mutationsList) {
         for (const mu of mutationsList) {
             for (const node of mu.addedNodes) {
                 const danmaku = $(node)?.attr('data-danmaku')?.trim()
@@ -399,7 +436,7 @@ function chatMonitor(settings) {
             }
         }
     }
-    const observer = new Observer((mlist, obs) => callback(mlist).catch(console.warn));
+    const observer = new Observer((mlist, obs) => callback(mlist));
     observer.observe($('#chat-items')[0], config);
 }
 

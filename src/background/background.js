@@ -1,4 +1,4 @@
-import getSettings, { isChrome, isEdge, isFirefox, isOpera } from '../js/utils'
+import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera } from '../js/utils'
 
 console.log('background is working...')
 
@@ -49,8 +49,13 @@ const updateID = browser.runtime.getManifest().applications.gecko.id
 const eid = browser.runtime.id
 
 let latest = undefined
+let auto_update_supported = []
+let userAgent = getUserAgent()
 
 async function checkUpdateWithAPI(){
+    if (!auto_update_supported.includes(userAgent)){
+        throw new Error('this browser is not support auto update')
+    }
     const [status, update] = await browser.runtime.requestUpdateCheck()
     if (status === 'update_available'){
         return update
@@ -61,9 +66,13 @@ async function checkUpdateWithAPI(){
     return {version: currentVersion}
 }
 
+async function getAutoUpdateSupported(){
+    return (await webRequest(updateApi))?.auto_update_supported ?? []
+}
+
 async function checkUpdateOther(){
     let latestv = undefined
-    const addons = (await webRequest(updateApi)).addons
+    const addons = (await webRequest(updateApi))?.addons
     if (addons) {
         const verList = addons[updateID]?.updates
         if (verList) {
@@ -80,6 +89,7 @@ async function checkUpdateOther(){
 async function checkUpdate(notify = false) {
     try {
         console.log('checking update')
+        auto_update_supported = await getAutoUpdateSupported()
         try {
             latest = await checkUpdateWithAPI()
         }catch(err){
@@ -179,9 +189,9 @@ function logLink(version){
 }
 
 function downloadLink(latest){
-    if (isEdge){
+    if (isEdge && auto_update_supported.includes('edge')){
         return `https://microsoftedge.microsoft.com/addons/detail/${eid}`
-    }else if (isChrome) {
+    }else if (isChrome && auto_update_supported.includes('chrome')) {
         return `https://chrome.google.com/webstore/detail/${eid}`
     }else {
         return latest.update_link
