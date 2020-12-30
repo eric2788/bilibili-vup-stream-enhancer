@@ -213,6 +213,26 @@
                     </div>
                 </div>
             </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#tongchuanman" data-toggle="collapse">➵ 同传Man名单</a>
+                </div>
+                <div class="collapse" id="tongchuanman">
+                    <div class="card-body">
+                        <h3>同传Man名单 - 此处新增的用户弹幕直接为同传弹幕</h3>
+                        <ul id="tongchuan-mans" class="list-group list-group-flush" style="overflow-y: auto; height: 200px; border: black solid">
+                        </ul>
+                        <label for="add-tcman">添加同传用户 ID</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="add-tcman" aria-describedby="tc-help" min="1">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="tcman-add-btn">新增</button>
+                            </div>
+                        </div>
+                        <small id="tc-help" clas="form-text text-muted">输入必须为数字</small>
+                    </div>
+                </div>
+            </div>
             
             <div class="form-group">
                 <div class="custom-control custom-switch">
@@ -250,6 +270,10 @@
                     <label class="custom-control-label" for="no-cn-v">自动过滤国V</label>
                     <small id="no-cn-v-help">(此功能仍在试验阶段)</small>
                 </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="auto-check-update">
+                    <label class="custom-control-label" for="auto-check-update">每次打开浏览器自动检查更新</label>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary" id="save-settings">保存设定</button>
             <button class="btn btn-warning" id="clear-data">清空字幕记录储存库</button>
@@ -258,15 +282,6 @@
       </div>
 </body>
 <script>
-    function appendBlackList(room){
-        $('ul#blacklist').prepend(`<li class="list-group-item" room="${room}">
-                <span>${room}</span>
-                <a style="float: right" href="javascript: void(0)" id="${room}">刪除</a>
-        </li>`)
-        $(`a#${room}`).on('click', e => {
-            $('ul#blacklist').children('li').filter((i, e) => $(e).attr('room') == room).each((i, e) => e.remove())
-        })
-    }
 
     hookColor('color-jimaku')
     hookColor('background-jimaku')
@@ -288,6 +303,15 @@
         }
     })
 
+    function appendBlackList(room){
+        $('ul#blacklist').prepend(`<li class="list-group-item" room="${room}">
+                <span>${room}</span>
+                <a style="float: right" href="javascript: void(0)" id="${room}">刪除</a>
+        </li>`)
+        $(`a#${room}`).on('click', e => {
+            $('ul#blacklist').children('li').filter((i, e) => $(e).attr('room') == room).each((i, e) => e.remove())
+        })
+    }
 
 
     $('#blacklist-add-btn').on('click', e => {
@@ -300,6 +324,27 @@
         if (room === undefined || room === '') return
         appendBlackList(room)
         $('#add-blacklist')[0].value = ''
+    })
+
+    function appendTongChuan(user){
+        $('ul#tongchuan-mans').prepend(`<li class="list-group-item" tc-man-id="${user}">
+                <span>${user}</span>
+                <a style="float: right" href="javascript: void(0)" id="${user}">刪除</a>
+        </li>`)
+        $(`a#${user}`).on('click', e => {
+            $('ul#tongchuan-mans').children('li').filter((i, e) => $(e).attr('tc-man-id') == user).each((i, e) => e.remove())
+        })
+    }
+
+    $('#tcman-add-btn').on('click', e => {
+        e.preventDefault()
+        if (!$('#add-tcman')[0].checkValidity()){
+            return
+        }
+        const user = $('#add-tcman')[0].value
+        if (user === undefined || user === '') return
+        appendTongChuan(user)
+        $('#add-tcman')[0].value = ''
     })
 
     $('#use-web-socket').on('change', e => {
