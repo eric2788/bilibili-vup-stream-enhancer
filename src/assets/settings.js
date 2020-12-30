@@ -48,6 +48,7 @@ function getCurrentInput(){
     }
 
     setting.filterCNV = $('#no-cn-v').prop('checked')
+    setting.autoCheckUpdate = $('#auto-check-update').prop('checked')
     return setting
 }
 
@@ -153,6 +154,8 @@ function saveCurrentInput(setting){
     $('#no-cn-v').prop('checked', setting.filterCNV)
 
     $('#jimaku-animation')[0].value = setting.jimakuAnimation
+    
+    $('#auto-check-update').prop('checked', setting.autoCheckUpdate)
 }
 
 

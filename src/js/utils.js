@@ -1,4 +1,12 @@
-export const isFirefox = typeof InstallTrigger !== 'undefined'
+export const isFirefox = navigator.userAgent.indexOf('Firefox') > -1
+
+export const isChrome = navigator.userAgent.indexOf('Chrome') > -1
+
+export const isOpera = navigator.userAgent.indexOf("OP") > -1
+
+export const isEdge = navigator.userAgent.indexOf("Edg") > -1
+
+export const canUseButton = isChrome
 
 const defaultSettings = {
     regex: '^(?<n>[^【】]+?)?\:*\s*【(?<cc>[^【】]+?)】*$',
@@ -29,7 +37,8 @@ const defaultSettings = {
         backgroundColor: '#000000',
         textColor: '#FFFFFF'
     },
-    filterCNV: false
+    filterCNV: false,
+    autoCheckUpdate: true
 }
 
 async function getSettings(){
