@@ -8,9 +8,9 @@ module.exports = {
 	//devtool: 'source-map',
     stats: 'errors-only',
 	entry: {
-        background: glob.sync('./src/background/*.js'),
+        background: './src/background.js',
         index: './src/index.js',
-        settings: glob.sync('./src/assets/*.js')
+        settings: './src/settings.js'
     },
 	output: {
 		path: path.join(__dirname, './dist'),
@@ -23,16 +23,10 @@ module.exports = {
             patterns: [
                 {
                     from: '**/*',
-                    context: 'src',
-                    filter: (path) => !path.endsWith('.js')
+                    context: 'assets'
                 },
                 {
                     from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js'
-                },
-                {
-                    from: 'cdn/**/*',
-                    context: 'src',
-                    to: '.'
                 }
             ]
         })

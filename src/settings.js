@@ -1,4 +1,4 @@
-import {getSettings, setSettings, sendNotify, checkUpdate} from '../js/messaging'
+import {getSettings, setSettings, sendNotify, checkUpdate} from './utils/messaging'
 
 function getCurrentInput(){
     const setting = {}

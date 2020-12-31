@@ -1,4 +1,4 @@
-import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera } from '../js/utils'
+import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera } from './utils/misc'
 
 console.log('background is working...')
 
@@ -46,24 +46,30 @@ String.prototype.newerThan = function (version) {
 const currentVersion = browser.runtime.getManifest().version
 const updateApi = browser.runtime.getManifest().applications.gecko.update_url
 const updateID = browser.runtime.getManifest().applications.gecko.id
-const eid = browser.runtime.id
 
 let latest = undefined
-let auto_update_supported = []
+let auto_update_supported = {}
 let userAgent = getUserAgent()
 
 async function checkUpdateWithAPI(){
-    if (!auto_update_supported.includes(userAgent)){
+    const link = auto_update_supported[userAgent]
+    if (!link){
         throw new Error('this browser is not support auto update')
     }
     const [status, update] = await browser.runtime.requestUpdateCheck()
     if (status === 'update_available'){
-        return update
+        return {
+            ...update,
+            update_link: link
+        }
     }
     if (status === 'throttled'){
         throw new Error('update is throttled')
     }
-    return {version: currentVersion}
+    return {
+        version: currentVersion,
+        update_link: link
+    }
 }
 
 async function getAutoUpdateSupported(){
@@ -189,15 +195,14 @@ function logLink(version){
 }
 
 function downloadLink(latest){
-    if (isEdge && auto_update_supported.includes('edge')){
-        return `https://microsoftedge.microsoft.com/addons/detail/${eid}`
-    }else if (isChrome && auto_update_supported.includes('chrome')) {
-        return `https://chrome.google.com/webstore/detail/${eid}`
+    if (isEdge && auto_update_supported['edge']){
+        return auto_update_supported['edge']
+    }else if (isChrome && auto_update_supported['chrome']) {
+        return auto_update_supported['chrome']
     }else {
         return latest.update_link
     }
 }
-
 
 browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
     if (nid === 'bjf:update') {

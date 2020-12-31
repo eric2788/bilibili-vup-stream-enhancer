@@ -1,6 +1,6 @@
-import getSettings from './js/utils'
-import { connect, pushRecord, listRecords, clearRecords, close } from './js/database'
-import { sendNotify, webRequest } from './js/messaging'
+import getSettings from './utils/misc'
+import { connect, pushRecord, listRecords, clearRecords, close } from './utils/database'
+import { sendNotify, webRequest } from './utils/messaging'
 
 const config = { attributes: false, childList: true, subtree: true };
 
@@ -128,7 +128,7 @@ function toJimaku(danmaku, regex) {
     return danmaku
 }
 
-async function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable, colorDisable }) {
+function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable, colorDisable }) {
     for (const mu of mutationsList) {
         for (const node of mu.addedNodes) {
             const danmaku = node?.innerText?.trim() ?? node?.data?.trim()
@@ -156,7 +156,7 @@ function launchDanmakuStyleChanger(settings) {
     const colorDisable = !colorReg.test(settings.color)
     const hideJimakuDisable = !settings.hideJimakuDanmaku
     if (opacityDisable && colorDisable && hideJimakuDisable) return
-    const danmakuObserver = new Observer((mu, obs) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable, colorDisable }).catch(console.warn))
+    const danmakuObserver = new Observer((mu, obs) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable, colorDisable }))
     danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0], config)
 }
 
