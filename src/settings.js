@@ -230,17 +230,6 @@ $('#clear-data').on('click', async e =>{
     }
 })
 
-
-
-$('#use-web-socket').on('change', e => {
-    const checked =  $(e.target).prop('checked')
-    $('#danmaku-position').attr('disabled', !checked)
-    $('#force-alter-way').attr('disabled', !checked)
-    if (!checked){
-        $('#danmaku-position')[0].value = 'normal'
-    }
-})
-
 $('#use-streaming-time').on('change', e => {
     const s = $(e.target).prop('checked')
     $('label[for=use-streaming-time]')[0].innerText = s ? '使用串流时间戳记' : '使用真实时间戳记'

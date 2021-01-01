@@ -73,7 +73,7 @@ async function checkUpdateWithAPI(){
 }
 
 async function getAutoUpdateSupported(){
-    return (await webRequest(updateApi))?.auto_update_supported ?? []
+    return (await webRequest(updateApi))?.auto_update_supported ?? {}
 }
 
 async function checkUpdateOther(){
