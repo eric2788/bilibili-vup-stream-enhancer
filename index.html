@@ -235,18 +235,22 @@
             </div>
             
             <div class="form-group">
+                <p>目前默认采用bliveproxy进行WebSocket监控，成功率85%。</p>
+                >> 即使如此，仍然有机率会挂接失败。那么当挂接失败时:
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="use-streaming-time">
-                    <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
+                    <input type="checkbox" class="custom-control-input" id="force-alter-way" aria-describedby="faw-help">
+                    <label class="custom-control-label" for="force-alter-way">询问切换到第三方監控。</label>
+                    <small>(第三方监控将100%成功捕捉WebSocket讯息。)</small>
                 </div>
             </div>
             <div class="form-group">
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="use-web-socket">
-                    <label class="custom-control-label" for="use-web-socket">使用 WebSocket 侦测文字</label>
+                    <input type="checkbox" class="custom-control-input" id="use-streaming-time">
+                    <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
                 </div>
-                <label for="danmaku-position">弹幕位置</label>
-                <select class="custom-select" id="danmaku-position" disabled>                
+                <label for="danmaku-position" aria-details="dp-help">弹幕位置</label>
+                <small id="dp-help">(采用第三方监控时弹幕位置设定将会无效。)</small>
+                <select class="custom-select" id="danmaku-position">                
                     <option value="normal">不改变</option>
                     <option value="top">置顶</option>
                     <option value="bottom">置底</option>
@@ -258,11 +262,15 @@
                     <label class="custom-control-label" for="hide-jimaku-danmaku">隐藏同传弹幕</label>
                 </div>
                 <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="enable-record-sc">
+                    <label class="custom-control-label" for="enable-record-sc">启用醒目留言捕捉</label>
+                </div>
+                <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="enable-record">
                     <label class="custom-control-label" for="enable-record">启用记录功能</label>
                 </div>
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="vtb-only" aria-describedby="vtb-only-help">
+                    <input type="checkbox" class="custom-control-input" id="vtb-only">
                     <label class="custom-control-label" for="vtb-only">仅限虚拟主播</label>
                 </div>
                 <div class="custom-control custom-checkbox">
@@ -276,7 +284,7 @@
                 </div>
             </div>
             <button type="submit" class="btn btn-primary" id="save-settings">保存设定</button>
-            <button class="btn btn-warning" id="clear-data">清空字幕记录储存库</button>
+            <button class="btn btn-danger" id="clear-data">清空所有记录储存库</button>
           </form>
         </div>
       </div>
@@ -345,14 +353,6 @@
         if (user === undefined || user === '') return
         appendTongChuan(user)
         $('#add-tcman')[0].value = ''
-    })
-
-    $('#use-web-socket').on('change', e => {
-        const checked =  $(e.target).prop('checked')
-        $('#danmaku-position').attr('disabled', !checked)
-        if (!checked){
-            $('#danmaku-position')[0].value = 'normal'
-        }
     })
 
     $('#use-streaming-time').on('change', e => {
