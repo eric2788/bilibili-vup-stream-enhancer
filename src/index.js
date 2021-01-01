@@ -1,8 +1,17 @@
-import getSettings from './utils/misc'
-import { connect, pushRecord, listRecords, clearRecords, close } from './utils/database'
-import { sendNotify, webRequest } from './utils/messaging'
+import getSettings, { roomId, logSettings } from './utils/misc'
+import { connect, close } from './utils/database'
+import { webRequest } from './utils/messaging'
+import { launchJimakuInspect } from './jimaku'
+import { launchSuperChatInspect } from './superchat'
+const userReg = /^\/\/space\.bilibili\.com\/(\d+)\/$/g
+const userId = parseInt(userReg.exec($('a.room-owner-username')?.attr('href'))?.pop())
 
-const config = { attributes: false, childList: true, subtree: true };
+if (isNaN(roomId)) {
+    console.warn('未知直播房間。')
+    throw new Error('未知直播房間。')
+}
+
+const key = `live_room.${roomId}`
 
 // Injecting web socket inspector on start
 const b = `
@@ -11,153 +20,8 @@ const b = `
 `
 $(document.head).append(b)
 
-// for reassign
-//let $$$ = $
-
-const beforeInsert = []
-
-const roomReg = /^\/(?<id>\d+)/g
-const roomId = parseInt(roomReg.exec(location.pathname)?.groups?.id)
-
-const userReg = /^\/\/space\.bilibili\.com\/(\d+)\/$/g
-const userId = parseInt(userReg.exec($('a.room-owner-username')?.attr('href'))?.pop())
-
-const colorReg = /^#[0-9A-F]{6}$/ig
-
-if (isNaN(roomId)) {
-    console.warn('未知直播房間。')
-    throw new Error('未知直播房間。')
-}
-
-let bottomInterval = -1
-
-const key = `live_room.${roomId}`
-
-const Observer = window.MutationObserver
-
-function appendSubtitle(subtitle) {
-    $('div#subtitle-list').prepend(`<p>${subtitle}</p>`)
-}
-
-function launchBottomInterval() {
-    return setInterval(() => {
-        const btn = $('div#danmaku-buffer-prompt')
-        if (btn.css('display') !== 'none') {
-            btn.trigger('click')
-        }
-    }, 1000)
-}
-
-function getTimeStamp() {
-    return new Date().toTimeString().substring(0, 8)
-}
-
-function getStreamingTimeFromHtml(){
-    const ev = new MouseEvent("mousemove", {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-        clientX: 554,
-        clientY: 665
-    });
-    // 強行召喚時間戳記條
-    $('.bilibili-live-player-video-controller')[0].dispatchEvent(ev)
-    return /[\d:]+/g.exec($('.tip-wrap')[0].innerText).pop()
-}
-
-function toTimer(secs){
-    let min = 0;
-    let hr = 0;
-    while(secs >= 60){
-        secs -= 60
-        min++
-    }
-    while (min >= 60){
-        min -= 60
-        hr++
-    }
-    const mu = min > 9 ? `${min}`: `0${min}`
-    const ms = secs > 9 ? `${secs}` : `0${secs}`
-    return `${hr}:${mu}:${ms}`
-}
-
-let live_time = undefined
-
-async function getStreamingTime() {
-    try {
-        const ele = $('[data-title=直播持续时间] > span')
-        // 舊直播 UI
-        if (ele.length > 0){
-            return ele[0].innerText
-        }
-        // 新直播UI
-        try {
-            if (!live_time){
-                const response = await webRequest(`https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomId}`)
-                if (response?.data?.live_time){
-                    live_time = response.data.live_time
-                }else{
-                    throw new Error(response?.message ?? response.code)
-                }   
-            }
-            return toTimer(Math.round(Date.now() / 1000) - live_time)
-        }catch(err){
-            console.warn(`使用網絡請求時間失敗`)
-            console.warn(err)
-            console.warn(`嘗試改為使用html元素獲取`)
-            return getStreamingTimeFromHtml()
-        }
-    }catch(err){
-        console.warn(err)
-        console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
-        return getTimeStamp()
-    }
-}
-
-function toJimaku(danmaku, regex) {
-    if (danmaku !== undefined) {
-        const reg = new RegExp(regex)
-        const g = reg.exec(danmaku)?.groups
-        danmaku = g?.cc
-        const name = g?.n
-        if (danmaku === "") {
-            danmaku = undefined
-        }
-        return name && danmaku ? `${name}: ${danmaku}` : danmaku
-    }
-    return danmaku
-}
-
-function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable, colorDisable }) {
-    for (const mu of mutationsList) {
-        for (const node of mu.addedNodes) {
-            const danmaku = node?.innerText?.trim() ?? node?.data?.trim()
-            if (toJimaku(danmaku, settings.regex) !== undefined) {
-                const n = node.innerText !== undefined ? node : node.parentElement
-                const jimaku = $(n)
-                if (!hideJimakuDisable) {
-                    jimaku.css('display', 'none')
-                    return
-                }
-                if (!opacityDisable) {
-                    const o = (settings.opacity / 100).toFixed(1)
-                    jimaku.css('opacity', o)
-                }
-                if (!colorDisable) {
-                    jimaku.css('color', settings.color)
-                }
-            }
-        }
-    }
-}
-
-function launchDanmakuStyleChanger(settings) {
-    const opacityDisable = settings.opacity == -1
-    const colorDisable = !colorReg.test(settings.color)
-    const hideJimakuDisable = !settings.hideJimakuDanmaku
-    if (opacityDisable && colorDisable && hideJimakuDisable) return
-    const danmakuObserver = new Observer((mu, obs) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable, colorDisable }))
-    danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0], config)
+async function sleep(ms) {
+    return new Promise((res,) => setTimeout(res, ms))
 }
 
 async function filterNotV(settings) {
@@ -218,226 +82,20 @@ async function filterCNV(settings, retry = 0) {
                     }
                 }
             } catch (err) {
+                console.warn(err)
                 if (retry >= 5){
                     console.warn(`已重試${retry}次，放棄過濾。`)
                     return false
                 }
-                console.warn(err)
+                ++retry
                 console.warn('檢測國V時出現錯誤: ' + err.message)
                 console.warn(`重試第${retry}次，五秒後重試`)
                 await sleep(5000)
-                return await filterCNV(settings, ++retry)
+                return await filterCNV(settings, retry)
             }
         }
     }
     return false
-}
-
-// start
-async function process() {
-    console.log('this page is using bilibili jimaku filter')
-    const roomLink = $('a.room-owner-username').attr('href')
-    if (!roomLink) {
-        console.log('the room is theme room, skipped')
-        return
-    }
-    const settings = await getSettings()
-    if (settings.blacklistRooms.includes(`${roomId}`) === !settings.useAsWhitelist) {
-        console.log('房間ID在黑名單上，已略過。')
-        return
-    }
-
-    const { buttonOnly, skipped: sk1 } = await filterNotV(settings)
-    if (sk1) return
-
-    if (await filterCNV(settings)) return
-
-    if (settings.record) {
-        console.log('啟用同傳彈幕記錄')
-        if (window.indexedDB) {
-            try {
-                await connect(key)
-                if (localStorage.getItem(key) == null){
-                    localStorage.setItem(key, JSON.stringify({hasLog: false}))
-                }
-            } catch (err) {
-                console.error(err)
-                alert(`連接資料庫時出現錯誤: ${err.message}, 自動取消同傳彈幕記錄。`)
-                close()
-                settings.record = false
-            }
-        } else {
-            alert('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
-            console.warn('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
-            settings.record = false
-        }
-    }
-
-
-    const { backgroundListColor: blc, backgroundColor: bc, textColor: tc } = settings.buttonSettings
-    const { backgroundColor: bgc, subtitleColor: stc, backgroundHeight: bgh } = settings
-
-    $('div.player-section').after(`
-        <div id="button-list" style="text-align: center; background-color: ${blc}">
-            <button id="clear-record" class="button">删除所有字幕记录</button>
-        </div>
-        <style>
-        .button {
-            background-color: ${bc};
-            border: none;
-            color: ${tc};
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 15px;
-            margin: 5px 5px;
-            left: 50%;
-            cursor: pointer;
-          }
-        </style>
-    `)
-    if (settings.record) {
-        $('#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
-        $('button#download-record').on('click', downloadLog)
-    }
-    $('button#clear-record').on('click', () => clearLogs(settings.record).catch(console.warn))
-    if (buttonOnly) return
-    $('div.player-section').after(`
-        <div id="subtitle-list" class="subtitle-normal"></div>
-        <style>
-        .subtitle-normal {
-            background-color: ${bgc}; 
-            width: 100%; 
-            height: ${bgh}px; 
-            position: relative;
-            z-index: 3;
-            overflow-y: auto; 
-            text-align: center;
-            overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: ${stc} ${bgc};
-        }
-        .subtitle-normal::-webkit-scrollbar {
-            width: 5px;
-        }
-         
-        .subtitle-normal::-webkit-scrollbar-track {
-            background-color: ${bgc};
-        }
-         
-        .subtitle-normal::-webkit-scrollbar-thumb {
-            background-color: ${stc};
-        }
-        @keyframes top {
-            from {
-              transform: translateY(-30px);
-              opacity: 0;
-            }
-        }
-        @keyframes left {
-            from {
-              transform: translatex(-50px);
-              opacity: 0;
-            }
-        }
-        @keyframes size {
-            from {
-              font-size: 5px;
-              opacity: 0;
-            }
-        }
-        div#subtitle-list p {
-            animation: ${settings.jimakuAnimation} .3s ease-out;
-            font-weight: bold;
-            color: ${settings.subtitleColor}; 
-            opacity: 1.0; 
-            margin: ${settings.lineGap}px;
-            font-size: ${settings.subtitleSize}px;  
-        }
-        </style>
-    `)
-    if (!settings.useWebSocket) {
-        $('#button-list').append(`
-            <input type="checkbox" id="keep-bottom">
-            <label for="keep-bottom">保持聊天栏最底(否则字幕无法出现)</label><br>
-        `)
-        $('input#keep-bottom').on('click', e => {
-            const checked = $(e.target).prop('checked')
-            if (checked) {
-                bottomInterval = launchBottomInterval()
-            } else {
-                clearInterval(bottomInterval)
-            }
-        })
-    }
-
-    // 屏幕彈幕監控
-    launchDanmakuStyleChanger(settings)
-
-    const previousRecord = await new Promise((res,) => listRecords().then(res).catch(() => res([])))
-    for (const rec of previousRecord) {
-        appendSubtitle(rec.text)
-        if (!settings.useWebSocket) beforeInsert.push(rec.text)
-    }
-
-    if (settings.useWebSocket) {
-        // WebSocket 监控
-        wsMonitor(settings)
-    } else {
-        // 聊天室監控
-        chatMonitor(settings)
-    }
-
-    // 全屏切換監控
-    new Observer((mu, obs) => {
-        const currentState = $(mu[0].target).attr('data-player-state')
-        if (currentState === lastState) return
-        const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
-        fullScreenTrigger(fullScreen, settings)
-        lastState = currentState
-    }).observe($('.bilibili-live-player.relative')[0], { attributes: true })
-}
-
-const logSettings = {
-    changed: false,
-    hasLog: true
-}
-
-function pushSubtitle(subtitle, settings) {
-    appendSubtitle(subtitle)
-    if (settings.record) {
-        const dateGet = settings.useStreamingTime ? getStreamingTime() : Promise((res,)=> res(getTimeStamp()))
-        dateGet
-        .then((date) => pushRecord({date, text: subtitle}))
-        .then(() => {
-            logSettings.hasLog = true
-            logSettings.changed = true
-        })
-        .catch(console.warn)
-    }
-}
-
-function chatMonitor(settings) {
-    const callback = function (mutationsList) {
-        for (const mu of mutationsList) {
-            for (const node of mu.addedNodes) {
-                const danmaku = $(node)?.attr('data-danmaku')?.trim()
-                const userId = $(node)?.attr('data-uid')?.trim()
-                const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
-                if (danmaku) console.debug(danmaku)
-                const subtitle = isTongChuan ? danmaku : toJimaku(danmaku, settings.regex)
-                if (subtitle !== undefined) {
-                    if (beforeInsert.shift() === subtitle) {
-                        continue
-                    }
-                    pushSubtitle(subtitle, settings)
-                }
-            }
-        }
-    }
-    const observer = new Observer((mlist, obs) => callback(mlist));
-    observer.observe($('#chat-items')[0], config);
 }
 
 let proxyActivated = false
@@ -472,38 +130,128 @@ window.addEventListener('bjf:command', ({ detail: { cmd, data } }) => {
     }
 }, true)
 
-function wsMonitor(settings) {
-    const { danmakuPosition, forceAlterWay } = settings.webSocketSettings
-    window.addEventListener('ws:bilibili-live', ({ detail: { cmd, command } }) => {
-        if (cmd === 'DANMU_MSG') {
-            const userId = command.info[2][0]
-            const danmaku = command.info[1]
-            if (danmaku) {
-                const id = `${danmaku}-${command.info[2][0]}`
-                if (beforeInsert.shift() === id) return
-                console.debug(danmaku)
-                beforeInsert.push(id)
-            }
-            const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
-            const jimaku = isTongChuan ? danmaku : toJimaku(danmaku, settings.regex)
-            if (jimaku !== undefined) {
-                pushSubtitle(jimaku, settings)
-                //在使用 websocket 的情况下，可以强制置顶和置底弹幕
-                switch (danmakuPosition) {
-                    case "top":
-                        command.info[0][1] = 5
-                        break;
-                    case "bottom":
-                        command.info[0][1] = 4
-                        break;
-                    default:
-                        break;
+
+async function getLiveTime(retry = 0){
+    try {
+        const response = await webRequest(`https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomId}`)
+        if (response?.data?.live_time) {
+            return response.data.live_time
+        } else {
+            throw new Error(response?.message ?? response.code)
+        } 
+    }catch(err){
+        console.warn(err)
+        if (retry >= 5){
+            console.warn(`已重試${retry}次，放棄获取。`)
+            return undefined
+        }
+        ++retry
+        console.warn(`获取直播开始时间失败，正在重试第${retry}次, 三秒後重试`)
+        await sleep(3000)
+        return await getLiveTime(retry)
+    }
+}
+
+// start here
+async function start(){
+    console.log('this page is using bilibili jimaku filter')
+    const roomLink = $('a.room-owner-username').attr('href')
+    if (!roomLink) {
+        console.log('the room is theme room, skipped')
+        return
+    }
+    const settings = await getSettings()
+    if (settings.blacklistRooms.includes(`${roomId}`) === !settings.useAsWhitelist) {
+        console.log('房間ID在黑名單上，已略過。')
+        return
+    }
+
+    const { buttonOnly, skipped: sk1 } = await filterNotV(settings)
+    if (sk1) return
+
+    if (await filterCNV(settings)) return
+
+    let live_time = undefined
+
+    if (settings.record) {
+        console.log('啟用同傳彈幕記錄')
+        if (window.indexedDB) {
+            try {
+                await connect(key)
+                live_time = await getLiveTime()
+                if (localStorage.getItem(key) == null){
+                    localStorage.setItem(key, JSON.stringify({hasLog: false}))
                 }
+            } catch (err) {
+                console.error(err)
+                alert(`連接資料庫時出現錯誤: ${err.message}, 自動取消同傳彈幕記錄。`)
+                close()
+                settings.record = false
+            }
+        } else {
+            alert('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
+            console.warn('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
+            settings.record = false
+        }
+    }
+
+    const { backgroundListColor: blc, backgroundColor: bc, textColor: tc } = settings.buttonSettings
+
+    $('div.player-section').after(`
+        <div id="button-list" style="text-align: center; background-color: ${blc}"></div>
+        <style>
+        .button {
+            background-color: ${bc};
+            border: none;
+            color: ${tc};
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            margin: 5px 5px;
+            left: 50%;
+            cursor: pointer;
+        }
+        @keyframes top {
+            from {
+              transform: translateY(-30px);
+              opacity: 0;
             }
         }
-    })
+        @keyframes left {
+            from {
+              transform: translatex(-50px);
+              opacity: 0;
+            }
+        }
+        @keyframes size {
+            from {
+              font-size: 5px;
+              opacity: 0;
+            }
+        }
+        @keyframes y-down {
+            from {
+              height: 5px;
+              opacity: 0;
+            }
+        }
+        </style>
+    `)
+
+    //彈幕過濾
+    await launchJimakuInspect(settings, { buttonOnly, liveTime: live_time })
+    
+    if (settings.recordSuperChat){
+         //SC过滤
+        await launchSuperChatInspect(settings, { buttonOnly, liveTime: live_time })
+    }
+
+    const { forceAlterWay } = settings.webSocketSettings
+
     setTimeout(() => {
-        if (!proxyActivated && (forceAlterWay || window.confirm('Bliveproxy 貌似挂接失败，需要切换第三方监控WebSocket吗？\n如果本直播间尚在初始化，则可能为误判'))){
+        if (!proxyActivated && (forceAlterWay || window.confirm('Bliveproxy 貌似挂接失败，需要切换第三方监控WebSocket吗？'))){
             const s = 
             `<script>
                 WebSocket.prototype._send = WebSocket.prototype.send;
@@ -536,105 +284,12 @@ function wsMonitor(settings) {
     }, 5000)
 }
 
-let lastState = 'normal'
 
-function downloadLog() {
-    console.debug('downloading log...')
-    listRecords().then(st => {
-        if (st.length == 0) {
-            sendNotify({ title: '下载失败', message: '字幕记录为空。' })
-            return
-        }
-        const a = document.createElement("a");
-        const file = new Blob([st.map(s => `[${s.date}] ${s.text}`).join('\n')], { type: 'text/plain' });
-        const url = URL.createObjectURL(file);
-        a.href = url;
-        a.download = `subtitles-${roomId}-${new Date().toISOString().substring(0, 10)}.log`
-        a.click();
-        URL.revokeObjectURL(url)
-        sendNotify({ title: '下载成功', message: '你的字幕记录已保存。' })
-    }).catch(err => {
-        sendNotify({ title: '下载失敗', message: err.message })
-    })
-}
-
-async function clearLogs(record = false) {
-    console.debug('deleting log...')
-    const hasJimaku = record ? (await listRecords()).length > 0 : $('div#subtitle-list > p').length > 0
-    if (!hasJimaku) {
-        sendNotify({ title: '刪除失敗', message: '字幕记录为空。' })
-        return
-    }
-
-    if (!record) {
-        $('div#subtitle-list > p').remove()
-        sendNotify({ title: '刪除成功', message: '此直播房间的字幕记录已被清空。' })
-    } else {
-        try {
-            await clearRecords()
-            $('div#subtitle-list > p').remove()
-            sendNotify({ title: '刪除成功', message: '此直播房间的字幕记录已被清空。' })
-            logSettings.hasLog = false
-            logSettings.changed = true
-        } catch (err) {
-            sendNotify({ title: '刪除失敗', message: err.message })
-        }
-    }
-
-
-}
-
-function toRgba(hex, opacity) {
-    let c;
-    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-        c = hex.substring(1).split('');
-        if (c.length == 3) {
-            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c = '0x' + c.join('');
-        return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + `,${opacity})`;
-    }
-    console.warn('bad Hex: ' + hex);
-    return hex
-}
-
-let lastStyle = undefined
-function fullScreenTrigger(check, settings) {
-    const element = $('div#subtitle-list')
-    const cfg = { disabled: !check }
-    element.draggable(cfg)
-    element.resizable(cfg)
-
-    if (!check) {
-        lastStyle = element.attr('style')
-        element.removeAttr('style')
-        $('div#button-list').before(element)
-    } else {
-        element.css({
-            'z-index': '9',
-            'cursor': 'move',
-            'position': 'absolute',
-            'bottom': '100px',
-            'background-color': toRgba(settings.backgroundColor, (settings.backgroundSubtitleOpacity / 100).toFixed(1)),
-            'width': '50%'
-        })
-        if (lastStyle) element.attr('style', lastStyle)
-        element.prependTo($('div.bilibili-live-player-video-area'))
-    }
-
-    console.debug('fullscreen is now ' + check)
-}
+start().catch(console.error)
 
 window.onunload = function () {
-    const {changed, hasLog} = logSettings
+    const {changed, hasLog, hasSCLog } = logSettings
     if (changed){
-        localStorage.setItem(key, JSON.stringify({ hasLog }))
+        localStorage.setItem(key, JSON.stringify({ hasLog, hasSCLog }))
     }
 }
-
-async function sleep(ms) {
-    return new Promise((res,) => setTimeout(res, ms))
-}
-
-
-process().catch(console.error)

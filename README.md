@@ -4,11 +4,7 @@
 
 ## > 简介
 
-[原帖](https://ngabbs.com/read.php?tid=17690584)
-
-太久没更新而且用上去不怎么上手，所以就自己重写了一个, 顺便加了些新功能
-
-另外这次重写不再采用隔毫秒侦测屏幕弹幕，而是采用mutation observer监控捕捉聊天室栏dom变动(更新: 现在可以支援WebSocket了)，因此不需要担心挂后台弹幕没出现而错过同传字幕。(有时候你甚至会发现字幕比同传弹幕快)
+本插件采用WebSocket侦测弹幕文字，因此不需要担心挂后台弹幕没出现而错过同传字幕。(有时候你甚至会发现字幕比同传弹幕快)
 
 然后开启字幕记录后可以离线储存上次的字幕记录，重入直播间可以获取先前所有的字幕记录，删除记录需要手动
 
@@ -36,6 +32,16 @@
 <summary>字幕版面縮放</summary>
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/sub-resize.gif)
+</details>
+
+<details>
+<summary>醒目留言记录</summary>
+
+防止SC时间过后消失。
+
+没有离线记录，因此F5后所有记录会被清空。
+
+![](https://media.discordapp.net/attachments/786944895138005033/794528423304888350/unknown.png)
 </details>
 
 <details>
@@ -89,7 +95,7 @@
 </details>
 
 <details>
-<summary>弹幕置顶置底(仅限采用WebSocket监控时)</summary>
+<summary>弹幕置顶置底</summary>
 
 ![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/ws-top.png)
 

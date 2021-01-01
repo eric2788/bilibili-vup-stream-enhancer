@@ -8,6 +8,7 @@
         "ecmaVersion": 12
     },
     "rules": {
+        "strict": "warn"
     },
     "sourceType": "module"
 }

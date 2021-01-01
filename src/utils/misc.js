@@ -25,7 +25,6 @@ const defaultSettings = {
     useAsWhitelist: false,
     subtitleSize: 16,
     lineGap: 10,
-    useWebSocket: true,
     jimakuAnimation: 'top',
     webSocketSettings: {
         danmakuPosition: 'normal',
@@ -38,7 +37,8 @@ const defaultSettings = {
         textColor: '#FFFFFF'
     },
     filterCNV: false,
-    autoCheckUpdate: true
+    autoCheckUpdate: true,
+    recordSuperChat: false
 }
 
 async function getSettings(){
@@ -59,6 +59,41 @@ export function getUserAgent(){
         return "not-supported"
     }
 }
+
+export function download({filename, content, type = 'text/plain'}){
+    const a = document.createElement("a");
+    const file = new Blob([content], { type });
+    const url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = filename
+    a.click();
+    URL.revokeObjectURL(url)
+}
+
+export function toTimer(secs){
+    let min = 0;
+    let hr = 0;
+    while(secs >= 60){
+        secs -= 60
+        min++
+    }
+    while (min >= 60){
+        min -= 60
+        hr++
+    }
+    const mu = min > 9 ? `${min}`: `0${min}`
+    const ms = secs > 9 ? `${secs}` : `0${secs}`
+    return `${hr}:${mu}:${ms}`
+}
+
+export const logSettings = {
+    changed: false,
+    hasLog: false,
+    hasSCLog: false
+}
+
+const roomReg = /^\/(?<id>\d+)/g
+export const roomId = parseInt(roomReg.exec(location.pathname)?.groups?.id)
 
 
 export default getSettings

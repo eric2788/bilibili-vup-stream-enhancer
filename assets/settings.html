@@ -251,25 +251,22 @@
             </div>
             
             <div class="form-group">
+                <p>目前默认采用bliveproxy进行WebSocket监控，成功率85%。</p>
+                >> 即使如此，仍然有机率会挂接失败。那么当挂接失败时:
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="use-streaming-time">
-                    <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
+                    <input type="checkbox" class="custom-control-input" id="force-alter-way" aria-describedby="faw-help">
+                    <label class="custom-control-label" for="force-alter-way">询问切换到第三方監控。</label>
+                    <small>(第三方监控将100%成功捕捉WebSocket讯息。)</small>
                 </div>
             </div>
             <div class="form-group">
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="use-web-socket" aria-describedby="uws-help">
-                    <label class="custom-control-label" for="use-web-socket">使用 WebSocket 監控</label>
-                    <small id="uws-help">(默认采用bliveproxy进行WebSocket监控，成功率70%,默认失败时询问切换到第三方监控。)</small>
+                    <input type="checkbox" class="custom-control-input" id="use-streaming-time">
+                    <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
                 </div>
-                >> 挂接失败时:
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="force-alter-way" aria-describedby="faw-help" disabled>
-                    <label class="custom-control-label" for="force-alter-way">询问切换到第三方監控。</label>
-                    <small>(第三方监控将100%成功捕捉WebSocket讯息，但无法使用置顶置底弹幕。)</small>
-                </div>
-                <label for="danmaku-position">弹幕位置</label>
-                <select class="custom-select" id="danmaku-position" disabled>                
+                <label for="danmaku-position" aria-details="dp-help">弹幕位置</label>
+                <small id="dp-help">(采用第三方监控时弹幕位置设定将会无效。)</small>
+                <select class="custom-select" id="danmaku-position">                
                     <option value="normal">不改变</option>
                     <option value="top">置顶</option>
                     <option value="bottom">置底</option>
@@ -279,6 +276,10 @@
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="hide-jimaku-danmaku">
                     <label class="custom-control-label" for="hide-jimaku-danmaku">隐藏同传弹幕</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="enable-record-sc">
+                    <label class="custom-control-label" for="enable-record-sc">启用醒目留言捕捉</label>
                 </div>
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="enable-record">
@@ -299,7 +300,7 @@
                 </div>
             </div>
             <button type="submit" class="btn btn-primary" id="save-settings">保存设定</button>
-            <button class="btn btn-danger" id="clear-data">清空字幕记录储存库</button>
+            <button class="btn btn-danger" id="clear-data">清空所有记录储存库</button>
           </form>
         </div>
       </div>

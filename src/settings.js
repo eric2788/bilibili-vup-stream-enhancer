@@ -31,7 +31,6 @@ function getCurrentInput(){
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
     setting.jimakuAnimation = $('#jimaku-animation')[0].value
 
-    setting.useWebSocket = $('#use-web-socket').prop('checked')
     setting.webSocketSettings = {
         danmakuPosition: $('#danmaku-position')[0].value,
         forceAlterWay: $('#force-alter-way').prop('checked')
@@ -49,6 +48,7 @@ function getCurrentInput(){
 
     setting.filterCNV = $('#no-cn-v').prop('checked')
     setting.autoCheckUpdate = $('#auto-check-update').prop('checked')
+    setting.recordSuperChat = $('#enable-record-sc').prop('checked')
     return setting
 }
 
@@ -125,13 +125,10 @@ function saveCurrentInput(setting){
         appendTongChuan(user)
     }
 
-    $('#use-web-socket').prop('checked', setting.useWebSocket)
     const { danmakuPosition, forceAlterWay } = setting.webSocketSettings
     $('#danmaku-position')[0].value = danmakuPosition
-    $('#danmaku-position').attr('disabled', !setting.useWebSocket)
     $('#force-alter-way').prop('checked', forceAlterWay)
     $('label[for=force-alter-way]')[0].innerText = forceAlterWay ? '自动切换到第三方監控' : '询问切换到第三方監控'
-    $('#force-alter-way').attr('disabled', !setting.useWebSocket)
     
     $('#use-streaming-time').prop('checked', setting.useStreamingTime)
     $('label[for=use-streaming-time]')[0].innerText = setting.useStreamingTime ? '使用串流时间戳记' : '使用真实时间戳记'
@@ -156,6 +153,8 @@ function saveCurrentInput(setting){
     $('#jimaku-animation')[0].value = setting.jimakuAnimation
     
     $('#auto-check-update').prop('checked', setting.autoCheckUpdate)
+
+    $('#enable-record-sc').prop('checked', setting.recordSuperChat)
 }
 
 
@@ -194,7 +193,7 @@ $('#save-settings').on('click', e => {
 $('#clear-data').on('click', async e =>{
     e.preventDefault()
     try{
-        if(window.confirm('决定删除所有直播房间的字幕记录?')){
+        if(window.confirm('决定删除所有直播房间的记录?')){
             const tabs = await browser.tabs.query({url: '*://live.bilibili.com/*'})
             if (tabs.length > 0){
                 await sendNotify({
