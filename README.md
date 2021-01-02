@@ -20,7 +20,7 @@
 <details>
 <summary>设定界面</summary>
 
-[![spAUc6.png](https://s3.ax1x.com/2021/01/03/spAUc6.png)](https://imgchr.com/i/spAUc6)
+![icon](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/icon.png)
 
 [此处可查看范本](https://eric2788.github.io/bilibili-jimaku-filter/)
 
@@ -31,14 +31,14 @@
 <details>
 <summary>支援各种全屏</summary>
 
-[![spEgIJ.gif](https://s3.ax1x.com/2021/01/03/spEgIJ.gif)](https://imgchr.com/i/spEgIJ)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/screen-show.gif)
 
 </details>
 
 <details>
 <summary>字幕版面縮放</summary>
 
-[![spVFij.gif](https://s3.ax1x.com/2021/01/03/spVFij.gif)](https://imgchr.com/i/spVFij)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/sub-resize.gif)
 </details>
 
 <details>
@@ -56,15 +56,15 @@
 
 右移
 
-[![spV5fs.gif](https://s3.ax1x.com/2021/01/03/spV5fs.gif)](https://imgchr.com/i/spV5fs)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/animate-left.gif)
 
 下移
 
-[![spVhkQ.gif](https://s3.ax1x.com/2021/01/03/spVhkQ.gif)](https://imgchr.com/i/spVhkQ)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/animate-top.gif)
 
 缩放
 
-[![spV4Yj.gif](https://s3.ax1x.com/2021/01/03/spV4Yj.gif)](https://imgchr.com/i/spV4Yj)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/aniamte-size.gif)
 
 
 </details>
@@ -74,14 +74,14 @@
 
 主要是颜色和透明度
 
-[![spV2m8.gif](https://s3.ax1x.com/2021/01/03/spV2m8.gif)](https://imgchr.com/i/spV2m8)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/jimaku-style-change.gif)
 
 </details>
 
 <details>
 <summary>隐藏同传弹幕</summary>
 
-[![spEFv6.gif](https://s3.ax1x.com/2021/01/03/spEFv6.gif)](https://imgchr.com/i/spEFv6)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/hide-jimaku.gif)
 
 </details>
 
@@ -90,23 +90,23 @@
 
 别问为什么我盖住了主播 
 
-[![spEAKK.gif](https://s3.ax1x.com/2021/01/03/spEAKK.gif)](https://imgchr.com/i/spEAKK)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/remember-size.gif)
 
 </details>
 
 <details>
 <summary>下载同传字幕记录</summary>
 
-[![spVEzq.gif](https://s3.ax1x.com/2021/01/03/spVEzq.gif)](https://imgchr.com/i/spVEzq)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/download-log.gif)
 
 </details>
 
 <details>
 <summary>弹幕置顶置底</summary>
-    
-[![spAg3t.png](https://s3.ax1x.com/2021/01/03/spAg3t.png)](https://imgchr.com/i/spAg3t)
 
-[![spAIEQ.png](https://s3.ax1x.com/2021/01/03/spAIEQ.png)](https://imgchr.com/i/spAIEQ)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/ws-top.png)
+
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/ws-top-2.png)
 
 </details>
 
@@ -129,13 +129,13 @@
 
 串流时间戳记
 
-[![spArAH.png](https://s3.ax1x.com/2021/01/03/spArAH.png)](https://imgchr.com/i/spArAH)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/stream-ts.png)
 
 `[03:51]` => 直播时间: 直播了三分五十一秒
 
 真实时间戳记
 
-[![spABHe.png](https://s3.ax1x.com/2021/01/03/spABHe.png)](https://imgchr.com/i/spABHe)
+![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/real-ts.png)
 
 `[18:16:50]` => 真实时间: 下午六点十六分五十秒
 
@@ -165,7 +165,7 @@
 - 字幕文字与背景风格设定
 - 用戶黑名单
 - 同传用户名单(名单内用户的弹幕直接为字幕)
-- 自动更新(仅限火狐/Chrome/Edge)
+- 自动更新(火狐/Chrome/Edge)
 
 </details>
 
