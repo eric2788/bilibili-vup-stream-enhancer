@@ -66,6 +66,7 @@
       }
     },
     "auto_update_supported": {
-      "edge": "https://microsoftedge.microsoft.com/addons/detail/ehdhihncinoejihhmhpdoeloadihnfio"
+      "edge": "https://microsoftedge.microsoft.com/addons/detail/ehdhihncinoejihhmhpdoeloadihnfio",
+      "chrome": "https://chrome.google.com/webstore/detail/nhomlepkjglilcahfcfnggebkaabeiog"
     }
   }
