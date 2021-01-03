@@ -70,6 +70,13 @@ export function download({filename, content, type = 'text/plain'}){
     URL.revokeObjectURL(url)
 }
 
+export function generateToken() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+}
+
 export function toTimer(secs){
     let min = 0;
     let hr = 0;

@@ -14,6 +14,10 @@ export async function webRequest(url){
     return sendData({type: 'request', url})
 }
 
+export async function getBeforeSuperChat(){
+    return sendData({type: 'before-sc'})
+}
+
 export async function checkUpdate(){
     return sendData({type: 'check-update'})
 }

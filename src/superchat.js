@@ -1,9 +1,12 @@
+import { generateToken } from "./utils/misc";
+
 function creatSuperChatCard({
     bg_color,
     bg_image,
     bg_header_color,
     user_icon,
     name_color,
+    uid,
     username,
     price,
     message
@@ -16,11 +19,18 @@ function creatSuperChatCard({
             margin-bottom: 10px;
             border: 1px ${bg_color} solid;
             animation: top .5s ease-out;
-            box-shadow: 1px 1px 3px black
+            box-shadow: 1px 1px 5px black;
         ">
-            <div style="background-image: url('${bg_image}'); height: 40px;background-color: ${bg_header_color};padding: 5px;">
-                    <img src="${user_icon}" height="40" width="40" style="border-radius: 20px; float: left">
-                    <span style="color: ${name_color}; font-size: 15px;padding-left: 5px;">${username}</span>
+            <div style="background-image: url('${bg_image}'); 
+                        height: 40px;
+                        background-color: ${bg_header_color};
+                        padding: 5px;
+                        background-size: cover;
+                        background-position: left center">
+                    <a href="//space.bilibili.com/${uid}" target="_blank">
+                        <img src="${user_icon}" height="40" width="40" style="border-radius: 20px; float: left">
+                    </a>
+                    <a href="//space.bilibili.com/${uid}" target="_blank" style="color: ${name_color}; font-size: 15px;padding-left: 5px;text-decoration: none">${username}</a>
                     <span style="font-size: 15px;float: right">￥${price}</span>
             </div>
             <div style="padding: 10px">
@@ -91,6 +101,8 @@ export async function launchSuperChatInspect(settings, { buttonOnly }){
 
     $('.dropbtn-sc').on('click', switchMenu)
 
+    getBeforeSuperChat()
+
     window.addEventListener('ws:bilibili-live', ({ detail: { cmd, command } }) => {
         if (cmd !== 'SUPER_CHAT_MESSAGE') return
         const { data } = command
@@ -100,6 +112,7 @@ export async function launchSuperChatInspect(settings, { buttonOnly }){
             bg_header_color: data.background_color,
             user_icon: data.user_info.face,
             name_color: data.user_info.name_color,
+            uid: data.uid,
             username: data.user_info.uname,
             price: data.price,
             message: data.message
@@ -114,3 +127,46 @@ export async function launchSuperChatInspect(settings, { buttonOnly }){
     })
 
 }
+
+let cfToken = generateToken()
+
+window.addEventListener('bjf:superchats', ({detail: {scList, token}}) => {
+    if (token !== cfToken) {
+        console.warn('token not match, skipped')
+        return
+    }
+    console.log(`received ${scList.length} current superchat records`)
+    for (const data of scList){
+        const object = {
+            bg_color: data.background_bottom_color,
+            bg_image: data.background_image,
+            bg_header_color: data.background_color,
+            user_icon: data.user_info.face,
+            name_color: '#646c7a',
+            uid: data.uid,
+            username: data.user_info.uname,
+            price: data.price,
+            message: data.message
+        }
+        const card = creatSuperChatCard(object)
+        $('div#sc-list').prepend(card)
+    }
+
+    //refresh token
+    cfToken = generateToken()
+})
+
+function getBeforeSuperChat(){
+    const a = `
+    <script>
+        const scList = window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list
+        const event = new CustomEvent('bjf:superchats', { detail: {
+            scList,
+            token: '${cfToken}'
+        } })
+        window.dispatchEvent(event)
+    </script>
+    `
+    $(document.body).append(a)
+}
+

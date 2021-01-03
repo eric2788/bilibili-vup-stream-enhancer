@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.9.1",
+    "version": "0.9.2",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
@@ -51,7 +51,7 @@
       "cdn/pako.min.js"
     ],
 
-    "content_security_policy": "script-src 'self' https://stackpath.bootstrapcdn.com; object-src 'self'",
+    "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net; object-src 'self'",
 
     "background":{
       "scripts": [
