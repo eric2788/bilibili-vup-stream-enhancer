@@ -1,6 +1,13 @@
 # bilibili 直播同传字幕过滤插件
 
-[下载及更新记录](https://github.com/eric2788/bilibili-jimaku-filter/releases)
+
+## > 下载
+
+[火狐及更新记录](https://github.com/eric2788/bilibili-jimaku-filter/releases)
+
+[Edge](https://microsoftedge.microsoft.com/addons/detail/ehdhihncinoejihhmhpdoeloadihnfio)
+
+[Chrome](https://chrome.google.com/webstore/detail/nhomlepkjglilcahfcfnggebkaabeiog)
 
 ## > 简介
 
@@ -135,23 +142,6 @@
 </details>
 
 <details>
-<summary>自动更新(仅限火狐)</summary>
-
-可手动更新或者勾选自动更新(默认每天检查一次)
-
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/auto-update.png)
-
-检测到有可用更新的时会出现通知，点击更新
-
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/auto-update-2.png)
-
-更新后版本将会改变，点击释出日志可以看看更新了什么
-
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/auto-update-3.png)
-
-</details>
-
-<details>
 <summary>仅限虚拟主播</summary>
 
 ![](https://media.discordapp.net/attachments/415882741092057088/787286599947517962/unknown.png)
@@ -175,66 +165,13 @@
 - 字幕文字与背景风格设定
 - 用戶黑名单
 - 同传用户名单(名单内用户的弹幕直接为字幕)
+- 自动更新(火狐/Chrome/Edge)
 
 </details>
 
 ## ➵ 把本插件使用到Chrome
 
-<details>
-<summary>把插件载入到 Chrome</summary>
-
-首先下载xpi档案
-
-然后把 xpi 档案使用 压缩档打开
-
-把所有东西放到一个文件夹
-
-然后到 chrome 扩充功能
-
-打开 开发人员模式
-
-然后按下载入未封装项目
-
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/to-chrome.png)
-
-选择刚刚解压缩的那个文件夹
-
-最后成功加载
-
-因为不是chrome插件，所以有错误是正常的
-
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/to-chrome-2.png)
-
-</details>
-
-<details>
-<summary>Chrome 打开设定页面</summary>
-
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/icon-see.png)
-
-这个点一下就有 icon 按钮出现了
-
-</details>
-
-<details>
-<summary>Chrome 更新而不影响之前的设定</summary>
-
-1. 关闭浏览器
-2. 把文件夹内旧的东西删掉
-3. 下载新的档案并把压缩档打开
-4. 把里面的东西放到文件夹
-5. 重新打开浏览器
-
-__**现在已有导入导出设定档功能**__
-
-</details>
-
-<details>
-<summary>目前已知放Chrome的bug</summary>
-
-- 无法使用置顶置底弹幕
-
-</details>
+[点击這裏查看](https://github.com/eric2788/bilibili-jimaku-filter/wiki/%E6%8A%8A%E7%81%AB%E7%8B%90%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8%E5%88%B0%E5%85%B6%E4%BB%96%E6%B5%8F%E8%A7%88%E5%99%A8)
 
 ## ➵ 有用连结
 
