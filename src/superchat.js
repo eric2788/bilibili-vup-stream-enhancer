@@ -78,6 +78,7 @@ export async function launchSuperChatInspect(settings, { buttonOnly }){
             .dropdown-sc {
                 position: relative;
                 display: inline-block;
+                padding: 5px;
             }
             .dropdown-content-sc {
                 display: none;

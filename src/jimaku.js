@@ -125,7 +125,7 @@ function wsMonitor(settings) {
         const danmaku = command.info[1]
         if (danmaku) {
             const id = `${danmaku}-${command.info[2][0]}`
-            if (beforeInsert.shift() === id) return
+            if (beforeInsert.pop() === id) return
             console.debug(danmaku)
             beforeInsert.push(id)
         }
