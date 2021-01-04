@@ -103,7 +103,7 @@ function launchDanmakuStyleChanger(settings) {
 function pushSubtitle(subtitle, settings) {
     appendSubtitle(subtitle)
     if (settings.record) {
-        const dateGet = settings.useStreamingTime ? getStreamingTime() : Promise((res,)=> res(getTimeStamp()))
+        const dateGet = settings.useStreamingTime ? getStreamingTime() : new Promise((res,)=> res(getTimeStamp()))
         dateGet
         .then((date) => pushRecord({date, text: subtitle}))
         .then(() => {
