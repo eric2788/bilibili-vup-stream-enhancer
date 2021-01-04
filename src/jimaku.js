@@ -96,7 +96,7 @@ function launchDanmakuStyleChanger(settings) {
     const colorDisable = !colorReg.test(settings.color)
     const hideJimakuDisable = !settings.hideJimakuDanmaku
     if (opacityDisable && colorDisable && hideJimakuDisable) return
-    const danmakuObserver = new Observer((mu, obs) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable, colorDisable }))
+    const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable, colorDisable }))
     danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0], config)
 }
 
@@ -284,6 +284,7 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
         }
         </style>
     `)
+    $('div#aside-area-vm').css('margin-bottom', `${bgh + 30}px`)
 
     // 屏幕彈幕監控
     launchDanmakuStyleChanger(settings)
@@ -297,7 +298,7 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
     wsMonitor(settings)
 
     // 全屏切換監控
-    new Observer((mu, obs) => {
+    new Observer((mu, ) => {
         const currentState = $(mu[0].target).attr('data-player-state')
         if (currentState === lastState) return
         const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'

@@ -20,6 +20,7 @@ function creatSuperChatCard({
             border: 1px ${bg_color} solid;
             animation: top .5s ease-out;
             box-shadow: 1px 1px 5px black;
+            overflow-x: hidden;
         ">
             <div style="background-image: url('${bg_image}'); 
                         height: 40px;
@@ -33,7 +34,7 @@ function creatSuperChatCard({
                     <a href="//space.bilibili.com/${uid}" target="_blank" style="color: ${name_color}; font-size: 15px;padding-left: 5px;text-decoration: none">${username}</a>
                     <span style="font-size: 15px;float: right">￥${price}</span>
             </div>
-            <div style="padding: 10px">
+            <div style="padding: 10px;overflow-wrap: break-word">
                     <span style="color: white; font-size: 14px">${msg}</span>
             </div>
         </div>

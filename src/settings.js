@@ -57,7 +57,7 @@ function appendBlackList(room){
             <span>${room}</span>
             <a style="float: right" href="javascript: void(0)" id="${room}">刪除</a>
     </li>`)
-    $(`a#${room}`).on('click', e => {
+    $(`a#${room}`).on('click', () => {
         $('ul#blacklist').children('li').filter((i, e) => $(e).attr('room') == room).each((i, e) => e.remove())
     })
 }
@@ -78,7 +78,7 @@ function appendTongChuan(user){
             <span>${user}</span>
             <a style="float: right" href="javascript: void(0)" id="${user}">刪除</a>
     </li>`)
-    $(`a#${user}`).on('click', e => {
+    $(`a#${user}`).on('click', () => {
         $('ul#tongchuan-mans').children('li').filter((i, e) => $(e).attr('tc-man-id') == user).each((i, e) => e.remove())
     })
 }

@@ -94,7 +94,7 @@ export async function pushRecord(object){
                 //log('pushing successful')
                 res(e)
             }
-            s.onerror = (e) => {
+            s.onerror = () => {
                 log('error while adding record: '+s.error.message)
                 rej(s.error)
             }
@@ -105,10 +105,10 @@ export async function pushRecord(object){
  }
 
  function handleTrans(rej, tran){
-    tran.oncomplete = function(event){
+    tran.oncomplete = function(){
         //log('transaction completed')
     }
-    tran.onerror = function(event){
+    tran.onerror = function(){
         log('transaction error: '+tran.error.message)
         rej(tran.error)
     }
@@ -136,7 +136,7 @@ export async function pushRecord(object){
              res(records)
            }
         }
-        cursors.onerror = function(event){
+        cursors.onerror = function(){
             log('error while fetching data: '+cursors.error.message)
             rej(cursors.error)
         }
@@ -160,7 +160,7 @@ export async function pushRecord(object){
             log('clear success')
             res(e)
             }
-            req.onerror = (e) =>{
+            req.onerror = () =>{
                 log('error while clearing data: '+req.error.message)
                 rej(req.error)
             }

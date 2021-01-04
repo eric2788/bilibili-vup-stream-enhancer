@@ -2,7 +2,7 @@ import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera } from 
 
 console.log('background is working...')
 
-browser.browserAction.onClicked.addListener((tab, clickData) => {
+browser.browserAction.onClicked.addListener(() => {
     browser.tabs.create({
         url: browser.runtime.getURL('settings.html')
     })
@@ -164,7 +164,7 @@ async function webRequest(url) {
     return json
 }
 
-browser.runtime.onMessage.addListener((message, { tab }) => {
+browser.runtime.onMessage.addListener((message) => {
     console.log('received command: ' + message.type)
     switch (message.type) {
         case "notify":

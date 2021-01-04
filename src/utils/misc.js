@@ -9,7 +9,7 @@ export const isEdge = navigator.userAgent.indexOf("Edg") > -1
 export const canUseButton = isChrome
 
 const defaultSettings = {
-    regex: '^(?<n>[^【】]+?)?\:*\s*【(?<cc>[^【】]+?)】*$',
+    regex: '^(?<n>[^【】]+?)?\\:*\\s*【(?<cc>[^【】]+?)】*$',
     opacity: -1,
     color: '',
     hideJimakuDanmaku: false,

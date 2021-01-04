@@ -1,6 +1,6 @@
 import getSettings, { roomId, logSettings, generateToken } from './utils/misc'
 import { connect, close } from './utils/database'
-import { webRequest } from './utils/messaging'
+import { webRequest, sendNotify } from './utils/messaging'
 import { launchJimakuInspect } from './jimaku'
 import { launchSuperChatInspect } from './superchat'
 const userReg = /^\/\/space\.bilibili\.com\/(\d+)\/$/g
@@ -67,7 +67,7 @@ async function filterCNV(settings, retry = 0) {
         } else {
             let i = 1
             try {
-                while (true) {
+                while (i < 100) {
                     const blsApi = `https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${i}`
                     const res = await webRequest(blsApi)
                     if (res?.data?.list) {
