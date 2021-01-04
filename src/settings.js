@@ -49,6 +49,7 @@ function getCurrentInput(){
     setting.filterCNV = $('#no-cn-v').prop('checked')
     setting.autoCheckUpdate = $('#auto-check-update').prop('checked')
     setting.recordSuperChat = $('#enable-record-sc').prop('checked')
+    setting.enableRestart = $('#enable-restart').prop('checked')
     return setting
 }
 
@@ -155,6 +156,8 @@ function saveCurrentInput(setting){
     $('#auto-check-update').prop('checked', setting.autoCheckUpdate)
 
     $('#enable-record-sc').prop('checked', setting.recordSuperChat)
+
+    $('#enable-restart').prop('checked', setting.enableRestart)
 }
 
 
@@ -169,19 +172,24 @@ hookColor('color-button-text')
 
 
 
-$('#save-settings').on('click', e => {
+$('#save-settings').on('click', async e => {
     const form = $('form#setting')
     if(form[0].checkValidity()){
         e.preventDefault()
         console.log('prepare to save:')
         const set = getCurrentInput()
         console.log(set)
-        setSettings(set).then(() => {
-            sendNotify({title: '设置成功', message: '你的设定已成功保存。'})
-        }).catch(err => {
+        try {
+            await setSettings(set)
+            const tabs = await browser.tabs.query({url: '*://live.bilibili.com/*'})
+            for (const tab of tabs){
+                await browser.tabs.sendMessage(tab.id, {cmd: 'restart'})
+            }
+            await sendNotify({title: '设置成功', message: '你的设定已成功保存。'})
+        }catch(err){
             console.error(err)
-            sendNotify({title: '设置失敗', message: err.message})
-        })
+            await sendNotify({title: '设置失敗', message: err.message})
+        }
     }else{
         console.log(form.find(":invalid"))
         form.find(":invalid").parents('.collapse').collapse('show')

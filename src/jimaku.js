@@ -1,4 +1,4 @@
-import { pushRecord, listRecords, clearRecords} from './utils/database'
+import { pushRecord, listRecords, clearRecords, closeDatabase} from './utils/database'
 import { sendNotify } from './utils/messaging'
 import { toTimer, logSettings, roomId, download } from './utils/misc'
 
@@ -6,9 +6,9 @@ const config = { attributes: false, childList: true, subtree: true };
 
 const beforeInsert = []
 
-const colorReg = /^#[0-9A-F]{6}$/ig
-
 const Observer = window.MutationObserver
+
+const observers = []
 
 function appendSubtitle(subtitle) {
     $('div#subtitle-list').prepend(`<p>${subtitle}</p>`)
@@ -93,11 +93,12 @@ function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opac
 
 function launchDanmakuStyleChanger(settings) {
     const opacityDisable = settings.opacity == -1
-    const colorDisable = !colorReg.test(settings.color)
+    const colorDisable = !/^#[0-9A-F]{6}$/ig.test(settings.color)
     const hideJimakuDisable = !settings.hideJimakuDanmaku
     if (opacityDisable && colorDisable && hideJimakuDisable) return
     const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable, colorDisable }))
     danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0], config)
+    observers.push(danmakuObserver)
 }
 
 function pushSubtitle(subtitle, settings) {
@@ -114,9 +115,11 @@ function pushSubtitle(subtitle, settings) {
     }
 }
 
+const eventListeners = []
+
 function wsMonitor(settings) {
     const { danmakuPosition } = settings.webSocketSettings
-    window.addEventListener('ws:bilibili-live', ({ detail: { cmd, command } }) => {
+    const listener = ({ detail: { cmd, command } }) => {
         if (cmd !== 'DANMU_MSG') return
         const userId = command.info[2][0]
         const danmaku = command.info[1]
@@ -142,7 +145,9 @@ function wsMonitor(settings) {
                     break;
             }
         }
-    })
+    }
+    window.addEventListener('ws:bilibili-live', listener)
+    eventListeners.push(listener)
 }
 
 let lastState = 'normal'
@@ -249,40 +254,41 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
     
     if (buttonOnly) return
     $('div.player-section').after(`
-        <div id="subtitle-list" class="subtitle-normal"></div>
-        <style>
-        .subtitle-normal {
-            background-color: ${bgc}; 
-            width: 100%; 
-            height: ${bgh}px; 
-            position: relative;
-            z-index: 3;
-            overflow-y: auto; 
-            text-align: center;
-            overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: ${stc} ${bgc};
-        }
-        .subtitle-normal::-webkit-scrollbar {
-            width: 5px;
-        }
-         
-        .subtitle-normal::-webkit-scrollbar-track {
-            background-color: ${bgc};
-        }
-         
-        .subtitle-normal::-webkit-scrollbar-thumb {
-            background-color: ${stc};
-        }
-        div#subtitle-list p {
-            animation: ${settings.jimakuAnimation} .3s ease-out;
-            font-weight: bold;
-            color: ${settings.subtitleColor}; 
-            opacity: 1.0; 
-            margin: ${settings.lineGap}px;
-            font-size: ${settings.subtitleSize}px;  
-        }
-        </style>
+        <div id="subtitle-list" class="subtitle-normal">
+            <style>
+            .subtitle-normal {
+                background-color: ${bgc}; 
+                width: 100%; 
+                height: ${bgh}px; 
+                position: relative;
+                z-index: 3;
+                overflow-y: auto; 
+                text-align: center;
+                overflow-x: hidden;
+                scrollbar-width: thin;
+                scrollbar-color: ${stc} ${bgc};
+            }
+            .subtitle-normal::-webkit-scrollbar {
+                width: 5px;
+            }
+            
+            .subtitle-normal::-webkit-scrollbar-track {
+                background-color: ${bgc};
+            }
+            
+            .subtitle-normal::-webkit-scrollbar-thumb {
+                background-color: ${stc};
+            }
+            div#subtitle-list p {
+                animation: ${settings.jimakuAnimation} .3s ease-out;
+                font-weight: bold;
+                color: ${settings.subtitleColor}; 
+                opacity: 1.0; 
+                margin: ${settings.lineGap}px;
+                font-size: ${settings.subtitleSize}px;  
+            }
+            </style>
+        </div>
     `)
     $('div#aside-area-vm').css('margin-bottom', `${bgh + 30}px`)
 
@@ -298,11 +304,30 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
     wsMonitor(settings)
 
     // 全屏切換監控
-    new Observer((mu, ) => {
+    const monObserver = new Observer((mu, ) => {
         const currentState = $(mu[0].target).attr('data-player-state')
         if (currentState === lastState) return
         const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
         fullScreenTrigger(fullScreen, settings)
         lastState = currentState
-    }).observe($('.bilibili-live-player.relative')[0], { attributes: true })
+    })
+    monObserver.observe($('.bilibili-live-player.relative')[0], { attributes: true })
+    observers.push(monObserver)
+}
+
+
+
+
+
+
+export function cancelJimakuFunction(){
+    $('#subtitle-list').remove()
+    $('div#aside-area-vm').css('margin-bottom', '')
+    while(observers.length > 0){
+        observers.shift().disconnect()
+    }
+    while( eventListeners.length > 0){
+        window.removeEventListener('ws:bilibili-live', eventListeners.shift())
+    }
+    closeDatabase()
 }

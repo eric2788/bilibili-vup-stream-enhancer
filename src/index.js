@@ -1,8 +1,8 @@
 import getSettings, { roomId, logSettings, generateToken } from './utils/misc'
-import { connect, close } from './utils/database'
-import { webRequest, sendNotify } from './utils/messaging'
-import { launchJimakuInspect } from './jimaku'
-import { launchSuperChatInspect } from './superchat'
+import { connect, closeDatabase } from './utils/database'
+import { webRequest, sendNotify, setSettings } from './utils/messaging'
+import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
+import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
 const userReg = /^\/\/space\.bilibili\.com\/(\d+)\/$/g
 const userId = parseInt(userReg.exec($('a.room-owner-username')?.attr('href'))?.pop())
 
@@ -146,14 +146,16 @@ async function getLiveTime(retry = 0){
 }
 
 // start here
-async function start(){
+async function start(restart = false){
     console.log('this page is using bilibili jimaku filter')
     const roomLink = $('a.room-owner-username').attr('href')
     if (!roomLink) {
         console.log('the room is theme room, skipped')
         return
     }
+
     const settings = await getSettings()
+
     if (settings.blacklistRooms.includes(`${roomId}`) === !settings.useAsWhitelist) {
         console.log('房間ID在黑名單上，已略過。')
         return
@@ -178,7 +180,7 @@ async function start(){
             } catch (err) {
                 console.error(err)
                 alert(`連接資料庫時出現錯誤: ${err.message}, 自動取消同傳彈幕記錄。`)
-                close()
+                closeDatabase()
                 settings.record = false
             }
         } else {
@@ -190,49 +192,87 @@ async function start(){
 
     const { backgroundListColor: blc, backgroundColor: bc, textColor: tc } = settings.buttonSettings
 
-    $('div.player-section').after(`
-        <div id="button-list" style="text-align: center; background-color: ${blc}"></div>
-        <style>
-        .button {
-            background-color: ${bc};
-            border: none;
-            color: ${tc};
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 15px;
-            margin: 5px 5px;
-            left: 50%;
-            cursor: pointer;
-        }
-        @keyframes top {
-            from {
-              transform: translateY(-30px);
-              opacity: 0;
+    $('div.room-info-ctnr.dp-i-block').append(`
+        <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
+            添加到黑名单
+            <style>
+            .btn-sc {
+                background-color: gray;
+                color: white;
+                padding: 5px;
+                font-size: 12px;
+                border: none;
             }
-        }
-        @keyframes left {
-            from {
-              transform: translatex(-50px);
-              opacity: 0;
-            }
-        }
-        @keyframes size {
-            from {
-              font-size: 5px;
-              opacity: 0;
-            }
-        }
-        @keyframes y-down {
-            from {
-              height: 5px;
-              opacity: 0;
-            }
-        }
-        </style>
+            </style>
+        </a>
     `)
 
+    $('#blacklist-add-btn').on('click', async () => {
+        try {
+            if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return 
+            settings.blacklistRooms.push(`${roomId}`)
+            await setSettings(settings)
+            cancel()
+            await sendNotify({
+                title: "添加成功",
+                message: "已成功添加此房间到黑名单。"
+            })
+        }catch(err){
+            await sendNotify({
+                title: '添加失败',
+                message: err?.message ?? err
+            })
+        }
+    })
+
+    $('div.player-section').after(`
+        <div id="button-list" style="text-align: center; background-color: ${blc}">
+            <style>
+            .button {
+                background-color: ${bc};
+                border: none;
+                color: ${tc};
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 15px;
+                margin: 5px 5px;
+                left: 50%;
+                cursor: pointer;
+            }
+            @keyframes top {
+                from {
+                transform: translateY(-30px);
+                opacity: 0;
+                }
+            }
+            @keyframes left {
+                from {
+                transform: translatex(-50px);
+                opacity: 0;
+                }
+            }
+            @keyframes size {
+                from {
+                font-size: 5px;
+                opacity: 0;
+                }
+            }
+            @keyframes y-down {
+                from {
+                height: 0px;
+                opacity: 0;
+                }
+            }
+            </style>
+        </div>
+    `)
+
+    if (settings.enableRestart){
+        $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
+        $('#restart-btn').on('click', relaunch)
+    }
     //彈幕過濾
     await launchJimakuInspect(settings, { buttonOnly, liveTime: live_time })
     
@@ -241,8 +281,8 @@ async function start(){
         await launchSuperChatInspect(settings, { buttonOnly, liveTime: live_time })
     }
 
+    if (restart) return
     const { forceAlterWay } = settings.webSocketSettings
-
     setTimeout(() => {
         if (!proxyActivated && (forceAlterWay || window.confirm('Bliveproxy 貌似挂接失败，需要切换第三方监控WebSocket吗？'))){
             const s = 
@@ -286,3 +326,23 @@ window.onunload = function () {
         localStorage.setItem(key, JSON.stringify({ hasLog, hasSCLog }))
     }
 }
+
+function cancel(){
+    $('#button-list').remove()
+    $(window).off('ws:bilibili-live')
+    $(window).off('bjf:command')
+    cancelJimakuFunction()
+    cancelSuperChatFunction()
+    $('#blacklist-add-btn').remove()
+}
+
+function relaunch(){
+    cancel()
+    start().catch(console.error)
+}
+
+browser.runtime.onMessage.addListener(req => {
+    if (req.cmd !== 'restart') return
+    console.log('received restart command from background')
+    relaunch()
+})

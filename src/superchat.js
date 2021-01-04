@@ -1,4 +1,5 @@
-import { generateToken } from "./utils/misc";
+import { sendNotify } from "./utils/messaging";
+import { download, generateToken, roomId } from "./utils/misc";
 
 function creatSuperChatCard({
     bg_color,
@@ -20,7 +21,6 @@ function creatSuperChatCard({
             border: 1px ${bg_color} solid;
             animation: top .5s ease-out;
             box-shadow: 1px 1px 5px black;
-            overflow-x: hidden;
         ">
             <div style="background-image: url('${bg_image}'); 
                         height: 40px;
@@ -47,6 +47,7 @@ function switchMenu(e){
     btn.attr('show', v)
     const color = v ? '#3e8e41' : 'gray'
     const display = v ? 'block' : 'none'
+    $('.sc-btn-list').css('display', display)
     $('.dropdown-content-sc').css('display', display)
     $('.dropbtn-sc').css('background-color', color)
   }
@@ -57,54 +58,91 @@ export async function launchSuperChatInspect(settings, { buttonOnly }){
 
     $('div.room-info-ctnr.dp-i-block').append(`
         <div class="dropdown-sc">
-            <a href="javascript: void(0)" class="dropbtn-sc" type="button">醒目留言记录</a>
+            <a href="javascript: void(0)" class="dropbtn-sc btn-sc" type="button">醒目留言记录</a>
+            <div class="sc-btn-list">
+                <a href="javascript: void(0)" type="button" id="sc-output" class="btn-sc">导出SC记录</a>
+            </div>
             <div id="sc-list" class="dropdown-content-sc"></div>
-        </div>
-        <style>
-        .dropbtn-sc {
-            background-color: gray;
-            color: white;
-            padding: 5px;
-            font-size: 12px;
-            border: none;
-        }
-        .dropdown-sc {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content-sc {
-            display: none;
-            position: absolute;
-            background-color: #f1f1f1;
-            height: 300px;
-            width: 300px;
-            overflow-y: auto;
-            padding: 5px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            animation: y-down .3s ease-out;
-            z-index: 1;
-            scrollbar-width: thin;
-            scrollbar-color: gray white;
-        }
-        .dropdown-content-sc::-webkit-scrollbar {
-            width: 5px;
-        }
-         
-        .dropdown-content-sc::-webkit-scrollbar-track {
-            background-color: white;
-        }
-         
-        .dropdown-content-sc::-webkit-scrollbar-thumb {
-            background-color: gray;
-        }
-        </style>
+            <style>
+            .sc-btn-list {
+                display: none;
+                position: absolute;
+                background-color: #f1f1f1;
+                height: 50px;
+                width: 300px;
+                padding: 5px;
+                box-shadow: 2px 2px 5px black;
+                z-index: 1;
+                text-align: center;
+            }
+            .dropdown-sc {
+                position: relative;
+                display: inline-block;
+            }
+            .dropdown-content-sc {
+                display: none;
+                position: absolute;
+                background-color: #f1f1f1;
+                height: 300px;
+                width: 300px;
+                overflow-y: auto;
+                padding: 5px;
+                margin-top: 35px;
+                box-shadow: 2px 2px 5px black;
+                animation: y-down .3s ease-out;
+                z-index: 1;
+                scrollbar-width: thin;
+                scrollbar-color: gray white;
+                overflow-x: hidden;
+            }
+            .dropdown-content-sc::-webkit-scrollbar {
+                width: 5px;
+            }
+            
+            .dropdown-content-sc::-webkit-scrollbar-track {
+                background-color: white;
+            }
+            
+            .dropdown-content-sc::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
+            </style>
+        </div> 
     `)
 
     $('.dropbtn-sc').on('click', switchMenu)
 
-    getBeforeSuperChat()
+    $('#sc-output').on('click', async () => {
+        try {
+            if (superChats.length === 0) throw new Error('SC记录为空。')
+            const today = new Date().toISOString().substr(0, 10)
+            download({
+                filename: `${roomId}-${today}-superchats.log`,
+                content: superChats.map(s => {
+                    const time = new Date(s.timer * 1000).toTimeString().substr(0, 8)
+                    return  `[${time}] [￥${s.price}] ${s.username}(${s.uid}): ${s.message}`
+                }).join('\n')
+            })
+            await sendNotify({
+                title: '导出成功',
+                message: 'SuperChat 记录已成功导出'
+            })
+        }catch(err){
+            console.error(err)
+            await sendNotify({
+                title: '导出失败',
+                message: err?.message ?? err
+            })
+        }
+    })
 
-    window.addEventListener('ws:bilibili-live', ({ detail: { cmd, command } }) => {
+    for(const chat of superChats){
+        const card = creatSuperChatCard(chat)
+        $('div#sc-list').prepend(card)
+    }
+
+    getBeforeSuperChat()
+    const listener = ({ detail: { cmd, command } }) => {
         if (cmd !== 'SUPER_CHAT_MESSAGE') return
         const { data } = command
         const object = {
@@ -116,17 +154,28 @@ export async function launchSuperChatInspect(settings, { buttonOnly }){
             uid: data.uid,
             username: data.user_info.uname,
             price: data.price,
-            message: data.message
+            message: data.message,
+            timer: data.start_time
         }
-        const card = creatSuperChatCard(object)
-        $('div#sc-list').prepend(card)
+        pushSuperChat(object)
         /* record function
         if (settings.record){
             console.log('not yet done recording')
         }
         */
-    })
+    }
+    window.addEventListener('ws:bilibili-live', listener)
+    eventListeners.push(listener)
+}
 
+const eventListeners = []
+
+const superChats = []
+
+function pushSuperChat(object){
+    const card = creatSuperChatCard(object)
+    $('div#sc-list').prepend(card)
+    superChats.push(object)
 }
 
 let cfToken = generateToken()
@@ -147,10 +196,10 @@ window.addEventListener('bjf:superchats', ({detail: {scList, token}}) => {
             uid: data.uid,
             username: data.user_info.uname,
             price: data.price,
-            message: data.message
+            message: data.message,
+            timer: data.start_time
         }
-        const card = creatSuperChatCard(object)
-        $('div#sc-list').prepend(card)
+        pushSuperChat(object)
     }
 
     //refresh token
@@ -160,14 +209,18 @@ window.addEventListener('bjf:superchats', ({detail: {scList, token}}) => {
 function getBeforeSuperChat(){
     const a = `
     <script>
-        const scList = window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list
-        const event = new CustomEvent('bjf:superchats', { detail: {
-            scList,
+        window.dispatchEvent(new CustomEvent('bjf:superchats', { detail: {
+            scList: window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list,
             token: '${cfToken}'
-        } })
-        window.dispatchEvent(event)
+        }}))
     </script>
     `
     $(document.body).append(a)
 }
 
+export function cancelSuperChatFunction(){
+    while(eventListeners.length > 0){
+        window.removeEventListener('ws:bilibili-live', eventListeners.shift())
+    }
+    $('.dropdown-sc').remove()
+}

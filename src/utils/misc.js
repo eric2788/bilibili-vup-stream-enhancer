@@ -38,7 +38,8 @@ const defaultSettings = {
     },
     filterCNV: false,
     autoCheckUpdate: true,
-    recordSuperChat: false
+    recordSuperChat: false,
+    enableRestart: false
 }
 
 async function getSettings(){

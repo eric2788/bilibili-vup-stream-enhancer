@@ -30,7 +30,7 @@ export async function connect(key){
       
 }
 
-export function close(){
+export function closeDatabase(){
     db?.close()
 }
 
