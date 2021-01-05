@@ -52,6 +52,20 @@
 </details>
 
 <details>
+    <summary>SC导出记录</summary>
+    
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/sc-output.gif)
+
+</details>
+
+<details>
+    <summary>一键添加黑名单</summary>
+
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/blacklist-btn.gif)
+</details>
+
+
+<details>
 <summary>字幕动画设定</summary>
 
 右移
