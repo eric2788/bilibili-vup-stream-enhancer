@@ -210,10 +210,12 @@ window.addEventListener('bjf:superchats', ({detail: {scList, token}}) => {
 function getBeforeSuperChat(){
     const a = `
     <script>
-        window.dispatchEvent(new CustomEvent('bjf:superchats', { detail: {
-            scList: window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list,
+        const scList = window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list
+        const event = new CustomEvent('bjf:superchats', { detail: {
+            scList,
             token: '${cfToken}'
-        }}))
+        }})
+        window.dispatchEvent(event)
     </script>
     `
     $(document.body).append(a)
