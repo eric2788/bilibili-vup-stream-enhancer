@@ -202,6 +202,7 @@ async function start(restart = false){
                 padding: 5px;
                 font-size: 12px;
                 border: none;
+                box-shadow: 1px 1px 5px black;
             }
             </style>
         </a>

@@ -64,10 +64,10 @@ function appendBlackList(room){
 }
 
 $('#blacklist-add-btn').on('click', e => {
-    e.preventDefault()
     if (!$('#add-blacklist')[0].checkValidity()){
         return
     }
+    e.preventDefault()
     const room = $('#add-blacklist')[0].value
     if (room === undefined || room === '') return
     appendBlackList(room)
@@ -85,10 +85,10 @@ function appendTongChuan(user){
 }
 
 $('#tcman-add-btn').on('click', e => {
-    e.preventDefault()
     if (!$('#add-tcman')[0].checkValidity()){
         return
     }
+    e.preventDefault()
     const user = $('#add-tcman')[0].value
     if (user === undefined || user === '') return
     appendTongChuan(user)
