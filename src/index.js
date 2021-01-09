@@ -278,7 +278,7 @@ async function start(restart = false){
     
     if (settings.recordSuperChat){
          //SC过滤
-        await launchSuperChatInspect(settings, { buttonOnly, liveTime: live_time })
+        await launchSuperChatInspect(settings, { buttonOnly, restart })
     }
 
     if (restart) return
@@ -329,8 +329,6 @@ window.onunload = function () {
 
 function cancel(){
     $('#button-list').remove()
-    $(window).off('ws:bilibili-live')
-    $(window).off('bjf:command')
     cancelJimakuFunction()
     cancelSuperChatFunction()
     $('#blacklist-add-btn').remove()
@@ -338,7 +336,7 @@ function cancel(){
 
 function relaunch(){
     cancel()
-    start().catch(console.error)
+    start(true).catch(console.error)
 }
 
 browser.runtime.onMessage.addListener(req => {

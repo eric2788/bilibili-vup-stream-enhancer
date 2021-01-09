@@ -130,8 +130,9 @@ function wsMonitor(settings) {
             beforeInsert.push(id)
         }
         const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
-        const jimaku = isTongChuan ? danmaku : toJimaku(danmaku, settings.regex)
-        if (jimaku !== undefined) {
+        let jimaku = toJimaku(danmaku, settings.regex)
+        if (!jimaku && isTongChuan) jimaku = danmaku 
+        if (jimaku) {
             pushSubtitle(jimaku, settings)
             //在使用 websocket 的情况下，可以强制置顶和置底弹幕
             switch (danmakuPosition) {

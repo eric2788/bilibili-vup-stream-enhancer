@@ -52,7 +52,7 @@ function switchMenu(e){
     $('.dropbtn-sc').css('background-color', color)
   }
 
-export async function launchSuperChatInspect(settings, { buttonOnly }){
+export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
 
     if (buttonOnly) return
 
@@ -142,7 +142,8 @@ export async function launchSuperChatInspect(settings, { buttonOnly }){
         $('div#sc-list').prepend(card)
     }
 
-    getBeforeSuperChat()
+    if (!restart) getBeforeSuperChat()
+
     const listener = ({ detail: { cmd, command } }) => {
         if (cmd !== 'SUPER_CHAT_MESSAGE') return
         const { data } = command
