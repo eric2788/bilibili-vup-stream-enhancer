@@ -33,13 +33,8 @@ function getStreamingTimeFromHtml(){
 
 let live_time = undefined
 
-async function getStreamingTime() {
+function getStreamingTime() {
     try {
-        const ele = $('[data-title=直播持续时间] > span')
-        // 舊直播 UI
-        if (ele.length > 0){
-            return ele[0].innerText
-        }
         // 新直播UI
         if (!live_time){
             console.warn(`找不到開播時間，嘗試改為使用html元素獲取`)
@@ -104,14 +99,13 @@ function launchDanmakuStyleChanger(settings) {
 function pushSubtitle(subtitle, settings) {
     appendSubtitle(subtitle)
     if (settings.record) {
-        const dateGet = settings.useStreamingTime ? getStreamingTime() : new Promise((res,)=> res(getTimeStamp()))
-        dateGet
-        .then((date) => pushRecord({date, text: subtitle}))
-        .then(() => {
-            logSettings.hasLog = true
-            logSettings.changed = true
-        })
-        .catch(console.warn)
+        const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
+        pushRecord({ date, text: subtitle })
+            .then(() => {
+                logSettings.hasLog = true
+                logSettings.changed = true
+            })
+            .catch(console.warn)
     }
 }
 
