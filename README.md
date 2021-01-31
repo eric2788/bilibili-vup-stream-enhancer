@@ -170,6 +170,13 @@
 </details>
 
 <details>
+<summary>对大海报活动房间的支援(试验阶段)M/summary>
+        
+![image.png](https://i.loli.net/2021/01/31/oRcQt7GgvuBLmdi.png)
+        
+</details>
+
+<details>
 <summary>其他功能</summary>
 
 一些小功能我就不上图了，直接列出来
