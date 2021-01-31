@@ -32,8 +32,7 @@ function getCurrentInput(){
     setting.jimakuAnimation = $('#jimaku-animation')[0].value
 
     setting.webSocketSettings = {
-        danmakuPosition: $('#danmaku-position')[0].value,
-        forceAlterWay: $('#force-alter-way').prop('checked')
+        danmakuPosition: $('#danmaku-position')[0].value
     }
     setting.useStreamingTime = $('#use-streaming-time').prop('checked')
     setting.useAsWhitelist = $('#use-whitelist').prop('checked')
@@ -126,10 +125,8 @@ function saveCurrentInput(setting){
         appendTongChuan(user)
     }
 
-    const { danmakuPosition, forceAlterWay } = setting.webSocketSettings
+    const { danmakuPosition } = setting.webSocketSettings
     $('#danmaku-position')[0].value = danmakuPosition
-    $('#force-alter-way').prop('checked', forceAlterWay)
-    $('label[for=force-alter-way]')[0].innerText = forceAlterWay ? '自动切换到第三方監控' : '询问切换到第三方監控'
     
     $('#use-streaming-time').prop('checked', setting.useStreamingTime)
     $('label[for=use-streaming-time]')[0].innerText = setting.useStreamingTime ? '使用串流时间戳记' : '使用真实时间戳记'

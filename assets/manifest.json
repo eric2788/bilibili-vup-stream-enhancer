@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.9.5",
+    "version": "0.10.1",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
@@ -33,7 +33,7 @@
 
     "content_scripts": [
       {
-        "matches": ["*://live.bilibili.com/*"],
+        "matches": ["*://live.bilibili.com/*", "*://www.bilibili.com/blackboard/live/*"],
         "js": [
           "browser-polyfill.js",
           "cdn/jquery.js",
@@ -47,7 +47,7 @@
     ],
 
     "web_accessible_resources": [
-      "cdn/blive-proxy.js",
+      "cdn/websocket-hook.js",
       "cdn/pako.min.js"
     ],
 

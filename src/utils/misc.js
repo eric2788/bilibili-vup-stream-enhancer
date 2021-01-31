@@ -13,7 +13,7 @@ const defaultSettings = {
     opacity: -1,
     color: '',
     hideJimakuDanmaku: false,
-    vtbOnly: isFirefox,
+    vtbOnly: true,
     record: false,
 
     backgroundSubtitleOpacity: 40,
@@ -27,8 +27,7 @@ const defaultSettings = {
     lineGap: 10,
     jimakuAnimation: 'top',
     webSocketSettings: {
-        danmakuPosition: 'normal',
-        forceAlterWay: false
+        danmakuPosition: 'normal'
     },
     useStreamingTime: false,
     buttonSettings: {
@@ -36,7 +35,7 @@ const defaultSettings = {
         backgroundColor: '#000000',
         textColor: '#FFFFFF'
     },
-    filterCNV: false,
+    filterCNV: true,
     autoCheckUpdate: true,
     recordSuperChat: false,
     enableRestart: false
@@ -78,6 +77,16 @@ export function generateToken() {
     });
 }
 
+const themeRegex = /\/blackboard\/live\/activity-\w+\.html/g
+
+export const isTheme = themeRegex.test(location.pathname)
+
+const $1 = window.$
+
+const liveFrame = () => $1("iframe")[1]
+
+export const $$ = isTheme ? (s) => $1(liveFrame()).contents().find(s) : $1
+
 export function toTimer(secs){
     let min = 0;
     let hr = 0;
@@ -100,7 +109,7 @@ export const logSettings = {
     hasSCLog: false
 }
 
-const roomReg = /^\/(?<id>\d+)/g
+const roomReg = /^\/(blanc\/)?(?<id>\d+)/g
 export const roomId = parseInt(roomReg.exec(location.pathname)?.groups?.id)
 
 

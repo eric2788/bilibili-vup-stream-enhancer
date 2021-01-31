@@ -1,5 +1,5 @@
 import { sendNotify } from "./utils/messaging";
-import { download, generateToken, roomId } from "./utils/misc";
+import { download, generateToken, roomId, $$ as $, isTheme } from "./utils/misc";
 
 function creatSuperChatCard({
     bg_color,
@@ -55,6 +55,11 @@ function switchMenu(e){
 export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
 
     if (buttonOnly) return
+
+    if (isTheme) {
+        console.log('大海報房間將不支援醒目留言記錄過濾。')
+        return
+    }
 
     $('div.room-info-ctnr.dp-i-block').append(`
         <div class="dropdown-sc">
@@ -211,12 +216,12 @@ window.addEventListener('bjf:superchats', ({detail: {scList, token}}) => {
 function getBeforeSuperChat(){
     const a = `
     <script>
-        const scList = window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list
-        const event = new CustomEvent('bjf:superchats', { detail: {
+        const scList = window.__NEPTUNE_IS_MY_WAIFU__ ? window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list : []
+        const scEvent = new CustomEvent('bjf:superchats', { detail: {
             scList,
             token: '${cfToken}'
         }})
-        window.dispatchEvent(event)
+        window.dispatchEvent(scEvent)
     </script>
     `
     $(document.body).append(a)

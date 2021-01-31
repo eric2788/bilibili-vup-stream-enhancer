@@ -1,5 +1,5 @@
 env:
-    version: 0.9.5
+    version: 0.10.1
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
 name: bilibili jimaku filter publish sign
@@ -48,8 +48,8 @@ jobs:
         body: check the commits for update
         draft: false
         prerelease: false
-    - name: Upload Release jar
-      id: upload-release-asset-jar
+    - name: Upload Release extension
+      id: upload-release-asset-xpi
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps

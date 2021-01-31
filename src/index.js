@@ -1,24 +1,65 @@
-import getSettings, { roomId, logSettings, generateToken } from './utils/misc'
+import getSettings, { roomId as rid, logSettings, generateToken, isTheme, $$ as $ } from './utils/misc'
 import { connect, closeDatabase } from './utils/database'
 import { webRequest, sendNotify, setSettings } from './utils/messaging'
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
 import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
-const userReg = /^\/\/space\.bilibili\.com\/(\d+)\/$/g
-const userId = parseInt(userReg.exec($('a.room-owner-username')?.attr('href'))?.pop())
 
-if (isNaN(roomId)) {
-    console.warn('未知直播房間。')
-    throw new Error('未知直播房間。')
+
+let csrfToken = generateToken()
+
+window.addEventListener('bjf:command', ({ detail: { cmd, data } }) => {
+    if (!cmd.startsWith('e') && data.csrfToken !== csrfToken){
+        console.warn('token not match, skipped command')
+        return
+    }
+    switch(cmd){
+        case "room-id-get":
+            roomId = data.id
+            console.log(`roomId is ${roomId} from theme room`)
+            break;
+        default:
+            break;
+    }
+    if (!cmd.startsWith('e')){
+        csrfToken = generateToken()
+    }
+}, true)
+
+
+let roomId;
+if (isNaN(rid)) {
+    if (isTheme){
+        console.log('this is theme room')
+        window.$(document.body).prepend(`
+            <script>
+              const rid = window.__initialState['live-non-revenue-player'][0].defaultRoomId
+              const ridGetEvent = new CustomEvent('bjf:command', {detail: {
+                cmd: "room-id-get",
+                data: {
+                    id: rid,
+                    csrfToken: '${csrfToken}'
+                }
+              }})
+              window.dispatchEvent(ridGetEvent)
+            </script>
+        `)
+    }else{
+        console.warn('未知直播房間。')
+    }
+}else{
+    roomId = rid;
 }
 
 const key = `live_room.${roomId}`
 
-// Injecting web socket inspector on start
-const b = `
+if (!isTheme){
+    // Injecting web socket inspector on start
+    const b = `
     <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
-    <script src="${browser.runtime.getURL('cdn/blive-proxy.js')}"></script>
-`
-$(document.head).append(b)
+    <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
+    `
+    $(document.head).append(b)
+}
 
 async function sleep(ms) {
     return new Promise((res,) => setTimeout(res, ms))
@@ -59,6 +100,11 @@ async function filterNotV(settings) {
 }
 
 async function filterCNV(settings, retry = 0) {
+    while (!$('a.room-owner-username')?.attr('href')){
+        console.log('cannot find userId, wait for one sec')
+        await sleep(1000)
+    }
+    const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($('a.room-owner-username')?.attr('href'))?.pop())
     if (settings.filterCNV) {
         console.log('已啟用自動過濾國v')
         console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
@@ -98,31 +144,6 @@ async function filterCNV(settings, retry = 0) {
     return false
 }
 
-let proxyActivated = false
-
-let csrfToken = generateToken()
-
-window.addEventListener('bjf:command', ({ detail: { cmd, data } }) => {
-    if (!cmd.startsWith('e') && data.csrfToken !== csrfToken){
-        console.warn('token not match, skipped command')
-        return
-    }
-    switch(cmd){
-        case "e-proxy-activated":
-            proxyActivated = true
-            console.log('proxy activated.')
-            break;
-        case "send-notify":
-            sendNotify(data)
-            break;
-        default:
-            break;
-    }
-    if (!cmd.startsWith('e')){
-        csrfToken = generateToken()
-    }
-}, true)
-
 
 async function getLiveTime(retry = 0){
     try {
@@ -148,10 +169,18 @@ async function getLiveTime(retry = 0){
 // start here
 async function start(restart = false){
     console.log('this page is using bilibili jimaku filter')
-    const roomLink = $('a.room-owner-username').attr('href')
-    if (!roomLink) {
-        console.log('the room is theme room, skipped')
-        return
+
+    if (isTheme) {
+        console.log('the room is theme room')
+        window.$(document.head).append(`<META HTTP-EQUIV="Access-Control-Allow-Origin" CONTENT="http://live.bilibili.com">`)
+        while (window.$('iframe').length <= 1){
+            console.log('iframe not found, wait one second')
+            await sleep(1000)
+        }
+        while (!roomId){
+            console.log('roomId not found, wait one sec')
+            await sleep(1000)
+        }
     }
 
     const settings = await getSettings()
@@ -226,7 +255,8 @@ async function start(restart = false){
         }
     })
 
-    $('div.player-section').after(`
+    if (!isTheme){
+        $('div.player-section').after(`
         <div id="button-list" style="text-align: center; background-color: ${blc}">
             <style>
             .button {
@@ -269,6 +299,49 @@ async function start(restart = false){
             </style>
         </div>
     `)
+    }else{
+        $('div.player-section').after(`
+        <style>
+            .button {
+                background-color: ${bc};
+                border: none;
+                color: ${tc};
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 15px;
+                margin: 5px 5px;
+                left: 50%;
+                cursor: pointer;
+            }
+            @keyframes top {
+                from {
+                transform: translateY(-30px);
+                opacity: 0;
+                }
+            }
+            @keyframes left {
+                from {
+                transform: translatex(-50px);
+                opacity: 0;
+                }
+            }
+            @keyframes size {
+                from {
+                font-size: 5px;
+                opacity: 0;
+                }
+            }
+            @keyframes y-down {
+                from {
+                height: 0px;
+                opacity: 0;
+                }
+            }
+        </style>
+    `)
+    }
 
     if (settings.enableRestart){
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
@@ -281,41 +354,6 @@ async function start(restart = false){
          //SC过滤
         await launchSuperChatInspect(settings, { buttonOnly, restart })
     }
-
-    if (restart) return
-    const { forceAlterWay } = settings.webSocketSettings
-    setTimeout(() => {
-        if (!proxyActivated && (forceAlterWay || window.confirm('Bliveproxy 貌似挂接失败，需要切换第三方监控WebSocket吗？'))){
-            const s = 
-            `<script>
-                WebSocket.prototype._send = WebSocket.prototype.send;
-                WebSocket.prototype.send = function (data) {
-                    this._send(data);
-                    this.addEventListener('message', function (msg) {
-                        const event = new CustomEvent('ws:bliveproxy', { detail: msg })
-                        window.dispatchEvent(event)
-                    }, true);
-                    console.log('websocket injected by alternative way')
-                    const event = new CustomEvent('bjf:command', {detail: {
-                        cmd: 'send-notify',
-                        data: {
-                            title: '第三方监控挂接成功',
-                            message: 'WebSocket 已被成功挂接。',
-                            csrfToken: '${csrfToken}'
-                        }
-                    }})
-                    window.dispatchEvent(event)
-                    this.send = this._send
-                }
-            </script>
-            `
-            $(document.body).prepend(s)
-            sendNotify({
-                title: '正在採用第三方监控 WebSocket....',
-                message: '挂接过程可能长达十五秒, 且将无法置顶置底弹幕'
-            })
-        }
-    }, 5000)
 }
 
 

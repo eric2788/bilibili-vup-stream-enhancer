@@ -1,6 +1,6 @@
 import { pushRecord, listRecords, clearRecords, closeDatabase} from './utils/database'
 import { sendNotify } from './utils/messaging'
-import { toTimer, logSettings, roomId, download } from './utils/misc'
+import { toTimer, logSettings, roomId, download, $$ as $, isTheme } from './utils/misc'
 
 const config = { attributes: false, childList: true, subtree: true };
 
@@ -63,6 +63,35 @@ function toJimaku(danmaku, regex) {
     return danmaku
 }
 
+function chatMonitor(settings) {
+    const callback = function (mutationsList) {
+        for (const mu of mutationsList) {
+            for (const node of mu.addedNodes) {
+                const danmaku = $(node)?.attr('data-danmaku')?.trim()
+                const userId = $(node)?.attr('data-uid')?.trim()
+                const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
+                if (danmaku) {
+                    const id = `${danmaku}-${userId}`
+                    if (beforeInsert.pop() === id) return
+                    console.debug(`[BJF] ${danmaku}`)
+                    beforeInsert.push(id)
+                }
+                let subtitle = toJimaku(danmaku, settings.regex)
+                if (!subtitle && isTongChuan) subtitle = danmaku
+                if (subtitle !== undefined) {
+                    if (beforeInsert.shift() === subtitle) {
+                        continue
+                    }
+                    pushSubtitle(subtitle, settings)
+                }
+            }
+        }
+    }
+    const observer = new Observer((mlist, ) => callback(mlist));
+    observer.observe($('#chat-items')[0], config);
+    observers.push(observer)
+}
+
 function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable, colorDisable }) {
     for (const mu of mutationsList) {
         for (const node of mu.addedNodes) {
@@ -118,9 +147,9 @@ function wsMonitor(settings) {
         const userId = command.info[2][0]
         const danmaku = command.info[1]
         if (danmaku) {
-            const id = `${danmaku}-${command.info[2][0]}`
+            const id = `${danmaku}-${userId}`
             if (beforeInsert.pop() === id) return
-            console.debug(danmaku)
+            console.debug(`[BJF] ${danmaku}`)
             beforeInsert.push(id)
         }
         const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
@@ -205,11 +234,11 @@ let lastStyle = undefined
 let lastFull = false
 function fullScreenTrigger(check, settings) {
     const element = $('div#subtitle-list')
-    const cfg = { disabled: !check }
+    const cfg = { disabled: !check && !isTheme }
     element.draggable(cfg)
     element.resizable(cfg)
 
-    if (!check) {    
+    if (!check && !isTheme) {    
         lastStyle = element.attr('style')
         element.removeAttr('style')
         $('div#button-list').before(element)
@@ -238,14 +267,16 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
     
     const { backgroundColor: bgc, subtitleColor: stc, backgroundHeight: bgh } = settings
 
-    $('div#button-list').append(`
-        <button id="clear-record" class="button">删除所有字幕记录</button>
-    `)
-    if (settings.record) {
-        $('div#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
-        $('button#download-record').on('click', downloadLog)
+    if (!isTheme) {
+        $('div#button-list').append(`
+            <button id="clear-record" class="button">删除所有字幕记录</button>
+        `)
+        if (settings.record) {
+            $('div#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
+            $('button#download-record').on('click', downloadLog)
+        }
+        $('button#clear-record').on('click', () => clearLogs(settings.record).catch(console.warn))
     }
-    $('button#clear-record').on('click', () => clearLogs(settings.record).catch(console.warn))
     
     if (buttonOnly) return
     $('div.player-section').after(`
@@ -285,29 +316,36 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
             </style>
         </div>
     `)
-    $('div#aside-area-vm').css('margin-bottom', `${bgh + 30}px`)
+    
 
     // 屏幕彈幕監控
     launchDanmakuStyleChanger(settings)
 
     const previousRecord = await new Promise((res,) => listRecords().then(res).catch(() => res([])))
     for (const rec of previousRecord) {
+        if (isTheme) beforeInsert.push(rec.text)
         appendSubtitle(rec.text)
     }
 
-    // WebSocket 监控
-    wsMonitor(settings)
-
-    // 全屏切換監控
-    const monObserver = new Observer((mu, ) => {
-        const currentState = $(mu[0].target).attr('data-player-state')
-        if (currentState === lastState) return
-        const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
-        fullScreenTrigger(fullScreen, settings)
-        lastState = currentState
-    })
-    monObserver.observe($('.bilibili-live-player.relative')[0], { attributes: true })
-    observers.push(monObserver)
+    if (isTheme){
+        console.log('大海報房間將採用聊天室監控')
+        chatMonitor(settings)
+        fullScreenTrigger(true, settings) // 先設置全屏
+    }else{
+        // WebSocket 监控
+        wsMonitor(settings)
+        $('div#aside-area-vm').css('margin-bottom', `${bgh + 30}px`)
+        // 全屏切換監控
+        const monObserver = new Observer((mu, ) => {
+            const currentState = $(mu[0].target).attr('data-player-state')
+            if (currentState === lastState) return
+            const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
+            fullScreenTrigger(fullScreen, settings)
+            lastState = currentState
+        })
+        monObserver.observe($('.bilibili-live-player.relative')[0], { attributes: true })
+        observers.push(monObserver)
+    }
 }
 
 

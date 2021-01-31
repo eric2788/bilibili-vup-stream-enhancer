@@ -4,14 +4,6 @@
 // @作者  xfgryujk
 // @来源  https://ngabbs.com/read.php?tid=24449759
 
-// 使用方法：
-// bliveproxy.addCommandHandler('DANMU_MSG', command => {
-//   console.log(command)
-//   let info = command.info
-//   info[1] = '测试'
-// })
-
-
 // 其修改和使用已经经过 xfgryujk 本人的授权
 
 (function() {
@@ -39,44 +31,21 @@
       window.proxyLaunched = true
     }
   
+    //修改掛接方式，將不再採用Proxy
     function hook() {
-      console.log('injecting blive proxy..')
-      window.WebSocket = new Proxy(window.WebSocket, {
-        construct(target, args) {
-          let obj = new target(...args)
-          return new Proxy(obj, proxyHandler)
+      console.log('injecting websocket..')
+      WebSocket.prototype._send = WebSocket.prototype.send;
+      WebSocket.prototype.send = function (data) {
+        this._send(data);
+        const onmsg = this.onmessage
+        this.onmessage = function (msg){
+          myOnMessage(msg, onmsg)
         }
-      })
-      window.addEventListener('ws:bliveproxy', e => {
-        myOnMessage(e.detail, () => {})
-      }, true)
-      console.log('injected successfull')
+        this.send = this._send
+      }
     }
 
     
-  
-    let proxyHandler = {
-      get(target, property) {
-        let value = target[property]
-        if ((typeof value) === 'function') {
-          value = value.bind(target)
-        }
-        return value
-      },
-      set(target, property, value) {
-        if (property === 'onmessage') {
-          let realOnMessage = value
-          console.log('proxy initialized.')
-          const event = new CustomEvent('bjf:command', {detail: {cmd: 'e-proxy-activated'}})
-          window.dispatchEvent(event)
-          value = function(event) {
-            myOnMessage(event, realOnMessage)
-          }
-        }
-        target[property] = value
-        return value
-      }
-    }
   
     function myOnMessage(event, realOnMessage) {
       if (!(event.data instanceof ArrayBuffer)) {
