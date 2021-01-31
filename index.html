@@ -232,23 +232,13 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="form-group">
-                <p>目前默认采用bliveproxy进行WebSocket监控，成功率85%。</p>
-                >> 即使如此，仍然有机率会挂接失败。那么当挂接失败时:
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="force-alter-way" aria-describedby="faw-help">
-                    <label class="custom-control-label" for="force-alter-way">询问切换到第三方監控。</label>
-                    <small>(第三方监控将100%成功捕捉WebSocket讯息。)</small>
-                </div>
-            </div>
             <div class="form-group">
                 <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" id="use-streaming-time">
                     <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
                 </div>
                 <label for="danmaku-position" aria-details="dp-help">弹幕位置</label>
-                <small id="dp-help">(采用第三方监控时弹幕位置设定将会无效。)</small>
+                <small id="dp-help">(大海报活动房间不支援))</small>
                 <select class="custom-select" id="danmaku-position">                
                     <option value="normal">不改变</option>
                     <option value="top">置顶</option>
