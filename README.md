@@ -170,7 +170,7 @@
 </details>
 
 <details>
-<summary>对大海报活动房间的支援(试验阶段)M/summary>
+<summary>对大海报活动房间的支援(试验阶段)</summary>
         
 ![image.png](https://i.loli.net/2021/01/31/oRcQt7GgvuBLmdi.png)
         
