@@ -249,8 +249,6 @@ async function start(restart = false){
             $('div#button-list').css('display', display ? 'block' : 'none')
             $('#switch-button-list').css('background-color', display ? 'gray' : '#e87676')
         })
-
-        $('#switch-button-list').trgger('click')
     }
 
     $('#blacklist-add-btn').on('click', async () => {
@@ -315,10 +313,15 @@ async function start(restart = false){
         </div>
     `)
 
+    if (isTheme){
+        $('#switch-button-list').trgger('click')
+    }
+
     if (settings.enableRestart){
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
         $('#restart-btn').on('click', relaunch)
     }
+    
     //彈幕過濾
     await launchJimakuInspect(settings, { buttonOnly, liveTime: live_time })
     
