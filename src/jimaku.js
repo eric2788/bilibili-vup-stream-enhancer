@@ -267,17 +267,16 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
     
     const { backgroundColor: bgc, subtitleColor: stc, backgroundHeight: bgh } = settings
 
-    if (!isTheme) {
-        $('div#button-list').append(`
+    $('div#button-list').append(`
             <button id="clear-record" class="button">删除所有字幕记录</button>
         `)
-        if (settings.record) {
-            $('div#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
-            $('button#download-record').on('click', downloadLog)
-        }
-        $('button#clear-record').on('click', () => clearLogs(settings.record).catch(console.warn))
+
+    if (settings.record) {
+        $('div#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
+        $('button#download-record').on('click', downloadLog)
     }
-    
+    $('button#clear-record').on('click', () => clearLogs(settings.record).catch(console.warn))
+
     if (buttonOnly) return
     $('div.player-section').after(`
         <div id="subtitle-list" class="subtitle-normal">

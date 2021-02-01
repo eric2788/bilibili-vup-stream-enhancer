@@ -37,14 +37,11 @@
       WebSocket.prototype._send = WebSocket.prototype.send;
       WebSocket.prototype.send = function (data) {
         this._send(data);
-        if (!window.proxyInjected){
-          const onmsg = this.onmessage
-          this.onmessage = function (msg){
-            myOnMessage(msg, onmsg)
-          }
-          console.log('websocket injected.')
+        const onmsg = this.onmessage
+        this.onmessage = function (msg) {
+          myOnMessage(msg, onmsg)
         }
-        window.proxyInjected = true
+        console.log('websocket injected.')
         this.send = this._send
       }
     }

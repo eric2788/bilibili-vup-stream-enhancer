@@ -237,6 +237,22 @@ async function start(restart = false){
         </a>
     `)
 
+    if (isTheme){
+        $('div.room-info-ctnr.dp-i-block').append(`
+            <a href="javascript: void(0)" class="btn-sc" type="button" id="switch-button-list">
+                切換按鈕列表
+            </a>
+        `)
+
+        $('#switch-button-list').on('click', () => {
+            const display = $('div#button-list').css('display') === 'none'
+            $('div#button-list').css('display', display ? 'block' : 'none')
+            $('#switch-button-list').css('background-color', display ? 'gray' : '#e87676')
+        })
+
+        $('#switch-button-list').trgger('click')
+    }
+
     $('#blacklist-add-btn').on('click', async () => {
         try {
             if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return 
@@ -298,10 +314,6 @@ async function start(restart = false){
             </style>
         </div>
     `)
-
-    if (isTheme){
-        $('div#button-list').css('display', 'none')
-    }
 
     if (settings.enableRestart){
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
