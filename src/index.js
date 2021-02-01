@@ -255,8 +255,7 @@ async function start(restart = false){
         }
     })
 
-    if (!isTheme){
-        $('div.player-section').after(`
+    $('div.player-section').after(`
         <div id="button-list" style="text-align: center; background-color: ${blc}">
             <style>
             .button {
@@ -299,48 +298,9 @@ async function start(restart = false){
             </style>
         </div>
     `)
-    }else{
-        $('div.player-section').after(`
-        <style>
-            .button {
-                background-color: ${bc};
-                border: none;
-                color: ${tc};
-                padding: 10px 20px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 15px;
-                margin: 5px 5px;
-                left: 50%;
-                cursor: pointer;
-            }
-            @keyframes top {
-                from {
-                transform: translateY(-30px);
-                opacity: 0;
-                }
-            }
-            @keyframes left {
-                from {
-                transform: translatex(-50px);
-                opacity: 0;
-                }
-            }
-            @keyframes size {
-                from {
-                font-size: 5px;
-                opacity: 0;
-                }
-            }
-            @keyframes y-down {
-                from {
-                height: 0px;
-                opacity: 0;
-                }
-            }
-        </style>
-    `)
+
+    if (isTheme){
+        $('div#button-list').css('display', 'none')
     }
 
     if (settings.enableRestart){
