@@ -35,7 +35,7 @@ const defaultSettings = {
         backgroundColor: '#000000',
         textColor: '#FFFFFF'
     },
-    filterCNV: true,
+    filterCNV: false,
     autoCheckUpdate: true,
     recordSuperChat: false,
     enableRestart: false
