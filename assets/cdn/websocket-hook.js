@@ -38,10 +38,12 @@
       WebSocket.prototype.send = function (data) {
         this._send(data);
         const onmsg = this.onmessage
-        this.onmessage = function (msg) {
-          myOnMessage(msg, onmsg)
+        if (onmsg instanceof Function){
+          this.onmessage = function (msg) {
+            myOnMessage(msg, onmsg)
+          }
+          console.log('websocket injected.')
         }
-        console.log('websocket injected.')
         this.send = this._send
       }
     }
