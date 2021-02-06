@@ -314,7 +314,7 @@ async function start(restart = false){
     `)
 
     if (isTheme){
-        $('#switch-button-list').trgger('click')
+        $('#switch-button-list').click()
     }
 
     if (settings.enableRestart){

@@ -92,7 +92,7 @@ function chatMonitor(settings) {
     observers.push(observer)
 }
 
-function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable, colorDisable }) {
+function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable }) {
     for (const mu of mutationsList) {
         for (const node of mu.addedNodes) {
             const danmaku = node?.innerText?.trim() ?? node?.data?.trim()
@@ -107,9 +107,6 @@ function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opac
                     const o = (settings.opacity / 100).toFixed(1)
                     jimaku.css('opacity', o)
                 }
-                if (!colorDisable) {
-                    jimaku.css('color', settings.color)
-                }
             }
         }
     }
@@ -117,10 +114,9 @@ function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opac
 
 function launchDanmakuStyleChanger(settings) {
     const opacityDisable = settings.opacity == -1
-    const colorDisable = !/^#[0-9A-F]{6}$/ig.test(settings.color)
     const hideJimakuDisable = !settings.hideJimakuDanmaku
-    if (opacityDisable && colorDisable && hideJimakuDisable) return
-    const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable, colorDisable }))
+    if (opacityDisable && hideJimakuDisable) return
+    const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable }))
     danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0], config)
     observers.push(danmakuObserver)
 }
@@ -157,7 +153,9 @@ function wsMonitor(settings) {
         if (!jimaku && isTongChuan) jimaku = danmaku 
         if (jimaku) {
             pushSubtitle(jimaku, settings)
-            //在使用 websocket 的情况下，可以强制置顶和置底弹幕
+            if(/^#[0-9A-F]{6}$/ig.test(settings.color)){
+                command.info[0][3] = parseInt(settings.color.substr(1), 16)
+            }
             switch (danmakuPosition) {
                 case "top":
                     command.info[0][1] = 5

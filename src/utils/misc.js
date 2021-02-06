@@ -77,7 +77,7 @@ export function generateToken() {
     });
 }
 
-const themeRegex = /\/blackboard\/live\/activity-\w+\.html/g
+const themeRegex = /\/blackboard(\/live)?\/activity-(.+?)\.html/g
 
 export const isTheme = themeRegex.test(location.pathname)
 
