@@ -346,6 +346,7 @@ function cancel(){
     cancelJimakuFunction()
     cancelSuperChatFunction()
     $('#blacklist-add-btn').remove()
+    $('#switch-button-list').remove()
 }
 
 function relaunch(){

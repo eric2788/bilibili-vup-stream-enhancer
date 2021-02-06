@@ -327,6 +327,7 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
     if (isTheme){
         console.log('大海報房間將採用聊天室監控')
         chatMonitor(settings)
+        lastFull = false
         fullScreenTrigger(true, settings) // 先設置全屏
     }else{
         // WebSocket 监控
