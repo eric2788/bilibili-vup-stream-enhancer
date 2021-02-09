@@ -22,6 +22,14 @@ export async function checkUpdate(){
     return sendData({type: 'check-update'})
 }
 
+export async function openInspectWindow(roomId, title){
+    return sendData({type: 'open-window', roomId, title})
+}
+
+export async function sendBackgroundJimaku(data){
+    return sendData({type: 'jimaku', data})
+}
+
 async function sendData(message){
     return browser.runtime.sendMessage(message)
 }

@@ -1,5 +1,5 @@
 import { sendNotify } from "./utils/messaging";
-import { download, generateToken, roomId, $$ as $, isTheme } from "./utils/misc";
+import { download, generateToken, roomId } from "./utils/misc";
 
 function creatSuperChatCard({
     bg_color,
@@ -56,10 +56,12 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
 
     if (buttonOnly) return
 
+    /*
     if (isTheme) {
         console.log('大海報房間將不支援醒目留言記錄過濾。')
         return
     }
+    */
 
     $('div.room-info-ctnr.dp-i-block').append(`
         <div class="dropdown-sc">

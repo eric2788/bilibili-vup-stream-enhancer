@@ -38,7 +38,8 @@ const defaultSettings = {
     filterCNV: false,
     autoCheckUpdate: true,
     recordSuperChat: false,
-    enableRestart: false
+    enableRestart: false,
+    enableJimakuPopup: false
 }
 
 async function getSettings(){
@@ -77,6 +78,7 @@ export function generateToken() {
     });
 }
 
+/*
 const themeRegex = /\/blackboard(\/live)?\/activity-(.+?)\.html/g
 
 export const isTheme = themeRegex.test(location.pathname)
@@ -86,6 +88,9 @@ const $1 = window.$
 const liveFrame = () => $1("iframe")[1]
 
 export const $$ = isTheme ? (s) => $1(liveFrame()).contents().find(s) : $1
+*/
+
+export const isTheme = location.pathname.indexOf('blanc') > -1
 
 export function toTimer(secs){
     let min = 0;

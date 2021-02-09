@@ -1,6 +1,6 @@
 import { pushRecord, listRecords, clearRecords, closeDatabase} from './utils/database'
-import { sendNotify } from './utils/messaging'
-import { toTimer, logSettings, roomId, download, $$ as $, isTheme } from './utils/misc'
+import { sendNotify, openInspectWindow, sendBackgroundJimaku } from './utils/messaging'
+import { toTimer, logSettings, roomId, download, isTheme } from './utils/misc'
 
 const config = { attributes: false, childList: true, subtree: true };
 
@@ -63,6 +63,7 @@ function toJimaku(danmaku, regex) {
     return danmaku
 }
 
+/*
 function chatMonitor(settings) {
     const callback = function (mutationsList) {
         for (const mu of mutationsList) {
@@ -91,6 +92,7 @@ function chatMonitor(settings) {
     observer.observe($('#chat-items')[0], config);
     observers.push(observer)
 }
+*/
 
 function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable }) {
     for (const mu of mutationsList) {
@@ -123,8 +125,8 @@ function launchDanmakuStyleChanger(settings) {
 
 function pushSubtitle(subtitle, settings) {
     appendSubtitle(subtitle)
+    const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
     if (settings.record) {
-        const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
         pushRecord({ date, text: subtitle })
             .then(() => {
                 logSettings.hasLog = true
@@ -132,6 +134,7 @@ function pushSubtitle(subtitle, settings) {
             })
             .catch(console.warn)
     }
+    sendBackgroundJimaku({room: roomId, date, text: subtitle}).catch(console.error)
 }
 
 const eventListeners = []
@@ -166,6 +169,8 @@ function wsMonitor(settings) {
                 default:
                     break;
             }
+
+            //console.log(`${command.info[1]}: ${command.info[0][1]}`)
         }
     }
     window.addEventListener('ws:bilibili-live', listener)
@@ -267,15 +272,39 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
 
     $('div#button-list').append(`
             <button id="clear-record" class="button">删除所有字幕记录</button>
-        `)
+    `)
 
     if (settings.record) {
         $('div#button-list').append('<button id="download-record" class="button">下载字幕记录</button>')
         $('button#download-record').on('click', downloadLog)
     }
+
     $('button#clear-record').on('click', () => clearLogs(settings.record).catch(console.warn))
 
     if (buttonOnly) return
+
+    if (settings.enableJimakuPopup) {
+        $('#button-list').append(`
+            <button class="button" id="launch-bg">弹出同传视窗</button>
+        `)
+        $('#launch-bg').on('click', async () => {
+            try {
+                const title = $('.live-skin-main-text.small-title')[0]?.innerText ?? 'null'
+                await openInspectWindow(roomId, title)
+                await sendNotify({
+                    title: '启动成功',
+                    message: '已打开新的同传弹幕视窗。'
+                })
+            } catch (err) {
+                console.error(err)
+                await sendNotify({
+                    title: '启动同传弹幕视窗失败',
+                    message: err?.message ?? err
+                })
+            }
+        })
+    }
+
     $('div.player-section').after(`
         <div id="subtitle-list" class="subtitle-normal">
             <style>
@@ -320,18 +349,16 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
 
     const previousRecord = await new Promise((res,) => listRecords().then(res).catch(() => res([])))
     for (const rec of previousRecord) {
-        if (isTheme) beforeInsert.push(rec.text)
         appendSubtitle(rec.text)
     }
 
+    // WebSocket 监控
+    wsMonitor(settings)
+
     if (isTheme){
-        console.log('大海報房間將採用聊天室監控')
-        chatMonitor(settings)
         lastFull = false
         fullScreenTrigger(true, settings) // 先設置全屏
     }else{
-        // WebSocket 监控
-        wsMonitor(settings)
         $('div#aside-area-vm').css('margin-bottom', `${bgh + 30}px`)
         // 全屏切換監控
         const monObserver = new Observer((mu, ) => {

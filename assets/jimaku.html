@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<head>
+    <title>同传字幕黑听</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="icons/icon.png">
+    <script src="cdn/jquery.js"></script>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/css/mdui.min.css"
+        integrity="sha384-cLRrMq39HOZdvE0j6yBojO4+1PrHfB7a9l5qLcmRm/fiWXYY+CndJPmyu5FV/9Tw"
+        crossorigin="anonymous"
+    /> 
+</head>
+<body class="mdui-appbar-with-toolbar mdui-theme-accent-pink mdui-theme-primary-deep-purple">
+    <div class="mdui-appbar mdui-appbar-fixed mdui-appbar-scroll-hide">
+        <div class="mdui-toolbar mdui-color-theme">
+          <span id="title" class="mdui-typo-title">加载中</span>
+          <div class="mdui-toolbar-spacer"></div>
+          <a href="javascript:;" class="mdui-btn mdui-btn-icon" id="more-btn"><i class="mdui-icon material-icons">more_vert</i></a>
+          <div class="mdui-list mdui-menu" id="menu">
+            <label class="mdui-list-item mdui-ripple">
+              <div class="mdui-checkbox">
+                <input id="keep-bottom" type="checkbox" checked/>
+                <i class="mdui-checkbox-icon"></i>
+              </div>
+              <div class="mdui-list-item-content">固定底部</div>
+            </label>
+        </div>
+        </div>
+    </div>
+    <ul id="jimaku-list" class="mdui-list"></ul>
+    <script
+        src="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/js/mdui.min.js"
+        integrity="sha384-gCMZcshYKOGRX9r6wbDrvF+TcCCswSHFucUzUPwka+Gr+uHgjlYvkABr95TCOz3A"
+        crossorigin="anonymous"
+    ></script>
+</body>
+<style>
+    #jimaku-list {
+        overflow-y: auto;
+        height: 100%;
+    }
+</style>
+<script src="browser-polyfill.js"></script>
+<script src="popup-jimaku.js"></script>

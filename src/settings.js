@@ -49,6 +49,7 @@ function getCurrentInput(){
     setting.autoCheckUpdate = $('#auto-check-update').prop('checked')
     setting.recordSuperChat = $('#enable-record-sc').prop('checked')
     setting.enableRestart = $('#enable-restart').prop('checked')
+    setting.enableJimakuPopup = $('#enable-jimaku-popup').prop('checked')
     return setting
 }
 
@@ -155,6 +156,8 @@ function saveCurrentInput(setting){
     $('#enable-record-sc').prop('checked', setting.recordSuperChat)
 
     $('#enable-restart').prop('checked', setting.enableRestart)
+
+    $('#enable-jimaku-popup').prop('checked', setting.enableJimakuPopup)
 }
 
 

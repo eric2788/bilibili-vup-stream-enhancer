@@ -1,65 +1,18 @@
-import getSettings, { roomId as rid, logSettings, generateToken, isTheme, $$ as $ } from './utils/misc'
+import getSettings, { roomId, logSettings, isTheme } from './utils/misc'
 import { connect, closeDatabase } from './utils/database'
 import { webRequest, sendNotify, setSettings } from './utils/messaging'
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
 import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
 
 
-let csrfToken = generateToken()
-
-window.addEventListener('bjf:command', ({ detail: { cmd, data } }) => {
-    if (!cmd.startsWith('e') && data.csrfToken !== csrfToken){
-        console.warn('token not match, skipped command')
-        return
-    }
-    switch(cmd){
-        case "room-id-get":
-            roomId = data.id
-            console.log(`roomId is ${roomId} from theme room`)
-            break;
-        default:
-            break;
-    }
-    if (!cmd.startsWith('e')){
-        csrfToken = generateToken()
-    }
-}, true)
-
-
-let roomId;
-if (isNaN(rid)) {
-    if (isTheme){
-        console.log('this is theme room')
-        window.$(document.body).prepend(`
-            <script>
-              const rid = window.__initialState['live-non-revenue-player'][0].defaultRoomId
-              const ridGetEvent = new CustomEvent('bjf:command', {detail: {
-                cmd: "room-id-get",
-                data: {
-                    id: rid,
-                    csrfToken: '${csrfToken}'
-                }
-              }})
-              window.dispatchEvent(ridGetEvent)
-            </script>
-        `)
-    }else{
-        console.warn('未知直播房間。')
-    }
-}else{
-    roomId = rid;
-}
 
 const key = `live_room.${roomId}`
 
-if (!isTheme){
-    // Injecting web socket inspector on start
-    const b = `
+const b = `
     <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
     <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
     `
-    $(document.head).append(b)
-}
+$(document.head).append(b)
 
 async function sleep(ms) {
     return new Promise((res,) => setTimeout(res, ms))
@@ -170,17 +123,11 @@ async function getLiveTime(retry = 0){
 async function start(restart = false){
     console.log('this page is using bilibili jimaku filter')
 
-    if (isTheme) {
-        console.log('the room is theme room')
-        window.$(document.head).append(`<META HTTP-EQUIV="Access-Control-Allow-Origin" CONTENT="http://live.bilibili.com">`)
-        while (window.$('iframe').length <= 1){
-            console.log('iframe not found, wait one second')
-            await sleep(1000)
-        }
-        while (!roomId){
-            console.log('roomId not found, wait one sec')
-            await sleep(1000)
-        }
+    //console.log(`scanning: ${location.href}`)
+
+    if (isNaN(roomId)){
+        //console.log('invalid roomId, return')
+        return
     }
 
     const settings = await getSettings()
@@ -314,7 +261,7 @@ async function start(restart = false){
     `)
 
     if (isTheme){
-        $('#switch-button-list').click()
+        $('#switch-button-list').trigger('click')
     }
 
     if (settings.enableRestart){

@@ -129,11 +129,20 @@
       if (pos != -1) {
         cmd = cmd.substr(0, pos)
       }
+
+      if (cmd == 'DANMU_MSG'){
+        //console.log(`before ${command.info[1]}: ${command.info[0][1]} (${command.info[0][3]})`)
+      }
+
       const event = new CustomEvent('ws:bilibili-live', {
-          detail: { cmd, command }
+        detail: { cmd, command }
       })
 
       window.dispatchEvent(event)
+
+      if (cmd == 'DANMU_MSG'){
+        //console.log(`after ${command.info[1]}: ${command.info[0][1]} (${command.info[0][3]})`)
+      }
       
       let packet = makePacketFromCommand(command)
       callRealOnMessageByPacket(packet)

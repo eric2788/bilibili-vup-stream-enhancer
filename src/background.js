@@ -164,6 +164,15 @@ async function webRequest(url) {
     return json
 }
 
+async function openWindow(roomId, title = 'null'){
+    return browser.windows.create({
+        url: browser.runtime.getURL(`jimaku.html?roomId=${roomId}&title=${title}`),
+        type: 'panel',
+        width: 500,
+        height: 700
+    })
+}
+
 browser.runtime.onMessage.addListener((message) => {
     console.log('received command: ' + message.type)
     switch (message.type) {
@@ -185,6 +194,8 @@ browser.runtime.onMessage.addListener((message) => {
         case "check-update":
             checkUpdate(true)
             break;
+        case "open-window":
+            return openWindow(message.roomId, message.title) 
         default:
             break;
     }

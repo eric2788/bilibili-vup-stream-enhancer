@@ -9,7 +9,8 @@ module.exports = {
 	entry: {
         background: './src/background.js',
         index: './src/index.js',
-        settings: './src/settings.js'
+        settings: './src/settings.js',
+        'popup-jimaku': './src/popup-jimaku.js'
     },
 	output: {
 		path: path.join(__dirname, './dist'),
