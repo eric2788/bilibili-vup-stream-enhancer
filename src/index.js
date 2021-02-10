@@ -3,16 +3,11 @@ import { connect, closeDatabase } from './utils/database'
 import { webRequest, sendNotify, setSettings } from './utils/messaging'
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
 import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
+import ws from './utils/ws-listener'
 
 
 
 const key = `live_room.${roomId}`
-
-const b = `
-    <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
-    <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
-    `
-$(document.head).append(b)
 
 async function sleep(ms) {
     return new Promise((res,) => setTimeout(res, ms))
@@ -121,7 +116,6 @@ async function getLiveTime(retry = 0){
 
 // start here
 async function start(restart = false){
-    console.log('this page is using bilibili jimaku filter')
 
     //console.log(`scanning: ${location.href}`)
 
@@ -129,6 +123,17 @@ async function start(restart = false){
         //console.log('invalid roomId, return')
         return
     }
+
+    console.log('this page is using bilibili jimaku filter')
+
+    // inject websocket
+    const b = `
+        <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
+        <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
+    `
+    $(document.head).append(b)
+
+    ws.launchListeners()
 
     const settings = await getSettings()
 

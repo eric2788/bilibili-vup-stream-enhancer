@@ -105,7 +105,7 @@
             handleMessage(body, callRealOnMessageByPacket)
           } else {
             body = JSON.parse(textDecoder.decode(body))
-            handleCommand(body, callRealOnMessageByPacket)
+            handleCommand(body, callRealOnMessageByPacket).catch(console.error)
           }
         } else {
           let packet = makePacketFromUint8Array(body, operation)
@@ -116,10 +116,10 @@
       }
     }
   
-    function handleCommand(command, callRealOnMessageByPacket) {
+    async function handleCommand(command, callRealOnMessageByPacket) {
       if (command instanceof Array) {
         for (let oneCommand of command) {
-          this.handleCommand(oneCommand)
+          await this.handleCommand(oneCommand)
         }
         return
       }
@@ -130,23 +130,37 @@
         cmd = cmd.substr(0, pos)
       }
 
-      if (cmd == 'DANMU_MSG'){
-        //console.log(`before ${command.info[1]}: ${command.info[0][1]} (${command.info[0][3]})`)
-      }
+      let editedCommand = command
 
-      const event = new CustomEvent('ws:bilibili-live', {
-        detail: { cmd, command }
-      })
-
-      window.dispatchEvent(event)
-
-      if (cmd == 'DANMU_MSG'){
-        //console.log(`after ${command.info[1]}: ${command.info[0][1]} (${command.info[0][3]})`)
+      try {
+        editedCommand = await sendEventAndWaitResult({cmd, command})
+      }catch(err){
+        console.warn(err)
       }
       
-      let packet = makePacketFromCommand(command)
+      let packet = makePacketFromCommand(editedCommand)
       callRealOnMessageByPacket(packet)
     }
+
+  async function sendEventAndWaitResult({ cmd, command }) {
+    const eventId = `${Math.random()}`.substr(2)
+    return new Promise((res, rej) => {
+      const handleResponse = ({ detail }) => {
+        window.removeEventListener(`ws:callback:${eventId}`, handleResponse)
+        res(detail)
+      }
+      window.addEventListener(`ws:callback:${eventId}`, handleResponse)
+      setTimeout(() => {
+        window.removeEventListener(`ws:callback:${eventId}`, handleResponse)
+        rej(`事件處理已逾時。id: ${eventId}`)
+      }, 500)
+
+      const event = new CustomEvent('ws:bilibili-live', {
+        detail: { cmd, command, eventId }
+      })
+      window.dispatchEvent(event)
+    })
+  }
   
     main()
   })();

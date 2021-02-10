@@ -1,6 +1,7 @@
 import { pushRecord, listRecords, clearRecords, closeDatabase} from './utils/database'
 import { sendNotify, openInspectWindow, sendBackgroundJimaku } from './utils/messaging'
 import { toTimer, logSettings, roomId, download, isTheme } from './utils/misc'
+import ws from './utils/ws-listener';
 
 const config = { attributes: false, childList: true, subtree: true };
 
@@ -137,12 +138,9 @@ function pushSubtitle(subtitle, settings) {
     sendBackgroundJimaku({room: roomId, date, text: subtitle}).catch(console.error)
 }
 
-const eventListeners = []
-
 function wsMonitor(settings) {
     const { danmakuPosition } = settings.webSocketSettings
-    const listener = ({ detail: { cmd, command } }) => {
-        if (cmd !== 'DANMU_MSG') return
+    ws.addHandler('DANMU_MSG', command => {
         const userId = command.info[2][0]
         const danmaku = command.info[1]
         if (danmaku) {
@@ -169,12 +167,8 @@ function wsMonitor(settings) {
                 default:
                     break;
             }
-
-            //console.log(`${command.info[1]}: ${command.info[0][1]}`)
         }
-    }
-    window.addEventListener('ws:bilibili-live', listener)
-    eventListeners.push(listener)
+    })
 }
 
 let lastState = 'normal'
@@ -384,8 +378,6 @@ export function cancelJimakuFunction(){
     while(observers.length > 0){
         observers.shift().disconnect()
     }
-    while( eventListeners.length > 0){
-        window.removeEventListener('ws:bilibili-live', eventListeners.shift())
-    }
+    ws.clearHandlers('DANMU_MSG')
     closeDatabase()
 }

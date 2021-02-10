@@ -1,5 +1,6 @@
 import { sendNotify } from "./utils/messaging";
 import { download, generateToken, roomId } from "./utils/misc";
+import ws from './utils/ws-listener'
 
 function creatSuperChatCard({
     bg_color,
@@ -151,8 +152,7 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
 
     if (!restart) getBeforeSuperChat()
 
-    const listener = ({ detail: { cmd, command } }) => {
-        if (cmd !== 'SUPER_CHAT_MESSAGE') return
+    ws.addHandler('SUPER_CHAT_MESSAGE', command => {
         const { data } = command
         const object = {
             bg_color: data.background_color_start,
@@ -167,17 +167,8 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
             timer: data.start_time
         }
         pushSuperChat(object)
-        /* record function
-        if (settings.record){
-            console.log('not yet done recording')
-        }
-        */
-    }
-    window.addEventListener('ws:bilibili-live', listener)
-    eventListeners.push(listener)
+    })
 }
-
-const eventListeners = []
 
 const superChats = []
 
@@ -230,8 +221,6 @@ function getBeforeSuperChat(){
 }
 
 export function cancelSuperChatFunction(){
-    while(eventListeners.length > 0){
-        window.removeEventListener('ws:bilibili-live', eventListeners.shift())
-    }
+    ws.clearHandlers('SUPER_CHAT_MESSAGE')
     $('.dropdown-sc').remove()
 }
