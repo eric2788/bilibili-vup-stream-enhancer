@@ -48,14 +48,14 @@ async function filterNotV(settings) {
 }
 
 async function filterCNV(settings, retry = 0) {
-    while (!$('a.room-owner-username')?.attr('href')){
-        console.log('cannot find userId, wait for one sec')
-        await sleep(1000)
-    }
-    const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($('a.room-owner-username')?.attr('href'))?.pop())
     if (settings.filterCNV) {
         console.log('已啟用自動過濾國v')
         console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
+        while (!$('a.room-owner-username')?.attr('href')){
+            console.log('cannot find userId, wait for one sec')
+            await sleep(1000)
+        }
+        const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($('a.room-owner-username')?.attr('href'))?.pop())
         if (isNaN(userId)) {
             alert('無法獲得此直播房間的用戶ID房間，將自動取消過濾國V功能。')
         } else {
@@ -172,6 +172,11 @@ async function start(restart = false){
     }
 
     const { backgroundListColor: blc, backgroundColor: bc, textColor: tc } = settings.buttonSettings
+
+    while($('div.room-info-ctnr.dp-i-block').length == 0){
+        console.log('cannot load dom content, wait one second')
+        await sleep(1000)
+    }
 
     $('div.room-info-ctnr.dp-i-block').append(`
         <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
