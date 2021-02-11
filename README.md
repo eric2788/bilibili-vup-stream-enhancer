@@ -109,6 +109,13 @@
 </details>
 
 <details>
+<summary>同传弹幕弹出式视窗</summary>
+
+![](https://media.discordapp.net/attachments/786944895138005033/808695474835423302/unknown.png)
+
+</details>
+
+<details>
 <summary>下载同传字幕记录</summary>
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/download-log.gif)
