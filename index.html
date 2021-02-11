@@ -57,7 +57,13 @@
                                 
                             </div>
                         </div>
-                        <small id="color-help" clas="form-text text-muted">格式 #FFFFFF, 留空不改变。</small>
+                        <small id="color-help" class="form-text text-muted">格式 #FFFFFF, 留空不改变。</small>
+                        <label for="danmaku-position">弹幕位置</label>
+                        <select class="custom-select" id="danmaku-position">                
+                            <option value="normal">不改变</option>
+                            <option value="top">置顶</option>
+                            <option value="bottom">置底</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -237,13 +243,6 @@
                     <input type="checkbox" class="custom-control-input" id="use-streaming-time">
                     <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
                 </div>
-                <label for="danmaku-position" aria-details="dp-help">弹幕位置</label>
-                <small id="dp-help">(大海报活动房间不支援))</small>
-                <select class="custom-select" id="danmaku-position">                
-                    <option value="normal">不改变</option>
-                    <option value="top">置顶</option>
-                    <option value="bottom">置底</option>
-                </select>
             </div>
             <div class="form-group">
                 <div class="custom-control custom-checkbox">
@@ -257,6 +256,11 @@
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="enable-record">
                     <label class="custom-control-label" for="enable-record">启用记录功能</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="enable-jimaku-popup">
+                    <label class="custom-control-label" for="enable-jimaku-popup" aria-describedby="jimaku-popup-help">启用同传弹幕彈出式视窗</label>
+                    <small id="jimaku-popup-help">(使用弹出式视窗时必须开着直播间才能运行)</small>
                 </div>
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="enable-restart">
