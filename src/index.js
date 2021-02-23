@@ -126,12 +126,21 @@ async function start(restart = false){
 
     console.log('this page is using bilibili jimaku filter')
 
-    // inject websocket
-    const b = `
-        <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
-        <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
-    `
-    $(document.head).append(b)
+    if ($('#button-list').length > 0 && !restart){
+        console.log('restarting bilibili jimaku filter')
+        cancel()
+        await start(true)
+        return
+    }
+
+    if (!restart){
+        // inject websocket
+        const b = `
+            <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
+            <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
+        `
+        $(document.head).append(b)
+    }
 
     ws.launchListeners()
 
@@ -276,7 +285,7 @@ async function start(restart = false){
 
     if (settings.enableRestart){
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
-        $('#restart-btn').on('click', relaunch)
+        $('#restart-btn').on('click', launchFilter)
     }
     
     //彈幕過濾
@@ -288,8 +297,11 @@ async function start(restart = false){
     }
 }
 
+function launchFilter(){
+    start().catch(console.error)
+}
 
-start().catch(console.error)
+launchFilter()
 
 window.onunload = function () {
     const {changed, hasLog, hasSCLog } = logSettings
@@ -306,13 +318,8 @@ function cancel(){
     $('#switch-button-list').remove()
 }
 
-function relaunch(){
-    cancel()
-    start(true).catch(console.error)
-}
-
 browser.runtime.onMessage.addListener(req => {
     if (req.cmd !== 'restart') return
     console.log('received restart command from background')
-    relaunch()
+    launchFilter()
 })

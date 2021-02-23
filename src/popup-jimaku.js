@@ -22,6 +22,7 @@ browser.runtime.onMessage.addListener((message) => {
     const { room, date, text } = message.data
     if (!room || !date || !text) {
         console.warn('所接收的數據不完整，已略過')
+        return
     }
     if (room !== roomId) return
     const id = `jimaku-${Date.now()}`

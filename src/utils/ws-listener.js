@@ -2,6 +2,7 @@
 const commandHandler = {}
 
 function addHandler(cmd, handle) {
+    if (!isFunc(handle)) throw new Error('handle 不是 function')
     if (isAsync(handle)) throw new Error('不能添加 async function 到監聽器')
     if (!commandHandler[cmd]){
         commandHandler[cmd] = []
@@ -44,6 +45,7 @@ function callback(command, eventId){
 }
 
 const isAsync = (func) => func.constructor.name === "AsyncFunction"
+const isFunc = (func) => typeof func == 'function'
 
 export default {
     addHandler,
