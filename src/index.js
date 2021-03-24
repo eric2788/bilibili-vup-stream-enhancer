@@ -238,7 +238,7 @@ async function start(restart = false){
     $('div.player-section').after(`
         <div id="button-list" style="text-align: center; background-color: ${blc}">
             <style>
-            .button {
+            #button-list .button {
                 background-color: ${bc};
                 border: none;
                 color: ${tc};
