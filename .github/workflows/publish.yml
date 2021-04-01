@@ -1,5 +1,5 @@
 env:
-    version: 0.10.7
+    version: 0.10.8
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
 name: bilibili jimaku filter publish sign
