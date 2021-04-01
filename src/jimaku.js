@@ -104,7 +104,7 @@ function launchDanmakuStyleChanger(settings) {
     const hideJimakuDisable = !settings.hideJimakuDanmaku
     if (opacityDisable && hideJimakuDisable) return
     const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable }))
-    danmakuObserver.observe($('.web-player-danmaku')[0], config)
+    danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0] || $('.web-player-danmaku')[0], config)
     observers.push(danmakuObserver)
 }
 
