@@ -19,30 +19,14 @@ function getTimeStamp() {
     return new Date().toTimeString().substring(0, 8)
 }
 
-function getStreamingTimeFromHtml(){
-    const ev = new MouseEvent("mousemove", {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-        clientX: 554,
-        clientY: 665
-    });
-    // 強行召喚時間戳記條
-    $('.bilibili-live-player-video-controller')[0].dispatchEvent(ev)
-    return /[\d:]+/g.exec($('.tip-wrap')[0].innerText).pop()
-}
-
 let live_time = undefined
 
 function getStreamingTime() {
     try {
-        // 新直播UI
         if (!live_time){
-            console.warn(`找不到開播時間，嘗試改為使用html元素獲取`)
-            return getStreamingTimeFromHtml() 
-        }else{
-            return toTimer(Math.round(Date.now() / 1000) - live_time)
+            throw new Error(`找不到開播時間，嘗試改為使用html元素獲取`)
         }
+        return toTimer(Math.round(Date.now() / 1000) - live_time)
     }catch(err){
         console.warn(err)
         console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
@@ -120,7 +104,7 @@ function launchDanmakuStyleChanger(settings) {
     const hideJimakuDisable = !settings.hideJimakuDanmaku
     if (opacityDisable && hideJimakuDisable) return
     const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable }))
-    danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0], config)
+    danmakuObserver.observe($('.web-player-danmaku')[0], config)
     observers.push(danmakuObserver)
 }
 
@@ -250,7 +234,7 @@ function fullScreenTrigger(check, settings) {
             'width': '50%'
         })
         if (lastStyle) element.attr('style', lastStyle)
-        element.prependTo($('div.bilibili-live-player-video-area'))
+        element.prependTo($('div#live-player'))
     }
 
     lastFull = check
@@ -356,13 +340,13 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
         $('div#aside-area-vm').css('margin-bottom', `${bgh + 30}px`)
         // 全屏切換監控
         const monObserver = new Observer((mu, ) => {
-            const currentState = $(mu[0].target).attr('data-player-state')
+            const currentState = $(mu[0].target).hasClass('player-full-win') ? 'web-fullscreen' : $(mu[0].target).hasClass('fullscreen-fix') ? 'fullscreen' : 'normal'
             if (currentState === lastState) return
             const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
             fullScreenTrigger(fullScreen, settings)
             lastState = currentState
         })
-        monObserver.observe($('.bilibili-live-player.relative')[0], { attributes: true })
+        monObserver.observe(document.body, { attributes: true, subtree: false, childList: false })
         observers.push(monObserver)
     }
 }
