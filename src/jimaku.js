@@ -234,7 +234,13 @@ function fullScreenTrigger(check, settings) {
             'width': '50%'
         })
         if (lastStyle) element.attr('style', lastStyle)
-        element.prependTo($('.bilibili-live-player-video-area').length ? $('.bilibili-live-player-video-area') : $('div#live-player'))
+
+        if ($('.bilibili-live-player-video-area').length){
+            element.prependTo($('.bilibili-live-player-video-area'))
+        }else{
+            $('.web-player-inject-wrap').after(element)
+        }
+        
     }
 
     lastFull = check
