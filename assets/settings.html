@@ -114,11 +114,16 @@
                             </div>
                             <small id="bg-help" clas="form-text text-muted">格式 #FFFFFF</small>
                         </div>
-
                         <div class="form-group">
                             <label for="opacity-background">全屏时字幕背景透明度</label>
                             <input type="number" class="form-control" id="opacity-background" aria-describedby="op-bg-help" max="100" min="0" required>
                             <small id="op-bg-help" class="form-text text-muted">范围 0 ~ 100</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="jimaku-level">同传用户UL等级过滤</label>
+                            <input type="number" class="form-control" id="jimaku-level" aria-describedby="jl-help" max="99" min="0" required>
+                            <small id="jl-help" class="form-text text-muted">用户低于该等级将无视其同传弹幕，同传man名单内的用户除外</small>
+                            <small id="jl-help" class="form-text text-danger">(UL等级过滤无法应用于隐藏同传弹幕和透明度)</small>
                         </div>
                         <div class="form-group">
                             <label for="color-subtitle">字幕顏色</label>

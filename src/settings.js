@@ -11,6 +11,7 @@ function getCurrentInput(){
     setting.backgroundSubtitleOpacity = $('#opacity-background')[0].valueAsNumber
     setting.backgroundColor = $('#background-jimaku')[0].value
     setting.subtitleColor = $('#color-subtitle')[0].value
+    setting.filterLevel = $('#jimaku-level')[0].valueAsNumber
     const rooms = new Set()
     $('ul#blacklist').children('li').each((i, e)=>{
         const room = $(e).attr('room')
@@ -158,6 +159,8 @@ function saveCurrentInput(setting){
     $('#enable-restart').prop('checked', setting.enableRestart)
 
     $('#enable-jimaku-popup').prop('checked', setting.enableJimakuPopup)
+
+    $('#jimaku-level')[0].valueAsNumber = setting.filterLevel
 }
 
 

@@ -13,7 +13,7 @@ async function sleep(ms) {
     return new Promise((res,) => setTimeout(res, ms))
 }
 
-async function filterNotV(settings) {
+async function filterNotV(settings, times = 0) {
     let buttonOnly = false
     let skipped = false
     if (settings.vtbOnly) {
@@ -39,9 +39,18 @@ async function filterNotV(settings) {
         } catch (err) {
             console.warn(err)
             console.warn(`索取資源時出現錯誤: ${err.message}`)
-            console.warn('三秒後重新刷新')
-            await sleep(3000)
-            return await filterNotV(settings)
+            if (times >= 10){
+                sendNotify({
+                    title: `已暂时关闭仅限虚拟主播功能。`,
+                    message: `由于已连续 ${times} 次在索取虚拟主播列表中出现网络请求失败，已暂时关闭仅限虚拟主播功能以让插件正常运作。\n此举将不会影响你的目前设定。`
+                })
+                skipped = false
+                buttonOnly = false
+                return { buttonOnly, skipped }
+            }
+            console.warn('5秒後重新刷新')
+            await sleep(5000)
+            return await filterNotV(settings, ++times)
         }
     }
     return { buttonOnly, skipped }

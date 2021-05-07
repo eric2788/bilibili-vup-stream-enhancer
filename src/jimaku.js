@@ -127,13 +127,15 @@ function wsMonitor(settings) {
     ws.addHandler('DANMU_MSG', command => {
         const userId = command.info[2][0]
         const danmaku = command.info[1]
+        const ul = command.info[4][0]
         if (danmaku) {
             const id = `${danmaku}-${userId}`
             if (beforeInsert.pop() === id) return
-            console.debug(`[BJF] ${danmaku}`)
+            console.debug(`[BJF] ${danmaku} (${userId} | UL. ${ul})`)
             beforeInsert.push(id)
         }
         const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
+        if (ul < settings.filterLevel && !isTongChuan) return
         let jimaku = toJimaku(danmaku, settings.regex)
         if (!jimaku && isTongChuan) jimaku = danmaku 
         if (jimaku) {

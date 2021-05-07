@@ -39,7 +39,8 @@ const defaultSettings = {
     autoCheckUpdate: true,
     recordSuperChat: false,
     enableRestart: false,
-    enableJimakuPopup: false
+    enableJimakuPopup: false,
+    filterLevel: 0
 }
 
 async function getSettings(){
