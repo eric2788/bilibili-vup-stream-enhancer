@@ -12,6 +12,7 @@
     const WS_BODY_PROTOCOL_VERSION_INFLATE = 0
     const WS_BODY_PROTOCOL_VERSION_NORMAL = 1
     const WS_BODY_PROTOCOL_VERSION_DEFLATE = 2
+    const WS_BODY_PROTOCOL_VERSION_BROTLI = 3
   
     const OP_HEARTBEAT_REPLY = 3
     const OP_SEND_MSG_REPLY = 5
@@ -47,7 +48,6 @@
         this.send = this._send
       }
     }
-
     
   
     function myOnMessage(event, realOnMessage) {
@@ -55,25 +55,28 @@
         realOnMessage(event)
         return
       }
-  
       let data = new Uint8Array(event.data)
       function callRealOnMessageByPacket(packet) {
         realOnMessage({...event, data: packet})
       }
-      handleMessage(data, callRealOnMessageByPacket)
+      try {
+        handleMessage(data, callRealOnMessageByPacket)
+      }catch(e){
+        console.warn(`error encountered. use back old packet: ${e.message}`)
+        console.warn(e)
+        realOnMessage(event)
+      }
     }
   
-    function makePacketFromCommand(command) {
+    function makePacketFromCommand(command, ver) {
       let body = textEncoder.encode(JSON.stringify(command))
-      return makePacketFromUint8Array(body, OP_SEND_MSG_REPLY)
+      return makePacketFromUint8Array(body, OP_SEND_MSG_REPLY, ver)
     }
   
-    function makePacketFromUint8Array(body, operation) {
+    function makePacketFromUint8Array(body, operation, ver) {
       let packLen = HEADER_SIZE + body.byteLength
       let packet = new ArrayBuffer(packLen)
-  
       // 不需要DEFLATE
-      let ver = operation === OP_HEARTBEAT_REPLY ? WS_BODY_PROTOCOL_VERSION_INFLATE : WS_BODY_PROTOCOL_VERSION_NORMAL
       let packetView = new DataView(packet)
       packetView.setUint32(0, packLen)        // pack_len
       packetView.setUint16(4, HEADER_SIZE)    // raw_header_size
@@ -97,18 +100,20 @@
         let ver = dataView.getUint16(6)
         let operation = dataView.getUint32(8)
         // let seqId = dataView.getUint32(12)
-  
         let body = new Uint8Array(data.buffer, offset + HEADER_SIZE, packLen - HEADER_SIZE)
         if (operation === OP_SEND_MSG_REPLY) {
           if (ver == WS_BODY_PROTOCOL_VERSION_DEFLATE) {
             body = pako.inflate(body)
             handleMessage(body, callRealOnMessageByPacket)
+          } else if (ver == WS_BODY_PROTOCOL_VERSION_BROTLI) {
+            const brotliDecoded = window.BrotliDecode(body);
+            handleMessage(brotliDecoded, callRealOnMessageByPacket)
           } else {
             body = JSON.parse(textDecoder.decode(body))
-            handleCommand(body, callRealOnMessageByPacket).catch(console.error)
+            handleCommand(body, callRealOnMessageByPacket, ver).catch(console.error)
           }
         } else {
-          let packet = makePacketFromUint8Array(body, operation)
+          let packet = makePacketFromUint8Array(body, operation, ver)
           callRealOnMessageByPacket(packet)
         }
   
@@ -116,10 +121,10 @@
       }
     }
   
-    async function handleCommand(command, callRealOnMessageByPacket) {
+    async function handleCommand(command, callRealOnMessageByPacket, ver) {
       if (command instanceof Array) {
         for (let oneCommand of command) {
-          await this.handleCommand(oneCommand)
+          await handleCommand(oneCommand, callRealOnMessageByPacket, ver)
         }
         return
       }
@@ -138,7 +143,7 @@
         console.warn(err)
       }
       
-      let packet = makePacketFromCommand(editedCommand)
+      let packet = makePacketFromCommand(editedCommand, ver)
       callRealOnMessageByPacket(packet)
     }
 
