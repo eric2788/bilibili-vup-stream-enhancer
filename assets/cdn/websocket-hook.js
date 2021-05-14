@@ -59,13 +59,12 @@
       function callRealOnMessageByPacket(packet) {
         realOnMessage({...event, data: packet})
       }
-      try {
         handleMessage(data, callRealOnMessageByPacket)
-      }catch(e){
-        console.warn(`error encountered. use back old packet: ${e.message}`)
-        console.warn(e)
-        realOnMessage(event)
-      }
+          .catch(e => {
+            console.warn(`error encountered. use back old packet: ${e.message}`)
+            console.warn(e)
+            realOnMessage(event)
+          })
     }
   
     function makePacketFromCommand(command, ver) {
@@ -91,7 +90,7 @@
       return packet
     }
   
-    function handleMessage(data, callRealOnMessageByPacket) {
+    async function handleMessage(data, callRealOnMessageByPacket) {
       let offset = 0
       while (offset < data.byteLength) {
         let dataView = new DataView(data.buffer, offset)
@@ -104,13 +103,13 @@
         if (operation === OP_SEND_MSG_REPLY) {
           if (ver == WS_BODY_PROTOCOL_VERSION_DEFLATE) {
             body = pako.inflate(body)
-            handleMessage(body, callRealOnMessageByPacket)
+            await handleMessage(body, callRealOnMessageByPacket)
           } else if (ver == WS_BODY_PROTOCOL_VERSION_BROTLI) {
             const brotliDecoded = window.BrotliDecode(body);
-            handleMessage(brotliDecoded, callRealOnMessageByPacket)
+            await handleMessage(brotliDecoded, callRealOnMessageByPacket)
           } else {
             body = JSON.parse(textDecoder.decode(body))
-            handleCommand(body, callRealOnMessageByPacket, ver).catch(console.error)
+            await handleCommand(body, callRealOnMessageByPacket, ver)
           }
         } else {
           let packet = makePacketFromUint8Array(body, operation, ver)
