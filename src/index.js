@@ -146,7 +146,7 @@ async function start(restart = false){
         // inject websocket
         const b = `
             <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
-            <script src="https://raw.githubusercontent.com/replete/brotli-experiments/gh-pages/brotli-experiments.bundle.js"></script>
+            <script src="${browser.runtime.getURL('cdn/brotli.bundle.js')}"></script>
             <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
         `
         $(document.head).append(b)
