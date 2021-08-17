@@ -192,12 +192,13 @@ async function start(restart = false){
 
     const { backgroundListColor: blc, backgroundColor: bc, textColor: tc } = settings.buttonSettings
 
-    while($('div.room-info-ctnr.dp-i-block').length == 0){
-        console.log('cannot load dom content, wait one second')
-        await sleep(1000)
+    const buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+
+    if (buttonArea.length == 0){
+        throw new Error(`無法找到按鈕放置元素 ${'.rows-ctnr'}, 可能b站改了元素，請通知原作者。`)
     }
 
-    $('div.room-info-ctnr.dp-i-block').append(`
+    buttonArea.append(`
         <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
             添加到黑名单
             <style>

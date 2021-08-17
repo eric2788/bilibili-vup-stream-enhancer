@@ -64,7 +64,9 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
     }
     */
 
-    $('div.room-info-ctnr.dp-i-block').append(`
+    const buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+
+    buttonArea.append(`
         <div class="dropdown-sc">
             <a href="javascript: void(0)" class="dropbtn-sc btn-sc" type="button">醒目留言记录</a>
             <div class="sc-btn-list">
