@@ -3,6 +3,11 @@
       "{041b8202-e9d4-4a78-a9da-465c749ed26c}": {
         "updates": [
           {
+            "version": "0.11.3",
+            "update_link": "https://github.com/eric2788/bilibili-jimaku-filter/releases/download/0.11.3/bilibili_jimaku_filter-0.11.3-an+fx.xpi",
+            "update_info_url": "https://eric2788.github.io/bilibili-jimaku-filter/log/0.11.3"
+          },
+          {
             "version": "0.11.2",
             "update_link": "https://github.com/eric2788/bilibili-jimaku-filter/releases/download/0.11.2/bilibili_jimaku_filter-0.11.2-an+fx.xpi",
             "update_info_url": "https://eric2788.github.io/bilibili-jimaku-filter/log/0.11.2"
