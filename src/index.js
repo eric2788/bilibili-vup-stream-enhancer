@@ -1,4 +1,4 @@
-import getSettings, { roomId, logSettings, isTheme } from './utils/misc'
+import getSettings, { roomId, logSettings, isTheme, sleep } from './utils/misc'
 import { connect, closeDatabase } from './utils/database'
 import { webRequest, sendNotify, setSettings } from './utils/messaging'
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
@@ -8,10 +8,6 @@ import ws from './utils/ws-listener'
 
 
 const key = `live_room.${roomId}`
-
-async function sleep(ms) {
-    return new Promise((res,) => setTimeout(res, ms))
-}
 
 async function filterNotV(settings, times = 0) {
     let buttonOnly = false
@@ -192,10 +188,12 @@ async function start(restart = false){
 
     const { backgroundListColor: blc, backgroundColor: bc, textColor: tc } = settings.buttonSettings
 
-    const buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+    let buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
 
     if (buttonArea.length == 0){
-        throw new Error(`無法找到按鈕放置元素 ${'.rows-ctnr'}, 可能b站改了元素，請通知原作者。`)
+        console.warn(`無法找到按鈕放置元素 ${'.rows-ctnr'}, 可能b站改了元素，請通知原作者。(isTheme: ${isTheme})`)
+        await sleep(1000)
+        buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
     }
 
     buttonArea.append(`
@@ -215,7 +213,7 @@ async function start(restart = false){
     `)
 
     if (isTheme){
-        $('div.room-info-ctnr.dp-i-block').append(`
+        buttonArea.append(`
             <a href="javascript: void(0)" class="btn-sc" type="button" id="switch-button-list">
                 切換按鈕列表
             </a>

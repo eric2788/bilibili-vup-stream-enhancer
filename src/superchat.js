@@ -1,5 +1,5 @@
 import { sendNotify } from "./utils/messaging";
-import { download, generateToken, roomId } from "./utils/misc";
+import { download, generateToken, roomId, sleep } from "./utils/misc";
 import ws from './utils/ws-listener'
 
 function creatSuperChatCard({
@@ -64,7 +64,13 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
     }
     */
 
-    const buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+    let buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+
+    if (buttonArea.length == 0){
+        console.warn(`無法找到按鈕放置元素 ${'.rows-ctnr'}, 可能b站改了元素，請通知原作者。`)
+        await sleep(1000)
+        buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+    }
 
     buttonArea.append(`
         <div class="dropdown-sc">
