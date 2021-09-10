@@ -51,6 +51,7 @@ function getCurrentInput(){
     setting.recordSuperChat = $('#enable-record-sc').prop('checked')
     setting.enableRestart = $('#enable-restart').prop('checked')
     setting.enableJimakuPopup = $('#enable-jimaku-popup').prop('checked')
+    setting.deleteJimakuMode = $('#delete-jimaku-mode').prop('checked')
     return setting
 }
 
@@ -161,6 +162,8 @@ function saveCurrentInput(setting){
     $('#enable-jimaku-popup').prop('checked', setting.enableJimakuPopup)
 
     $('#jimaku-level')[0].valueAsNumber = setting.filterLevel
+
+    $('#delete-jimaku-mode').prop('checked', setting.deleteJimakuMode)
 }
 
 

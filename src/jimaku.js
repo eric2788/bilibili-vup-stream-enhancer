@@ -88,6 +88,7 @@ function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opac
                 const jimaku = $(n)
                 if (!hideJimakuDisable) {
                     jimaku.css('display', 'none')
+                    if (settings.deleteJimakuMode) jimaku.remove() // 使用强行隐藏模式 (即直接删除)
                     return
                 }
                 if (!opacityDisable) {
