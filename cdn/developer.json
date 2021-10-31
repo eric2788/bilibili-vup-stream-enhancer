@@ -1,0 +1,25 @@
+{
+    "developer": {
+        "elements": {
+            "upperButtonArea": ".rows-ctnr",
+            "danmakuArea": ".web-player-danmaku", 
+            "userId": "a.room-owner-username", 
+            "jimakuArea": "div.player-section", 
+            "jimakuFullArea": ".web-player-inject-wrap", 
+            "videoArea": "div#aside-area-vm", 
+            "liveTitle": ".live-skin-main-text.small-title",
+            "chatItems": "#chat-items" 
+        },
+        "classes": {
+            "screenWeb": "player-full-win", 
+            "screenFull": "fullscreen-fix" 
+        },
+        "attr": {
+            "chatUserId": "data-uid", 
+            "chatDanmaku": "data-danmaku" 
+        },
+        "code": {
+            "scList": "window.__NEPTUNE_IS_MY_WAIFU__ ? window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list : []"
+        }
+    }
+}
