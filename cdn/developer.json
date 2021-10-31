@@ -8,7 +8,8 @@
             "jimakuFullArea": ".web-player-inject-wrap", 
             "videoArea": "div#aside-area-vm", 
             "liveTitle": ".live-skin-main-text.small-title",
-            "chatItems": "#chat-items" 
+            "chatItems": "#chat-items",
+            "newMsgButton": "div#danmaku-buffer-prompt"
         },
         "classes": {
             "screenWeb": "player-full-win", 
