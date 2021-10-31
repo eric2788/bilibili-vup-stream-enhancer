@@ -204,21 +204,22 @@ async function start(restart = false){
         await sleep(1000)
         buttonArea = $(elements.upperButtonArea)
     }
-
+    buttonArea.append(`
+        <style id="btn-style">
+            .btn-sc {
+                background-color: gray;
+                color: white;
+                padding: 5px;
+                font-size: 12px;
+                border: none;
+                box-shadow: 1px 1px 5px black;
+            }
+        </style>
+    `)
     if (!settings.hideBlackList){
         buttonArea.append(`
             <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
                 添加到黑名单
-                <style>
-                .btn-sc {
-                    background-color: gray;
-                    color: white;
-                    padding: 5px;
-                    font-size: 12px;
-                    border: none;
-                    box-shadow: 1px 1px 5px black;
-                }
-                </style>
             </a>
         `)
 
@@ -342,7 +343,7 @@ function cancel(){
     $('#button-list').remove()
     cancelJimakuFunction()
     cancelSuperChatFunction()
-    $('#blacklist-add-btn').remove()
+    $('#btn-style').remove()
     $('#switch-button-list').remove()
 }
 
