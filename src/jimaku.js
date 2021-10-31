@@ -48,13 +48,14 @@ function toJimaku(danmaku, regex) {
     return danmaku
 }
 
-/*
+
 function chatMonitor(settings) {
+    const { attr: attribute, elements } = settings.developer
     const callback = function (mutationsList) {
         for (const mu of mutationsList) {
             for (const node of mu.addedNodes) {
-                const danmaku = $(node)?.attr('data-danmaku')?.trim()
-                const userId = $(node)?.attr('data-uid')?.trim()
+                const danmaku = $(node)?.attr(attribute.chatDanmaku)?.trim()
+                const userId = $(node)?.attr(attribute.chatUserId)?.trim()
                 const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
                 if (danmaku) {
                     const id = `${danmaku}-${userId}`
@@ -74,10 +75,10 @@ function chatMonitor(settings) {
         }
     }
     const observer = new Observer((mlist, ) => callback(mlist));
-    observer.observe($('#chat-items')[0], config);
+    observer.observe($(elements.chatItems)[0], config);
     observers.push(observer)
 }
-*/
+
 
 function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opacityDisable }) {
     for (const mu of mutationsList) {
@@ -88,24 +89,37 @@ function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opac
                 const jimaku = $(n)
                 if (!hideJimakuDisable) {
                     jimaku.css('display', 'none')
-                    if (settings.deleteJimakuMode) jimaku.remove() // 使用强行隐藏模式 (即直接删除)
+                    jimaku.css('visibility', 'hidden')
                     return
                 }
                 if (!opacityDisable) {
                     const o = (settings.opacity / 100).toFixed(1)
                     jimaku.css('opacity', o)
                 }
+                // 非 Websocket 方式需要从這裏改颜色
+                if (settings.useLegacy) {
+                    jimaku.css('color', settings.color)
+                }
             }
         }
     }
 }
 
+function launchBottomInterval(elements){
+    return setInterval(() => {
+        const btn = $(elements.newMsgButton)
+        if (btn.css('display') !== 'none'){
+            btn.trigger('click')
+        }
+    }, 1000)
+}
+
 function launchDanmakuStyleChanger(settings) {
     const opacityDisable = settings.opacity == -1
     const hideJimakuDisable = !settings.hideJimakuDanmaku
-    if (opacityDisable && hideJimakuDisable) return
+    if (opacityDisable && hideJimakuDisable && !(settings.useLegacy && /^#[0-9A-F]{6}$/ig.test(settings.color))) return
     const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable }))
-    danmakuObserver.observe($('.bilibili-live-player-video-danmaku')[0] || $('.web-player-danmaku')[0], config)
+    danmakuObserver.observe($(settings.developer.elements.danmakuArea)[0], config)
     observers.push(danmakuObserver)
 }
 
@@ -238,11 +252,7 @@ function fullScreenTrigger(check, settings) {
         })
         if (lastStyle) element.attr('style', lastStyle)
 
-        if ($('.bilibili-live-player-video-area').length){
-            element.prependTo($('.bilibili-live-player-video-area'))
-        }else{
-            $('.web-player-inject-wrap').after(element)
-        }
+        $(settings.developer.elements.jimakuFullArea).after(element)
         
     }
 
@@ -270,13 +280,15 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
 
     if (buttonOnly) return
 
+    const { elements, classes } = settings.developer
+
     if (settings.enableJimakuPopup) {
         $('#button-list').append(`
             <button class="button" id="launch-bg">弹出同传视窗</button>
         `)
         $('#launch-bg').on('click', async () => {
             try {
-                const title = $('.live-skin-main-text.small-title')[0]?.innerText ?? 'null'
+                const title = $(elements.liveTitle)[0]?.innerText ?? 'null'
                 await openInspectWindow(roomId, title)
                 await sendNotify({
                     title: '启动成功',
@@ -292,7 +304,7 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
         })
     }
 
-    $('div.player-section').after(`
+    $(elements.jimakuArea).after(`
         <div id="subtitle-list" class="subtitle-normal">
             <style>
             .subtitle-normal {
@@ -339,17 +351,40 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
         appendSubtitle(rec.text)
     }
 
-    // WebSocket 监控
-    wsMonitor(settings)
+    if (settings.useLegacy){
+        // 传统捕捉元素方式
+        chatMonitor(settings)
+
+        $('#button-list').append(`
+            <div class="button">
+                <input type="checkbox" id="keep-bottom">
+                <label for="keep-bottom">保持聊天栏最底(否则字幕无法出现)</label><br>
+            </div>
+        `)
+
+        let bottomInterval = -1
+        $('input#keep-bottom').on('click', e =>{
+            const checked = $(e.target).prop('checked')
+            if (checked){
+                bottomInterval = launchBottomInterval(elements)
+            }else{
+                clearInterval(bottomInterval)
+            }
+        })
+        
+    }else{
+        // WebSocket 监控
+        wsMonitor(settings)
+    }
 
     if (isTheme){
         lastFull = false
         fullScreenTrigger(true, settings) // 先設置全屏
     }else{
-        $('div#aside-area-vm').css('margin-bottom', `${bgh + 30}px`)
+        $(elements.videoArea).css('margin-bottom', `${bgh + 30}px`)
         // 全屏切換監控
         const monObserver = new Observer((mu, ) => {
-            const currentState = $(mu[0].target).hasClass('player-full-win') ? 'web-fullscreen' : $(mu[0].target).hasClass('fullscreen-fix') ? 'fullscreen' : 'normal'
+            const currentState = $(mu[0].target).hasClass(classes.screenWeb) ? 'web-fullscreen' : $(mu[0].target).hasClass(classes.screenFull) ? 'fullscreen' : 'normal'
             if (currentState === lastState) return
             const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
             fullScreenTrigger(fullScreen, settings)

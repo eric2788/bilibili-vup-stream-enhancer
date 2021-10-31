@@ -163,7 +163,7 @@
             </div>
             <div class="card mb-3">
                 <div class="card-header">
-                    <a href="#anniu" data-toggle="collapse">➵ 按钮设定</a>
+                    <a href="#anniu" data-toggle="collapse">➵ 按钮样式设定</a>
                 </div>
                 <div class="collapse" id="anniu">
                     <div class="card-body">
@@ -266,47 +266,196 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="use-streaming-time">
-                    <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#others" data-toggle="collapse">➵ 其他功能</a>
+                </div>
+                <div class="collapse" id="others">
+                    <div class="card-body">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="enable-record-sc">
+                            <label class="custom-control-label" for="enable-record-sc">启用醒目留言捕捉</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="enable-record">
+                            <label class="custom-control-label" for="enable-record">启用记录功能</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="enable-jimaku-popup">
+                            <label class="custom-control-label" for="enable-jimaku-popup" aria-describedby="jimaku-popup-help">启用同传弹幕彈出式视窗</label>
+                            <small id="jimaku-popup-help">(使用弹出式视窗时必须开着直播间才能运行)</small>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="vtb-only">
+                            <label class="custom-control-label" for="vtb-only">仅限虚拟主播</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="no-cn-v" aria-describedby="no-cn-v-help">
+                            <label class="custom-control-label" for="no-cn-v">自动过滤国V</label>
+                            <small id="no-cn-v-help">(此功能仍在试验阶段)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#captures" data-toggle="collapse">➵ 字幕捕捉机制相关</a>
+                </div>
+                <div class="collapse" id="captures">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="use-streaming-time">
+                                <label class="custom-control-label" for="use-streaming-time">使用真实时间戳记</label>
+                            </div>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="hide-jimaku-danmaku">
+                            <label class="custom-control-label" for="hide-jimaku-danmaku">隐藏同传弹幕</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="use-legacy-mode">
+                            <label class="custom-control-label" for="use-legacy-mode" aria-describedby="legacy-help">不使用 WebSocket 模式</label>
+                            <small id="legacy-help">(用回捕捉元素，将无法使用醒目留言记录且无法调整位置)</small>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="use-remote-cdn">
+                                <label class="custom-control-label" for="use-remote-cdn" aria-describedby="remote-help">不使用本地js档案</label>
+                                <small id="remote-help">(若发现插件突然无法运作，可以尝试勾选此选项。)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#button-show" data-toggle="collapse">➵ 界面按钮显示</a>
+                </div>
+                <div class="collapse" id="button-show">
+                    <div class="card-body">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="enable-restart">
+                            <label class="custom-control-label" for="enable-restart">添加重新启动按钮到界面</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="hide-blacklist">
+                            <label class="custom-control-label" for="hide-blacklist">隐藏添加到黑名单的按钮</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="theme-to-normal">
+                            <label class="custom-control-label" for="theme-to-normal">大海报房间新增返回正常房间按钮</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="#developer" data-toggle="collapse">➵ 开发者相关</a>
+                </div>
+                <div class="collapse" id="developer">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-10">
+                                <div class="alert alert-danger" role="alert">
+                                    若你本身并不熟悉网页开发，请尽量别碰这里的设定
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <button id="fetch-latest-developer" class="btn btn-danger">获取最新版本</button>
+                            </div>
+                        </div>
+                        <h4>元素捕捉 (JQuery)</h4>
+                        <div class="form-group">
+                            <label for="upper-button-area">上方按钮界面元素</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="upper-button-area" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="danmaku-area">弹幕容器元素</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="danmaku-area" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-id-element">用户 ID 元素 (.attr('href'))</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="user-id-element" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="jimaku-area">字幕区块非全屏插入元素 (.after(字幕区块)) </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="jimaku-area" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="jimaku-full-area">字幕区块全屏插入元素 (.after(字幕区块))</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="jimaku-full-area" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="video-area">直播屏幕区块</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="video-area" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="live-title">直播标题 ([0].innerText) </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="live-title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="chat-items">直播聊天栏列表</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="chat-items" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-msg-button">新消息按钮 (聊天栏置底按钮)</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="new-msg-button" required>
+                            </div>
+                        </div>
+                        <h4>字样捕捉</h4>
+                        <div class="form-group">
+                            <label for="full-screen-class">直播全屏 class</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="full-screen-class" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="web-full-screen-class">直播网页全屏 class</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="web-full-screen-class" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-id-attr">聊天条 用户id 属性</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="user-id-attr" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="danmaku-attr">聊天条 弹幕 属性</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="danmaku-attr" required>
+                            </div>
+                        </div>
+                        <h4>JavaScript 代码</h4>
+                        <div class="form-group">
+                            <label for="scList-code">获取网页内目前的 SuperChat</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="scList-code" required>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="form-group">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="hide-jimaku-danmaku">
-                    <label class="custom-control-label" for="hide-jimaku-danmaku">隐藏同传弹幕</label>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="delete-jimaku-mode">
-                    <label class="custom-control-label" for="delete-jimaku-mode">使用删除模式隐藏同传弹幕 (默认隐藏模式) </label>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="enable-record-sc">
-                    <label class="custom-control-label" for="enable-record-sc">启用醒目留言捕捉</label>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="enable-record">
-                    <label class="custom-control-label" for="enable-record">启用记录功能</label>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="enable-jimaku-popup">
-                    <label class="custom-control-label" for="enable-jimaku-popup" aria-describedby="jimaku-popup-help">启用同传弹幕彈出式视窗</label>
-                    <small id="jimaku-popup-help">(使用弹出式视窗时必须开着直播间才能运行)</small>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="enable-restart">
-                    <label class="custom-control-label" for="enable-restart">添加重新启动按钮到界面</label>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="vtb-only">
-                    <label class="custom-control-label" for="vtb-only">仅限虚拟主播</label>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="no-cn-v" aria-describedby="no-cn-v-help">
-                    <label class="custom-control-label" for="no-cn-v">自动过滤国V</label>
-                    <small id="no-cn-v-help">(此功能仍在试验阶段)</small>
-                </div>
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="auto-check-update">
                     <label class="custom-control-label" for="auto-check-update">每次打开浏览器自动检查更新</label>

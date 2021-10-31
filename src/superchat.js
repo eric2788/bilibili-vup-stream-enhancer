@@ -57,6 +57,11 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
 
     if (buttonOnly) return
 
+    if (settings.useLegacy) {
+        console.warn('由于采用了非 Websocket 的挂接方式，因此无法使用醒目留言记录')
+        return
+    }
+
     /*
     if (isTheme) {
         console.log('大海報房間將不支援醒目留言記錄過濾。')
@@ -64,12 +69,14 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
     }
     */
 
-    let buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+    const { code, elements } = settings.developer
+
+    let buttonArea = $(elements.upperButtonArea)
 
     if (buttonArea.length == 0){
-        console.warn(`無法找到按鈕放置元素 ${'.rows-ctnr'}, 可能b站改了元素，請通知原作者。`)
+        console.warn(`無法找到按鈕放置元素 ${elements.upperButtonArea}, 可能b站改了元素，請通知原作者。`)
         await sleep(1000)
-        buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+        buttonArea = $(elements.upperButtonArea)
     }
 
     buttonArea.append(`
@@ -158,7 +165,7 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
         $('div#sc-list').prepend(card)
     }
 
-    if (!restart) getBeforeSuperChat()
+    if (!restart) getBeforeSuperChat(code)
 
     ws.addHandler('SUPER_CHAT_MESSAGE', command => {
         const { data } = command
@@ -214,10 +221,10 @@ window.addEventListener('bjf:superchats', ({detail: {scList, token}}) => {
     cfToken = generateToken()
 })
 
-function getBeforeSuperChat(){
+function getBeforeSuperChat(code){
     const a = `
     <script>
-        const scList = window.__NEPTUNE_IS_MY_WAIFU__ ? window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list : []
+        const scList = ${code.scList}
         const scEvent = new CustomEvent('bjf:superchats', { detail: {
             scList,
             token: '${cfToken}'

@@ -56,11 +56,12 @@ async function filterCNV(settings, retry = 0) {
     if (settings.filterCNV) {
         console.log('已啟用自動過濾國v')
         console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
-        while (!$('a.room-owner-username')?.attr('href')){
+        const usernameJQ = settings.developer.elements.userId
+        while (!$(usernameJQ)?.attr('href')){
             console.log('cannot find userId, wait for one sec')
             await sleep(1000)
         }
-        const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($('a.room-owner-username')?.attr('href'))?.pop())
+        const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($(usernameJQ)?.attr('href'))?.pop())
         if (isNaN(userId)) {
             alert('無法獲得此直播房間的用戶ID房間，將自動取消過濾國V功能。')
         } else {
@@ -119,6 +120,10 @@ async function getLiveTime(retry = 0){
     }
 }
 
+function getScriptSrc({ useRemoteCDN }, js){
+    return useRemoteCDN ? `https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@web/${js}` : browser.runtime.getURL(js)
+}
+
 // start here
 async function start(restart = false){
 
@@ -138,19 +143,21 @@ async function start(restart = false){
         return
     }
 
+    const settings = await getSettings()
+
     if (!restart){
-        // inject websocket
-        const b = `
-            <script src="${browser.runtime.getURL('cdn/pako.min.js')}"></script>
-            <script src="${browser.runtime.getURL('cdn/brotli.bundle.js')}"></script>
-            <script src="${browser.runtime.getURL('cdn/websocket-hook.js')}"></script>
-        `
-        $(document.head).append(b)
+        if (!settings.useLegacy){
+            // inject websocket
+                const b = `
+                <script src="${getScriptSrc(settings, 'cdn/pako.min.js')}"></script>
+                <script src="${getScriptSrc(settings, 'cdn/brotli.bundle.js')}"></script>
+                <script src="${getScriptSrc(settings, 'cdn/websocket-hook.js')}"></script>
+            `
+            $(document.head).append(b)
+        }
     }
 
     ws.launchListeners()
-
-    const settings = await getSettings()
 
     if (settings.blacklistRooms.includes(`${roomId}`) === !settings.useAsWhitelist) {
         console.log('房間ID在黑名單上，已略過。')
@@ -188,29 +195,51 @@ async function start(restart = false){
 
     const { backgroundListColor: blc, backgroundColor: bc, textColor: tc } = settings.buttonSettings
 
-    let buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+    const { elements } = settings.developer
+
+    let buttonArea = $(elements.upperButtonArea)
 
     if (buttonArea.length == 0){
-        console.warn(`無法找到按鈕放置元素 ${'.rows-ctnr'}, 可能b站改了元素，請通知原作者。(isTheme: ${isTheme})`)
+        console.warn(`無法找到按鈕放置元素 ${elements.upperButtonArea}, 可能b站改了元素，請通知原作者。(isTheme: ${isTheme})`)
         await sleep(1000)
-        buttonArea = $('div.room-info-ctnr.dp-i-block').length ? $('div.room-info-ctnr.dp-i-block') : $('.rows-ctnr')
+        buttonArea = $(elements.upperButtonArea)
     }
 
-    buttonArea.append(`
-        <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
-            添加到黑名单
-            <style>
-            .btn-sc {
-                background-color: gray;
-                color: white;
-                padding: 5px;
-                font-size: 12px;
-                border: none;
-                box-shadow: 1px 1px 5px black;
+    if (!settings.hideBlackList){
+        buttonArea.append(`
+            <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
+                添加到黑名单
+                <style>
+                .btn-sc {
+                    background-color: gray;
+                    color: white;
+                    padding: 5px;
+                    font-size: 12px;
+                    border: none;
+                    box-shadow: 1px 1px 5px black;
+                }
+                </style>
+            </a>
+        `)
+
+        $('#blacklist-add-btn').on('click', async () => {
+            try {
+                if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return 
+                settings.blacklistRooms.push(`${roomId}`)
+                await setSettings(settings)
+                cancel()
+                await sendNotify({
+                    title: "添加成功",
+                    message: "已成功添加此房间到黑名单。"
+                })
+            }catch(err){
+                await sendNotify({
+                    title: '添加失败',
+                    message: err?.message ?? err
+                })
             }
-            </style>
-        </a>
-    `)
+        })
+    }
 
     if (isTheme){
         buttonArea.append(`
@@ -224,28 +253,18 @@ async function start(restart = false){
             $('div#button-list').css('display', display ? 'block' : 'none')
             $('#switch-button-list').css('background-color', display ? 'gray' : '#e87676')
         })
+
+        if (settings.themeToNormal){
+            buttonArea.append(`
+                <a href="https://live.bilibili.com/blanc/${roomId}" class="btn-sc" type="button">
+                    返回非海报界面
+                </a>
+            `)
+        }
     }
 
-    $('#blacklist-add-btn').on('click', async () => {
-        try {
-            if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return 
-            settings.blacklistRooms.push(`${roomId}`)
-            await setSettings(settings)
-            cancel()
-            await sendNotify({
-                title: "添加成功",
-                message: "已成功添加此房间到黑名单。"
-            })
-        }catch(err){
-            await sendNotify({
-                title: '添加失败',
-                message: err?.message ?? err
-            })
-        }
-    })
-
-    $('div.player-section').after(`
-        <div id="button-list" style="text-align: center; background-color: ${blc}">
+    $(elements.jimakuArea).after(`
+        <div id="button-list" style="text-align: center; background-color: ${blc}; overflow-x: auto;">
             <style>
             #button-list .button {
                 background-color: ${bc};
