@@ -69,7 +69,7 @@ function chatMonitor(settings) {
                     if (beforeInsert.shift() === subtitle) {
                         continue
                     }
-                    pushSubtitle(subtitle, settings)
+                    pushSubtitle(subtitle)
                 }
             }
         }
@@ -123,19 +123,32 @@ function launchDanmakuStyleChanger(settings) {
     observers.push(danmakuObserver)
 }
 
-function pushSubtitle(subtitle, settings) {
-    appendSubtitle(subtitle)
-    const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
-    if (settings.record) {
-        pushRecord({ date, text: subtitle })
-            .then(() => {
-                logSettings.hasLog = true
-                logSettings.changed = true
-            })
-            .catch(console.warn)
-    }
-    sendBackgroundJimaku({room: roomId, date, text: subtitle}).catch(console.error)
+
+const SUBTITLE_TRANSACTIONS = []
+let subtitleInterval = -1
+
+function pushSubtitle(subtitle) {
+   SUBTITLE_TRANSACTIONS.push(subtitle)
 }
+
+function launchSubtitleInterval(settings){
+    subtitleInterval = setInterval(() => {
+        const subtitle = SUBTITLE_TRANSACTIONS.shift()
+        if (!subtitle) return
+        appendSubtitle(subtitle)
+        const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
+        if (settings.record) {
+            pushRecord({ date, text: subtitle })
+                .then(() => {
+                    logSettings.hasLog = true
+                    logSettings.changed = true
+                })
+                .catch(console.warn)
+        }
+        sendBackgroundJimaku({room: roomId, date, text: subtitle}).catch(console.error)
+    }, 300)
+}
+
 
 function wsMonitor(settings) {
     const { danmakuPosition } = settings.webSocketSettings
@@ -154,7 +167,7 @@ function wsMonitor(settings) {
         let jimaku = toJimaku(danmaku, settings.regex)
         if (!jimaku && isTongChuan) jimaku = danmaku 
         if (jimaku) {
-            pushSubtitle(jimaku, settings)
+            pushSubtitle(jimaku)
             if(/^#[0-9A-F]{6}$/ig.test(settings.color)){
                 command.info[0][3] = parseInt(settings.color.substr(1), 16)
             }
@@ -345,6 +358,8 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
 
     // 屏幕彈幕監控
     launchDanmakuStyleChanger(settings)
+    if (subtitleInterval > 0) clearInterval(subtitleInterval)
+    launchSubtitleInterval(settings)
 
     const previousRecord = await new Promise((res,) => listRecords().then(res).catch(() => res([])))
     for (const rec of previousRecord) {

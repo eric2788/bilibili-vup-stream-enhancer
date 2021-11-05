@@ -257,7 +257,7 @@ async function start(restart = false){
 
         if (settings.themeToNormal){
             buttonArea.append(`
-                <a href="https://live.bilibili.com/blanc/${roomId}" class="btn-sc" type="button">
+                <a href="https://live.bilibili.com/blanc/${roomId}" target="_blank" class="btn-sc" type="button">
                     返回非海报界面
                 </a>
             `)
@@ -341,6 +341,7 @@ window.onunload = function () {
 
 function cancel(){
     $('#button-list').remove()
+    $('.btn-sc').remove()
     cancelJimakuFunction()
     cancelSuperChatFunction()
     $('#btn-style').remove()
