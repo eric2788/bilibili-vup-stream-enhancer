@@ -169,14 +169,13 @@ async function start(restart = false){
 
     if (await filterCNV(settings)) return
 
-    let live_time = undefined
+    const live_time = await getLiveTime() // 同傳彈幕彈出式視窗也需要 live_time
 
     if (settings.record) {
         console.log('啟用同傳彈幕記錄')
         if (window.indexedDB) {
             try {
                 await connect(key)
-                live_time = await getLiveTime()
                 if (localStorage.getItem(key) == null){
                     localStorage.setItem(key, JSON.stringify({hasLog: false}))
                 }
