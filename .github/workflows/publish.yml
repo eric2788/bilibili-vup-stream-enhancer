@@ -7,8 +7,6 @@ name: bilibili jimaku filter publish sign
 on:
  push:
     branches: [ master ]
- pull_request:
-    branches: [ master ]
   
 jobs:
  build:

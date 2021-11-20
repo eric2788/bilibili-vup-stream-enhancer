@@ -2,6 +2,8 @@ import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera } from 
 
 console.log('background is working...')
 
+const DEVELOPER_LINK = 'https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@web/cdn/developer.json'
+
 browser.browserAction.onClicked.addListener(() => {
     browser.tabs.create({
         url: browser.runtime.getURL('settings.html')
@@ -195,7 +197,9 @@ browser.runtime.onMessage.addListener((message) => {
             checkUpdate(true)
             break;
         case "open-window":
-            return openWindow(message.roomId, message.title) 
+            return openWindow(message.roomId, message.title)
+        case "fetch-developer":
+            return webRequest(DEVELOPER_LINK).then(data => data.developer)
         default:
             break;
     }
@@ -240,7 +244,31 @@ browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
     
 })
 
+
+
+
+async function onFirstTimeIntsall(){ // 第一次安裝執行
+
+    // 獲取開發者相關最新版本以取代舊設定
+    const { developer } = await webRequest(DEVELOPER_LINK)
+    const settings = await getSettings()
+    settings.developer = { ...settings.developer, ...developer } // override
+    await browser.storage.sync.set(settings)
+
+}
+
 browser.runtime.onInstalled.addListener(async data => {
+    if (data.reason === 'install') { // 第一次安裝
+        await onFirstTimeIntsall()
+                .then(() => sendNotifyId('bjf:installed', {
+                    title: 'bilibili-jimaku-filter 已安裝',
+                    message: '成功从远端获取最新设定'
+                }))
+                .catch(() => sendNotifyId('bjf:error', {
+                    title: 'bilibili-jimaku-filter 已安裝',
+                    message: '获取远端最新设定失败，将使用本地版本'
+                }))
+    }
     if (data.reason !== 'update') return
     if (isFirefox || isOpera){
         await sendNotifyId('bjf:updated', {

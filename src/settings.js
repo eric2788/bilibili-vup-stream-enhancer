@@ -1,7 +1,4 @@
-import { getSettings, setSettings, sendNotify, checkUpdate } from './utils/messaging'
-
-
-const DEVELOPER_LINK = 'https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@web/cdn/developer.json'
+import { getSettings, setSettings, sendNotify, checkUpdate, fetchDeveloper } from './utils/messaging'
 
 function getCurrentInput() {
     const setting = {}
@@ -336,9 +333,7 @@ $('#fetch-latest-developer').on('click', async e => {
     e.preventDefault()
     if (!window.confirm('这将覆盖开发者相关所有目前设定。')) return
     try {
-        const res = await fetch(DEVELOPER_LINK)
-        if (!res.ok) throw new Error(res.statusText)
-        const { developer } = await res.json()
+        const developer = await fetchDeveloper()
         const settings = await getSettings()
         settings.developer = { ...settings.developer,...developer } // override
         await setSettings(settings)
