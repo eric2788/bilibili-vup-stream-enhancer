@@ -35,7 +35,7 @@ async function filterNotV(settings, times = 0) {
         } catch (err) {
             console.warn(err)
             console.warn(`索取資源時出現錯誤: ${err.message}`)
-            if (times >= 10){
+            if (times >= 3){
                 sendNotify({
                     title: `已暂时关闭仅限虚拟主播功能。`,
                     message: `由于已连续 ${times} 次在索取虚拟主播列表中出现网络请求失败，已暂时关闭仅限虚拟主播功能以让插件正常运作。\n此举将不会影响你的目前设定。`
