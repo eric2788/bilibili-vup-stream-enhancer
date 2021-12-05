@@ -24,7 +24,7 @@ let live_time = undefined
 function getStreamingTime() {
     try {
         if (!live_time){
-            throw new Error(`找不到開播時間，嘗試改為使用html元素獲取`)
+            throw new Error(`找不到開播時間`)
         }
         return toTimer(Math.round(Date.now() / 1000) - live_time)
     }catch(err){

@@ -35,7 +35,7 @@ async function filterNotV(settings, times = 0) {
         } catch (err) {
             console.warn(err)
             console.warn(`索取資源時出現錯誤: ${err.message}`)
-            if (times >= 10){
+            if (times >= 3){
                 sendNotify({
                     title: `已暂时关闭仅限虚拟主播功能。`,
                     message: `由于已连续 ${times} 次在索取虚拟主播列表中出现网络请求失败，已暂时关闭仅限虚拟主播功能以让插件正常运作。\n此举将不会影响你的目前设定。`
@@ -169,14 +169,13 @@ async function start(restart = false){
 
     if (await filterCNV(settings)) return
 
-    let live_time = undefined
+    const live_time = await getLiveTime() // 同傳彈幕彈出式視窗也需要 live_time
 
     if (settings.record) {
         console.log('啟用同傳彈幕記錄')
         if (window.indexedDB) {
             try {
                 await connect(key)
-                live_time = await getLiveTime()
                 if (localStorage.getItem(key) == null){
                     localStorage.setItem(key, JSON.stringify({hasLog: false}))
                 }

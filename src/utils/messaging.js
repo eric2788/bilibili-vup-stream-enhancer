@@ -30,6 +30,11 @@ export async function sendBackgroundJimaku(data){
     return sendData({type: 'jimaku', data})
 }
 
+export async function fetchDeveloper(){
+    return sendData({type: 'fetch-developer'})
+}
+
 async function sendData(message){
     return browser.runtime.sendMessage(message)
 }
+

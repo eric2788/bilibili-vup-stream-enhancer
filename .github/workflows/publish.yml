@@ -1,13 +1,11 @@
 env:
-    version: 0.11.6
+    version: 0.11.7
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
 name: bilibili jimaku filter publish sign
   
 on:
  push:
-    branches: [ master ]
- pull_request:
     branches: [ master ]
   
 jobs:
