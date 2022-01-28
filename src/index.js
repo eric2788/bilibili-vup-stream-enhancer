@@ -1,6 +1,6 @@
 import getSettings, { roomId, logSettings, isTheme, sleep } from './utils/misc'
 import { connect, closeDatabase } from './utils/database'
-import { webRequest, sendNotify, setSettings } from './utils/messaging'
+import { webRequest, sendNotify, setSettings, getStreamUrl, openStreamWindow } from './utils/messaging'
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
 import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
 import ws from './utils/ws-listener'
@@ -15,8 +15,10 @@ async function filterNotV(settings, times = 0) {
     if (settings.vtbOnly) {
         console.log('啟用僅限虛擬主播。')
         try {
-            const data = await webRequest('https://vup.darkflame.ga/api/online')
-            if (!data.list.some(y => y.shortId == roomId || y.roomId == roomId)) {
+            const data = await webRequest(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${roomId}`)
+            console.log(data)
+            //  找不到主播         不是虛擬主播分區                             不在直播中
+            if (data.code != 0 || data.data.room_info.parent_area_id != 9 || data.data.room_info.live_status == 0) {
                 if (!settings.record) {
                     console.warn('不是虛擬主播房間或沒在直播, 取消字幕過濾')
                     skipped = true
@@ -315,6 +317,28 @@ async function start(restart = false){
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
         $('#restart-btn').on('click', launchFilter)
     }
+
+    // test
+    // add a button for opening stream window
+    $('#button-list').append(`<button class="button" id="stream-btn">打开监控视窗</button>`)
+    $('#stream-btn').on('click', async () => {
+        try {
+            const title = $(elements.liveTitle)[0]?.innerText ?? 'null'
+            await openStreamWindow(roomId, title)
+            await sendNotify({
+                title: '打开成功',
+                message: `已成功打开监控视窗。`
+            })
+        }catch(e){
+            await sendNotify({
+                title: '打开失败',
+                message: e?.message ?? e
+            })
+        }
+    })
+    // test only
+        
+
     
     //彈幕過濾
     await launchJimakuInspect(settings, { buttonOnly, liveTime: live_time })

@@ -1,12 +1,13 @@
 {
   "name": "bilibili-jimaku-filter",
-  "version": "0.11.7",
+  "version": "0.11.8",
   "description": "jimaku filter for bilibili",
   "main": "index.js",
   "scripts": {
     "clean": "rmdir /S /Q dist 1>nul",
     "build": "webpack",
-    "rebuild": "npm run clean && npm run build"
+    "rebuild": "npm run clean && npm run build",
+    "serve": "web-ext run --firefox=\"C:\\Program Files\\Firefox Developer Edition\\firefox.exe\" --source-dir=./dist --url https://live.bilibili.com/p/eden/area-tags?parentAreaId=9"
   },
   "repository": {
     "type": "git",

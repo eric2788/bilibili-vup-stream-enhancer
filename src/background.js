@@ -1,3 +1,4 @@
+import { runtime } from 'webextension-polyfill'
 import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera } from './utils/misc'
 
 console.log('background is working...')
@@ -75,12 +76,12 @@ async function checkUpdateWithAPI(){
 }
 
 async function getAutoUpdateSupported(){
-    return (await webRequest(updateApi))?.auto_update_supported ?? {}
+    return (await fetcher(updateApi))?.auto_update_supported ?? {}
 }
 
 async function checkUpdateOther(){
     let latestv = undefined
-    const addons = (await webRequest(updateApi))?.addons
+    const addons = (await fetcher(updateApi))?.addons
     if (addons) {
         const verList = addons[updateID]?.updates
         if (verList) {
@@ -159,7 +160,7 @@ getSettings().then(({autoCheckUpdate})=>{
 })
 
 
-async function webRequest(url) {
+async function fetcher(url) {
     const res = await fetch(url)
     if (!res.ok) throw new Error(`${res.statusText}(${res.status})`)
     const json = await res.json()
@@ -175,7 +176,7 @@ async function openWindow(roomId, title = 'null'){
     })
 }
 
-browser.runtime.onMessage.addListener((message) => {
+runtime.onMessage.addListener((message) => {
     console.log('received command: ' + message.type)
     switch (message.type) {
         case "notify":
@@ -186,7 +187,8 @@ browser.runtime.onMessage.addListener((message) => {
         case "save-settings":
             return browser.storage.sync.set(message.data)
         case "request":
-            return webRequest(message.url)
+            console.log('receive request')
+            return fetcher(message.url)
         case "log-info":
             console.info(message.data)
             break;
@@ -199,7 +201,7 @@ browser.runtime.onMessage.addListener((message) => {
         case "open-window":
             return openWindow(message.roomId, message.title)
         case "fetch-developer":
-            return webRequest(DEVELOPER_LINK).then(data => data.developer)
+            return fetcher(DEVELOPER_LINK).then(data => data.developer)
         default:
             break;
     }
@@ -250,7 +252,7 @@ browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
 async function onFirstTimeIntsall(){ // 第一次安裝執行
 
     // 獲取開發者相關最新版本以取代舊設定
-    const { developer } = await webRequest(DEVELOPER_LINK)
+    const { developer } = await fetcher(DEVELOPER_LINK)
     const settings = await getSettings()
     settings.developer = { ...settings.developer, ...developer } // override
     await browser.storage.sync.set(settings)

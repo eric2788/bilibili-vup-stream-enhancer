@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.11.7",
+    "version": "0.11.8",
   
     "description": "bilibili jimaku filter by ericlam",
     "author": "Eric Lam",
@@ -58,7 +58,8 @@
     "background":{
       "scripts": [
         "browser-polyfill.js",
-        "background.js"
+        "background.js",
+        "stream-live.js"
       ],
       "persistent": true
     },

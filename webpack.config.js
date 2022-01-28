@@ -7,6 +7,8 @@ module.exports = {
 	//devtool: 'source-map',
     stats: 'errors-only',
 	entry: {
+        stream: './src/stream/stream.js',
+        'stream-live': './src/stream/stream-live.js', 
         background: './src/background.js',
         index: './src/index.js',
         settings: './src/settings.js',
