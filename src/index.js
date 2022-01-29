@@ -60,7 +60,7 @@ async function filterCNV(settings, retry = 0) {
         console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
         const usernameJQ = settings.developer.elements.userId
         while (!$(usernameJQ)?.attr('href')) {
-            console.log('cannot find userId, wait for one sec')
+            console.log(`cannot find userId ${usernameJQ}, wait for one sec`)
             await sleep(1000)
         }
         const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($(usernameJQ)?.attr('href'))?.pop())
@@ -132,7 +132,7 @@ async function start(restart = false) {
     //console.log(`scanning: ${location.href}`)
 
     if (isNaN(roomId)) {
-        //console.log('invalid roomId, return')
+        console.warn(`invalid roomId ${roomId}, return`)
         return
     }
 
@@ -173,6 +173,7 @@ async function start(restart = false) {
 
     const live_time = await getLiveTime() // 同傳彈幕彈出式視窗也需要 live_time
 
+    let enabledRecord = false
     if (settings.record) {
         console.log('啟用同傳彈幕記錄')
         if (window.indexedDB) {
@@ -186,11 +187,13 @@ async function start(restart = false) {
                 alert(`連接資料庫時出現錯誤: ${err.message}, 自動取消同傳彈幕記錄。`)
                 closeDatabase()
                 settings.record = false
+                enabledRecord = true
             }
         } else {
             alert('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
             console.warn('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
             settings.record = false
+            // no need to assign enabledRecord because not support indexedb
         }
     }
 
@@ -200,7 +203,7 @@ async function start(restart = false) {
 
     let buttonArea = $(elements.upperButtonArea)
 
-    if (buttonArea.length == 0) {
+    while (buttonArea.length == 0) {
         console.warn(`無法找到按鈕放置元素 ${elements.upperButtonArea}, 可能b站改了元素，請通知原作者。(isTheme: ${isTheme})`)
         await sleep(1000)
         buttonArea = $(elements.upperButtonArea)
@@ -228,6 +231,9 @@ async function start(restart = false) {
             try {
                 if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return
                 settings.blacklistRooms.push(`${roomId}`)
+                if (enabledRecord){
+                    settings.record = true // revert the setting before save
+                }
                 await setSettings(settings)
                 cancel()
                 await sendNotify({
@@ -320,14 +326,14 @@ async function start(restart = false) {
 
 
     if (settings.enableStreamPopup) {
-        $('#button-list').append(`<button class="button" id="stream-btn">打开监控视窗</button>`)
+        $('#button-list').append(`<button class="button" id="stream-btn">打开监控式视窗</button>`)
         $('#stream-btn').on('click', async () => {
             try {
                 const title = $(elements.liveTitle)[0]?.innerText ?? 'null'
                 await openStreamWindow(roomId, title)
                 await sendNotify({
                     title: '打开成功',
-                    message: `已成功打开监控视窗。`
+                    message: `已成功打开监控式视窗。`
                 })
             } catch (e) {
                 await sendNotify({
