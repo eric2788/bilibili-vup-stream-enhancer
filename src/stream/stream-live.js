@@ -36,7 +36,7 @@ runtime.onMessage.addListener((message) => {
 async function openStreamWindow(roomId, title) {
     return windows.create({
         url: runtime.getURL(`stream.html?roomId=${roomId}&title=${title}`),
-        type: 'detached_panel',
+        type: 'panel',
         width: 1189,
         height: 720,
     })

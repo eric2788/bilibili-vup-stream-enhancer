@@ -16,6 +16,7 @@ document.title = `${title} (${roomId})`
 const vid = $('#live')[0]
 const track = vid.addTextTrack('captions', '同传字幕', 'zh-CN')
 track.addEventListener('error', console.error)
+track.mode = "showing"
 
 function startJimakuListener() {
     runtime.onMessage.addListener((message) => {
@@ -26,7 +27,6 @@ function startJimakuListener() {
             return
         }
         if (room !== roomId) return
-        track.mode = "showing"
         const start = vid.currentTime
         const end = start + 3 // 字幕逗留 3 秒
         const cue = new VTTCue(start, end, text)
