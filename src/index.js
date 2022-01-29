@@ -18,7 +18,7 @@ async function filterNotV(settings, times = 0) {
             const data = await webRequest(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${roomId}`)
             console.log(data)
             //  找不到主播         不是虛擬主播分區                             不在直播中
-            if (data.code != 0 || data.data.room_info.parent_area_id != 9 || data.data.room_info.live_status == 0) {
+            if (data.code != 0 || data.data.room_info.parent_area_id != 9 || data.data.room_info.live_status != 1) {
                 if (!settings.record) {
                     console.warn('不是虛擬主播房間或沒在直播, 取消字幕過濾')
                     skipped = true
