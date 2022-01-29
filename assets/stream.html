@@ -7,9 +7,11 @@
     <link rel="icon" href="icons/icon.png">
     <script src="cdn/jquery.js"></script>
 </head>
+
 <body>
     <div class="items-center">
         <video id="live" controls></video>
+        <ul id="list" class="subtitle"></ul>
     </div>
 </body>
 <style>
@@ -19,15 +21,62 @@
         max-height: 100%;
         vertical-align: middle;
     }
+
     body {
         padding: 0%;
         height: 100%;
         text-align: center;
         justify-items: center;
     }
+
     ::cue {
         color: #fff;
         background-color: rgba(10, 10, 10, 0.35);
+    }
+
+    /* create a subtitle list style */
+    .subtitle {
+        list-style-type: none;
+        margin: 0;
+        padding: 5px;
+        max-height: 70px;
+        text-align: center;
+        font-size: 15px;
+        font-family: "Microsoft JhengHei";
+        overflow-y: scroll;
+        overflow-wrap: break-word;
+        color: white;
+        background-color: rgba(10, 10, 10, 0.35);
+        scrollbar-width: thin;
+        scrollbar-color: white rgba(10, 10, 10, 0.35);
+    }
+
+    .subtitle li:first-child{
+        font-weight: bold;
+        font-size: 1.3em;
+    }
+
+    .subtitle li {
+        animation: top .3s ease-out;
+    }
+
+    .subtitle::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .subtitle::-webkit-scrollbar-track {
+        background-color: rgba(10, 10, 10, 0.35);
+    }
+
+    .subtitle::-webkit-scrollbar-thumb {
+        background-color: rgba(10, 10, 10, 0.35);
+    }
+
+    @keyframes top {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
     }
 </style>
 <script src="browser-polyfill.js"></script>

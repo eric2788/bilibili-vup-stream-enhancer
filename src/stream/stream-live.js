@@ -2,6 +2,15 @@ import { runtime, windows } from "webextension-polyfill"
 
 console.log('stream live is working.')
 
+/* only need to use when using get-stream-url
+webRequest.onBeforeSendHeaders.addListener((details) => {
+    console.log(`added origin header for video: ${details.url}`)
+    details.requestHeaders.push({ 'origin': 'https://live.bilibili.com' })
+    console.log(details.requestHeaders)
+}, {
+    urls: ['https://*.bilivideo.com/*'],
+});
+*/
 
 runtime.onMessage.addListener((message) => {
     switch(message.type){
@@ -12,6 +21,10 @@ runtime.onMessage.addListener((message) => {
         case "get-stream-url": {
             const roomid = message.roomId
             return getRoomPlayUrl(roomid).then(findSuitableURL)
+        }
+        case "get-stream-urls": {
+            const roomid = message.roomId
+            return getRoomPlayUrl(roomid)
         }
         case "stream-window": {
             return openStreamWindow(message.roomId, message.title)
@@ -30,6 +43,8 @@ async function openStreamWindow(roomId, title) {
 }
 
 
+
+
 async function fetchStream(url, callback) {
     const res = await fetch(url)
     const reader = res.body.getReader()
@@ -42,7 +57,7 @@ async function fetchStream(url, callback) {
 }
 
 async function fetcher(url) {
-    const res = await fetch(url)
+    const res = await fetch(url, { credentials: 'same-origin' })
     if (!res.ok){
         throw new Error(res.statusText)
     }
@@ -54,7 +69,7 @@ async function fetcher(url) {
 }
 
 async function testUrlValid(url){
-    const res = await fetch(url, { credentials: 'same-origin' })
+    const res = await fetch(url)
     if (!res.ok){
        throw new Error(res.statusText)
     }

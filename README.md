@@ -1,7 +1,7 @@
 # bilibili 直播同传字幕过滤插件
 
 
-## > 下载
+## ➵ 下载
 
 [火狐及更新记录](https://github.com/eric2788/bilibili-jimaku-filter/releases)
 
@@ -9,13 +9,16 @@
 
 [Chrome](https://chrome.google.com/webstore/detail/nhomlepkjglilcahfcfnggebkaabeiog)
 
-## > 简介
+## ➵ 简介
 
-本插件采用WebSocket侦测弹幕文字，因此不需要担心挂后台弹幕没出现而错过同传字幕。(有时候你甚至会发现字幕比同传弹幕快)
+本浏览器插件透过挂接 WebSocket 为同传字幕做过滤，并且把其放到更好的画面上展示。
+本插件虽然功能众多，但大部分功能基本上为可选，你仍可为界面保持简化。
 
-然后开启字幕记录后可以离线储存上次的字幕记录，重入直播间可以获取先前所有的字幕记录，删除记录需要手动
+功能将在以下一一详述。
 
 ## ➵ 功能简介
+
+__如破图，请自行到 [web/assets](https://github.com/eric2788/bilibili-jimaku-filter/tree/web/assets) 查看图片__
 
 <details>
 <summary>设定界面</summary>
@@ -42,18 +45,12 @@
 </details>
 
 <details>
-<summary>醒目留言记录</summary>
+<summary>醒目留言记录 + 导出记录</summary>
 
 防止SC时间过后消失。
 
 没有离线记录，因此F5后所有记录会被清空。
 
-![](https://media.discordapp.net/attachments/786944895138005033/794528423304888350/unknown.png)
-</details>
-
-<details>
-    <summary>SC导出记录</summary>
-    
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/sc-output.gif)
 
 </details>
@@ -70,15 +67,15 @@
 
 右移
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/animate-left.gif)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/animate-left.gif)
 
 下移
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/animate-top.gif)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/animate-top.gif)
 
 缩放
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/aniamte-size.gif)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/aniamte-size.gif)
 
 
 </details>
@@ -104,14 +101,21 @@
 
 别问为什么我盖住了主播 
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/remember-size.gif)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/remember-size.gif)
 
 </details>
 
 <details>
 <summary>同传弹幕弹出式视窗</summary>
 
-![](https://media.discordapp.net/attachments/786944895138005033/808695474835423302/unknown.png)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/popup-jimaku.jpg)
+
+</details>
+
+<details>
+<summary>DD监控式视窗</summary>
+
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/dd-monitor.png)
 
 </details>
 
@@ -125,9 +129,9 @@
 <details>
 <summary>弹幕置顶置底</summary>
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/ws-top.png)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/ws-top.png)
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/ws-top-2.png)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/ws-top-2.png)
 
 </details>
 
@@ -150,13 +154,13 @@
 
 串流时间戳记
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/stream-ts.png)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/stream-ts.png)
 
 `[03:51]` => 直播时间: 直播了三分五十一秒
 
 真实时间戳记
 
-![](https://raw.githubusercontent.com/eric2788/bilibili-jimaku-filter/web/assets/real-ts.png)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/real-ts.png)
 
 `[18:16:50]` => 真实时间: 下午六点十六分五十秒
 
@@ -165,14 +169,14 @@
 <details>
 <summary>仅限虚拟主播</summary>
 
-![](https://media.discordapp.net/attachments/415882741092057088/787286599947517962/unknown.png)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/only-vtb.jpg)
 
 </details>
 
 <details>
 <summary>过滤国V(试验阶段)</summary>
 
-![](https://media.discordapp.net/attachments/415882741092057088/787286308790861824/unknown.png)
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/filter-cnv.png)
 
 </details>
 
@@ -197,11 +201,7 @@
 
 </details>
 
-## ➵ 把本插件使用到Chrome
-
-[点击這裏查看](https://github.com/eric2788/bilibili-jimaku-filter/wiki/%E6%8A%8A%E7%81%AB%E7%8B%90%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8%E5%88%B0%E5%85%B6%E4%BB%96%E6%B5%8F%E8%A7%88%E5%99%A8)
-
-## ➵ 有用连结
+## ➵ 其他连结
 
 [NGA帖文](https://ngabbs.com/read.php?tid=24434809)
 

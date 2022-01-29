@@ -28,8 +28,14 @@ export async function openInspectWindow(roomId, title){
     return sendData({type: 'open-window', roomId, title})
 }
 
+/* use getStreamUrls instead
 export async function getStreamUrl(roomId){
     return sendData({type: 'get-stream-url', roomId})
+}
+*/
+
+export async function getStreamUrls(roomId){
+    return sendData({type: 'get-stream-urls', roomId})
 }
 
 export async function fetchStream(url, callback){

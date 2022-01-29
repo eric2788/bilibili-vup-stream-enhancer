@@ -26,6 +26,7 @@
         "*://vup.darkflame.ga/*",
         "*://api.live.bilibili.com/*",
         "*://live.bilibili.com/*",
+        "*://*.bilivideo.com/*",
         "notifications",
         "storage",
         "tabs"

@@ -15,7 +15,6 @@ const defaultSettings = {
     hideJimakuDanmaku: false,
     vtbOnly: true,
     record: false,
-
     backgroundSubtitleOpacity: 40,
     backgroundColor: '#808080',
     backgroundHeight: 100,
@@ -40,6 +39,7 @@ const defaultSettings = {
     recordSuperChat: false,
     enableRestart: false,
     enableJimakuPopup: false,
+    enableStreamPopup: false,
     filterLevel: 0,
     useLegacy: false,
     hideBlackList: false,
