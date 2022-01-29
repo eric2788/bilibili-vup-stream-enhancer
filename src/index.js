@@ -1,6 +1,6 @@
 import getSettings, { roomId, logSettings, isTheme, sleep } from './utils/misc'
 import { connect, closeDatabase } from './utils/database'
-import { webRequest, sendNotify, setSettings } from './utils/messaging'
+import { webRequest, sendNotify, setSettings, openStreamWindow } from './utils/messaging'
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
 import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
 import ws from './utils/ws-listener'
@@ -15,8 +15,10 @@ async function filterNotV(settings, times = 0) {
     if (settings.vtbOnly) {
         console.log('啟用僅限虛擬主播。')
         try {
-            const data = await webRequest('https://vup.darkflame.ga/api/online')
-            if (!data.list.some(y => y.shortId == roomId || y.roomId == roomId)) {
+            const data = await webRequest(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${roomId}`)
+            console.log(data)
+            //  找不到主播         不是虛擬主播分區                             不在直播中
+            if (data.code != 0 || data.data.room_info.parent_area_id != 9 || data.data.room_info.live_status != 1) {
                 if (!settings.record) {
                     console.warn('不是虛擬主播房間或沒在直播, 取消字幕過濾')
                     skipped = true
@@ -35,7 +37,7 @@ async function filterNotV(settings, times = 0) {
         } catch (err) {
             console.warn(err)
             console.warn(`索取資源時出現錯誤: ${err.message}`)
-            if (times >= 3){
+            if (times >= 3) {
                 sendNotify({
                     title: `已暂时关闭仅限虚拟主播功能。`,
                     message: `由于已连续 ${times} 次在索取虚拟主播列表中出现网络请求失败，已暂时关闭仅限虚拟主播功能以让插件正常运作。\n此举将不会影响你的目前设定。`
@@ -57,8 +59,8 @@ async function filterCNV(settings, retry = 0) {
         console.log('已啟用自動過濾國v')
         console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
         const usernameJQ = settings.developer.elements.userId
-        while (!$(usernameJQ)?.attr('href')){
-            console.log('cannot find userId, wait for one sec')
+        while (!$(usernameJQ)?.attr('href')) {
+            console.log(`cannot find userId ${usernameJQ}, wait for one sec`)
             await sleep(1000)
         }
         const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($(usernameJQ)?.attr('href'))?.pop())
@@ -83,7 +85,7 @@ async function filterCNV(settings, retry = 0) {
                 }
             } catch (err) {
                 console.warn(err)
-                if (retry >= 5){
+                if (retry >= 5) {
                     console.warn(`已重試${retry}次，放棄過濾。`)
                     return false
                 }
@@ -99,17 +101,17 @@ async function filterCNV(settings, retry = 0) {
 }
 
 
-async function getLiveTime(retry = 0){
+async function getLiveTime(retry = 0) {
     try {
         const response = await webRequest(`https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomId}`)
         if (response?.data?.live_time) {
             return response.data.live_time
         } else {
             throw new Error(response?.message ?? response.code)
-        } 
-    }catch(err){
+        }
+    } catch (err) {
         console.warn(err)
-        if (retry >= 5){
+        if (retry >= 5) {
             console.warn(`已重試${retry}次，放棄获取。`)
             return undefined
         }
@@ -120,23 +122,23 @@ async function getLiveTime(retry = 0){
     }
 }
 
-function getScriptSrc({ useRemoteCDN }, js){
+function getScriptSrc({ useRemoteCDN }, js) {
     return useRemoteCDN ? `https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@web/${js}` : browser.runtime.getURL(js)
 }
 
 // start here
-async function start(restart = false){
+async function start(restart = false) {
 
     //console.log(`scanning: ${location.href}`)
 
-    if (isNaN(roomId)){
-        //console.log('invalid roomId, return')
+    if (isNaN(roomId)) {
+        console.warn(`invalid roomId ${roomId}, return`)
         return
     }
 
     console.log('this page is using bilibili jimaku filter')
 
-    if ($('#button-list').length > 0 && !restart){
+    if ($('#button-list').length > 0 && !restart) {
         console.log('restarting bilibili jimaku filter')
         cancel()
         await start(true)
@@ -145,10 +147,10 @@ async function start(restart = false){
 
     const settings = await getSettings()
 
-    if (!restart){
-        if (!settings.useLegacy){
+    if (!restart) {
+        if (!settings.useLegacy) {
             // inject websocket
-                const b = `
+            const b = `
                 <script src="${getScriptSrc(settings, 'cdn/pako.min.js')}"></script>
                 <script src="${getScriptSrc(settings, 'cdn/brotli.bundle.js')}"></script>
                 <script src="${getScriptSrc(settings, 'cdn/websocket-hook.js')}"></script>
@@ -171,24 +173,27 @@ async function start(restart = false){
 
     const live_time = await getLiveTime() // 同傳彈幕彈出式視窗也需要 live_time
 
+    let enabledRecord = false
     if (settings.record) {
         console.log('啟用同傳彈幕記錄')
         if (window.indexedDB) {
             try {
                 await connect(key)
-                if (localStorage.getItem(key) == null){
-                    localStorage.setItem(key, JSON.stringify({hasLog: false}))
+                if (localStorage.getItem(key) == null) {
+                    localStorage.setItem(key, JSON.stringify({ hasLog: false }))
                 }
             } catch (err) {
                 console.error(err)
                 alert(`連接資料庫時出現錯誤: ${err.message}, 自動取消同傳彈幕記錄。`)
                 closeDatabase()
                 settings.record = false
+                enabledRecord = true
             }
         } else {
             alert('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
             console.warn('你的瀏覽器不支援IndexedDB, 無法啟用同傳彈幕記錄')
             settings.record = false
+            // no need to assign enabledRecord because not support indexedb
         }
     }
 
@@ -198,7 +203,7 @@ async function start(restart = false){
 
     let buttonArea = $(elements.upperButtonArea)
 
-    if (buttonArea.length == 0){
+    while (buttonArea.length == 0) {
         console.warn(`無法找到按鈕放置元素 ${elements.upperButtonArea}, 可能b站改了元素，請通知原作者。(isTheme: ${isTheme})`)
         await sleep(1000)
         buttonArea = $(elements.upperButtonArea)
@@ -215,7 +220,7 @@ async function start(restart = false){
             }
         </style>
     `)
-    if (!settings.hideBlackList){
+    if (!settings.hideBlackList) {
         buttonArea.append(`
             <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
                 添加到黑名单
@@ -224,15 +229,18 @@ async function start(restart = false){
 
         $('#blacklist-add-btn').on('click', async () => {
             try {
-                if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return 
+                if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return
                 settings.blacklistRooms.push(`${roomId}`)
+                if (enabledRecord){
+                    settings.record = true // revert the setting before save
+                }
                 await setSettings(settings)
                 cancel()
                 await sendNotify({
                     title: "添加成功",
                     message: "已成功添加此房间到黑名单。"
                 })
-            }catch(err){
+            } catch (err) {
                 await sendNotify({
                     title: '添加失败',
                     message: err?.message ?? err
@@ -241,7 +249,7 @@ async function start(restart = false){
         })
     }
 
-    if (isTheme){
+    if (isTheme) {
         buttonArea.append(`
             <a href="javascript: void(0)" class="btn-sc" type="button" id="switch-button-list">
                 切換按鈕列表
@@ -254,7 +262,7 @@ async function start(restart = false){
             $('#switch-button-list').css('background-color', display ? 'gray' : '#e87676')
         })
 
-        if (settings.themeToNormal){
+        if (settings.themeToNormal) {
             buttonArea.append(`
                 <a href="https://live.bilibili.com/blanc/${roomId}" target="_blank" class="btn-sc" type="button">
                     返回非海报界面
@@ -307,38 +315,60 @@ async function start(restart = false){
         </div>
     `)
 
-    if (isTheme){
+    if (isTheme) {
         $('#switch-button-list').trigger('click')
     }
 
-    if (settings.enableRestart){
+    if (settings.enableRestart) {
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
         $('#restart-btn').on('click', launchFilter)
     }
-    
+
+
+    if (settings.enableStreamPopup) {
+        $('#button-list').append(`<button class="button" id="stream-btn">打开监控式视窗</button>`)
+        $('#stream-btn').on('click', async () => {
+            try {
+                const title = $(elements.liveTitle)[0]?.innerText ?? 'null'
+                await openStreamWindow(roomId, title)
+                await sendNotify({
+                    title: '打开成功',
+                    message: `已成功打开监控式视窗。`
+                })
+            } catch (e) {
+                await sendNotify({
+                    title: '打开失败',
+                    message: e?.message ?? e
+                })
+            }
+        })
+    }
+
+
+
     //彈幕過濾
     await launchJimakuInspect(settings, { buttonOnly, liveTime: live_time })
-    
-    if (settings.recordSuperChat){
-         //SC过滤
+
+    if (settings.recordSuperChat) {
+        //SC过滤
         await launchSuperChatInspect(settings, { buttonOnly, restart })
     }
 }
 
-function launchFilter(){
+function launchFilter() {
     start().catch(console.error)
 }
 
 launchFilter()
 
 window.onunload = function () {
-    const {changed, hasLog, hasSCLog } = logSettings
-    if (changed){
+    const { changed, hasLog, hasSCLog } = logSettings
+    if (changed) {
         localStorage.setItem(key, JSON.stringify({ hasLog, hasSCLog }))
     }
 }
 
-function cancel(){
+function cancel() {
     $('#button-list').remove()
     $('.btn-sc').remove()
     cancelJimakuFunction()

@@ -1,5 +1,5 @@
 env:
-    version: 0.11.7
+    version: 0.11.8
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
 name: bilibili jimaku filter publish sign
@@ -19,9 +19,7 @@ jobs:
     - name: Setup Node.js environment
       uses: actions/setup-node@v2.1.2
       with:
-        # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
-        node-version: 12.x
-        # Set this option if you want the action to check for the latest available version that satisfies the version spec
+        node-version: 16.x
         check-latest: true
     - name: Npm init and build
       run: |
@@ -43,14 +41,14 @@ jobs:
       with:
         tag_name: ${{ env.version }}
         release_name: Release ${{ github.repository }}-${{ env.version }}
-        body: check the commits for update
+        body_path: changelog.md
         draft: false
         prerelease: false
     - name: Upload Release extension
       id: upload-release-asset-xpi
       uses: actions/upload-release-asset@v1
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./web-ext-artifacts/bilibili_jimaku_filter-${{env.version}}-an+fx.xpi
         asset_name: bilibili_jimaku_filter-${{env.version}}-an+fx.xpi
         asset_content_type: application/x-xpinstall

@@ -51,6 +51,7 @@ function getCurrentInput() {
     setting.recordSuperChat = $('#enable-record-sc').prop('checked')
     setting.enableRestart = $('#enable-restart').prop('checked')
     setting.enableJimakuPopup = $('#enable-jimaku-popup').prop('checked')
+    setting.enableStreamPopup = $('#enable-stream-popup').prop('checked')
     setting.useLegacy = $('#use-legacy-mode').prop('checked')
     setting.hideBlackList = $('#hide-blacklist').prop('checked')
     setting.themeToNormal = $('#theme-to-normal').prop('checked')
@@ -190,6 +191,7 @@ function saveCurrentInput(setting) {
     $('#enable-restart').prop('checked', setting.enableRestart)
 
     $('#enable-jimaku-popup').prop('checked', setting.enableJimakuPopup)
+    $('#enable-stream-popup').prop('checked', setting.enableStreamPopup)
 
     $('#jimaku-level')[0].valueAsNumber = setting.filterLevel
 
