@@ -16,10 +16,6 @@ export async function webRequest(url){
     return sendData({type: 'request', url})
 }
 
-export async function getBeforeSuperChat(){
-    return sendData({type: 'before-sc'})
-}
-
 export async function checkUpdate(){
     return sendData({type: 'check-update'})
 }
@@ -28,11 +24,9 @@ export async function openInspectWindow(roomId, title){
     return sendData({type: 'open-window', roomId, title})
 }
 
-/* use getStreamUrls instead
-export async function getStreamUrl(roomId){
-    return sendData({type: 'get-stream-url', roomId})
+export async function goToSetting(){
+    return sendData({type: 'go-settings'})
 }
-*/
 
 export async function getStreamUrls(roomId){
     return sendData({type: 'get-stream-urls', roomId})

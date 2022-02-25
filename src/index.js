@@ -1,6 +1,6 @@
 import getSettings, { roomId, logSettings, isTheme, sleep } from './utils/misc'
 import { connect, closeDatabase } from './utils/database'
-import { webRequest, sendNotify, setSettings, openStreamWindow } from './utils/messaging'
+import { webRequest, sendNotify, setSettings, openStreamWindow, goToSetting } from './utils/messaging'
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
 import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
 import ws from './utils/ws-listener'
@@ -9,95 +9,133 @@ import ws from './utils/ws-listener'
 
 const key = `live_room.${roomId}`
 
+// return array
+// [buttonOnly, skipped]
 async function filterNotV(settings, times = 0) {
-    let buttonOnly = false
-    let skipped = false
-    if (settings.vtbOnly) {
-        console.log('啟用僅限虛擬主播。')
-        try {
-            const data = await webRequest(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${roomId}`)
-            console.log(data)
-            //  找不到主播         不是虛擬主播分區                             不在直播中
-            if (data.code != 0 || data.data.room_info.parent_area_id != 9 || data.data.room_info.live_status != 1) {
-                if (!settings.record) {
-                    console.warn('不是虛擬主播房間或沒在直播, 取消字幕過濾')
-                    skipped = true
-                } else {
-                    const records = JSON.parse(localStorage.getItem(key) ?? '{}')
-                    if (records.hasLog) {
-                        console.log('偵測到本房間有字幕記錄，留下按鈕。')
-                        buttonOnly = true
-                    } else {
-                        console.warn('不是虛擬主播房間或沒在直播, 取消字幕過濾: 1')
-                        skipped = true
-                    }
-                }
-
-            }
-        } catch (err) {
-            console.warn(err)
-            console.warn(`索取資源時出現錯誤: ${err.message}`)
-            if (times >= 3) {
-                sendNotify({
-                    title: `已暂时关闭仅限虚拟主播功能。`,
-                    message: `由于已连续 ${times} 次在索取虚拟主播列表中出现网络请求失败，已暂时关闭仅限虚拟主播功能以让插件正常运作。\n此举将不会影响你的目前设定。`
-                })
-                skipped = false
-                buttonOnly = false
-                return { buttonOnly, skipped }
-            }
-            console.warn('5秒後重新刷新')
-            await sleep(5000)
-            return await filterNotV(settings, ++times)
-        }
+    if (!settings.vtbOnly) {
+        return [false, false]
     }
-    return { buttonOnly, skipped }
+    console.log('啟用僅限虛擬主播。')
+    try {
+        const data = await webRequest(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${roomId}`)
+        //  找不到主播 
+        if (data.code != 0) {
+            console.warn(`找不到房間為 ${roomId} 的主播，跳過僅限虛擬主播的功能。`)
+            return [false, false]
+        }
+
+        // 不在直播中
+        if (data.data.room_info.live_status != 1) {
+
+            if (!settings.record) {
+                console.warn('沒有直播開始, 取消字幕過濾')
+            } else {
+                const records = JSON.parse(localStorage.getItem(key) ?? '{}')
+                if (records.hasLog) {
+                    console.log('偵測到本房間有字幕記錄，留下按鈕。')
+                    return [true, false]
+                } else {
+                    console.warn('沒有直播開始, 取消字幕過濾: 1')
+                }
+            }
+
+            return [false, true]
+        }
+
+
+        // 透過分區來檢查是否虛擬主播
+        const checkVByZone = data.data.room_info.parent_area_id != 9;
+
+        try {
+            // 基於 ddcenter api 尋找虛擬主播
+            const dd = await webRequest(`https://api.vtbs.moe/v1/detail/${data.data.room_info.uid}`);
+            console.log(`成功辨識虛擬主播: ${dd.uname}`)
+            // 是虛擬主播
+            return [false, false]
+        } catch (err) {
+            console.warn(`從DDCenter請求時出現錯誤: ${err.message}`)
+            console.warn('將使用分區檢查虛擬主播')
+            return [false, checkVByZone]
+        }
+
+    } catch (err) {
+        console.warn(err)
+        console.warn(`索取資源時出現錯誤: ${err.message}`)
+        if (times >= 3) {
+            sendNotify({
+                title: `已暂时关闭仅限虚拟主播功能。`,
+                message: `由于已连续 ${times} 次在索取虚拟主播列表中出现网络请求失败，已暂时关闭仅限虚拟主播功能以让插件正常运作。\n此举将不会影响你的目前设定。`
+            })
+            return [false, false]
+        }
+        console.warn('5秒後重新刷新')
+        await sleep(5000)
+        return await filterNotV(settings, ++times)
+    }
 }
 
 async function filterCNV(settings, retry = 0) {
-    if (settings.filterCNV) {
-        console.log('已啟用自動過濾國v')
-        console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
+    if (!settings.filterCNV) {
+        return false
+    }
+
+    console.log('已啟用自動過濾國v')
+    console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
+
+    let userId;
+    try {
+        const res = await webRequest(`https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomId}`)
+        if (res.code != 0) {
+            throw new Error(res.message)
+        }
+        userId = res.data.uid
+    } catch (err) {
+        console.warn(`获取房间资讯时出现错误: ${err?.message}, 将采用 regex 方式`)
         const usernameJQ = settings.developer.elements.userId
-        while (!$(usernameJQ)?.attr('href')) {
+        let i = 0
+        while (!$(usernameJQ)?.attr('href') && i < 5) {
             console.log(`cannot find userId ${usernameJQ}, wait for one sec`)
             await sleep(1000)
+            i++
         }
-        const userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($(usernameJQ)?.attr('href'))?.pop())
-        if (isNaN(userId)) {
-            alert('無法獲得此直播房間的用戶ID房間，將自動取消過濾國V功能。')
-        } else {
-            let i = 1
-            try {
-                while (i < 100) {
-                    const blsApi = `https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${i}`
-                    const res = await webRequest(blsApi)
-                    if (res?.data?.list) {
-                        const tag = res.data.list.map(s => { return { uid: s.uid, tag: s.tag } }).find(s => s.uid == userId)?.tag
-                        if (tag === '汉语') {
-                            console.log('檢測到為國V房間，已略過。')
-                            return true
-                        }
-                        i++;
-                    } else {
-                        break;
-                    }
+        userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($(usernameJQ)?.attr('href'))?.pop())
+    }
+
+    if (!userId || isNaN(userId)) {
+        sendNotify({
+            title: `过滤国V功能暂时无法使用`,
+            message: `由于无法获取此房间的用户ID，因此暂时取消过滤国V功能。`
+        })
+        return false
+    }
+    try {
+        let i = 1
+        while (i < 100) {
+            const blsApi = `https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${i}`
+            const res = await webRequest(blsApi)
+            if (res?.data?.list) {
+                const tag = res.data.list.map(s => { return { uid: s.uid, tag: s.tag } }).find(s => s.uid == userId)?.tag
+                if (tag === '汉语') {
+                    console.log('檢測到為國V房間，已略過。')
+                    return true
                 }
-            } catch (err) {
-                console.warn(err)
-                if (retry >= 5) {
-                    console.warn(`已重試${retry}次，放棄過濾。`)
-                    return false
-                }
-                ++retry
-                console.warn('檢測國V時出現錯誤: ' + err.message)
-                console.warn(`重試第${retry}次，五秒後重試`)
-                await sleep(5000)
-                return await filterCNV(settings, retry)
+                i++;
+            } else {
+                break;
             }
         }
+    } catch (err) {
+        console.warn(err)
+        if (retry >= 5) {
+            console.warn(`已重試${retry}次，放棄過濾。`)
+            return false
+        }
+        ++retry
+        console.warn('檢測國V時出現錯誤: ' + err.message)
+        console.warn(`重試第${retry}次，五秒後重試`)
+        await sleep(5000)
+        return await filterCNV(settings, retry)
     }
-    return false
 }
 
 
@@ -166,7 +204,7 @@ async function start(restart = false) {
         return
     }
 
-    const { buttonOnly, skipped: sk1 } = await filterNotV(settings)
+    const [buttonOnly, sk1] = await filterNotV(settings)
     if (sk1) return
 
     if (await filterCNV(settings)) return
@@ -213,10 +251,10 @@ async function start(restart = false) {
             .btn-sc {
                 background-color: gray;
                 color: white;
-                padding: 5px;
+                padding: 2px 5px;
                 font-size: 12px;
                 border: none;
-                box-shadow: 1px 1px 5px black;
+                box-shadow: 1px 1px 1px black;
             }
         </style>
     `)
@@ -231,7 +269,7 @@ async function start(restart = false) {
             try {
                 if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return
                 settings.blacklistRooms.push(`${roomId}`)
-                if (enabledRecord){
+                if (enabledRecord) {
                     settings.record = true // revert the setting before save
                 }
                 await setSettings(settings)
@@ -322,6 +360,13 @@ async function start(restart = false) {
     if (settings.enableRestart) {
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
         $('#restart-btn').on('click', launchFilter)
+    }
+
+    if (!settings.hideSettingBtn){
+        $('#button-list').append(`
+            <button class="button" id="setting-btn">进入设置</button>
+        `)
+        $('#setting-btn').on('click', goToSetting)
     }
 
 

@@ -5,11 +5,13 @@ console.log('background is working...')
 
 const DEVELOPER_LINK = 'https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@web/cdn/developer.json'
 
-browser.browserAction.onClicked.addListener(() => {
+browser.browserAction.onClicked.addListener(goToSetting)
+
+function goToSetting() {
     browser.tabs.create({
         url: browser.runtime.getURL('settings.html')
     })
-})
+}
 
 async function sendNotify({ title, message }) {
     console.log('sending notification')
@@ -21,7 +23,7 @@ async function sendNotify({ title, message }) {
     }).catch(console.error)
 }
 
-async function sendNotifyId(id, data){
+async function sendNotifyId(id, data) {
     console.log('sending notification with id')
     return browser.notifications.create(id, {
         type: 'basic',
@@ -54,19 +56,19 @@ let latest = undefined
 let auto_update_supported = {}
 let userAgent = getUserAgent()
 
-async function checkUpdateWithAPI(){
+async function checkUpdateWithAPI() {
     const link = auto_update_supported[userAgent]
-    if (!link){
+    if (!link) {
         throw new Error('this browser is not support auto update')
     }
     const [status, update] = await browser.runtime.requestUpdateCheck()
-    if (status === 'update_available'){
+    if (status === 'update_available') {
         return {
             ...update,
             update_link: link
         }
     }
-    if (status === 'throttled'){
+    if (status === 'throttled') {
         throw new Error('update is throttled')
     }
     return {
@@ -75,11 +77,11 @@ async function checkUpdateWithAPI(){
     }
 }
 
-async function getAutoUpdateSupported(){
+async function getAutoUpdateSupported() {
     return (await fetcher(updateApi))?.auto_update_supported ?? {}
 }
 
-async function checkUpdateOther(){
+async function checkUpdateOther() {
     let latestv = undefined
     const addons = (await fetcher(updateApi))?.addons
     if (addons) {
@@ -101,21 +103,21 @@ async function checkUpdate(notify = false) {
         auto_update_supported = await getAutoUpdateSupported()
         try {
             latest = await checkUpdateWithAPI()
-        }catch(err){
+        } catch (err) {
             console.warn(err)
             console.warn(`use back original checking way`)
             latest = await checkUpdateOther()
         }
         if (!latest) {
-            if (notify){
-                    await sendNotify({
-                        title: '检查版本失败',
-                        message: '无法索取最新版本讯息。'
-                    })
+            if (notify) {
+                await sendNotify({
+                    title: '检查版本失败',
+                    message: '无法索取最新版本讯息。'
+                })
             }
             return
-        } else if (currentVersion.newerThan(latest.version)){
-            if (notify){
+        } else if (currentVersion.newerThan(latest.version)) {
+            if (notify) {
                 await sendNotify({
                     title: '没有可用的更新',
                     message: '你的版本已经是最新版本。'
@@ -124,12 +126,12 @@ async function checkUpdate(notify = false) {
             return
         }
 
-        if (isFirefox || isOpera){
+        if (isFirefox || isOpera) {
             await sendNotifyId('bjf:update', {
                 title: 'bilibili-jimaku-filter 有可用的更新',
                 message: `新版本 v${latest.version}\n可到扩充管理手动更新或等待自动更新`
             })
-        }else{
+        } else {
             await sendNotifyId('bjf:update', {
                 title: 'bilibili-jimaku-filter 有可用的更新',
                 message: `新版本 v${latest.version}`,
@@ -153,8 +155,8 @@ async function checkUpdate(notify = false) {
     return latest
 }
 
-getSettings().then(({autoCheckUpdate})=>{
-    if (autoCheckUpdate){
+getSettings().then(({ autoCheckUpdate }) => {
+    if (autoCheckUpdate) {
         checkUpdate()
     }
 })
@@ -167,7 +169,7 @@ async function fetcher(url) {
     return json
 }
 
-async function openWindow(roomId, title = 'null'){
+async function openWindow(roomId, title = 'null') {
     return browser.windows.create({
         url: browser.runtime.getURL(`jimaku.html?roomId=${roomId}&title=${title}`),
         type: 'panel',
@@ -181,6 +183,9 @@ runtime.onMessage.addListener((message) => {
     switch (message.type) {
         case "notify":
             sendNotify(message.data)
+            break;
+        case "go-settings":
+            goToSetting()
             break;
         case "get-settings":
             return getSettings()
@@ -207,16 +212,16 @@ runtime.onMessage.addListener((message) => {
     }
 })
 
-function logLink(version){
+function logLink(version) {
     return `https://github.com/eric2788/bilibili-jimaku-filter/releases/tag/${version}`
 }
 
-function downloadLink(latest){
-    if (isEdge && auto_update_supported['edge']){
+function downloadLink(latest) {
+    if (isEdge && auto_update_supported['edge']) {
         return auto_update_supported['edge']
-    }else if (isChrome && auto_update_supported['chrome']) {
+    } else if (isChrome && auto_update_supported['chrome']) {
         return auto_update_supported['chrome']
-    }else {
+    } else {
         return latest.update_link
     }
 }
@@ -233,23 +238,23 @@ browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
         switch (bi) {
             case 0:
                 //下载更新
-                await browser.tabs.create({ url: downloadLink(latest)})
+                await browser.tabs.create({ url: downloadLink(latest) })
                 break;
             case 1:
                 //查看更新日志
                 await browser.tabs.create({ url: logLink(latest.version) })
                 break;
         }
-    } else if (nid === 'bjf:updated'){
-        await browser.tabs.create({url: logLink(currentVersion)})
+    } else if (nid === 'bjf:updated') {
+        await browser.tabs.create({ url: logLink(currentVersion) })
     }
-    
+
 })
 
 
 
 
-async function onFirstTimeIntsall(){ // 第一次安裝執行
+async function onFirstTimeIntsall() { // 第一次安裝執行
 
     // 獲取開發者相關最新版本以取代舊設定
     const { developer } = await fetcher(DEVELOPER_LINK)
@@ -262,22 +267,22 @@ async function onFirstTimeIntsall(){ // 第一次安裝執行
 browser.runtime.onInstalled.addListener(async data => {
     if (data.reason === 'install') { // 第一次安裝
         await onFirstTimeIntsall()
-                .then(() => sendNotifyId('bjf:installed', {
-                    title: 'bilibili-jimaku-filter 已安裝',
-                    message: '成功从远端获取最新设定'
-                }))
-                .catch(() => sendNotifyId('bjf:error', {
-                    title: 'bilibili-jimaku-filter 已安裝',
-                    message: '获取远端最新设定失败，将使用本地版本'
-                }))
+            .then(() => sendNotifyId('bjf:installed', {
+                title: 'bilibili-jimaku-filter 已安裝',
+                message: '成功从远端获取最新设定'
+            }))
+            .catch(() => sendNotifyId('bjf:error', {
+                title: 'bilibili-jimaku-filter 已安裝',
+                message: '获取远端最新设定失败，将使用本地版本'
+            }))
     }
     if (data.reason !== 'update') return
-    if (isFirefox || isOpera){
+    if (isFirefox || isOpera) {
         await sendNotifyId('bjf:updated', {
             title: 'bilibili-jimaku-filter 已更新',
             message: `已更新到版本 v${currentVersion}`
         })
-    }else{
+    } else {
         await sendNotifyId('bjf:updated', {
             title: 'bilibili-jimaku-filter 已更新',
             message: `已更新到版本 v${currentVersion}`,

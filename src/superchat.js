@@ -1,4 +1,4 @@
-import { sendNotify } from "./utils/messaging";
+import { sendNotify, webRequest } from "./utils/messaging";
 import { download, generateToken, roomId, sleep } from "./utils/misc";
 import ws from './utils/ws-listener'
 
@@ -165,7 +165,7 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
         $('div#sc-list').prepend(card)
     }
 
-    if (!restart) getBeforeSuperChat(code)
+    if (!restart) await getBeforeSuperChat(code)
 
     ws.addHandler('SUPER_CHAT_MESSAGE', command => {
         const { data } = command
@@ -221,18 +221,30 @@ window.addEventListener('bjf:superchats', ({detail: {scList, token}}) => {
     cfToken = generateToken()
 })
 
-function getBeforeSuperChat(code){
-    const a = `
-    <script>
-        const scList = ${code.scList}
-        const scEvent = new CustomEvent('bjf:superchats', { detail: {
-            scList,
-            token: '${cfToken}'
-        }})
-        window.dispatchEvent(scEvent)
-    </script>
-    `
-    $(document.body).append(a)
+async function getBeforeSuperChat(code){
+    try {
+        // 先从B站API获取
+        const res = await webRequest(`https://api.live.bilibili.com/av/v1/SuperChat/getMessageList?room_id=${roomId}`)
+        // 找不到房间或房间是短号
+        if (res.code != 0){
+            throw new Error(res.message)
+        }
+        window.dispatchEvent(new CustomEvent('bjf:superchats', { detail: { scList: res.data?.list ?? [], token: cfToken } }))
+    }catch(err){
+        console.warn(`从B站获取先前SC记录失败: ${err.message}`)
+        console.warn(`将采用js方式获取`)
+        const a = `
+        <script>
+            const scList = ${code.scList}
+            const scEvent = new CustomEvent('bjf:superchats', { detail: {
+                scList,
+                token: '${cfToken}'
+            }})
+            window.dispatchEvent(scEvent)
+        </script>
+        `
+        $(document.body).append(a)
+    }
 }
 
 export function cancelSuperChatFunction(){
