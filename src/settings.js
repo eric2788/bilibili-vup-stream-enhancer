@@ -54,6 +54,7 @@ function getCurrentInput() {
     setting.enableStreamPopup = $('#enable-stream-popup').prop('checked')
     setting.useLegacy = $('#use-legacy-mode').prop('checked')
     setting.hideBlackList = $('#hide-blacklist').prop('checked')
+    setting.hideSettingBtn = $('#hide-setting-btn').prop('checked')
     setting.themeToNormal = $('#theme-to-normal').prop('checked')
     setting.useRemoteCDN = $('#use-remote-cdn').prop('checked')
 
@@ -198,6 +199,7 @@ function saveCurrentInput(setting) {
     $('#use-legacy-mode').prop('checked', setting.useLegacy)
 
     $('#hide-blacklist').prop('checked', setting.hideBlackList)
+    $('#hide-setting-btn').prop('checked', setting.hideSettingBtn)
 
     $('#theme-to-normal').prop('checked', setting.themeToNormal)
 

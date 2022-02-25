@@ -43,6 +43,7 @@ const defaultSettings = {
     filterLevel: 0,
     useLegacy: false,
     hideBlackList: false,
+    hideSettingBtn: false,
     themeToNormal: false,
     useRemoteCDN: false,
     developer: {
