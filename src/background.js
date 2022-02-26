@@ -192,7 +192,7 @@ runtime.onMessage.addListener((message) => {
         case "save-settings":
             return browser.storage.sync.set(message.data)
         case "request":
-            console.log('receive request')
+            console.log('receive request ' + message.url)
             return fetcher(message.url)
         case "log-info":
             console.info(message.data)

@@ -115,10 +115,16 @@ async function filterCNV(settings, retry = 0) {
             const res = await webRequest(blsApi)
             if (res?.data?.list) {
                 const tag = res.data.list.map(s => { return { uid: s.uid, tag: s.tag } }).find(s => s.uid == userId)?.tag
+
                 if (tag === '汉语') {
                     console.log('檢測到為國V房間，已略過。')
                     return true
+                } else if (tag === '外语'){
+                    console.log('檢測到為非國V房間。')
+                    return false;
                 }
+
+                // 找不到的话，继续下一页
                 i++;
             } else {
                 break;
