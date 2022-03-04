@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.12.2",
+    "version": "0.12.3",
   
     "description": "B站同傳彈幕過濾插件",
     "author": "Eric Lam",
@@ -35,7 +35,7 @@
 
     "content_scripts": [
       {
-        "matches": ["*://live.bilibili.com/*"],
+        "matches": ["*://live.bilibili.com/*", "*://www.bilibili.com/blackboard/live/*"],
         "js": [
           "browser-polyfill.js",
           "cdn/jquery.js",

@@ -44,7 +44,6 @@ module.exports = {
 						beautify: true,
 						indent_level: 2 // eslint-disable-line camelcase
                     }
-                    
                   
 				}
             })
