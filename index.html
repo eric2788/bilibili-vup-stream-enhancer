@@ -99,6 +99,17 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="subtitle-size">第一行字幕大小</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="first-subtitle-size" aria-describedby="size-help" max="100" min="0" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">px</span>
+                                </div>
+                            </div>
+                            <small id="size-help" class="form-text text-muted">范围 0 ~ 100</small>
+                        </div>
+
+                        <div class="form-group">
                             <label for="line-gap">字幕行距间隔</label>
                             <div class="input-group">
                                 <input type="number" class="form-control" id="line-gap" aria-describedby="gap-help"
@@ -274,6 +285,27 @@
 
             <div class="card mb-3">
                 <div class="card-header">
+                    <a href="#tongchuanblacklist" data-toggle="collapse">➵ 同传黑名单</a>
+                </div>
+                <div class="collapse" id="tongchuanblacklist">
+                    <div class="card-body">
+                        <h3>同传黑名单 - 防止有心人士污染同传</h3>
+                        <ul id="tongchuan-blacklist" class="list-group list-group-flush" style="overflow-y: auto; height: 200px; border: black solid">
+                        </ul>
+                        <label for="add-tcbl">添加黑名单用户 ID</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="add-tcbl" aria-describedby="tc-help" min="1">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="tcbl-add-btn">新增</button>
+                            </div>
+                        </div>
+                        <small id="tc-help" clas="form-text text-muted">输入必须为数字</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
                     <a href="#daorudaochu" data-toggle="collapse">➵ 设定导入/导出</a>
                 </div>
                 <div class="collapse" id="daorudaochu">
@@ -371,7 +403,8 @@
                         </div>
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="hide-blacklist">
-                            <label class="custom-control-label" for="hide-blacklist">隐藏添加到黑名单的按钮</label>
+                            <label class="custom-control-label" for="hide-blacklist" aria-describedby="hide-bl-help">隐藏添加到黑名单的按钮</label>
+                            <small id="hide-bl-help">(别担心，在页面右键打开菜单仍可进行添加黑名单的动作。)</small>
                         </div>
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="hide-setting-btn">
