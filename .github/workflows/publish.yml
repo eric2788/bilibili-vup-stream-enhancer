@@ -86,7 +86,6 @@ jobs:
     needs: [ build-extension ]
     name: Publish chrome webextension
     runs-on: ubuntu-latest
-
     steps:
       - name: download artifact
         id: download
