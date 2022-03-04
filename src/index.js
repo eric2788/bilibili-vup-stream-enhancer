@@ -11,7 +11,7 @@ import { runtime } from 'webextension-polyfill'
 
 const key = `live_room.${roomId}`
 
-let onMessage;
+let onMessage = () => console.log('do nothing on receive message')
 
 // return array
 // [buttonOnly, skipped]
@@ -466,6 +466,4 @@ function cancel() {
     $('#switch-button-list').remove()
 }
 
-runtime.onMessage.addListener((req) => {
-    if (onMessage) onMessage(req)
-})
+runtime.onMessage.addListener(onMessage)
