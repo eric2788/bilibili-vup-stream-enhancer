@@ -31,6 +31,7 @@ jobs:
           name: ${{ env.artifact_name }}
           path: dist
   test_sign:
+    needs: [ test_build ]
     runs-on: ubuntu-latest
     steps:
       - name: download artifact
