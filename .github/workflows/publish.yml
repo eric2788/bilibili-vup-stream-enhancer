@@ -36,7 +36,6 @@ jobs:
 
  build-firefox:
     needs: [ build-extension ]
-    if: ${{ false }}
     runs-on: ubuntu-latest
     name: 'Build Firefox Extension'
     steps:
@@ -94,7 +93,7 @@ jobs:
         run: |
           [ -d ${{steps.download.outputs.download-path}} ] && ls -la ${{ steps.download.outputs.download-path }}
           cd ${{steps.download.outputs.download-path}}
-          zip -r dist.zip ./dist
+          zip -r dist.zip .
       - name: Upload & release
         uses: Klemensas/chrome-extension-upload-action@v1.3
         with:
