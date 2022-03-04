@@ -31,7 +31,7 @@ jobs:
           name: ${{ env.artifact_name }}
           path: dist
   test_sign:
-    runs-on: ubutnu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: download artifact
         id: download
