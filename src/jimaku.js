@@ -29,7 +29,7 @@ function appendSubtitle(subtitle, uid = 0) {
 }
 
 $(document.body).on('click', e => {
-    if (e.target.offsetParent.id !== 'ct-menu') {
+    if (e.target.offsetParent != $('#ct-menu')[0]) {
         $('#ct-menu').hide()
     }
 })
@@ -186,8 +186,8 @@ function pushSubtitle(subtitle, uid) {
 
 function launchSubtitleInterval(settings) {
     subtitleInterval = setInterval(() => {
+        if (SUBTITLE_TRANSACTIONS.length == 0) return
         const {subtitle, uid} = SUBTITLE_TRANSACTIONS.shift()
-        if (!subtitle) return
         appendSubtitle(subtitle, uid)
         const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
         if (settings.record) {

@@ -1,5 +1,5 @@
 env:
-    version: 0.12.1
+    version: 0.12.2
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
     artifact_name: 'bjf_extension'
 
@@ -39,6 +39,10 @@ jobs:
     runs-on: ubuntu-latest
     name: 'Build Firefox Extension'
     steps:
+      # for changelog.md
+      - name: Checkout Source Code
+        id: checkout-source
+        uses: actions/checkout@v2
       - name: download artifact
         id: download
         uses: actions/download-artifact@v3
@@ -82,7 +86,6 @@ jobs:
     needs: [ build-extension ]
     name: Publish chrome webextension
     runs-on: ubuntu-latest
-
     steps:
       - name: download artifact
         id: download
@@ -102,5 +105,5 @@ jobs:
           client-secret: ${{ secrets.CLIENT_SECRET }}
           file-name: 'dist.zip'
           app-id: 'nhomlepkjglilcahfcfnggebkaabeiog'
-          publish: false
+          publish: true
   

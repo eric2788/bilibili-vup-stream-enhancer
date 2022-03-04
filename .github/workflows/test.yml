@@ -1,5 +1,7 @@
 name: Test Build Web Extension
 
+env:
+  artifact_name: 'bjf_extension_test'
 
 on:
   push:
@@ -9,17 +11,44 @@ jobs:
   test_build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Source Code
-      id: checkout-source
-      uses: actions/checkout@v2
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v2.1.2
-      with:
-        node-version: 16.x
-        check-latest: true
-    - name: Npm init and build
-      run: |
-        npm install -g webpack-cli
-        npm install -g web-ext
-        npm install
-        npm run build
+      - name: Checkout Source Code
+        id: checkout-source
+        uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: 16.x
+          check-latest: true
+      - name: Npm init and build
+        run: |
+          npm install -g webpack-cli
+          npm install -g web-ext
+          npm install
+          npm run build
+      - name: upload artifact
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: ${{ env.artifact_name }}
+          path: dist
+  test_sign:
+    needs: [ test_build ]
+    # dont sign it or publish.yml will fail
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifact
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.artifact_name }}
+          path: dist
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: 16.x
+          check-latest: true
+      - name: Npm init
+        run: |
+          npm install -g web-ext
+      - name: web-ext sign package
+        run: web-ext sign --channel=unlisted --source-dir ${{steps.download.outputs.download-path}} -v --api-key=${{ secrets.WEB_EXT_API_KEY }} --api-secret=${{ secrets.WEB_EXT_API_SECRET }}

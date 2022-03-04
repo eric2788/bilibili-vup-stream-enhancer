@@ -11,43 +11,66 @@ contextMenus.create({
     id: 'add-black-list',
     title: '添加到黑名单',
     contexts: ['page'],
-    enabled: false
+    enabled: true
 })
 
 let lastMenuId = 0
 let nextMenuId = 0
 
-contextMenus.onShown.addListener(async (info,) => {
+// firefox only
+if (contextMenus.onShown) {
+    contextMenus.onShown.addListener(async (info,) => {
 
-    let menuInstanceId = nextMenuId++;
-    lastMenuId = menuInstanceId;
+        let menuInstanceId = nextMenuId++;
+        lastMenuId = menuInstanceId;
 
-    const settings = await getSettings()
+        const settings = await getSettings()
 
-    console.log(info)
+        console.log(info)
 
-    if (menuInstanceId !== lastMenuId) {
-        return; // Menu was closed and shown again.
-    }
+        if (menuInstanceId !== lastMenuId) {
+            return; // Menu was closed and shown again.
+        }
 
-    const url = new URL(info.pageUrl)
-    roomReg.lastIndex = 0
-    const roomId = roomReg.exec(url.pathname)?.groups?.id
-    if (!roomId) {
-        console.warn(`unknown room id (${url.pathname})`)
-    }
+        const url = new URL(info.pageUrl)
+        roomReg.lastIndex = 0
+        const roomId = roomReg.exec(url.pathname)?.groups?.id
+        if (!roomId) {
+            console.warn(`unknown room id (${url.pathname})`)
+        }
 
-    await contextMenus.update('add-black-list', {
-        enabled: roomId && !settings.blacklistRooms.includes(roomId)
+        await contextMenus.update('add-black-list', {
+            enabled: roomId && !settings.blacklistRooms.includes(roomId)
+        })
+
+        // firefox only
+        await contextMenus.refresh()
     })
+}
 
-    await contextMenus.refresh()
-})
-
-contextMenus.onClicked.addListener((info, tab) => {
+contextMenus.onClicked.addListener(async (info, tab) => {
     switch (info.menuItemId) {
         case "add-black-list":
-            browser.tabs.sendMessage(tab.id, { cmd: 'black-list' })
+            // firefox
+            if (contextMenus.onShown) {
+                browser.tabs.sendMessage(tab.id, { cmd: 'black-list' })
+            } else {
+                const settings = await getSettings()
+                const url = new URL(info.pageUrl)
+                roomReg.lastIndex = 0
+                const roomId = roomReg.exec(url.pathname)?.groups?.id
+                if (!roomId) {
+                    console.warn(`unknown room id (${url.pathname})`)
+                }
+                if (roomId && !settings.blacklistRooms.includes(roomId)){
+                    browser.tabs.sendMessage(tab.id, { cmd: 'black-list' })
+                }else{
+                    sendNotify({
+                        title: '你已添加过此房间到黑名单。',
+                        message: '已略过操作。'
+                    })
+                }
+            }
             break
         default:
             return

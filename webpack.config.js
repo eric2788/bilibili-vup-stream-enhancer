@@ -39,12 +39,12 @@ module.exports = {
 				terserOptions: {
 					mangle: false,
                     compress: false,
-                    /*
+                    
 					output: {
 						beautify: true,
 						indent_level: 2 // eslint-disable-line camelcase
                     }
-                    */
+                    
                   
 				}
             })

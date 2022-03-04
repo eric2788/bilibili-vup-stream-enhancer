@@ -1,10 +1,18 @@
 ## 更新
 
+v0.12.1
+
 - 更改浏览器扩展请求权限
 - 优化过滤国V的请求速度
 - 修复 DDCenter 请求辨识虚拟主播过慢的问题导致插件无法运作(仅限虚拟主播启用时)
 - 新增监控式视窗自动重连功能(未测试)
 - 新增第一行字幕大小的设定
+
+
+v0.12.2
+
+- 紧急修复 chrome/edge 无法请求API的问题
+- 紧急修复 chrome/edge 右键页面添加黑名单的bug
 
 - 现在右键页面出现菜单也能进行添加黑名单动作
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/blacklist-context-menu.png)
