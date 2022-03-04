@@ -107,15 +107,4 @@ jobs:
           file-name: 'dist.zip'
           app-id: 'nhomlepkjglilcahfcfnggebkaabeiog'
           publish: false
-upload-edge:
-    needs: [ build-extension ]
-    name: Publish edge webextension
-    runs-on: ubuntu-latest
-    steps:
-      - name: download artifact
-        id: download
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.artifact_name }}
-          path: dist
   
