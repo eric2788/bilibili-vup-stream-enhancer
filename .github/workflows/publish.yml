@@ -1,6 +1,7 @@
 env:
     version: 0.12.1
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+    artifact_name: 'bjf_extension'
 
 name: bilibili jimaku filter publish sign
   
@@ -33,7 +34,7 @@ jobs:
     - name: upload artifact
       uses: actions/upload-artifact@v2.2.4
       with:
-        name: bilibili-jimaku-filter
+        name: ${{ env.artifact_name }}
         path: dist
 
  build-firefox:
@@ -45,7 +46,7 @@ jobs:
       id: download
       uses: actions/download-artifact@v3
       with:
-        name: 'bilibili-jimaku-filter'
+        name: ${{ env.artifact_name }}
         path: dist/
     - name: Setup Node.js environment
       uses: actions/setup-node@v2.1.2
@@ -90,7 +91,7 @@ jobs:
       id: download
       uses: actions/download-artifact@v3
       with:
-        name: 'bilibili-jimaku-filter'
+        name: ${{ env.artifact_name }}
         path: dist/
     - name: zip the directory
       run: |
@@ -115,7 +116,7 @@ upload-edge:
       id: download
       uses: actions/download-artifact@v3
       with:
-        name: 'bilibili-jimaku-filter'
+        name: ${{ env.artifact_name }}
         path: dist/
     - run: echo 'coming soon...'
   
