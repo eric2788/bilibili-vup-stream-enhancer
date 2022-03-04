@@ -112,11 +112,10 @@ upload-edge:
     name: Publish edge webextension
     runs-on: ubuntu-latest
     steps:
-    - name: download artifact
-      id: download
-      uses: actions/download-artifact@v3
-      with:
-        name: ${{ env.artifact_name }}
-        path: dist
-    - run: echo 'coming soon...'
+      - name: download artifact
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.artifact_name }}
+          path: dist
   
