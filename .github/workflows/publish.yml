@@ -39,6 +39,10 @@ jobs:
     runs-on: ubuntu-latest
     name: 'Build Firefox Extension'
     steps:
+      # for changelog.md
+      - name: Checkout Source Code
+        id: checkout-source
+        uses: actions/checkout@v2
       - name: download artifact
         id: download
         uses: actions/download-artifact@v3
