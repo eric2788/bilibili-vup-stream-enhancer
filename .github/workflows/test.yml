@@ -32,6 +32,8 @@ jobs:
           path: dist
   test_sign:
     needs: [ test_build ]
+    # dont sign it or publish.yml will fail
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: download artifact
