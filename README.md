@@ -59,6 +59,18 @@ __如破图，请自行到 [web/assets](https://github.com/eric2788/bilibili-jim
     <summary>一键添加黑名单</summary>
 
 ![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/blacklist-btn.gif)
+
+你也可以右键页面打开菜单来添加黑名单
+
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/blacklist-context-menu.png)
+
+</details>
+
+<details>
+    <summary>右键字幕屏蔽同传用户，防止同传污染</summary>
+
+![](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/blacklist-tc.gif)
+
 </details>
 
 

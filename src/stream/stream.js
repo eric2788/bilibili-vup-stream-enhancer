@@ -40,7 +40,7 @@ function startJimakuListener() {
     console.log(`已启动字幕监听`)
 }
 
-!(async function () {
+!(async function start() {
 
     const urls = await getStreamUrls(roomId)
     if (urls.length == 0) {
@@ -53,7 +53,12 @@ function startJimakuListener() {
         for (const url of urls) {
             try {
                 console.log('try fetching with '+url)
-                await loadAndPlay(url)
+                const flvPlayer = await loadAndPlay(url)
+                flvPlayer.on('error', (e) => {
+                    console.error(e)
+                    console.warn(`flvPlayer出现错误，正在重启...`)
+                    start()
+                })
                 startJimakuListener()
                 return;
             } catch (e) {
@@ -93,7 +98,7 @@ function loadAndPlay(url) {
             flvPlayer.attachMediaElement(videoElement);
             flvPlayer.load();
             flvPlayer.play();
-            flvPlayer.on('media_info', res)
+            flvPlayer.on('media_info', () => res(flvPlayer))
             flvPlayer.on('error', (e) => {
                 flvPlayer.detachMediaElement()
                 rej(e)

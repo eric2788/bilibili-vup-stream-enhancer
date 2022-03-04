@@ -27,9 +27,17 @@ function getCurrentInput() {
 
     setting.tongchuanMans = [...tcmans]
 
+    const blmans = new Set()
+    $('ul#tongchuan-blacklist').children('li').each((i, e) => {
+        const user = $(e).attr('bl-man-id')
+        blmans.add(user)
+    })
+
+    setting.tongchuanBlackList = [...blmans]
 
     setting.lineGap = $('#line-gap')[0].valueAsNumber
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
+    setting.firstSubtitleSize = $('#first-subtitle-size')[0].valueAsNumber
     setting.jimakuAnimation = $('#jimaku-animation')[0].value
 
     setting.webSocketSettings = {
@@ -129,6 +137,28 @@ $('#tcman-add-btn').on('click', e => {
     $('#add-tcman')[0].value = ''
 })
 
+function appendTongChuuanBlackList(user) {
+    $('ul#tongchuan-blacklist').prepend(`<li class="list-group-item" bl-man-id="${user}">
+            <span>${user}</span>
+            <a style="float: right" href="javascript: void(0)" id="${user}">刪除</a>
+    </li>`)
+    $(`a#${user}`).on('click', () => {
+        $('ul#tongchuan-blacklist').children('li').filter((i, e) => $(e).attr('bl-man-id') == user).each((i, e) => e.remove())
+    })
+}
+
+$('#tcbl-add-btn').on('click', e => {
+    if (!$('#add-tcbl')[0].checkValidity()) {
+        return
+    }
+    e.preventDefault()
+    const user = $('#add-tcbl')[0].value
+    if (user === undefined || user === '') return
+    appendTongChuuanBlackList(user)
+    $('#add-tcbl')[0].value = ''
+})
+
+
 function saveCurrentInput(setting) {
     $('#reg-cap')[0].value = setting.regex
     $('#opacity-jimaku')[0].valueAsNumber = setting.opacity
@@ -151,6 +181,7 @@ function saveCurrentInput(setting) {
     $('#line-gap')[0].valueAsNumber = setting.lineGap
 
     $('#subtitle-size')[0].valueAsNumber = setting.subtitleSize
+    $('#first-subtitle-size')[0].valueAsNumber = setting.firstSubtitleSize
 
     for (const room of (setting.blacklistRooms ?? [])) {
         appendBlackList(room)
@@ -158,6 +189,10 @@ function saveCurrentInput(setting) {
 
     for (const user of (setting.tongchuanMans ?? [])) {
         appendTongChuan(user)
+    }
+
+    for (const user of (setting.tongchuanBlackList ?? [])){
+        appendTongChuuanBlackList(user)
     }
 
     const { danmakuPosition } = setting.webSocketSettings

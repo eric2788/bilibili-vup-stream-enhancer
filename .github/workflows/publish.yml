@@ -1,5 +1,5 @@
 env:
-    version: 0.11.9
+    version: 0.12.1
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
 name: bilibili jimaku filter publish sign
@@ -9,10 +9,13 @@ on:
     branches: [ master ]
   
 jobs:
- build:
-    runs-on: ubuntu-20.04
-  
+ build-extension:
+    runs-on: ubuntu-latest
+    name: 'Build Web Extension'
     steps:
+    - name: Checkout Source Code
+      id: checkout-source
+      uses: actions/checkout@v2
     - name: Checkout Source Code
       id: checkout-source
       uses: actions/checkout@v2
@@ -27,8 +30,33 @@ jobs:
         npm install -g web-ext
         npm install
         npm run build
+    - name: upload artifact
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: bilibili-jimaku-filter
+        path: dist
+
+ build-firefox:
+    needs: [ build-extension ]
+    runs-on: ubuntu-latest
+    name: 'Build Firefox Extension'
+    steps:
+    - name: download artifact
+      id: download
+      uses: actions/download-artifact@v2
+      with:
+        name: bilibili-jimaku-filter
+        path: dist
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.1.2
+      with:
+        node-version: 16.x
+        check-latest: true
+    - name: Npm init
+      run: |
+        npm install -g web-ext
     - name: web-ext sign package
-      run: web-ext sign --source-dir ./dist -v --api-key=${{ secrets.WEB_EXT_API_KEY }} --api-secret=${{ secrets.WEB_EXT_API_SECRET }}
+      run: web-ext sign --source-dir ${{steps.download.outputs.download-path}} -v --api-key=${{ secrets.WEB_EXT_API_KEY }} --api-secret=${{ secrets.WEB_EXT_API_SECRET }}
     - name: Delete tag and release
       id: delete-tag-release
       uses: dev-drprasad/delete-tag-and-release@v0.1.2
@@ -52,3 +80,42 @@ jobs:
         asset_path: ./web-ext-artifacts/bilibili_jimaku_filter-${{env.version}}-an+fx.xpi
         asset_name: bilibili_jimaku_filter-${{env.version}}-an+fx.xpi
         asset_content_type: application/x-xpinstall
+ upload-chrome:
+    needs: [ build-extension ]
+    name: Publish chrome webextension
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: download artifact
+      id: download
+      uses: actions/download-artifact@v2
+      with:
+        name: bilibili-jimaku-filter
+        path: dist
+    - name: zip the directory
+      run: |
+         [ -d ${{steps.download.outputs.download-path}} ] && ls -la ${{ steps.download.outputs.download-path }}
+        cd ${{steps.download.outputs.download-path}}
+        zip -r dist.zip .
+    - name: Upload & release
+      uses: Klemensas/chrome-extension-upload-action@v1.3
+      with:
+        refresh-token: ${{ secrets.REFRESH_TOKEN}}
+        client-id: ${{ secrets.CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        file-name: 'dist.zip'
+        app-id: 'nhomlepkjglilcahfcfnggebkaabeiog'
+        publish: false
+upload-edge:
+      needs: [ build-extension ]
+      name: Publish edge webextension
+      runs-on: ubuntu-latest
+      steps:
+      - name: download artifact
+        id: download
+        uses: actions/download-artifact@v2
+        with:
+          name: bilibili-jimaku-filter
+          path: dist
+      - run: echo 'coming soon...'
+  

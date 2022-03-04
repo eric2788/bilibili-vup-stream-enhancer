@@ -1,5 +1,5 @@
-import { pushRecord, listRecords, clearRecords, closeDatabase} from './utils/database'
-import { sendNotify, openInspectWindow, sendBackgroundJimaku } from './utils/messaging'
+import { pushRecord, listRecords, clearRecords, closeDatabase } from './utils/database'
+import { sendNotify, openInspectWindow, sendBackgroundJimaku, setSettings } from './utils/messaging'
 import { toTimer, logSettings, roomId, download, isTheme } from './utils/misc'
 import ws from './utils/ws-listener';
 
@@ -11,9 +11,57 @@ const Observer = window.MutationObserver
 
 const observers = []
 
-function appendSubtitle(subtitle) {
-    $('div#subtitle-list').prepend(`<p>${subtitle}</p>`)
+function appendSubtitle(subtitle, uid = 0) {
+    const ts = Date.now()
+    $('div#subtitle-list').prepend(`<p id="subtitle-${ts}">${subtitle}</p>`)
+    if (uid == 0) return
+    $(`p#subtitle-${ts}`).on('contextmenu', e => {
+        e.preventDefault()
+        const {clientX: mouseX, clientY: mouseY} = e
+        $('#ct-menu').css({
+            top: `${mouseY}px`,
+            left: `${mouseX}px`
+        })
+
+        $('#block-tc-user').attr('selecting', `${uid}`)
+        $('#ct-menu').show()
+    })
 }
+
+$(document.body).on('click', e => {
+    if (e.target.offsetParent.id !== 'ct-menu') {
+        $('#ct-menu').hide()
+    }
+})
+
+$(document.body).append(`
+    <div id="ct-menu">
+        <div class="ct-item" id="block-tc-user">屏蔽选中同传发送者</div>
+    </div>
+    <style>
+        #ct-menu{
+            position: fixed;
+            z-index: 10000;
+            background: #1b1a1a;
+            border-radius: 5px;
+            display: none;
+        }
+        .ct-item{
+            padding: 8px 15px;
+            font-size: 12px;
+            color: #dbdbdb;
+            cursor: pointer;
+            border-radius: inherit;
+        }
+        .ct-item:hover{
+            color: #fff;
+        }
+        #ct-menu.visible {
+            display: block;
+        }
+    </style>
+`)
+
 
 function getTimeStamp() {
     return new Date().toTimeString().substring(0, 8)
@@ -23,11 +71,11 @@ let live_time = undefined
 
 function getStreamingTime() {
     try {
-        if (!live_time){
+        if (!live_time) {
             throw new Error(`找不到開播時間`)
         }
         return toTimer(Math.round(Date.now() / 1000) - live_time)
-    }catch(err){
+    } catch (err) {
         console.warn(err)
         console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
         return getTimeStamp()
@@ -57,9 +105,14 @@ function chatMonitor(settings) {
                 const danmaku = $(node)?.attr(attribute.chatDanmaku)?.trim()
                 const userId = $(node)?.attr(attribute.chatUserId)?.trim()
                 const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
+                // 在同传黑名单内
+                if (settings.tongchuanBlackList.includes(`${userId}`)) {
+                    console.log(`用户 ${userId} 在同传黑名单内, 已略过。`)
+                    continue
+                }
                 if (danmaku) {
                     const id = `${danmaku}-${userId}`
-                    if (beforeInsert.pop() === id) return
+                    if (beforeInsert.pop() === id) continue
                     console.debug(`[BJF] ${danmaku}`)
                     beforeInsert.push(id)
                 }
@@ -69,12 +122,12 @@ function chatMonitor(settings) {
                     if (beforeInsert.shift() === subtitle) {
                         continue
                     }
-                    pushSubtitle(subtitle)
+                    pushSubtitle(subtitle, userId)
                 }
             }
         }
     }
-    const observer = new Observer((mlist, ) => callback(mlist));
+    const observer = new Observer((mlist,) => callback(mlist));
     observer.observe($(elements.chatItems)[0], config);
     observers.push(observer)
 }
@@ -105,10 +158,10 @@ function danmakuCheckCallback(mutationsList, settings, { hideJimakuDisable, opac
     }
 }
 
-function launchBottomInterval(elements){
+function launchBottomInterval(elements) {
     return setInterval(() => {
         const btn = $(elements.newMsgButton)
-        if (btn.css('display') !== 'none'){
+        if (btn.css('display') !== 'none') {
             btn.trigger('click')
         }
     }, 1000)
@@ -118,7 +171,7 @@ function launchDanmakuStyleChanger(settings) {
     const opacityDisable = settings.opacity == -1
     const hideJimakuDisable = !settings.hideJimakuDanmaku
     if (opacityDisable && hideJimakuDisable && !(settings.useLegacy && /^#[0-9A-F]{6}$/ig.test(settings.color))) return
-    const danmakuObserver = new Observer((mu, ) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable }))
+    const danmakuObserver = new Observer((mu,) => danmakuCheckCallback(mu, settings, { hideJimakuDisable, opacityDisable }))
     danmakuObserver.observe($(settings.developer.elements.danmakuArea)[0], config)
     observers.push(danmakuObserver)
 }
@@ -127,15 +180,15 @@ function launchDanmakuStyleChanger(settings) {
 const SUBTITLE_TRANSACTIONS = []
 let subtitleInterval = -1
 
-function pushSubtitle(subtitle) {
-   SUBTITLE_TRANSACTIONS.push(subtitle)
+function pushSubtitle(subtitle, uid) {
+    SUBTITLE_TRANSACTIONS.push({subtitle, uid})
 }
 
-function launchSubtitleInterval(settings){
+function launchSubtitleInterval(settings) {
     subtitleInterval = setInterval(() => {
-        const subtitle = SUBTITLE_TRANSACTIONS.shift()
+        const {subtitle, uid} = SUBTITLE_TRANSACTIONS.shift()
         if (!subtitle) return
-        appendSubtitle(subtitle)
+        appendSubtitle(subtitle, uid)
         const date = settings.useStreamingTime ? getStreamingTime() : getTimeStamp()
         if (settings.record) {
             pushRecord({ date, text: subtitle })
@@ -145,7 +198,7 @@ function launchSubtitleInterval(settings){
                 })
                 .catch(console.warn)
         }
-        sendBackgroundJimaku({room: roomId, date, text: subtitle}).catch(console.error)
+        sendBackgroundJimaku({ room: roomId, date, text: subtitle }).catch(console.error)
     }, 300)
 }
 
@@ -156,6 +209,13 @@ function wsMonitor(settings) {
         const userId = command.info[2][0]
         const danmaku = command.info[1]
         const ul = command.info[4][0]
+
+        // 在同传黑名单内
+        if (settings.tongchuanBlackList.includes(`${userId}`)) {
+            console.log(`用户 ${userId} 在同传黑名单内, 已略过。`)
+            return
+        }
+
         if (danmaku) {
             const id = `${danmaku}-${userId}`
             if (beforeInsert.pop() === id) return
@@ -165,10 +225,10 @@ function wsMonitor(settings) {
         const isTongChuan = settings.tongchuanMans.includes(`${userId}`)
         if (ul < settings.filterLevel && !isTongChuan) return
         let jimaku = toJimaku(danmaku, settings.regex)
-        if (!jimaku && isTongChuan) jimaku = danmaku 
+        if (!jimaku && isTongChuan) jimaku = danmaku
         if (jimaku) {
-            pushSubtitle(jimaku)
-            if(/^#[0-9A-F]{6}$/ig.test(settings.color)){
+            pushSubtitle(jimaku, userId)
+            if (/^#[0-9A-F]{6}$/ig.test(settings.color)) {
                 command.info[0][3] = parseInt(settings.color.substr(1), 16)
             }
             switch (danmakuPosition) {
@@ -196,7 +256,7 @@ function downloadLog() {
         }
         const content = st.map(s => `[${s.date}] ${s.text}`).join('\n')
         const filename = `subtitles-${roomId}-${new Date().toISOString().substring(0, 10)}.log`
-        download({filename, content})
+        download({ filename, content })
         sendNotify({ title: '下载成功', message: '你的字幕记录已保存。' })
     }).catch(err => {
         sendNotify({ title: '下载失敗', message: err.message })
@@ -249,7 +309,7 @@ function fullScreenTrigger(check, settings) {
     element.draggable(cfg)
     element.resizable(cfg)
 
-    if (!check && !isTheme) {    
+    if (!check && !isTheme) {
         lastStyle = element.attr('style')
         element.removeAttr('style')
         $('div#button-list').before(element)
@@ -266,7 +326,7 @@ function fullScreenTrigger(check, settings) {
         if (lastStyle) element.attr('style', lastStyle)
 
         $(settings.developer.elements.jimakuFullArea).after(element)
-        
+
     }
 
     lastFull = check
@@ -274,10 +334,10 @@ function fullScreenTrigger(check, settings) {
 }
 
 // launch jimaku
-export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
+export async function launchJimakuInspect(settings, { buttonOnly, liveTime, enabledRecord }) {
 
     live_time = liveTime
-    
+
     const { backgroundColor: bgc, subtitleColor: stc, backgroundHeight: bgh } = settings
 
     $('div#button-list').append(`
@@ -343,6 +403,9 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
             .subtitle-normal::-webkit-scrollbar-thumb {
                 background-color: ${stc};
             }
+            div#subtitle-list p:first-child {
+                font-size: ${settings.firstSubtitleSize}px;
+            }
             div#subtitle-list p {
                 animation: ${settings.jimakuAnimation} .3s ease-out;
                 font-weight: bold;
@@ -351,10 +414,14 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
                 margin: ${settings.lineGap}px;
                 font-size: ${settings.subtitleSize}px;  
             }
+            /* create context menu for each subtitle element */
+            div#subtitle-list p:not(:first-child) {
+                cursor: context-menu;
+            }
             </style>
         </div>
     `)
-    
+
 
     // 屏幕彈幕監控
     launchDanmakuStyleChanger(settings)
@@ -366,7 +433,7 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
         appendSubtitle(rec.text)
     }
 
-    if (settings.useLegacy){
+    if (settings.useLegacy) {
         // 传统捕捉元素方式
         chatMonitor(settings)
 
@@ -378,27 +445,27 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
         `)
 
         let bottomInterval = -1
-        $('input#keep-bottom').on('click', e =>{
+        $('input#keep-bottom').on('click', e => {
             const checked = $(e.target).prop('checked')
-            if (checked){
+            if (checked) {
                 bottomInterval = launchBottomInterval(elements)
-            }else{
+            } else {
                 clearInterval(bottomInterval)
             }
         })
-        
-    }else{
+
+    } else {
         // WebSocket 监控
         wsMonitor(settings)
     }
 
-    if (isTheme){
+    if (isTheme) {
         lastFull = false
         fullScreenTrigger(true, settings) // 先設置全屏
-    }else{
+    } else {
         $(elements.videoArea).css('margin-bottom', `${bgh + 30}px`)
         // 全屏切換監控
-        const monObserver = new Observer((mu, ) => {
+        const monObserver = new Observer((mu,) => {
             const currentState = $(mu[0].target).hasClass(classes.screenWeb) ? 'web-fullscreen' : $(mu[0].target).hasClass(classes.screenFull) ? 'fullscreen' : 'normal'
             if (currentState === lastState) return
             const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
@@ -408,6 +475,35 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
         monObserver.observe(document.body, { attributes: true, subtree: false, childList: false })
         observers.push(monObserver)
     }
+
+    $('#block-tc-user').off('click')
+    $('#block-tc-user').on('click', async e => {
+        e.preventDefault()
+        $('#ct-menu').hide()
+        const uid = $(e.target).attr('selecting')
+        if (uid === undefined) {
+            console.warn('没有选中的同传发送者，已略过。')
+            return
+        }
+        try {
+            if (!window.confirm(`确定屏蔽同传用户ID (${uid}) ?`)) return
+            settings.tongchuanBlackList.push(uid)
+            if (enabledRecord) {
+                settings.record = true // revert the setting before save
+            }
+            await setSettings(settings)
+            await sendNotify({
+                title: "屏蔽成功",
+                message: `已成功添加用户 ${uid} 到同传黑名单。`
+            })
+        } catch (err) {
+            await sendNotify({
+                title: '添加失败',
+                message: err?.message ?? err
+            })
+        }
+        $(e.target).removeAttr('selecting')
+    })
 }
 
 
@@ -415,10 +511,10 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime }) {
 
 
 
-export function cancelJimakuFunction(){
+export function cancelJimakuFunction() {
     $('#subtitle-list').remove()
     $('div#aside-area-vm').css('margin-bottom', '')
-    while(observers.length > 0){
+    while (observers.length > 0) {
         observers.shift().disconnect()
     }
     ws.clearHandlers('DANMU_MSG')

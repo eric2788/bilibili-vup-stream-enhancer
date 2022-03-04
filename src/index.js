@@ -4,10 +4,14 @@ import { webRequest, sendNotify, setSettings, openStreamWindow, goToSetting } fr
 import { cancelJimakuFunction, launchJimakuInspect } from './jimaku'
 import { cancelSuperChatFunction, launchSuperChatInspect } from './superchat'
 import ws from './utils/ws-listener'
+import { identifyVup } from './vtb-moe'
+import { runtime } from 'webextension-polyfill'
 
 
 
 const key = `live_room.${roomId}`
+
+let onMessage;
 
 // return array
 // [buttonOnly, skipped]
@@ -46,17 +50,41 @@ async function filterNotV(settings, times = 0) {
         // 透過分區來檢查是否虛擬主播
         const checkVByZone = data.data.room_info.parent_area_id != 9;
 
-        try {
-            // 基於 ddcenter api 尋找虛擬主播
-            const dd = await webRequest(`https://api.vtbs.moe/v1/detail/${data.data.room_info.uid}`);
-            console.log(`成功辨識虛擬主播: ${dd.uname}`)
-            // 是虛擬主播
-            return [false, false]
-        } catch (err) {
-            console.warn(`從DDCenter請求時出現錯誤: ${err.message}`)
-            console.warn('將使用分區檢查虛擬主播')
-            return [false, checkVByZone]
+        console.log('正在從 DDCenter 辨識虛擬主播....')
+        let retry = 0
+        while(retry < 3){
+            try {
+
+                // 基於 ddcenter api 尋找虛擬主播
+               
+                // 此请求太慢，改用虛擬主播列表
+                // const dd = await getVupDetail(data.data.room_info.uid)
+
+                const dd = await identifyVup(data.data.room_info.uid)
+                // 是虛擬主播
+                if (dd){
+                    console.log(`成功辨識虛擬主播: ${dd.name}`)
+                    return [false, false]
+                }else{
+                    console.log('查无此主播，将采用分区检测')
+                    return [false, checkVByZone]
+                }
+
+            } catch (err) {
+                console.warn(`從DDCenter請求時出現錯誤: ${err.message}`)
+                retry++
+                console.warn(`3 秒后，重試第 ${retry} 次`)
+                await sleep(3000)
+            }
         }
+
+        console.warn(`重試次數已滿，無法從ddcenter獲取虛擬主播分區資訊。`)
+        console.warn('將使用分區檢查虛擬主播')
+        sendNotify({
+            title: '将使用分区辨识虚拟主播。',
+            message: `由于向 DDCenter 发生的请求连续超过 ${retry} 次失败，因此将使用分区辨识虚拟主播。`,
+        })
+        return [false, checkVByZone]
 
     } catch (err) {
         console.warn(err)
@@ -115,10 +143,16 @@ async function filterCNV(settings, retry = 0) {
             const res = await webRequest(blsApi)
             if (res?.data?.list) {
                 const tag = res.data.list.map(s => { return { uid: s.uid, tag: s.tag } }).find(s => s.uid == userId)?.tag
+
                 if (tag === '汉语') {
                     console.log('檢測到為國V房間，已略過。')
                     return true
+                } else if (tag === '外语'){
+                    console.log('檢測到為非國V房間。')
+                    return false;
                 }
+
+                // 找不到的话，继续下一页
                 i++;
             } else {
                 break;
@@ -165,7 +199,7 @@ function getScriptSrc({ useRemoteCDN }, js) {
 }
 
 // start here
-async function start(restart = false) {
+!(async function start(restart = false) {
 
     //console.log(`scanning: ${location.href}`)
 
@@ -258,6 +292,28 @@ async function start(restart = false) {
             }
         </style>
     `)
+
+    async function addToBlackList(){
+        try {
+            if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return
+            settings.blacklistRooms.push(`${roomId}`)
+            if (enabledRecord) {
+                settings.record = true // revert the setting before save
+            }
+            await setSettings(settings)
+            cancel()
+            await sendNotify({
+                title: "添加成功",
+                message: "已成功添加此房间到黑名单。"
+            })
+        } catch (err) {
+            await sendNotify({
+                title: '添加失败',
+                message: err?.message ?? err
+            })
+        }
+    }
+
     if (!settings.hideBlackList) {
         buttonArea.append(`
             <a href="javascript: void(0)" class="btn-sc" type="button" id="blacklist-add-btn">
@@ -265,26 +321,7 @@ async function start(restart = false) {
             </a>
         `)
 
-        $('#blacklist-add-btn').on('click', async () => {
-            try {
-                if (!window.confirm(`确定添加房间号 ${roomId} 为黑名单?`)) return
-                settings.blacklistRooms.push(`${roomId}`)
-                if (enabledRecord) {
-                    settings.record = true // revert the setting before save
-                }
-                await setSettings(settings)
-                cancel()
-                await sendNotify({
-                    title: "添加成功",
-                    message: "已成功添加此房间到黑名单。"
-                })
-            } catch (err) {
-                await sendNotify({
-                    title: '添加失败',
-                    message: err?.message ?? err
-                })
-            }
-        })
+        $('#blacklist-add-btn').on('click', addToBlackList)
     }
 
     if (isTheme) {
@@ -359,7 +396,7 @@ async function start(restart = false) {
 
     if (settings.enableRestart) {
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
-        $('#restart-btn').on('click', launchFilter)
+        $('#restart-btn').on('click', start)
     }
 
     if (!settings.hideSettingBtn){
@@ -389,22 +426,29 @@ async function start(restart = false) {
         })
     }
 
-
-
     //彈幕過濾
-    await launchJimakuInspect(settings, { buttonOnly, liveTime: live_time })
+    await launchJimakuInspect(settings, { buttonOnly, liveTime: live_time, enabledRecord })
 
     if (settings.recordSuperChat) {
         //SC过滤
         await launchSuperChatInspect(settings, { buttonOnly, restart })
     }
-}
 
-function launchFilter() {
-    start().catch(console.error)
-}
-
-launchFilter()
+    onMessage = req => {
+        switch (req.cmd){
+            case 'restart':
+                console.log('received restart command from background')
+                start()
+                break
+            case 'black-list':
+                console.log('received black-list command from background')
+                addToBlackList()
+                break
+            default:
+                return
+        }
+    }
+})()
 
 window.onunload = function () {
     const { changed, hasLog, hasSCLog } = logSettings
@@ -422,8 +466,6 @@ function cancel() {
     $('#switch-button-list').remove()
 }
 
-browser.runtime.onMessage.addListener(req => {
-    if (req.cmd !== 'restart') return
-    console.log('received restart command from background')
-    launchFilter()
+runtime.onMessage.addListener((req) => {
+    if (onMessage) onMessage(req)
 })
