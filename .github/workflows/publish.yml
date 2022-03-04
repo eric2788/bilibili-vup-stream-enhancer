@@ -91,12 +91,11 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: bilibili-jimaku-filter
-        path: dist
     - name: zip the directory
       run: |
          [ -d ${{steps.download.outputs.download-path}} ] && ls -la ${{ steps.download.outputs.download-path }}
         cd ${{steps.download.outputs.download-path}}
-        zip -r dist.zip .
+        zip -r dist.zip ./dist
     - name: Upload & release
       uses: Klemensas/chrome-extension-upload-action@v1.3
       with:
@@ -107,15 +106,14 @@ jobs:
         app-id: 'nhomlepkjglilcahfcfnggebkaabeiog'
         publish: false
 upload-edge:
-      needs: [ build-extension ]
-      name: Publish edge webextension
-      runs-on: ubuntu-latest
-      steps:
-      - name: download artifact
-        id: download
-        uses: actions/download-artifact@v2
-        with:
-          name: bilibili-jimaku-filter
-          path: dist
-      - run: echo 'coming soon...'
+    needs: [ build-extension ]
+    name: Publish edge webextension
+    runs-on: ubuntu-latest
+    steps:
+    - name: download artifact
+      id: download
+      uses: actions/download-artifact@v2
+      with:
+        name: bilibili-jimaku-filter
+    - run: echo 'coming soon...'
   
