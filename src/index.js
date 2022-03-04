@@ -466,4 +466,7 @@ function cancel() {
     $('#switch-button-list').remove()
 }
 
-runtime.onMessage.addListener(onMessage)
+if (!isNaN(roomId)) {
+    runtime.onMessage.addListener((req) => onMessage(req))
+}
+

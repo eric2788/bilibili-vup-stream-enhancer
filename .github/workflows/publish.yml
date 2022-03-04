@@ -1,5 +1,5 @@
 env:
-    version: 0.12.2
+    version: 0.12.3
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
     artifact_name: 'bjf_extension'
 
@@ -98,7 +98,7 @@ jobs:
           cd ${{steps.download.outputs.download-path}}
           zip -r dist.zip .
       - name: Upload & release
-        uses: Klemensas/chrome-extension-upload-action@v1.3
+        uses: Klemensas/chrome-extension-upload-action@master
         with:
           refresh-token: ${{ secrets.REFRESH_TOKEN}}
           client-id: ${{ secrets.CLIENT_ID }}

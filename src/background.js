@@ -63,9 +63,9 @@ contextMenus.onClicked.addListener(async (info, tab) => {
                     console.warn(`unknown room id (${url.pathname})`)
                 }
                 if (roomId && !settings.blacklistRooms.includes(roomId)){
-                    browser.tabs.sendMessage(tab.id, { cmd: 'black-list' })
+                    await browser.tabs.sendMessage(tab.id, { cmd: 'black-list' })
                 }else{
-                    sendNotify({
+                    await sendNotify({
                         title: '你已添加过此房间到黑名单。',
                         message: '已略过操作。'
                     })
