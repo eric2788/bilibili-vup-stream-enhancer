@@ -115,6 +115,5 @@ upload-edge:
       uses: actions/download-artifact@v2
       with:
         name: bilibili-jimaku-filter
-        path: dist
     - run: echo 'coming soon...'
   
