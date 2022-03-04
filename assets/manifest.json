@@ -35,7 +35,7 @@
 
     "content_scripts": [
       {
-        "matches": ["*://live.bilibili.com/*", "*://www.bilibili.com/blackboard/live/*"],
+        "matches": ["*://live.bilibili.com/*"],
         "js": [
           "browser-polyfill.js",
           "cdn/jquery.js",
