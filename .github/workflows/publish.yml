@@ -105,5 +105,5 @@ jobs:
           client-secret: ${{ secrets.CLIENT_SECRET }}
           file-name: 'dist.zip'
           app-id: 'nhomlepkjglilcahfcfnggebkaabeiog'
-          publish: false
+          publish: true
   
