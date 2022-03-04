@@ -88,9 +88,10 @@ jobs:
     steps:
     - name: download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: bilibili-jimaku-filter
+        path: dist
     - name: zip the directory
       run: |
          [ -d ${{steps.download.outputs.download-path}} ] && ls -la ${{ steps.download.outputs.download-path }}
@@ -112,8 +113,9 @@ upload-edge:
     steps:
     - name: download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: bilibili-jimaku-filter
+        path: dist
     - run: echo 'coming soon...'
   
