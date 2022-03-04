@@ -466,4 +466,4 @@ function cancel() {
     $('#switch-button-list').remove()
 }
 
-runtime.onMessage.addListener(onMessage)
+runtime.onMessage.addListener((req) => onMessage(req))
