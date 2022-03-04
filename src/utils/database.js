@@ -94,6 +94,10 @@ export async function pushRecord(object){
                 //log('pushing successful')
                 res(e)
             }
+            tran.onabort = (e) => {
+                log('aborted while adding record' + e.message)
+                rej(e)
+            }
             s.onerror = () => {
                 log('error while adding record: '+s.error.message)
                 rej(s.error)

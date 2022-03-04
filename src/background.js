@@ -1,11 +1,58 @@
-import { runtime } from 'webextension-polyfill'
-import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera } from './utils/misc'
+import { browserAction, contextMenus, notifications, runtime } from 'webextension-polyfill'
+import getSettings, { getUserAgent, isChrome, isEdge, isFirefox, isOpera, roomReg } from './utils/misc'
 
 console.log('background is working...')
 
 const DEVELOPER_LINK = 'https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@web/cdn/developer.json'
 
-browser.browserAction.onClicked.addListener(goToSetting)
+browserAction.onClicked.addListener(goToSetting)
+
+contextMenus.create({
+    id: 'add-black-list',
+    title: '添加到黑名单',
+    contexts: ['page'],
+    enabled: false
+})
+
+let lastMenuId = 0
+let nextMenuId = 0
+
+contextMenus.onShown.addListener(async (info,) => {
+
+    let menuInstanceId = nextMenuId++;
+    lastMenuId = menuInstanceId;
+
+    const settings = await getSettings()
+
+    console.log(info)
+
+    if (menuInstanceId !== lastMenuId) {
+        return; // Menu was closed and shown again.
+    }
+
+    const url = new URL(info.pageUrl)
+    roomReg.lastIndex = 0
+    const roomId = roomReg.exec(url.pathname)?.groups?.id
+    if (!roomId) {
+        console.warn(`unknown room id (${url.pathname})`)
+    }
+
+    await contextMenus.update('add-black-list', {
+        enabled: roomId && !settings.blacklistRooms.includes(roomId)
+    })
+
+    await contextMenus.refresh()
+})
+
+contextMenus.onClicked.addListener((info, tab) => {
+    switch (info.menuItemId) {
+        case "add-black-list":
+            browser.tabs.sendMessage(tab.id, { cmd: 'black-list' })
+            break
+        default:
+            return
+    }
+})
 
 function goToSetting() {
     browser.tabs.create({
@@ -155,6 +202,7 @@ async function checkUpdate(notify = false) {
     return latest
 }
 
+// start here
 getSettings().then(({ autoCheckUpdate }) => {
     if (autoCheckUpdate) {
         checkUpdate()
@@ -162,8 +210,11 @@ getSettings().then(({ autoCheckUpdate }) => {
 })
 
 
-async function fetcher(url) {
-    const res = await fetch(url)
+async function fetcher(url, timer = 15000) {
+    const aborter = new AbortController()
+    const timeout = setTimeout(() => aborter.abort(), timer)
+    const res = await fetch(url, { signal: aborter.signal })
+    clearTimeout(timeout)
     if (!res.ok) throw new Error(`${res.statusText}(${res.status})`)
     const json = await res.json()
     return json
@@ -192,8 +243,8 @@ runtime.onMessage.addListener((message) => {
         case "save-settings":
             return browser.storage.sync.set(message.data)
         case "request":
-            console.log('receive request ' + message.url)
-            return fetcher(message.url)
+            console.log(`received request ${message.url} with timeout ${message.timer}`)
+            return fetcher(message.url, message.timer)
         case "log-info":
             console.info(message.data)
             break;
@@ -226,7 +277,7 @@ function downloadLink(latest) {
     }
 }
 
-browser.notifications.onButtonClicked.addListener(async (nid, bi) => {
+notifications.onButtonClicked.addListener(async (nid, bi) => {
     if (nid === 'bjf:update') {
         if (latest === undefined) {
             await sendNotify({
@@ -264,7 +315,7 @@ async function onFirstTimeIntsall() { // 第一次安裝執行
 
 }
 
-browser.runtime.onInstalled.addListener(async data => {
+runtime.onInstalled.addListener(async data => {
     if (data.reason === 'install') { // 第一次安裝
         await onFirstTimeIntsall()
             .then(() => sendNotifyId('bjf:installed', {

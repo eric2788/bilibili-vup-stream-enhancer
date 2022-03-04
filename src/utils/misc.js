@@ -19,10 +19,12 @@ const defaultSettings = {
     backgroundColor: '#808080',
     backgroundHeight: 100,
     tongchuanMans: [],
+    tongchuanBlackList: [],
     subtitleColor: '#FFFFFF',
     blacklistRooms: [],
     useAsWhitelist: false,
     subtitleSize: 16,
+    firstSubtitleSize: 16,
     lineGap: 10,
     jimakuAnimation: 'top',
     webSocketSettings: {
@@ -136,7 +138,8 @@ export const logSettings = {
     hasSCLog: false
 }
 
-const roomReg = /^\/(blanc\/)?(?<id>\d+)/g
+export const roomReg = /^\/(blanc\/)?(?<id>\d+)/g
+roomReg.lastIndex = 0
 export const roomId = parseInt(roomReg.exec(location.pathname)?.groups?.id)
 
 

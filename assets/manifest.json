@@ -29,7 +29,8 @@
         "*://*.bilivideo.com/*",
         "notifications",
         "storage",
-        "tabs"
+        "tabs",
+        "contextMenus"
     ],
 
     "content_scripts": [
