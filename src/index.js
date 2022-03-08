@@ -209,7 +209,7 @@ function getScriptSrc({ useRemoteCDN }, js) {
     }
 
     console.log('this page is using bilibili jimaku filter')
-
+    
     if ($('#button-list').length > 0 && !restart) {
         console.log('restarting bilibili jimaku filter')
         cancel()
@@ -396,7 +396,7 @@ function getScriptSrc({ useRemoteCDN }, js) {
 
     if (settings.enableRestart) {
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
-        $('#restart-btn').on('click', start)
+        $('#restart-btn').on('click', () => start())
     }
 
     if (!settings.hideSettingBtn){
