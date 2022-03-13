@@ -45,6 +45,17 @@ __如破图，请自行到 [web/assets](https://github.com/eric2788/bilibili-jim
 </details>
 
 <details>
+<summary>字幕位置排版</summary>
+
+除了置中的显示
+
+![left](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/jimaku-pos-left.png)
+
+![right](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets/jimaku-pos-right.png)
+
+</details>
+
+<details>
 <summary>醒目留言记录 + 导出记录</summary>
 
 防止SC时间过后消失。

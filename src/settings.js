@@ -39,6 +39,7 @@ function getCurrentInput() {
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
     setting.firstSubtitleSize = $('#first-subtitle-size')[0].valueAsNumber
     setting.jimakuAnimation = $('#jimaku-animation')[0].value
+    setting.jimakuPosition = $('#jimaku-pos')[0].value
 
     setting.webSocketSettings = {
         danmakuPosition: $('#danmaku-position')[0].value
@@ -219,6 +220,7 @@ function saveCurrentInput(setting) {
     $('#no-cn-v').prop('checked', setting.filterCNV)
 
     $('#jimaku-animation')[0].value = setting.jimakuAnimation
+    $('#jimaku-pos')[0].value = setting.jimakuPosition
 
     $('#auto-check-update').prop('checked', setting.autoCheckUpdate)
 

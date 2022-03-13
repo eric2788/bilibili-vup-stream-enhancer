@@ -64,9 +64,15 @@ async function filterNotV(settings, times = 0) {
                 // 是虛擬主播
                 if (dd){
                     console.log(`成功辨識虛擬主播: ${dd.name}`)
-                    return [false, false]
+                    if (dd.locale === 'cn') {
+                        console.log(`检测到是国V，已略过。`)
+                        return [false, true]
+                    }else{
+                        return [false, false]
+                    }
+
                 }else{
-                    console.log('查无此主播，将采用分区检测')
+                    console.log('查无此主播，将采用分区检测, 且无法过滤国V。')
                     return [false, checkVByZone]
                 }
 
@@ -99,76 +105,6 @@ async function filterNotV(settings, times = 0) {
         console.warn('5秒後重新刷新')
         await sleep(5000)
         return await filterNotV(settings, ++times)
-    }
-}
-
-async function filterCNV(settings, retry = 0) {
-    if (!settings.filterCNV) {
-        return false
-    }
-
-    console.log('已啟用自動過濾國v')
-    console.log('請注意: 目前此功能仍在試驗階段, 且不能檢測所有的v。')
-
-    let userId;
-    try {
-        const res = await webRequest(`https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomId}`)
-        if (res.code != 0) {
-            throw new Error(res.message)
-        }
-        userId = res.data.uid
-    } catch (err) {
-        console.warn(`获取房间资讯时出现错误: ${err?.message}, 将采用 regex 方式`)
-        const usernameJQ = settings.developer.elements.userId
-        let i = 0
-        while (!$(usernameJQ)?.attr('href') && i < 5) {
-            console.log(`cannot find userId ${usernameJQ}, wait for one sec`)
-            await sleep(1000)
-            i++
-        }
-        userId = parseInt(/^\/\/space\.bilibili\.com\/(\d+)\/$/g.exec($(usernameJQ)?.attr('href'))?.pop())
-    }
-
-    if (!userId || isNaN(userId)) {
-        sendNotify({
-            title: `过滤国V功能暂时无法使用`,
-            message: `由于无法获取此房间的用户ID，因此暂时取消过滤国V功能。`
-        })
-        return false
-    }
-    try {
-        let i = 1
-        while (i < 100) {
-            const blsApi = `https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${i}`
-            const res = await webRequest(blsApi)
-            if (res?.data?.list) {
-                const tag = res.data.list.map(s => { return { uid: s.uid, tag: s.tag } }).find(s => s.uid == userId)?.tag
-
-                if (tag === '汉语') {
-                    console.log('檢測到為國V房間，已略過。')
-                    return true
-                } else if (tag === '外语'){
-                    console.log('檢測到為非國V房間。')
-                    return false;
-                }
-
-                // 找不到的话，继续下一页
-                i++;
-            } else {
-                break;
-            }
-        }
-    } catch (err) {
-        console.warn(err)
-        if (retry >= 5) {
-            console.warn(`已重試${retry}次，放棄過濾。`)
-            return false
-        }
-        ++retry
-        console.warn('檢測國V時出現錯誤: ' + err.message)
-        console.warn(`重試第${retry}次，五秒後重試`)
-        await sleep(5000)
-        return await filterCNV(settings, retry)
     }
 }
 
@@ -240,8 +176,6 @@ function getScriptSrc({ useRemoteCDN }, js) {
 
     const [buttonOnly, sk1] = await filterNotV(settings)
     if (sk1) return
-
-    if (await filterCNV(settings)) return
 
     const live_time = await getLiveTime() // 同傳彈幕彈出式視窗也需要 live_time
 

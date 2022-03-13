@@ -27,6 +27,7 @@ const defaultSettings = {
     firstSubtitleSize: 16,
     lineGap: 10,
     jimakuAnimation: 'top',
+    jimakuPosition: 'center',
     webSocketSettings: {
         danmakuPosition: 'normal'
     },
