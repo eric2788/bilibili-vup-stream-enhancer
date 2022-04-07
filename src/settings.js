@@ -284,6 +284,8 @@ $('#save-settings').on('click', async e => {
     const form = $('form#setting')
     if (form[0].checkValidity()) {
         e.preventDefault()
+        // disabled while saving
+        $(e.target).attr('disabled', true)
         console.log('prepare to save:')
         const set = getCurrentInput()
         console.log(set)
@@ -302,6 +304,8 @@ $('#save-settings').on('click', async e => {
         } catch (err) {
             console.error(err)
             await sendNotify({ title: '设置失敗', message: err.message })
+        } finally {
+            setTimeout(() => $(e.target).attr('disabled', false), 5000)
         }
     } else {
         console.log(form.find(":invalid"))
