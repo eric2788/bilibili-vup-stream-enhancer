@@ -292,7 +292,11 @@ $('#save-settings').on('click', async e => {
             const tabs = await browser.tabs.query({ url: '*://live.bilibili.com/*' })
             const eventTabs = await browser.tabs.query({ url: '*://www.bilibili.com/blackboard/live/*' })
             for (const tab of [...tabs, ...eventTabs]) {
-                await browser.tabs.sendMessage(tab.id, { cmd: 'restart' })
+                try {
+                    await browser.tabs.sendMessage(tab.id, { cmd: 'restart' })
+                }catch(err){
+                    console.warn(err)
+                }
             }
             await sendNotify({ title: '设置成功', message: '你的设定已成功保存。' })
         } catch (err) {

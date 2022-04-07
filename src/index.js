@@ -250,7 +250,7 @@ function getScriptSrc({ useRemoteCDN }, js) {
     const [buttonOnly, sk1] = await filterNotV(settings)
     if (sk1) return
 
-    if (filterCNV(settings)) return
+    if (await filterCNV(settings)) return
 
     const live_time = await getLiveTime() // 同傳彈幕彈出式視窗也需要 live_time
 
