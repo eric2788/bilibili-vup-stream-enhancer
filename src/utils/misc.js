@@ -24,8 +24,8 @@ const defaultSettings = {
     blacklistRooms: [],
     useAsWhitelist: false,
     subtitleSize: 16,
-    firstSubtitleSize: 16,
-    lineGap: 10,
+    firstSubtitleSize: 18,
+    lineGap: 7,
     jimakuAnimation: 'top',
     jimakuPosition: 'center',
     webSocketSettings: {
