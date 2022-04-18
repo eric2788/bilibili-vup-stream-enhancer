@@ -1,5 +1,5 @@
 env:
-    version: 0.12.3
+    version: 0.12.4
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
     artifact_name: 'bjf_extension'
 

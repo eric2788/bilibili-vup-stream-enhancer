@@ -387,7 +387,7 @@ export async function launchJimakuInspect(settings, { buttonOnly, liveTime, enab
                 position: relative;
                 z-index: 3;
                 overflow-y: auto; 
-                text-align: center;
+                text-align: ${settings.jimakuPosition};
                 overflow-x: hidden;
                 scrollbar-width: thin;
                 scrollbar-color: ${stc} ${bgc};

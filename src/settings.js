@@ -39,6 +39,7 @@ function getCurrentInput() {
     setting.subtitleSize = $('#subtitle-size')[0].valueAsNumber
     setting.firstSubtitleSize = $('#first-subtitle-size')[0].valueAsNumber
     setting.jimakuAnimation = $('#jimaku-animation')[0].value
+    setting.jimakuPosition = $('#jimaku-pos')[0].value
 
     setting.webSocketSettings = {
         danmakuPosition: $('#danmaku-position')[0].value
@@ -219,6 +220,7 @@ function saveCurrentInput(setting) {
     $('#no-cn-v').prop('checked', setting.filterCNV)
 
     $('#jimaku-animation')[0].value = setting.jimakuAnimation
+    $('#jimaku-pos')[0].value = setting.jimakuPosition
 
     $('#auto-check-update').prop('checked', setting.autoCheckUpdate)
 
@@ -282,6 +284,8 @@ $('#save-settings').on('click', async e => {
     const form = $('form#setting')
     if (form[0].checkValidity()) {
         e.preventDefault()
+        // disabled while saving
+        $(e.target).attr('disabled', true)
         console.log('prepare to save:')
         const set = getCurrentInput()
         console.log(set)
@@ -290,12 +294,18 @@ $('#save-settings').on('click', async e => {
             const tabs = await browser.tabs.query({ url: '*://live.bilibili.com/*' })
             const eventTabs = await browser.tabs.query({ url: '*://www.bilibili.com/blackboard/live/*' })
             for (const tab of [...tabs, ...eventTabs]) {
-                await browser.tabs.sendMessage(tab.id, { cmd: 'restart' })
+                try {
+                    await browser.tabs.sendMessage(tab.id, { cmd: 'restart' })
+                }catch(err){
+                    console.warn(err)
+                }
             }
             await sendNotify({ title: '设置成功', message: '你的设定已成功保存。' })
         } catch (err) {
             console.error(err)
             await sendNotify({ title: '设置失敗', message: err.message })
+        } finally {
+            setTimeout(() => $(e.target).attr('disabled', false), 5000)
         }
     } else {
         console.log(form.find(":invalid"))

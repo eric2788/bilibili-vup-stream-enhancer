@@ -181,6 +181,7 @@ export async function launchSuperChatInspect(settings, { buttonOnly, restart }){
             message: data.message,
             timer: data.start_time
         }
+        console.log(data.start_time)
         pushSuperChat(object)
     })
 }

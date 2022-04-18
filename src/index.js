@@ -64,9 +64,17 @@ async function filterNotV(settings, times = 0) {
                 // 是虛擬主播
                 if (dd){
                     console.log(`成功辨識虛擬主播: ${dd.name}`)
-                    return [false, false]
+                    /*
+                    if (settings.filterCNV && dd.locale === 'cn') {
+                        console.log(`检测到是国V，已略过。`)
+                        return [false, true]
+                    }else{
+                    */
+                        return [false, false]
+                    //}
+
                 }else{
-                    console.log('查无此主播，将采用分区检测')
+                    console.log('查无此主播，将采用分区检测, 且无法过滤国V。')
                     return [false, checkVByZone]
                 }
 
@@ -102,6 +110,7 @@ async function filterNotV(settings, times = 0) {
     }
 }
 
+// 由於透過 vdb 過濾國V並不準確，因此仍然需要保留
 async function filterCNV(settings, retry = 0) {
     if (!settings.filterCNV) {
         return false
@@ -209,7 +218,7 @@ function getScriptSrc({ useRemoteCDN }, js) {
     }
 
     console.log('this page is using bilibili jimaku filter')
-
+    
     if ($('#button-list').length > 0 && !restart) {
         console.log('restarting bilibili jimaku filter')
         cancel()
@@ -396,7 +405,7 @@ function getScriptSrc({ useRemoteCDN }, js) {
 
     if (settings.enableRestart) {
         $('#button-list').append(`<button class="button" id="restart-btn">重新启动</button>`)
-        $('#restart-btn').on('click', start)
+        $('#restart-btn').on('click', () => start())
     }
 
     if (!settings.hideSettingBtn){

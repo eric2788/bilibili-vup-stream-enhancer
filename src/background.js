@@ -10,6 +10,7 @@ browserAction.onClicked.addListener(goToSetting)
 contextMenus.create({
     id: 'add-black-list',
     title: '添加到黑名单',
+    documentUrlPatterns: ['https://live.bilibili.com/*'],
     contexts: ['page'],
     enabled: true
 })
@@ -48,6 +49,7 @@ if (contextMenus.onShown) {
     })
 }
 
+// chrome/edge
 contextMenus.onClicked.addListener(async (info, tab) => {
     switch (info.menuItemId) {
         case "add-black-list":

@@ -2,9 +2,9 @@
 
     "manifest_version": 2,
     "name": "bilibili jimaku filter",
-    "version": "0.12.3",
+    "version": "0.12.4",
   
-    "description": "B站同傳彈幕過濾插件",
+    "description": "功能众多的B站同传字幕过滤插件",
     "author": "Eric Lam",
     "developer": {
       "name": "Eric Lam",
