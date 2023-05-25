@@ -29,6 +29,7 @@ function launchListeners(){
     window.addEventListener('ws:bilibili-live', ({detail: {cmd, command, eventId}}) => {
         try {
             handleCommand(cmd, command)
+            delete command.dm_v2 // 目前需要刪除 command.dm_v2 字段方可讓封包修改生效
         }catch(err){
             console.warn(`執行 ${cmd} 事件時發生錯誤: ${err.message}`)
             console.error(err)
