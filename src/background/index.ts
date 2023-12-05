@@ -10,3 +10,6 @@ contextMenus.create({
 
 contextMenus.onClicked.addListener((info, tab) => {
 })
+
+
+new Storage()
