@@ -1446,6 +1446,13 @@
   resolved "https://registry.yarnpkg.com/@plasmohq/init/-/init-0.7.0.tgz#8705db28c3da7e570e8d6f404a4ca1892268d16c"
   integrity sha512-P75g48dqOGneJ+n0AcqnLE/TYflcaPc3B7h6EopnCBBYUDnCNBMwYmKAkaf5pnhsEB0ybPS6TU1C2DTGfqaW7A==
 
+"@plasmohq/messaging@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@plasmohq/messaging/-/messaging-0.6.0.tgz#573f0a446493c8a3c48522de7dbcd1518e8c9c8e"
+  integrity sha512-iRyhtoWuS96YKZyga/nsBESXVzVrTQbyGRwR1/aNyWvuvt68G00Gtb6+zcWXd2uLSs5ExU/gYxakHYBbWqy2QA==
+  dependencies:
+    nanoid "4.0.2"
+
 "@plasmohq/parcel-bundler@0.5.5":
   version "0.5.5"
   resolved "https://registry.yarnpkg.com/@plasmohq/parcel-bundler/-/parcel-bundler-0.5.5.tgz#ff4d4f2463b418c3c259557a55b37d62b970d6e4"
@@ -1672,6 +1679,13 @@
     nullthrows "1.1.1"
     semver "7.5.4"
     vue "3.3.4"
+
+"@plasmohq/storage@^1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@plasmohq/storage/-/storage-1.9.0.tgz#b5fa788ffba6c53f741dbd57e0afa1ba74a2072d"
+  integrity sha512-mntoJ0EVh7JfYyMKWKnt6yqVlJnwavEkwdXssSOxS1CEeyNX2GPkXQfChvlGhuEJplqcRhLaym6rEc690Ao0fg==
+  dependencies:
+    pify "6.1.0"
 
 "@pnpm/config.env-replace@^1.1.0":
   version "1.1.0"
@@ -3838,6 +3852,11 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
+nanoid@4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-4.0.2.tgz#140b3c5003959adbebf521c170f282c5e7f9fb9e"
+  integrity sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==
+
 nanoid@^3.3.6, nanoid@^3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
@@ -4057,6 +4076,11 @@ picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
+
+pify@6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/pify/-/pify-6.1.0.tgz#db9f2ebfba65f0bc144db65ae84d1a486ab72909"
+  integrity sha512-KocF8ve28eFjjuBKKGvzOBGzG8ew2OqOOSxTTZhirkzH7h3BI1vyzqlR0qbfcDBve1Yzo3FVlWUAtCRrbVN8Fw==
 
 pify@^2.3.0:
   version "2.3.0"
