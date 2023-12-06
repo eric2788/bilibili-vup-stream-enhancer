@@ -20,3 +20,10 @@ export function *getModuleStream(dirPath: string, options: IOptions = { ignore: 
         yield import(file)
     }
 }
+
+
+export function *getModuleStreamSync(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<any, void, any> {
+    for (const file of getTSFiles(dirPath, options)) {
+        yield require(file)
+    }
+}
