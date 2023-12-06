@@ -13,3 +13,10 @@ export function download(filename: string, content: string, type: string = 'text
     a.click()
     URL.revokeObjectURL(a.href)
 }
+
+
+export function *getModuleStream(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<Promise<any>, void, any> {
+    for (const file of getTSFiles(dirPath, options)) {
+        yield import(file)
+    }
+}

@@ -1,7 +1,12 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging";
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 
-const handler: PlasmoMessaging.MessageHandler = async (req, r) => {
-    const { url, timer = 15000 } = req.body;
+export type RequestBody = {
+    url: string,
+    timer: number
+}
+
+const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, r) => {
+    const { url, timer = 15000 } = req.body
     const aborter = new AbortController()
     const timeout = setTimeout(() => aborter.abort(), timer)
     const res = await fetch(url, { signal: aborter.signal })
@@ -11,4 +16,4 @@ const handler: PlasmoMessaging.MessageHandler = async (req, r) => {
     r.send(json)
 }
 
-export default handler;
+export default handler
