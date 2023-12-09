@@ -1,4 +1,5 @@
 import type { StateProxy } from "~hooks/binding"
+import type { HexColor, HundredNumber, NumRange } from "~types"
 
 export type SettingSchema = {
     size: HundredNumber
@@ -28,7 +29,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
 }
 
 
-function JimakuSettings({state, bind}: StateProxy<SettingSchema>): JSX.Element {
+function JimakuSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (
         <></>
     )

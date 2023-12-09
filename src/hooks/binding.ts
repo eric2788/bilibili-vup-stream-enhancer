@@ -1,42 +1,43 @@
-import { useState } from 'react';
+import type { ChangeEvent, EventHandler, SyntheticEvent } from 'react';
+import { stateProxy, stateWrapper } from 'react-state-proxy';
+import type { PickLeaves } from '~types'
 
-export function useBinding<T extends object>(initialState: T) {
-    const [state, setState] = useState(initialState);
-
-    const stateProxy = new Proxy(state, {
-        set(target, prop, value) {
-            setState(prevState => ({ ...prevState, [prop]: value }));
-            return true;
-        }
-    });
-
-    return stateProxy;
-}
-
-export function useBindableState<T extends object>(initialState: T) {
-
-    const stateProxy = useBinding(initialState);
-
-    const bind = <E extends Element = Element, K extends keyof T = keyof T>(
-        key: K, 
-        event: keyof React.DOMAttributes<E> = 'onChange', 
-        getValue: (e: React.SyntheticEvent<E>) => T[K] = (e) => (e.target as any).value as T[K]
-    ) => ({
-        [event]: (e: React.SyntheticEvent<E>) => {
-            const value = getValue(e);
-            if (value) {
-                stateProxy[key] = value
-            } else {
-                console.warn(`Cannot bind '${key as string}' to '${event}'`)
-            }
-        },
-        value: stateProxy[key]
-    });
-
-    return [stateProxy, bind] as const;
-}
+export type StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => <R extends PickLeaves<T, W>>(k: R) => (e: E) => void
 
 export type StateProxy<T extends object> = {
     state: T
-    bind: ReturnType<typeof useBindableState<T>>[1]
+    useHandler: StateHandler<T>
+}
+
+export function useBinding<T extends object>(initialState: T) {
+
+
+    const state = stateWrapper({
+        ...initialState,
+        set<K extends keyof T>(k: K, v: T[K]) {
+            this[k] = v
+        },
+    })
+
+    const proxy = stateProxy<T>(state)
+    const useHandler: StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => {
+        type H = ReturnType<typeof getter>;
+        return function<R extends PickLeaves<T, H>>(k: R) {
+            const parts = (k as string).split('.') as string[];
+    
+            return (e: E) => {
+                const value = getter(e);
+                const last = parts.pop()!;
+                const target = parts.reduce((acc, cur) => acc[cur], state);
+                target.set(last, value);
+            };
+        };
+    }
+
+    return [proxy, useHandler] as const;
+}
+
+export function asStateProxy<T extends object>(result: ReturnType<typeof useBinding<T>>): StateProxy<T> {
+    const [state, useHandler] = result
+    return { state, useHandler }
 }

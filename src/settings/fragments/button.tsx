@@ -1,4 +1,5 @@
 import type { StateProxy } from "~hooks/binding"
+import type { HexColor } from "~types"
 
 export type SettingSchema = {
     textColor: HexColor
@@ -12,7 +13,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     backgroundListColor: '#808080'
 }
 
-function ButtonSettings({state, bind}: StateProxy<SettingSchema>): JSX.Element {
+function ButtonSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (
         <></>
     )

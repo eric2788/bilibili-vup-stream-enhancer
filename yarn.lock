@@ -4536,6 +4536,11 @@ react-refresh@^0.9.0:
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.9.0.tgz#71863337adc3e5c2f8a6bfddd12ae3bfe32aafbf"
   integrity sha512-Gvzk7OZpiqKSkxsQvO/mbTN1poglhmAV7gR/DdIrRrSMXraRQQlfikRJOr3Nb9GTMPC5kof948Zy6jJZIFtDvQ==
 
+react-state-proxy@^1.4.11:
+  version "1.4.11"
+  resolved "https://registry.yarnpkg.com/react-state-proxy/-/react-state-proxy-1.4.11.tgz#cc7086fcb75de60d1707558ddd84bccd71aa8295"
+  integrity sha512-h8Fax7iujADk4/1PoRWD9160OYV2FjHmJlVmetFgSW6j3vvRqPO24KkFZtA0SrBURVbTfEhRt6VZt1W5jf71nQ==
+
 react@18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"

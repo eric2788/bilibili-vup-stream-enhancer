@@ -5,6 +5,7 @@
   ],
   "include": [
     ".plasmo/index.d.ts",
+    "./**/*.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
   ],
