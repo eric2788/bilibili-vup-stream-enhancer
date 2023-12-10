@@ -22,3 +22,4 @@ async function getPageVariable(name: string, tabId: number) {
     });
     return result;
   }
+

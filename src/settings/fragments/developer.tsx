@@ -1,3 +1,4 @@
+import type { StateProxy } from "~hooks/binding";
 
 export type SettingSchema = {
     elements: {
@@ -49,7 +50,9 @@ export const defaultSettings: Readonly<SettingSchema> = {
     }
 }
 
-function DeveloperSettings(): JSX.Element {
-
+function DeveloperSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return <></>
 }
+
+
+export default DeveloperSettings

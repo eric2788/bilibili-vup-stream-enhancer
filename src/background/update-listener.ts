@@ -1,5 +1,5 @@
 
-import { sendBackground } from '~utils/messaging'
+import { sendInternal } from './messages'
 import { version, notifyUpdate } from './messages/check-update'
 import { storage } from '~utils/storage'
 
@@ -13,13 +13,13 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
 
         try {
             await fetchRemoteDeveloper()
-            await sendBackground('notify', {
+            await sendInternal('notify', {
                 title: 'bilibili-jimaku-filter 已安裝',
                 message: '成功从远端获取最新设定'
             })
         } catch (err: Error | any) {
             console.error(err)
-            await sendBackground('notify', {
+            await sendInternal('notify', {
                 title: 'bilibili-jimaku-filter 已安裝',
                 message: '获取远端最新设定失败，将使用本地版本'
             })
@@ -28,7 +28,7 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
 
     } else if (data.reason === 'update') {
 
-        await sendBackground('notify', {
+        await sendInternal('notify', {
             title: 'bilibili-jimaku-filter 已更新',
             message: `已更新到版本 v${version}`,
         })   
@@ -44,6 +44,6 @@ chrome.runtime.onUpdateAvailable.addListener((data: chrome.runtime.UpdateAvailab
 
 
 async function fetchRemoteDeveloper(): Promise<void> {
-    const { developer } = await sendBackground('request', { url: developerLink }) 
+    const { developer } = await sendInternal('request', { url: developerLink }) 
     await storage.set('settings.developer', developer)
 }

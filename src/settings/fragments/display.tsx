@@ -23,3 +23,6 @@ function DisplaySettings({state, useHandler}: StateProxy<SettingSchema>): JSX.El
         <></>
     )
 }
+
+
+export default DisplaySettings

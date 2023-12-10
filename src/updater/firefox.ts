@@ -8,11 +8,10 @@ interface UpdateInfo {
     update_info_url: string
 }
 
-const { browser_specific_settings: { gecko: { id, update_url }} } = chrome.runtime.getManifest() as any
-
 
 // it is because firefox does not support chrome.runtime.requestUpdateCheck
 export const checkUpdate: UpdateChecker = async (version: string): Promise<chrome.runtime.RequestUpdateCheckResult> => {
+    const { browser_specific_settings: { gecko: { id, update_url }} } = chrome.runtime.getManifest() as any
     if (!update_url) {
         console.warn('Cannot get update_url from manifest.json, it means you have published firefox store, manual check update is not supported.')
         return {

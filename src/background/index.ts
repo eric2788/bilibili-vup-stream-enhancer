@@ -1,17 +1,9 @@
 
-import { sendBackground } from '~utils/messaging'
-import loadContextMenus from './context-menus'
-
-
-
-Promise.all([
-    loadContextMenus()
-]).catch((error: Error) => {
-    console.error('initialize error: ', error.message ?? error)
-    console.error(error)
-})
-
-
+import { sendInternal } from './messages'
+import './context-menus'
 
 // browser extension icon click listener
-chrome.browserAction.onClicked.addListener(() => sendBackground('open-tab', { tab: 'settings' }))
+chrome.action.onClicked.addListener(() => {
+    sendInternal('open-tab', { tab: 'settings' })
+})
+
