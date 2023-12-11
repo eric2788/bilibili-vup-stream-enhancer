@@ -9,7 +9,7 @@ export const { version } = chrome.runtime.getManifest()
 export async function notifyUpdate(version: string): Promise<void> {
     await sendInternal('notify', {
         title: 'bilibili-jimaku-filter 有可用的更新',
-        message: `新版本 v${version}`,
+        message: `新版本 v${version || 'SNAPSHOT'}`,
         buttons: [
             {
                 title: '下載更新',
@@ -55,14 +55,15 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) =>
     } else if (status === 'no_update') {
         await sendInternal('notify', {
             title: 'bilibili-jimaku-filter 已是最新版本',
-            message: `當前版本 v${version}`
+            message: `當前版本 v${version || 'SNAPSHOT'}`
         })
     } else {
         await sendInternal('notify', {
             title: '檢查更新失敗',
-            message: `无法索取最新版本讯息。`
+            message: `无法索取版本消息，请稍后再尝试。`
         })
     }
+    res.send({ status, version })
 }
 
 
