@@ -13,7 +13,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     blackListRooms: []
 }
 
-
+export const title = '名单列表'
 
 function ListingSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (

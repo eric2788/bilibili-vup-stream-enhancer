@@ -28,6 +28,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     filterUserLevel: 0
 }
 
+export const title = '字幕设定'
 
 function JimakuSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (

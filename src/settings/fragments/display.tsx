@@ -17,6 +17,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     themeToNormalButton: true,
 }
 
+export const title = '界面按钮显示'
 
 function DisplaySettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (

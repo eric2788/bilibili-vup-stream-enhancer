@@ -16,6 +16,8 @@ export const defaultSettings: Readonly<SettingSchema> = {
     position: 'unchanged'
 }
 
+export const title = '同传弹幕设定'
+
 // TODO: change to use tailwindcss
 function DanmakuSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (
