@@ -15,12 +15,12 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
         set<K extends Leaves<T>>(k: K, v: LeafType<T, K>) {
             const parts = (k as string).split('.') as string[]
             if (parts.length === 1) {
-                Reflect.set(this, k, v)
+                Reflect.set(proxy, k, v)
             } else {
                 const [part, ...remain] = parts
                 const fragment = this.get(part)
                 fragment.set(remain.join('.'), v)
-                Reflect.set(this, part, fragment)
+                Reflect.set(proxy, part, fragment)
             }
         },
         get(k: keyof T): any {
@@ -38,13 +38,11 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
     const useHandler: StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => {
         type H = ReturnType<typeof getter>;
         return function <R extends PickLeaves<T, H>>(k: R) {
-            const parts = (k as string).split('.') as string[];
-
             return (e: E) => {
-                const value = getter(e);
-                const last = parts.pop()!;
-                const target = parts.reduce((acc, cur) => acc[cur], state);
-                target.set(last, value);
+                const value = getter(e) as LeafType<T, R>;
+                console.debug(`setting ${k} to ${value}`)
+                state.set<R>(k, value);
+                
             };
         };
     }

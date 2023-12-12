@@ -1,5 +1,5 @@
 import { Button, Collapse } from "@material-tailwind/react"
-import React, { Fragment } from "react"
+import React, { Fragment, useRef } from "react"
 import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding"
 import { useStorage } from "~hooks/storage"
 import fragments, { type Schema, type SettingFragments } from "~settings"
@@ -32,13 +32,16 @@ function SettingPage(): JSX.Element {
 
         const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[typeof key]>>>
 
-        const saveSettings = () => setSettings({ ...stateProxy.state })
+        const saveSettings = () => {
+            console.debug('saving: ', { ...stateProxy.state })
+            setSettings({ ...stateProxy.state })
+        }
 
         return {
             component: (
-                <section key={key} id={key} className={`py-2 px-4 mx-auto max-w-screen-xl justify-center ${section[key] ? '' : 'shadow-lg'} rounded-md`}>
+                <section key={key} id={key} className={`py-2 px-4 mx-auto max-w-screen-xl justify-center`}>
                     <div onClick={() => toggleSection(key)} className={`
-                            cursor-pointer border border-[#d1d5db] dark:border-[#4b4b4b6c] px-5 py-3 bg-gray-300 dark:bg-gray-800 w-full text-lg 
+                            cursor-pointer border border-[#d1d5db] dark:border-[#4b4b4b6c] px-5 py-3 bg-gray-300 dark:bg-gray-800 w-full text-lg ${section[key] ? '' : 'shadow-lg'}
                             ${section[key] ? 'rounded-t-lg border-b-0' : 'rounded-lg'} hover:bg-gray-400 dark:hover:bg-gray-900`}>
                         <div className="flex items-center gap-3 dark:text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -59,6 +62,9 @@ function SettingPage(): JSX.Element {
         }
     })
 
+    const form = useRef<HTMLFormElement>()
+
+
     const [loading] = useBinding({
         checkingUpdate: false,
         insertingSettings: false,
@@ -70,11 +76,16 @@ function SettingPage(): JSX.Element {
     const saveAllSettings = async () => {
         loading.saving = true
         try {
+            if (!form.current.checkValidity()) {
+                form.current.reportValidity()
+                return
+            }
             await Promise.all(settingFragments.map(({ saveSettings }) => saveSettings()))
             await sendBackground('notify', {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
+            await sleep(5000)
         } catch (err: Error | any) {
             console.error(err)
             await sendBackground('notify', {
@@ -90,6 +101,7 @@ function SettingPage(): JSX.Element {
         loading.checkingUpdate = true
         try {
             await sendBackground('check-update')
+            await sleep(5000)
         } finally {
             loading.checkingUpdate = false
         }
@@ -99,7 +111,7 @@ function SettingPage(): JSX.Element {
         loading.insertingSettings = true
         try {
             // TODO
-            await sleep(3000)
+            await sleep(5000)
         } finally {
             loading.insertingSettings = false
         }
@@ -109,7 +121,7 @@ function SettingPage(): JSX.Element {
         loading.exportingSettings = true
         try {
             // TODO
-            await sleep(3000)
+            await sleep(5000)
         } finally {
             loading.exportingSettings = false
         }
@@ -132,7 +144,7 @@ function SettingPage(): JSX.Element {
                     <h1 className="mb-4 text-4xl tracking-tight leading-none md:text-5xl lg:text-6xl ">字幕过滤设定</h1>
                     <p className="mb-8 text-lg font-light lg:text-xl text-black-400">设定页面: 按下储存后可即时生效。</p>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3">
-                        <Button disabled={loading.checkingUpdate} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50" onClick={checkUpdate}>
+                        <Button onClick={checkUpdate} disabled={loading.checkingUpdate} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 group-disabled:animate-spin">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                             </svg>
@@ -153,10 +165,11 @@ function SettingPage(): JSX.Element {
                     </div>
                 </div>
             </section>
-            <div className="container mx-auto m-10">
+            <form ref={form} className="container mx-auto m-10" onSubmit={e => e.preventDefault()}>
                 {settingFragments.map(({ component }) => component)}
-                <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3 px-4 pt-3 mx-auto">
+                <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3 px-4 pt-3 mx-auto max-w-screen-xl">
                     <Button
+                        type="submit"
                         disabled={loading.saving}
                         onClick={saveAllSettings}
                         className="group flex items-center justify-center gap-3 bg-green-600 px-3 py-3 text-[1rem] hover:shadow-lg hover:shadow-green-600/50">
@@ -175,7 +188,7 @@ function SettingPage(): JSX.Element {
                         </svg>
                     </Button>
                 </div>
-            </div>
+            </form>
         </Fragment>
     )
 }
