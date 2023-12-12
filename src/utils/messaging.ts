@@ -3,7 +3,7 @@ import { getPort } from "@plasmohq/messaging/port"
 import { type MessagingData } from "~background/messages"
 import { type PortingData } from "~background/ports"
 
-export async function sendBackground<T extends keyof MessagingData>(name: T, body: MessagingData[T]) {
+export async function sendBackground<T extends keyof MessagingData>(name: T, body: MessagingData[T] = undefined) {
     return sendToBackground({ name, body })
 }
 

@@ -26,7 +26,7 @@ const handlers: {
 }
 
 
-export async function sendInternal<K extends keyof MessagingData, R = any>(name: K, body: MessagingData[K]): Promise<R> {
+export async function sendInternal<K extends keyof MessagingData, R = any>(name: K, body: MessagingData[K]): Promise<R | void> {
     const handler: PlasmoMessaging.MessageHandler<MessagingData[K], any> = handlers[name]
     return new Promise((resolve, reject) => {
         const response: PlasmoMessaging.Response<R> = {
@@ -38,7 +38,9 @@ export async function sendInternal<K extends keyof MessagingData, R = any>(name:
         try {
             const o = handler({ name, body }, response)
             if (o instanceof Promise) {
-                o.catch(reject)
+                o.then(resolve).catch(reject)
+            } else {
+                resolve()
             }
         } catch (err: Error | any) {
             reject(err)
