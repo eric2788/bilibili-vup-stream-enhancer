@@ -53,7 +53,9 @@ function SettingPage(): JSX.Element {
                     </div>
                     <Collapse open={section[key]}>
                         <div className="container p-5 text-black dark:text-white bg-gray-200 dark:bg-gray-700 rounded-b-lg border border-[#d1d5db] dark:border-[#4b4b4b6c] border-l border-r">
-                            <ComponentFragment {...stateProxy} />
+                            <div className="px-5 py-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
+                                <ComponentFragment {...stateProxy} />
+                            </div>
                         </div>
                     </Collapse>
                 </section>
