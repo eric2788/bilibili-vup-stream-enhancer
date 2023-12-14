@@ -9,7 +9,9 @@ export type SettingSchema = {
     onlyVtuber: boolean,
     noNativeVtuber: boolean,
     jimakuPopupWindow: boolean, // only when enabledFeatures.includes('jimaku')
-    monitorWindow: boolean
+    monitorWindow: boolean,
+    hideJimakuDanmaku: boolean,
+    useStreamingTime: boolean
 }
 
 
@@ -19,7 +21,9 @@ export const defaultSettings: Readonly<SettingSchema> = {
     onlyVtuber: false,
     noNativeVtuber: false,
     jimakuPopupWindow: false,
-    monitorWindow: false
+    monitorWindow: false,
+    hideJimakuDanmaku: false,
+    useStreamingTime: true
 }
 
 

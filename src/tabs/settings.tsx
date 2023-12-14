@@ -1,12 +1,13 @@
 import { Button, Collapse } from "@material-tailwind/react"
 import React, { Fragment, useRef } from "react"
+import BJFThemeProvider from "~components/theme"
 import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding"
 import { useStorage } from "~hooks/storage"
 import fragments, { type Schema, type SettingFragments } from "~settings"
 
 import '~tailwind'
 import { sendBackground } from "~utils/messaging"
-import { sleep } from "~utils/misc"
+import { isDarkTheme, sleep } from "~utils/misc"
 
 document.title = '字幕过滤设定'
 
@@ -52,7 +53,7 @@ function SettingPage(): JSX.Element {
                         </div>
                     </div>
                     <Collapse open={section[key]}>
-                        <div className="container p-5 text-black dark:text-white bg-gray-200 dark:bg-gray-700 rounded-b-lg border border-[#d1d5db] dark:border-[#4b4b4b6c] border-l border-r">
+                        <div className="container p-5 text-black dark:text-white bg-gray-200 dark:bg-gray-700 rounded-b-lg border border-[#d1d5db] dark:border-[#4b4b4b6c] border-l border-r transition-all ease-out duration-200 transform">
                             <div className="px-5 py-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
                                 <ComponentFragment {...stateProxy} />
                             </div>
@@ -197,4 +198,13 @@ function SettingPage(): JSX.Element {
 
 
 
-export default SettingPage
+
+function SettingApp(): JSX.Element {
+    return (
+        <BJFThemeProvider dark={isDarkTheme()}>
+            <SettingPage />
+        </BJFThemeProvider>
+    )
+}
+
+export default SettingApp
