@@ -6,28 +6,28 @@ import * as request from "./messages/request";
 import * as getStreamUrls from "./messages/get-stream-urls";
 import * as checkUpdate from "./messages/check-update";
 
-export interface MessagingData {
-    'notify': notify.RequestBody
-    'open-tab': openTab.RequestBody
-    'request': request.RequestBody
-    'get-stream-urls': getStreamUrls.RequestBody
-    'check-update': checkUpdate.RequestBody
+export type MessagingData = typeof messagers
+
+interface MessageData<T extends object, R = any> {
+    default: PlasmoMessaging.MessageHandler<T, R>
+}
+
+export type Payload<T> =  T extends MessageData<infer U> ? U : never;
+
+export type Response<T> = T extends MessageData<any, infer U> ? U : void; 
+
+const messagers = {
+    'notify': notify,
+    'open-tab': openTab,
+    'request': request,
+    'get-stream-urls': getStreamUrls,
+    'check-update': checkUpdate
 }
 
 
-const handlers: {
-    [key in keyof MessagingData]: PlasmoMessaging.MessageHandler<MessagingData[key], any>
-} = {
-    'notify': notify.default,
-    'open-tab': openTab.default,
-    'request': request.default,
-    'get-stream-urls': getStreamUrls.default,
-    'check-update': checkUpdate.default
-}
-
-
-export async function sendInternal<K extends keyof MessagingData, R = any>(name: K, body: MessagingData[K]): Promise<R | void> {
-    const handler: PlasmoMessaging.MessageHandler<MessagingData[K], any> = handlers[name]
+export async function sendInternal<K extends keyof MessagingData, R = Response<MessagingData[K]>>(name: K, body: Payload<MessagingData[K]>): Promise<R | void> {
+    const { default: messager } = messagers[name]
+    const handler = messager as PlasmoMessaging.MessageHandler<Payload<MessagingData[K]>, R>
     return new Promise((resolve, reject) => {
         const response: PlasmoMessaging.Response<R> = {
             send: (responseBody) => {
