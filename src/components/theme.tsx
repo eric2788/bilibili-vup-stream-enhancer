@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@material-tailwind/react";
+import { ThemeProvider, typography } from "@material-tailwind/react";
 import { valid } from "semver";
 
 
@@ -24,6 +24,11 @@ const lightTheme: MaterialTheme = {
             color: 'black'
         }
     },
+    typography: {
+        defaultProps: {
+            color: 'gray'
+        }
+    }
 }
 
 const darkTheme = {
@@ -32,6 +37,11 @@ const darkTheme = {
             color: 'white'
         }
     },
+    typography: {
+        defaultProps: {
+            color: 'white'
+        }
+    }
 }
 
 

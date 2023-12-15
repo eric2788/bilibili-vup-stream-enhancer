@@ -21,3 +21,15 @@ export function getRoomId(url: string = location.pathname) {
 
 
 export const isDarkTheme: () => boolean = () => matchMedia('(prefers-color-scheme: dark)').matches
+
+
+
+export function removeArr<T>(arr: T[], item: T): boolean {
+    const index = arr.findIndex(v => JSON.stringify(v) === JSON.stringify(item))
+    console.info('removeArr', index, arr, item)
+    if (index === -1) return false
+    arr.splice(index, 1)
+    console.info('removeArr', arr)
+    return true
+}
+

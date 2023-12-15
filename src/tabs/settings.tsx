@@ -1,5 +1,6 @@
 import { Button, Collapse } from "@material-tailwind/react"
-import React, { Fragment, useRef } from "react"
+import React, { Fragment, useEffect, useRef, useState } from "react"
+import { stateProxy } from "react-state-proxy"
 import BJFThemeProvider from "~components/theme"
 import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding"
 import { useStorage } from "~hooks/storage"
@@ -61,11 +62,35 @@ function SettingPage(): JSX.Element {
                     </Collapse>
                 </section>
             ),
-            saveSettings
+            saveSettings,
+            stateProxy,
+            key
         }
     })
 
     const form = useRef<HTMLFormElement>()
+
+    const [initialState, setInitialState] = useState(() => settingFragments.reduce((acc, { stateProxy, key }) => ({
+        ...acc,
+        [key]: stateProxy.state
+    }), {})
+    )
+    const unChanged = (): boolean => settingFragments.some(({ stateProxy, key }) => JSON.stringify(stateProxy.state) !== JSON.stringify(initialState[key]));
+
+    useEffect(() => {
+        window.addEventListener('beforeunload', alertUser)
+        return () => {
+            window.removeEventListener('beforeunload', alertUser)
+        }
+    }, [])
+
+    const alertUser = (e: BeforeUnloadEvent) => {
+        alert('unchanged: ' + unChanged())
+        if (unChanged()) {
+            e.preventDefault()
+            e.returnValue = ''
+        }
+    }
 
 
     const [loading] = useBinding({
@@ -88,6 +113,10 @@ function SettingPage(): JSX.Element {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
+            setInitialState(settingFragments.reduce((acc, { stateProxy, key }) => ({
+                ...acc,
+                [key]: stateProxy.state
+            }), {}))
             await sleep(5000)
         } catch (err: Error | any) {
             console.error(err)
