@@ -1,22 +1,18 @@
-import { Input } from "@material-tailwind/react"
-import { type ChangeEvent } from "react"
+import { Input, type InputProps } from "@material-tailwind/react"
+import { type ChangeEvent, type RefAttributes } from "react"
 import type { HexColor } from "~types"
-import { isDarkTheme } from "~utils/misc"
 
 
 export type ColorInputProps = {
     value: HexColor
-    onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-    onBlur?: (e: ChangeEvent<HTMLInputElement>) => void
     optional?: boolean
-    label?: string
-}
+} & RefAttributes<HTMLInputElement> & Omit<InputProps, 'value' | 'required' | 'pattern' | 'error' | 'type' | 'optional'>
 
 
 function ColorInput(props: ColorInputProps): JSX.Element {
 
-
-    const optional = props.optional ?? false
+    const { optional: opt, value, ...rest } = props
+    const optional = opt ?? false
 
     return (
         <div className="w-full flex justify-center">
@@ -26,19 +22,17 @@ function ColorInput(props: ColorInputProps): JSX.Element {
                     variant="static"
                     crossOrigin="anonymous"
                     type="text"
-                    label={props.label}
                     required={!optional}
-                    value={props.value ?? ''}
-                    onChange={props.onChange}
-                    
                     pattern="^#[A-Fa-f0-9]{6}$"
-                    error={!/^#[A-Fa-f0-9]{6}$/.test(props.value) && !optional}
+                    value={value}
+                    error={!/^#[A-Fa-f0-9]{6}$/.test(value) && !optional}
                     className="pr-20"
                     containerProps={{
                         className: "min-w-0",
                     }}
+                    {...rest}
                 />
-                <input type="color" required className="!absolute right-0 bottom-0 h-8 rounded bg-transparent cursor-crosshair" defaultValue={props.value} onChange={props.onChange} onBlur={props.onBlur} />
+                { value && <input type="color" required={!optional} className="!absolute right-0 bottom-0 h-8 rounded bg-transparent cursor-crosshair" defaultValue={value} onChange={props.onChange} onBlur={props.onBlur} />}
             </div>
         </div>
     )

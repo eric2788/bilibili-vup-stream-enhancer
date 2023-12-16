@@ -1,6 +1,7 @@
 import { Typography, Input, Alert, Button } from "@material-tailwind/react";
-import type { ChangeEvent, ChangeEventHandler } from "react";
-import type { StateProxy } from "~hooks/binding";
+import { Fragment, type ChangeEvent, type ChangeEventHandler } from "react";
+import type { ExposeHandler, StateProxy } from "~hooks/binding";
+import type { Leaves, PickLeaves } from "~types";
 
 export type SettingSchema = {
     elements: {
@@ -54,6 +55,84 @@ export const defaultSettings: Readonly<SettingSchema> = {
 
 export const title = '开发者相关'
 
+
+type ElementDefiner<T = string> = {
+    label: T
+    key: Leaves<SettingSchema>
+}
+
+
+type ElementDefinerList = {
+    [title: string]: ElementDefiner[]
+}
+
+
+const elementDefiners: ElementDefinerList = {
+    "元素捕捉 (JQuery)": [
+        {
+            label: "上方按钮界面元素",
+            key: "elements.upperButtonArea"
+        },
+        {
+            label: "弹幕容器元素",
+            key: "elements.danmakuArea"
+        },
+        {
+            label: "用户 ID 元素  (.attr('href'))",
+            key: "elements.userId"
+        },
+        {
+            label: "字幕区块全屏插入元素  (.after(字幕区块))",
+            key: "elements.jimakuArea"
+        },
+        {
+            label: "字幕区块非全屏插入元素  (.after(字幕区块))",
+            key: "elements.jimakuFullArea"
+        },
+        {
+            label: "直播屏幕区块",
+            key: "elements.videoArea"
+        },
+        {
+            label: "直播标题  ([0].innerText)",
+            key: "elements.liveTitle"
+        },
+        {
+            label: "直播聊天栏列表",
+            key: "elements.chatItems"
+        },
+        {
+            label: "新消息按钮  (聊天栏置底按钮)",
+            key: "elements.newMsgButton"
+        },
+    ],
+    "字样捕捉": [
+        {
+            label: "直播网页全屏 class",
+            key: "classes.screenWeb"
+        },
+        {
+            label: "直播全屏 class",
+            key: "classes.screenFull"
+        },
+        {
+            label: "聊天条 用户id 属性",
+            key: "attr.chatUserId"
+        },
+        {
+            label: "聊天条 弹幕 属性",
+            key: "attr.chatDanmaku"
+        },
+    ],
+    "JavaScript 代码": [
+        {
+            label: "获取网页内目前的 SuperChat",
+            key: "code.scList"
+        },
+    ],
+}
+
+
 function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 
     const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value)
@@ -88,99 +167,22 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
             >
                 若你本身并不熟悉网页开发，请尽量别碰这里的设定
             </Alert>
-            <Typography variant="h3">
-                元素捕捉 (JQuery)
-            </Typography>
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="上方按钮界面元素"
-                value={state.elements.upperButtonArea}
-                onChange={handler('elements.upperButtonArea')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="弹幕容器元素"
-                value={state.elements.upperButtonArea}
-                onChange={handler('elements.danmakuArea')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="用户 ID 元素 (.attr('href'))"
-                value={state.elements.userId}
-                onChange={handler('elements.userId')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="字幕区块非全屏插入元素 (.after(字幕区块))"
-                value={state.elements.jimakuArea}
-                onChange={handler('elements.jimakuArea')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="字幕区块全屏插入元素 (.after(字幕区块))"
-                value={state.elements.jimakuFullArea}
-                onChange={handler('elements.jimakuFullArea')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="直播屏幕区块"
-                value={state.elements.videoArea}
-                onChange={handler('elements.videoArea')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="直播标题 ([0].innerText)"
-                value={state.elements.liveTitle}
-                onChange={handler('elements.liveTitle')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="直播聊天栏列表"
-                value={state.elements.chatItems}
-                onChange={handler('elements.chatItems')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="新消息按钮 (聊天栏置底按钮)"
-                value={state.elements.newMsgButton}
-                onChange={handler('elements.newMsgButton')} />
-            <Typography variant="h3">
-                字样捕捉
-            </Typography>
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="直播全屏 class"
-                value={state.classes.screenWeb}
-                onChange={handler('classes.screenWeb')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="直播网页全屏 class"
-                value={state.classes.screenFull}
-                onChange={handler('classes.screenFull')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="聊天条 用户id 属性"
-                value={state.attr.chatUserId}
-                onChange={handler('attr.chatUserId')} />
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="聊天条 弹幕 属性"
-                value={state.attr.chatDanmaku}
-                onChange={handler('attr.chatDanmaku')} />
-            <Typography variant="h3">
-                JavaScript 代码
-            </Typography>
-            <Input
-                crossOrigin="anonymous"
-                variant="static"
-                label="获取网页内目前的 SuperChat"
-                value={state.code.scList}
-                onChange={handler('code.scList')} />
+            {Object.entries(elementDefiners).map(([title, definers], index) => (
+                <Fragment key={index}>
+                    <Typography variant="h3">
+                        {title}
+                    </Typography>
+                    {definers.map(({ label, key }) => (
+                        <Input
+                            key={key}
+                            crossOrigin="anonymous"
+                            variant="static"
+                            label={label}
+                            value={(state as ExposeHandler<SettingSchema>).get(key)}
+                            onChange={handler(key)} />
+                    ))}
+                </Fragment>
+            ))}
         </div>
     )
 }
