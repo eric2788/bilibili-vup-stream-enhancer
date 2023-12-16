@@ -8,5 +8,5 @@ export async function sendBackground<T extends keyof MessagingData>(name: T, bod
 }
 
 export async function sendPort<T extends keyof PortingData>(name: T, body: PortingData[T]) {
-    return getPort(name).postMessage(body)
+    return getPort(name).postMessage({ body })
 }

@@ -21,8 +21,6 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
 
     const proxyHandler = {
         set<K extends Leaves<T>>(k: K, v: PathLeafType<T, K>, useThis: boolean = false): boolean {
-            console.info('proxy: ', proxy)
-            console.info('this: ', this)
             const target = useThis ? this : proxy
             const parts = (k as string).split('.') as string[]
             if (parts.length === 1) {
@@ -37,12 +35,10 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
             const parts = (k as string).split('.') as string[]
             if (parts.length === 1) {
                 const v = Reflect.get(this, k)
-                console.info('getting ', k, v)
                 return typeof v !== 'object' ? v : stateWrapper({ ...v, ...proxyHandler })
             }
             const [part, ...remain] = parts
             const fragment = this.get(part)
-            console.info('getting ', k, fragment)
             return fragment.get(remain.join('.'))
         }
     }
@@ -58,7 +54,6 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
         return function <R extends PickLeaves<T, H>>(k: R) {
             return (e: E) => {
                 const value = getter(e) as PathLeafType<T, R>;
-                console.debug(`setting ${k} to ${value}`);
                 (state as ExposeHandler<T>).set<R>(k, value);
             }
         }

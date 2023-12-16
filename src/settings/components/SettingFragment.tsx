@@ -28,15 +28,12 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
     const { title, defaultSettings, default: component } = fragments[fragmentKey] as SettingFragments[T]
     const [settings, setSettings] = useStorage<Schema<SettingFragments[T]>>(`settings.${fragmentKey as string}`, (v) => v ?? defaultSettings as Schema<SettingFragments[T]>)
 
-    console.debug(`settings.${fragmentKey as string}`, settings)
-
     const stateProxy = asStateProxy(useBinding(settings))
 
     const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[T]>>>
 
     useImperativeHandle(ref, () => ({
         saveSettings() {
-            console.debug('saving: ', { ...stateProxy.state })
             return setSettings({ ...stateProxy.state })
         },
         settings: stateProxy.state,

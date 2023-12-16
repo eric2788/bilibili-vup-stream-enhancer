@@ -1,6 +1,6 @@
 import { List, ListItemPrefix, Checkbox, Typography, ListItem, Tooltip } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
-import CheckBoxListItem from "~components/CheckBoxListItem"
+import CheckBoxListItem from "~settings/components/CheckBoxListItem"
 import type { StateProxy } from "~hooks/binding"
 
 
