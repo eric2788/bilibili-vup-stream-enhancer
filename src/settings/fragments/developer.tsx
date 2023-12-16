@@ -56,8 +56,8 @@ export const defaultSettings: Readonly<SettingSchema> = {
 export const title = '开发者相关'
 
 
-type ElementDefiner<T = string> = {
-    label: T
+type ElementDefiner = {
+    label: string
     key: Leaves<SettingSchema>
 }
 

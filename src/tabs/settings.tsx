@@ -156,7 +156,7 @@ function SettingPage(): JSX.Element {
 
 function SettingApp(): JSX.Element {
     return (
-        <BJFThemeProvider dark={isDarkTheme()}>
+        <BJFThemeProvider>
             <SettingPage />
         </BJFThemeProvider>
     )

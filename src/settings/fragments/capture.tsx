@@ -2,7 +2,6 @@
 import { Input, List } from '@material-tailwind/react'
 import { type ChangeEvent, Fragment, useState } from 'react'
 import Selector from '~components/Selector'
-import SwitchListItem from '~components/SwitchListItem'
 import type { AdapterType } from '~contents/adapters'
 import { type StateProxy } from '~hooks/binding'
 
