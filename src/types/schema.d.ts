@@ -1,4 +1,5 @@
 export type HexColor = `#${string}`
+
 export type Optional<T> = T | undefined
 
 export type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N
@@ -12,3 +13,5 @@ export type HundredNumber = NumRange<0, 100>
 export type ArrElement<ArrType> = ArrType extends readonly (infer ElementType)[]
   ? ElementType
   : never;
+
+

@@ -1,8 +1,8 @@
-import { Input, Typography } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
-import Hints from "~components/hints"
-import Selector from "~components/selector"
-import SuffixInput from "~components/suffix-input"
+import AffixInput from "~components/AffixInput"
+import ColorInput from "~components/ColorInput"
+import Hints from "~components/Hints"
+import Selector from "~components/Selector"
 import type { StateProxy } from "~hooks/binding"
 import type { HexColor, HundredNumber, NumRange } from "~types"
 
@@ -40,15 +40,17 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
     const stringHandler = useHandler<ChangeEvent<HTMLInputElement>>((e) => e.target.value)
     const numberHandler = useHandler<ChangeEvent<HTMLInputElement>, number>((e) => e.target.valueAsNumber)
 
+    const hundredHints = <Hints values={['范围 0 ~ 100']} />
+
     return (
         <Fragment>
             <div>
-                <SuffixInput label="字幕大小" variant="static" min={0} max={100} type="number" value={state.size} onChange={numberHandler('size')} suffix="px"  />
-                <Hints values={['范围 0 ~ 100']} />
+                <AffixInput label="字幕大小" variant="static" min={0} max={100} type="number" value={state.size} onChange={numberHandler('size')} suffix="px"  />
+                {hundredHints}
             </div>
             <div>
-                <SuffixInput label="行间距" variant="static" min={0} max={100} type="number" value={state.lineGap} onChange={numberHandler('lineGap')} suffix="px" />
-                <Hints values={['范围 0 ~ 100']} />
+                <AffixInput label="第一行字幕大小" variant="static" min={0} max={100} type="number" value={state.firstLineSize} onChange={numberHandler('firstLineSize')} suffix="px" />
+                {hundredHints}
             </div>
             <Selector<typeof state.position>
                 label="字幕位置"
@@ -60,6 +62,31 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
                     { value: 'center', label: '置中' },
                 ]}
             />
+            <div>
+                <AffixInput label="字幕行距间隔" variant="static" min={0} max={100} type="number" value={state.lineGap} onChange={numberHandler('lineGap')} suffix="px" />
+                {hundredHints}
+            </div>
+            <div>
+                <ColorInput label="字幕背景颜色" value={state.backgroundColor} onChange={stringHandler('backgroundColor')} />
+            </div>
+            <div>
+                <AffixInput label="全屏时字幕背景透明度" variant="static" min={0} max={100} type="number" value={state.backgroundOpacity} onChange={numberHandler('backgroundOpacity')} suffix="%" />
+                {hundredHints}
+            </div>
+            <div>
+                <AffixInput label="同传用户UL等级过滤" variant="static" min={0} max={100} type="number" value={state.filterUserLevel} onChange={numberHandler('filterUserLevel')} prefix="UL" />
+                <Hints values={[
+                    '用户低于该等级将无视其同传弹幕, 同传man名单内的用户除外',
+                    <span className="text-red-800">(UL等级过滤无法应用于隐藏同传弹幕和透明度)</span>
+                ]}/>
+            </div>
+            <div>
+                <ColorInput label="字幕顏色" value={state.color} onChange={stringHandler('color')} />
+            </div>
+            <div>
+                <AffixInput label="字幕背景高度" variant="static" min={0} max={700} type="number" value={state.backgroundHeight} onChange={numberHandler('backgroundHeight')} suffix="px" />
+                <Hints values={['范围 100 ~ 700']} />
+            </div>
         </Fragment>
     )
 }

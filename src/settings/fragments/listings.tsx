@@ -1,6 +1,6 @@
 
 import { Fragment } from "react"
-import DataTable, { type TableHeader } from "~components/data-table"
+import DataTable, { type TableHeader } from "~components/DataTable"
 import type { StateProxy } from "~hooks/binding"
 import type { ArrElement } from "~types"
 import { removeArr } from "~utils/misc"

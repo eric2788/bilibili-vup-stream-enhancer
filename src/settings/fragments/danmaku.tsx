@@ -1,8 +1,9 @@
 import { Input } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
-import ColorInput from "~components/color-input"
-import Hints from "~components/hints"
-import Selector from "~components/selector"
+import AffixInput from "~components/AffixInput"
+import ColorInput from "~components/ColorInput"
+import Hints from "~components/Hints"
+import Selector from "~components/Selector"
 import type { StateProxy } from "~hooks/binding"
 import type { HexColor, HundredNumber, Optional } from "~types"
 import { sendBackground } from "~utils/messaging"
@@ -56,7 +57,7 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 <Hints values={['留空不改变。']} />
             </div>
             <div>
-                <Input label="同传弹幕透明度" crossOrigin={'annoymous'} onChange={e => changeOpacity(e.target.valueAsNumber)} value={state.opacity ?? -1} variant="static" type="number" min={-1} max={100} />
+                <AffixInput label="同传弹幕透明度" suffix="%" onChange={e => changeOpacity(e.target.valueAsNumber)} value={state.opacity ?? -1} variant="static" type="number" min={-1} max={100} />
                 <Hints values={['范围 0 ~ 100, -1 代表不改变。']} />
             </div>
             <Selector<typeof state.position>
