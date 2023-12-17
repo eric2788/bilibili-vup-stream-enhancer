@@ -11,11 +11,6 @@ function App(): JSX.Element {
     return <></>
 }
 
-
-getPort('jimaku').onMessage.addListener((message) => {
-    console.log('received from index.tsx', message)
-})
-
 export default App
 
 
