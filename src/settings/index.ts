@@ -23,13 +23,13 @@ export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
 // also defined the order of the settings
 const fragments = {
     'settings.danmaku': danmaku,
-    'settings.jimaku': jimaku,
-    'settings.button': button,
-    'settings.listings': listings,
-    'settings.features': features,
-    'settings.capture': capture,
-    'settings.display': display,
-    'settings.developer': developer
+    //'settings.jimaku': jimaku,
+    //'settings.button': button,
+    //'settings.listings': listings,
+    //'settings.features': features,
+    //'settings.capture': capture,
+    //'settings.display': display,
+    //'settings.developer': developer
 }
 
 

@@ -1,5 +1,5 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
@@ -9,6 +9,7 @@ import SettingFragment, { type ExportRefProps } from "~settings/components/Setti
 
 import '~tailwindcss'
 import { deepCopy, sleep } from "~utils/misc"
+import { getSettingStorage } from "~utils/storage"
 
 document.title = '字幕过滤设定'
 
@@ -19,7 +20,7 @@ const fragmentKeys = Object.keys(fragments) as (keyof SettingFragments)[]
 
 function SettingPage(): JSX.Element {
 
-    const [originalSettings, setOriginalSettings] = useState<Record<string, Schema<any>>>({})
+    const modified = useRef<boolean>(false)
 
     const [section] = useBinding(toggleMap)
     const toggleSection = (key: keyof typeof fragments) => section[key] = !section[key]
@@ -33,7 +34,6 @@ function SettingPage(): JSX.Element {
             await sleep(5000)
         },
         importSettings: async () => {
-            console.info('unchanged: ', unChanged())
             await sleep(5000)
         },
         exportSettings: async () => {
@@ -53,8 +53,9 @@ function SettingPage(): JSX.Element {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
-
             await sleep(5000)
+            console.info('chrome.storage:')
+            chrome.storage.sync.get(console.info)
         }
     }, (err) => {
         console.error(err)
@@ -64,29 +65,49 @@ function SettingPage(): JSX.Element {
         })
     })
 
-    const unChanged = () => fragmentRefs.some(ref => {
-        const { fragmentKey, settings } = ref.current
-        console.info('os: ', originalSettings[fragmentKey])
-        return JSON.stringify(settings) !== JSON.stringify(originalSettings[fragmentKey])
-    })
 
     useEffect(() => {
-        if (fragmentRefs.every(ref => ref.current !== null)) {
-            setOriginalSettings(fragmentRefs.reduce((acc, ref) => ({
-                ...acc,
-                [ref.current.fragmentKey]: deepCopy(ref.current.settings)
-            }), {}))
-        }
+
+        console.info('fragmentRef updated')
+
+        const checkModifiedStatus = async () => {
+
+            console.info('checking if modified....')
+
+            // Check each fragment
+            for (const ref of fragmentRefs) {
+                if (ref.current) {
+                    // Get the current settings
+                    const { settings, fragmentKey } = ref.current;
+                    // Get the initial settings
+                    const initialSettings = await getSettingStorage(fragmentKey);
+
+                    // Compare the current settings with the initial settings
+                    if (JSON.stringify({ ...settings }) !== JSON.stringify({ ...initialSettings })) {
+                        // If they are different, set the modified ref to true
+                        modified.current = true;
+                        console.info('modified updated: ', modified.current)
+                        console.info('diff: ', settings, initialSettings)
+                        return
+                    }
+                }
+            }
+
+            modified.current = false
+            console.info('modified updated: ', modified.current)
+        };
+
+        // Run the check whenever the settings change
+        checkModifiedStatus().catch(console.error);
+    }, fragmentRefs);
+
+    useEffect(() => {
+        window.addEventListener('beforeunload', alertUser)
+        return () => window.removeEventListener('beforeunload', alertUser)
     }, []);
 
-    useLayoutEffect(() => {
-        window.addEventListener('beforeunload', alertUser)
-    }, [])
-
-
-    // currently this is not working, not sure why
     const alertUser = (e: BeforeUnloadEvent) => {
-        if (unChanged()) {
+        if (modified.current) {
             e.preventDefault()
             e.returnValue = ''
         }

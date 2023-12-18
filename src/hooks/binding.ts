@@ -1,4 +1,4 @@
-import type { ChangeEvent, EventHandler, SyntheticEvent } from 'react';
+import { useEffect, type ChangeEvent, type EventHandler, type SyntheticEvent } from 'react';
 import { stateProxy, stateWrapper } from 'react-state-proxy';
 import type { PickLeaves, Leaves, PathLeafType, Paths } from '~types'
 
@@ -13,21 +13,31 @@ export type StateProxy<T extends object> = {
 // expose functions from proxyHandler
 // Important: this is only work for proxy object of useBinding
 export type ExposeHandler<T extends object> = T & {
-    set: <K extends Leaves<T>>(k: K, v: PathLeafType<T, K>, useThis?: boolean) => boolean
+    set: <K extends Leaves<T>>(k: K, v: PathLeafType<T, K>) => boolean
     get: <K extends Paths<T>>(k: K) => PathLeafType<T, K>
+    replace: (v: T) => void
+    watch: (handler: <K extends Leaves<T>>(key: K, prev: PathLeafType<T, K>, value: PathLeafType<T, K>) => void) => void
 }
 
 export function useBinding<T extends object>(initialState: T): [T, StateHandler<T>] {
+
+    const listeners: (<K extends Leaves<T>>(key: K, prev: PathLeafType<T, K>, value: PathLeafType<T, K>) => void)[] = []
 
     const proxyHandler = {
         set<K extends Leaves<T>>(k: K, v: PathLeafType<T, K>, useThis: boolean = false): boolean {
             const target = useThis ? this : proxy
             const parts = (k as string).split('.') as string[]
             if (parts.length === 1) {
+                if (!useThis) {
+                    listeners.forEach(handler => handler<K>(k, Reflect.get(target, k), v))
+                }
                 return Reflect.set(target, k, v)
             }
             const [part, ...remain] = parts
             const fragment = this.get(part)
+            if (!useThis) {
+                listeners.forEach(handler => handler<K>(k, fragment.get(remain.join('.')), v))
+            }
             fragment.set(remain.join('.'), v, true)
             return Reflect.set(proxy, part, fragment)
         },
@@ -40,6 +50,14 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
             const [part, ...remain] = parts
             const fragment = this.get(part)
             return fragment.get(remain.join('.'))
+        },
+        replace(v: T) {
+            for (const k in v) {
+                this.set(k as keyof T, v[k])
+            }
+        },
+        watch: (handler: <K extends Leaves<T>>(key: K, prev: PathLeafType<T, K>, value: PathLeafType<T, K>) => void) => {
+            listeners.push(handler)
         }
     }
 
