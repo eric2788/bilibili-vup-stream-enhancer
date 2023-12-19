@@ -8,6 +8,7 @@ import fragments, { type Schema, type SettingFragments } from "~settings"
 import SettingFragment, { type ExportRefProps } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
+import { sendMessage } from "~utils/messaging"
 import { deepCopy, sleep } from "~utils/misc"
 import { getSettingStorage } from "~utils/storage"
 
@@ -29,6 +30,7 @@ function SettingPage(): JSX.Element {
     const [loader, loading] = useLoader({
         checkingUpdate: async () => {
             await sleep(5000)
+            await sendInternal('check-update')
         },
         importSettings: async () => {
             await sleep(5000)
@@ -51,8 +53,6 @@ function SettingPage(): JSX.Element {
                 message: '所有设定已经保存成功。'
             })
             await sleep(5000)
-            console.info('chrome.storage:')
-            chrome.storage.sync.get(console.info)
         }
     }, (err) => {
         console.error(err)

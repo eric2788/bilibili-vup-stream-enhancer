@@ -43,3 +43,7 @@ export function* getModuleStreamSync(dirPath: string, options: IOptions = { igno
         yield { name, file, module: require(file) }
     }
 }
+
+export function isBackgroundScript(): boolean {
+    return chrome.tabs !== undefined
+}
