@@ -1,6 +1,6 @@
 import { getRoomId } from '~utils/misc'
 import { getPort } from '@plasmohq/messaging/port'
-import { sendMessage } from '~utils/messaging'
+import { sendMessager } from '~utils/messaging'
 
 export const properties: chrome.contextMenus.CreateProperties = {
     id: 'add-black-list',
@@ -16,7 +16,7 @@ export default async function (info: chrome.contextMenus.OnClickData, tab?: chro
     const roomId = getRoomId(url.pathname)
     if (!roomId) {
         console.warn(`unknown room id (${url.pathname})`)
-        await sendMessage('notify', {
+        await sendMessager('notify', {
             title: '添加失败',
             message: `未知的直播间: ${url.pathname}`
         })

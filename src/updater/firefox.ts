@@ -1,4 +1,4 @@
-import { sendMessage } from '~utils/messaging'
+import { sendMessager } from '~utils/messaging'
 import type { UpdateChecker, UpdateAction } from '.'
 import semver from 'semver'
 
@@ -19,7 +19,7 @@ export const checkUpdate: UpdateChecker = async (version: string): Promise<chrom
             status: 'no_update'
         }
     }
-    const { addons } = await sendMessage('request', { url: update_url })
+    const { addons } = await sendMessager('request', { url: update_url })
     if (!addons) {
         console.error('Cannot get addons from update_url')
         return {
