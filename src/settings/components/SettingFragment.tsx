@@ -3,6 +3,7 @@ import { useStorage } from "@plasmohq/storage/hook"
 import { forwardRef, useImperativeHandle, type Ref, useEffect, useRef, useState, useCallback, useMemo } from "react"
 import PromiseHandler from "~components/PromiseHandler"
 import { asStateProxy, useBinding, type StateProxy, type ExposeHandler } from "~hooks/binding"
+import { useForceUpdate } from "~hooks/force-update"
 import fragments, { type Schema, type SettingFragments } from "~settings"
 import { deepCopy, sleep } from "~utils/misc"
 import { getSettingStorage, setSettingStorage } from "~utils/storage"
@@ -21,20 +22,34 @@ export type SettingFragmentContentProps<T extends keyof SettingFragments> = {
 }
 
 
-export type ExportRefProps<K extends keyof SettingFragments> = {
+export type SettingFragmentRef<K extends keyof SettingFragments> = {
     saveSettings: () => Promise<void>
     fragmentKey: K
     importSettings: (settings: Schema<SettingFragments[K]>) => Promise<void>
 }
 
-function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<ExportRefProps<T>>): JSX.Element {
+export type SettingFragmentContentRef<K extends keyof SettingFragments> = Omit<SettingFragmentRef<K>, 'importSettings'>
+
+
+function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<SettingFragmentRef<T>>): JSX.Element {
 
     const { fragmentKey, toggleExpanded, expanded } = props
     const { title, default: component } = fragments[fragmentKey] as SettingFragments[T]
+    const [dependency, refresh] = useForceUpdate()
+
+    const contentRef = useRef<SettingFragmentContentRef<T>>()
+
+    useImperativeHandle(ref, () => ({
+        ...contentRef.current,
+        async importSettings(settings: Schema<SettingFragments[T]>) {
+            await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, settings)
+            refresh()
+        },
+    }))
 
     const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[T]>>>
 
-    const fetchSettings = useCallback(() => getSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey), [props.fragmentKey])
+    const fetchSettings = useCallback(() => getSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey), [props.fragmentKey, dependency])
 
     return (
         <section id={fragmentKey} className={`py-2 px-4 mx-auto max-w-screen-xl justify-center`}>
@@ -55,7 +70,7 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
                         <PromiseHandler.Response>
                             {settings => (
                                 <div className="px-5 py-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
-                                    <SettingFragmentContent ref={ref} fragmentKey={fragmentKey} settings={settings} Component={ComponentFragment} />
+                                    <SettingFragmentContent ref={contentRef} fragmentKey={fragmentKey} settings={settings} Component={ComponentFragment} />
                                 </div>
                             )}
                         </PromiseHandler.Response>
@@ -67,7 +82,7 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
 }
 
 
-const SettingFragmentContent = forwardRef(function SettingFragmentContent<T extends keyof SettingFragments>(props: SettingFragmentContentProps<T>, ref: Ref<ExportRefProps<T>>): JSX.Element {
+const SettingFragmentContent = forwardRef(function SettingFragmentContent<T extends keyof SettingFragments>(props: SettingFragmentContentProps<T>, ref: Ref<SettingFragmentContentRef<T>>): JSX.Element {
 
     const { settings, fragmentKey, Component } = props
 
@@ -80,10 +95,6 @@ const SettingFragmentContent = forwardRef(function SettingFragmentContent<T exte
             if (!isModified()) return // if not modified, do nothing
             await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, { ...stateProxy.state }) // set the settings to storage
             setBeforeSettings(deepCopy(stateProxy.state)) // update before settings so that to update check modified status
-        },
-        async importSettings(settings: Schema<SettingFragments[T]>) {
-            await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, settings)
-            setBeforeSettings(deepCopy(settings))
         },
         fragmentKey: fragmentKey
     }), [beforeSettings]);
