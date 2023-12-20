@@ -9,7 +9,6 @@ export type RequestBody = {
     room?: string
 }
 
-
 export type ResponseBody = {
     result: 'success' | 'fail' | 'tab-not-closed',
     error?: Error
@@ -33,7 +32,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
     try {
         const tabs = await chrome.tabs.query({ url: '*://live.bilibili.com/*' })
         if (tabs.length > 0) {
-            res.send({ result: 'tab-not-closed'})
+            res.send({ result: 'tab-not-closed', error: new Error('检测到你有直播房间分页未关闭，请先关闭所有直播房间分页') })
             return
         }
         const tab = await chrome.tabs.create({
@@ -46,10 +45,10 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
             args: [req.body]
         })
         await chrome.tabs.remove(tab.id)
-        res.send({result: 'success'})
+        res.send({ result: 'success' })
     } catch (err: Error | any) {
         console.error(err)
-        res.send({result: 'fail', error: err})
+        res.send({ result: 'fail', error: err })
     }
 }
 

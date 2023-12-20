@@ -21,11 +21,13 @@ export type SettingFragmentContentProps<T extends keyof SettingFragments> = {
 }
 
 
-export type ExportRefProps = {
+export type ExportRefProps<K extends keyof SettingFragments> = {
     saveSettings: () => Promise<void>
+    fragmentKey: K
+    importSettings: (settings: Schema<SettingFragments[K]>) => Promise<void>
 }
 
-function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<ExportRefProps>): JSX.Element {
+function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<ExportRefProps<T>>): JSX.Element {
 
     const { fragmentKey, toggleExpanded, expanded } = props
     const { title, default: component } = fragments[fragmentKey] as SettingFragments[T]
@@ -65,7 +67,7 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
 }
 
 
-const SettingFragmentContent = forwardRef(function SettingFragmentContent<T extends keyof SettingFragments>(props: SettingFragmentContentProps<T>, ref: Ref<ExportRefProps>): JSX.Element {
+const SettingFragmentContent = forwardRef(function SettingFragmentContent<T extends keyof SettingFragments>(props: SettingFragmentContentProps<T>, ref: Ref<ExportRefProps<T>>): JSX.Element {
 
     const { settings, fragmentKey, Component } = props
 
@@ -79,6 +81,11 @@ const SettingFragmentContent = forwardRef(function SettingFragmentContent<T exte
             await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, { ...stateProxy.state }) // set the settings to storage
             setBeforeSettings(deepCopy(stateProxy.state)) // update before settings so that to update check modified status
         },
+        async importSettings(settings: Schema<SettingFragments[T]>) {
+            await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, settings)
+            setBeforeSettings(deepCopy(settings))
+        },
+        fragmentKey: fragmentKey
     }), [beforeSettings]);
 
     // create a memo function for check modified status
