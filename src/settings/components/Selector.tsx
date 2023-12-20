@@ -11,6 +11,7 @@ export type SelectorProps<T> = {
     value: T
     onChange?: (value: T) => void
     label: string
+    disabled?: boolean
     options: SelectorOption<T>[]
 }
 
