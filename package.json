@@ -17,6 +17,7 @@
     "@material-tailwind/react": "^2.1.5",
     "@plasmohq/messaging": "^0.6.0",
     "@plasmohq/storage": "^1.9.0",
+    "@react-hooks-library/core": "^0.5.1",
     "autoprefixer": "^10.4.16",
     "dexie": "^3.2.4",
     "dexie-react-hooks": "^1.1.7",

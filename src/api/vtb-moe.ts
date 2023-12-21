@@ -34,6 +34,6 @@ export async function listAllVupUids(): Promise<VupResponse[]> {
     }).filter(v => !!v)
 }
 
-export async function identifyVup(uid: string): Promise<VupResponse | undefined> {
-    return (await listAllVupUids()).find(v => v.id === uid)
+export async function identifyVup(uid: string | number): Promise<VupResponse | undefined> {
+    return (await listAllVupUids()).find(v => v.id === uid.toString())
 }

@@ -1,8 +1,7 @@
 import type { GetInfoByRoomResponse, V1Response } from "~types/bilibili";
-import { fetchSameOrigin, fetchSameOriginV1 } from "~utils/fetch";
-import { sendMessager } from "~utils/messaging";
-import { identifyVup } from "./vtb-moe";
 import type { SpecAreaRankResponse } from "~types/bilibili/api/spec-area-rank";
+import { catcher, fetchSameOriginV1, withRetries } from "~utils/fetch";
+import { identifyVup } from "./vtb-moe";
 
 
 
@@ -15,10 +14,10 @@ export type StreamInfo = {
     status: 'online' | 'offline'
 }
 
-export async function getStreamInfo(room: string): Promise<StreamInfo> {
+export async function getStreamInfo(room: string | number): Promise<StreamInfo> {
     const data = await fetchSameOriginV1<GetInfoByRoomResponse>(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${room}`)
     const response: StreamInfo = {
-        room,
+        room: room.toString(),
         title: data.room_info.title,
         uid: data.room_info.uid.toString(),
         username: data.anchor_info.base_info.uname,
@@ -27,11 +26,12 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
     }
 
     // real vtuber identification
-    const vup = await identifyVup(response.uid)
+    const vup = await catcher(withRetries(flatFunc(identifyVup, response.uid), 3))
 
     // if not undefined
     if (vup) {
         response.isVtuber = true
+        console.log(`成功辨識虛擬主播: ${vup.name}`)
     }
 
     // if not identiied, keep the original value
@@ -39,16 +39,16 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
 }
 
 
-export async function isNativeVtuber(uid: string): Promise<boolean> {
+export async function isNativeVtuber(uid: string | number): Promise<boolean> {
     
     let page = 0
 
     while(true) {
-        const data = await fetchSameOrigin<V1Response<SpecAreaRankResponse>>(`https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${page}`)
-        if (data.data.list === null) return false // 沒有資料了
+        const data = await fetchSameOriginV1<SpecAreaRankResponse>(`https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${page}`)
+        if (data.list === null) return false // 沒有資料了
 
-        for (const { uid: user, tag } of data.data.list) {
-            if (user.toString() === uid) {
+        for (const { uid: user, tag } of data.list) {
+            if (user.toString() === uid.toString()) {
                 return tag === '汉语'
             }
         }
