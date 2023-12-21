@@ -1,5 +1,8 @@
 
-import { Button, Card, Typography, Tooltip, IconButton, Input } from "@material-tailwind/react"
+import { Button, Card, Typography, Tooltip, IconButton, Input, Switch } from "@material-tailwind/react"
+import { useKeyDown } from "@react-hooks-library/core"
+import { on } from "events"
+import React, { useRef, useState, type BaseSyntheticEvent } from "react"
 
 
 
@@ -21,27 +24,44 @@ export type SettingTableProps<T extends object> = {
     headers: TableHeader<T>[]
     values: T[]
     actions: TableAction<T>[]
+    onAdd?: (value: string) => void
+    headerSlot?: React.ReactNode
 }
 
-
+function ClickableAddIcon({ onClick }: { onClick: (e: BaseSyntheticEvent) => void }): JSX.Element {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 dark:stroke-white cursor-pointer" onClick={onClick}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+    )
+}
 
 function DataTable<T extends object>(props: SettingTableProps<T>): JSX.Element {
 
+    const [input, setInput] = useState('')
+
+
+    const inputRef = useRef<HTMLInputElement>(null)
+
+    const onAdd = (e: Event | any) => {
+        e?.preventDefault()
+        if (!input) return
+        props.onAdd?.(input)
+        setInput('')
+    }
+
+    useKeyDown('Enter', onAdd, { target: inputRef })
+
+
     const headers: Pick<TableHeader<T>, 'name' | 'align'>[] = [...props.headers, { name: '', align: 'center' }]
-
-    const addIcon = (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 dark:stroke-white">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-
-    )
 
     return (
         <div>
             <div className="mb-3 flex flex-col items-center justify-between gap-4 md:flex-row w-full">
                 <Typography variant="h6">{props.title}</Typography>
+                {props.headerSlot}
                 <div className="w-full md:w-72">
-                    <Input crossOrigin={'annoymous'} type="text" variant="standard" label="新增到列表" icon={addIcon} />
+                    <Input ref={inputRef} crossOrigin={'annoymous'} type="text" value={input} onChange={(e) => setInput(e.target.value)} variant="standard" label="新增到列表" icon={<ClickableAddIcon onClick={onAdd} />} />
                 </div>
             </div>
             <Card className="h-full w-full overflow-auto">
