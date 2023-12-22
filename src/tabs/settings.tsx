@@ -1,16 +1,17 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useRef, type ChangeEvent, useEffect } from "react"
+import { Fragment, useRef } from "react"
 import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
+import { useForwarder } from "~hooks/forwarder"
 import { useLoader } from "~hooks/loader"
 import fragments, { type SettingFragments, type Settings } from "~settings"
-import SettingFragment, { type SettingFragmentProps, type SettingFragmentRef } from "~settings/components/SettingFragment"
+import SettingFragment, { type SettingFragmentRef } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
 import { download, readAsJson } from "~utils/file"
 import { arrayEqual, removeInvalidKeys, sleep } from "~utils/misc"
-import { getFullSettingStroage, getSettingStorage } from "~utils/storage"
+import { getFullSettingStroage } from "~utils/storage"
 
 document.title = '字幕过滤设定'
 
@@ -73,10 +74,7 @@ function SettingPage(): JSX.Element {
     const fileImport = useRef<HTMLInputElement>()
     const fragmentRefs = fragmentKeys.map(key => useRef<SettingFragmentRef<typeof key>>())
 
-
-    useEffect(() => {
-        form.current.addEventListener('submit', e => e.preventDefault())
-    }, [])
+    const forwarder = useForwarder('command', 'pages')
 
     const [loader, loading] = useLoader({
         checkingUpdate,
@@ -104,6 +102,8 @@ function SettingPage(): JSX.Element {
                         title: '导入设定成功',
                         message: '设定已经导入成功。'
                     })
+                    // 向所有页面发送重启指令
+                    forwarder.sendForward('content-script', { command: 'restart' })
                 }catch (err: Error | any) {
                     console.error(err)
                     await sendInternal('notify', {
@@ -128,6 +128,8 @@ function SettingPage(): JSX.Element {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
+            // 向所有页面发送重启指令
+            forwarder.sendForward('content-script', { command: 'restart' })
             await sleep(5000)
         }
     }, (err) => {

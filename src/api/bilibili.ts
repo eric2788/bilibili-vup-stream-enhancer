@@ -44,7 +44,7 @@ export async function ensureIsVtuber(info: StreamInfo): Promise<StreamInfo> {
 
 export async function isNativeVtuber(uid: string | number): Promise<boolean> {
 
-    let page = 0
+    let page = 1
 
     while (true) {
         const data = await fetchSameOriginV1<SpecAreaRankResponse>(`https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${page}`)

@@ -8,6 +8,27 @@ import { getRoomId } from "~utils/bilibili"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
 import type { Settings } from "~settings"
+import { getForwarder } from "~background/forwards"
+
+interface RootMountable {
+  feature: FeatureType
+  mount: () => Promise<void>
+  unmount: () => Promise<void>
+}
+
+interface PlasmoSpec {
+  rootContainer: Element
+  anchor: PlasmoCSUIAnchor
+  OverlayApp?: any
+  InlineApp?: any
+}
+
+
+interface App {
+  start(): Promise<void>
+  stop(): Promise<void>
+}
+
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -51,8 +72,6 @@ const getStreamInfoFallbacks = [
     } as StreamInfo
   }
 ]
-
-
 
 async function shouldInit(roomId: number, settings: Settings, info: StreamInfo): Promise<boolean> {
 
@@ -98,83 +117,78 @@ async function hookAdapter(settings: Settings) {
 }
 
 
-interface RootMountable {
-  feature: FeatureType
-  mount: () => Promise<void>
-  unmount: () => Promise<void>
-}
-
-interface PlasmoSpec {
-  rootContainer: Element
-  anchor: PlasmoCSUIAnchor
-  OverlayApp?: any
-  InlineApp?: any
-}
-
-async function createMountPoints(plasmo: PlasmoSpec, settings: Settings, info: StreamInfo): Promise<RootMountable[]> {
-
+// createMountPoints will not start or the stop the app
+function createMountPoints(plasmo: PlasmoSpec, settings: Settings, info: StreamInfo): RootMountable[] {
 
   const { anchor, OverlayApp, rootContainer } = plasmo
 
-  return await Promise.all(
-    Object.entries(features).map(async ([key, handler]) => {
-      const { default: hook, App, init, dispose } = handler
+  return Object.entries(features).map(([key, handler]) => {
+    const { default: hook, App, init, dispose } = handler
 
-      const section = document.createElement('section')
-      section.id = `bjf-feature-${key}`
-      rootContainer.appendChild(section)
+    const section = document.createElement('section')
+    section.id = `bjf-feature-${key}`
+    rootContainer.appendChild(section)
 
-      const root = createRoot(section)
+    let root: Root = null
 
-      return {
-        feature: key as FeatureType,
-        mount: async () => {
-          if (init) {
-            // for extra init
-            await init()
-          }
-          const portals = await hook(settings, info)
-          const Root: React.ReactNode = App ? await App(settings, info) : <></>
-          root.render(
-            <OverlayApp anchor={anchor} >
-              <Fragment key={key}>
-                {Root}
-                {portals}
-              </Fragment>
-            </OverlayApp>
-          )
-        },
-        unmount: async () => {
-          if (dispose) {
-            // for extra dispose
-            await dispose()
-          }
-          root.unmount()
+    return {
+      feature: key as FeatureType,
+      mount: async () => {
+        if (init) {
+          // for extra init
+          await init()
         }
+        root = createRoot(section)
+        const portals = await hook(settings, info)
+        const Root: React.ReactNode = App ? await App(settings, info) : <></>
+        root.render(
+          <OverlayApp anchor={anchor} >
+            <Fragment key={key}>
+              {Root}
+              {portals}
+            </Fragment>
+          </OverlayApp>
+        )
+      },
+      unmount: async () => {
+        if (dispose) {
+          // for extra dispose
+          await dispose()
+        }
+        if (root === null) {
+          console.warn('root is null, maybe not mounted yet')
+          return
+        }
+        root.unmount()
       }
-    })
-  )
+    }
+  })
 
 }
 
 
-async function startExtensions(roomId: number, plasmo: PlasmoSpec, settings: Settings, info: StreamInfo): Promise<boolean> {
-  
-  if (!(await shouldInit(roomId, settings, info))) {
-    return false
-  }
+
+function createApp(roomId: number, plasmo: PlasmoSpec, settings: Settings, info: StreamInfo): App {
 
   const { anchor, OverlayApp, rootContainer } = plasmo
-  
-  const mounters = await createMountPoints({ rootContainer, anchor, OverlayApp }, settings, info)
+  const mounters = createMountPoints({ rootContainer, anchor, OverlayApp }, settings, info)
 
-  console.info('開始渲染元素....')
-
-  await Promise.all(mounters.map(m => m.mount()))
-
-  console.info('渲染元素完成')
-
-  return true
+  return {
+    async start(): Promise<void> {
+      if (!(await shouldInit(roomId, settings, info))) {
+        console.info('不符合初始化條件，已略過')
+        return
+      }
+      console.info('開始渲染元素....')
+      await Promise.all(mounters.map(m => m.mount()))
+      console.info('渲染元素完成')
+    },
+    stop: async () => {
+      console.info('開始卸載元素....')
+      await Promise.all(mounters.map(m => m.unmount()))
+      console.info('卸載元素完成')
+    }
+  }
 }
 
 
@@ -197,8 +211,21 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
     }
 
     const rootContainer = await createRootContainer(anchor)
+    const forwarder = getForwarder('command', 'content-script')
 
-    await startExtensions(roomId, { rootContainer, anchor, OverlayApp }, settings, info)
+    const app = createApp(roomId, { rootContainer, anchor, OverlayApp }, settings, info)
+
+    forwarder.addHandler(async data => {
+      if (data.command === 'stop') {
+        await app.stop()
+      } else if (data.command === 'restart') {
+        await app.stop()
+        await app.start()
+      }
+    })
+
+    // start the app
+    await app.start()
 
   } catch (err: Error | any) {
     console.error(`渲染 bilibili-jimaku-filter 元素時出現錯誤: `, err)
