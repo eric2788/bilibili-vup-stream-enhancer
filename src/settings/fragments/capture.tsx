@@ -2,7 +2,7 @@
 import { Input, List } from '@material-tailwind/react'
 import { type ChangeEvent, Fragment, useState } from 'react'
 import Selector from '~settings/components/Selector'
-import type { AdapterType } from '~contents/adapters'
+import type { AdapterType } from '~adapters'
 import { type StateProxy } from '~hooks/binding'
 
 

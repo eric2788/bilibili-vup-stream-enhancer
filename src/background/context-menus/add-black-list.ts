@@ -1,4 +1,4 @@
-import { getRoomId } from '~utils/misc'
+import { getRoomId } from '~utils/bilibili'
 import { getPort } from '@plasmohq/messaging/port'
 import { sendMessager } from '~utils/messaging'
 

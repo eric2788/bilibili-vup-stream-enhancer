@@ -1,7 +1,7 @@
 import { Collapse, IconButton, List, Switch, Typography } from "@material-tailwind/react"
 import { type ChangeEvent } from "react"
 import { sendInternal } from "~background/messages"
-import type { FeatureType } from "~contents/features"
+import type { FeatureType } from "~features"
 import type { TableType } from "~database"
 import type { StateProxy } from "~hooks/binding"
 import SwitchListItem from "~settings/components/SwitchListItem"

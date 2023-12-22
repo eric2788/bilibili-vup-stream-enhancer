@@ -1,21 +1,29 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
+import type { InjectableFunction } from "~background/functions";
+import functions from "~background/functions";
 
-export type RequestBody = Partial<chrome.scripting.ScriptInjection<any[], any>>
+export type RequestBody = Omit<Partial<chrome.scripting.ScriptInjection<any[], any>>, 'func' | 'args'> & {
+    function: InjectableFunction<any>
+}
 
 export type ResponseBody = chrome.scripting.InjectionResult<any>[]
 
 const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
 
-    const injectedInfo: RequestBody = {
+    const { function: { name, args }, ...rest } = req.body
+
+    const injectedInfo: chrome.scripting.ScriptInjection<any[], any> = {
         ...{
             target: { tabId: req.sender.tab.id },
             injectImmediately: true,
             world: 'MAIN',
         },
-        ...req.body
+        ...rest,
+        func: functions[name],
+        args,
     }
 
-    const injectResult = await chrome.scripting.executeScript(injectedInfo as chrome.scripting.ScriptInjection<any[], any>)
+    const injectResult = await chrome.scripting.executeScript(injectedInfo)
     res.send(injectResult)
 }
 
