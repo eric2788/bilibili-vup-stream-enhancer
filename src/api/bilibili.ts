@@ -77,7 +77,8 @@ async function generateWbi(): Promise<string> {
         }
     }) as V1Response<WebInterfaceNavResponse>
 
-    if (res.code !== 0) throw new Error(`B站API请求错误: ${res.message}`)
+    // because -101 also can be a valid response
+    if (res.code !== 0 && res.code !== -101) throw new Error(`B站API请求错误: ${res.message}`)
 
     const { img_url, sub_url } = res.data.wbi_img;
 

@@ -88,7 +88,7 @@ const SettingFragmentContent = forwardRef(function SettingFragmentContent<T exte
 
     const [beforeSettings, setBeforeSettings] = useState<Schema<SettingFragments[T]>>(settings)
 
-    const stateProxy = asStateProxy(useBinding(beforeSettings))
+    const stateProxy = asStateProxy(useBinding(deepCopy(beforeSettings)))
 
     useImperativeHandle(ref, () => ({
         async saveSettings() {

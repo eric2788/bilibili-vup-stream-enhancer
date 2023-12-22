@@ -32,7 +32,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     blackListRooms: [
         {
             room: '1',
-            addedDate: '2021-01-01'
+            addedDate: '2021/1/1'
         }
     ],
     useAsWhiteListRooms: false
