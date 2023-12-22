@@ -1,7 +1,9 @@
 import { Typography, Input, Alert, Button } from "@material-tailwind/react";
 import { Fragment, type ChangeEvent, type ChangeEventHandler } from "react";
+import { sendInternal } from "~background/messages";
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { Leaves, PickLeaves } from "~types/common";
+import { sendMessager } from "~utils/messaging";
 
 export type SettingSchema = {
     elements: {
@@ -152,6 +154,22 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
         </svg>
     )
 
+    const fetchDeveloper = async () => {
+        if (!window.confirm('这将覆盖开发者相关所有目前设定。')) return
+        try {
+            await sendInternal('fetch-developer')
+            await sendInternal('notify', {
+                title: '已成功获取最新版本',
+                message: '设定档已储存。请重新加载网页以应用最新版本',
+            })
+        }catch(err: Error | any) {
+            await sendInternal('notify', {
+                title: '获取最新版本失败',
+                message: err.message,
+            })
+        }
+    }
+
     return (
         <div className="col-span-2 container grid grid-cols-1 gap-5 w-full">
             <Alert
@@ -159,6 +177,7 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
                 icon={alertIcon}
                 action={
                     <Button
+                        onClick={fetchDeveloper}
                         size="sm"
                         className="!absolute top-3 right-3 text-white bg-red-500"
                     >
