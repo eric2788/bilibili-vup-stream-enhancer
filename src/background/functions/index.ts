@@ -22,5 +22,12 @@ const functions = {
     clearIndexedDbTable
 }
 
+export function injectFunction<T extends InjectableFunctionType>(name: T, ...args: InjectableFunctionParameters<T>) {
+    return {
+        name,
+        args
+    }
+}
+
 export default functions
 
