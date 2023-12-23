@@ -1,4 +1,4 @@
-import type { InjectableFunctionType, InjectableFunctionParameters, InjectableFunction } from "~background/functions"
+import type { InjectableFunction, InjectableFunctionParameters, InjectableFunctionType } from "~background/functions"
 
 
 /**

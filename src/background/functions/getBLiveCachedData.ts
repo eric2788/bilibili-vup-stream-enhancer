@@ -1,4 +1,4 @@
-import type { V1Response, GetInfoByRoomResponse, RoomInitResponse } from "~types/bilibili"
+import type { GetInfoByRoomResponse, RoomInitResponse, V1Response } from "~types/bilibili"
 
 // window.__NEPTUNE_IS_MY_WAIFU__
 export type NeptuneIsMyWaifu = {

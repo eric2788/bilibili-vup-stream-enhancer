@@ -1,6 +1,6 @@
-import { sendMessager } from '~utils/messaging'
-import type { UpdateChecker, UpdateAction } from '.'
 import semver from 'semver'
+import { sendMessager } from '~utils/messaging'
+import type { UpdateAction, UpdateChecker } from '.'
 
 interface UpdateInfo {
     version: string

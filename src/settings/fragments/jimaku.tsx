@@ -1,9 +1,9 @@
 import { Fragment, type ChangeEvent } from "react"
+import type { StateProxy } from "~hooks/binding"
 import AffixInput from "~settings/components/AffixInput"
 import ColorInput from "~settings/components/ColorInput"
 import Hints from "~settings/components/Hints"
 import Selector from "~settings/components/Selector"
-import type { StateProxy } from "~hooks/binding"
 import type { HexColor, HundredNumber, NumRange } from "~types/common"
 
 export type SettingSchema = {

@@ -95,7 +95,7 @@ function SettingPage(): JSX.Element {
                     }
                     await Promise.all(fragmentRefs.map((ref) => {
                         const { defaultSettings } = fragments[ref.current.fragmentKey]
-                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[ref.current.fragmentKey]}, defaultSettings)
+                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[ref.current.fragmentKey] }, defaultSettings)
                         return ref.current.importSettings(importContent)
                     }))
                     await sendInternal('notify', {
@@ -104,7 +104,7 @@ function SettingPage(): JSX.Element {
                     })
                     // 向所有页面发送重启指令
                     forwarder.sendForward('content-script', { command: 'restart' })
-                }catch (err: Error | any) {
+                } catch (err: Error | any) {
                     console.error(err)
                     await sendInternal('notify', {
                         title: '导入设定失败',
@@ -172,7 +172,7 @@ function SettingPage(): JSX.Element {
                 {fragmentKeys.map((key, index) => (
                     <SettingFragment ref={fragmentRefs[index]} key={key} fragmentKey={key} toggleExpanded={() => toggleSection(key)} expanded={section[key]} />
                 ))}
-                <input ref={fileImport} placeholder="" title="" type="file" style={{display: 'none'}} accept=".json"></input>
+                <input ref={fileImport} placeholder="" title="" type="file" style={{ display: 'none' }} accept=".json"></input>
                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3 px-4 pt-3 mx-auto max-w-screen-xl">
                     <Button
                         type="submit"

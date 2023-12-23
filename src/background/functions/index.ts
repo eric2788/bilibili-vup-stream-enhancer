@@ -1,5 +1,6 @@
 import getBLiveCachedData from "./getBLiveCachedData";
 import getWindowVariable from "./getWindowVariable";
+import clearIndexedDbTable from './clearIndexedDbTable';
 
 export interface InjectableFunction<T extends InjectableFunctionType> {
     name: T
@@ -17,7 +18,8 @@ export type InjectableFunctionReturnType<T extends InjectableFunctionType> = Ret
 
 const functions = {
     getWindowVariable,
-    getBLiveCachedData
+    getBLiveCachedData,
+    clearIndexedDbTable
 }
 
 export default functions

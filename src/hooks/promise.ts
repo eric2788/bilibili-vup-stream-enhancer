@@ -1,4 +1,4 @@
-import { useReducer, useEffect, type Reducer } from "react";
+import { useEffect, useReducer, type Reducer } from "react";
 
 type State<T> = {
   data: T | null;

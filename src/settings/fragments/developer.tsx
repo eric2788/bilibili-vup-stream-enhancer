@@ -1,9 +1,8 @@
-import { Typography, Input, Alert, Button } from "@material-tailwind/react";
-import { Fragment, type ChangeEvent, type ChangeEventHandler } from "react";
+import { Alert, Button, Input, Typography } from "@material-tailwind/react";
+import { Fragment, type ChangeEvent } from "react";
 import { sendInternal } from "~background/messages";
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
-import type { Leaves, PickLeaves } from "~types/common";
-import { sendMessager } from "~utils/messaging";
+import type { Leaves } from "~types/common";
 
 export type SettingSchema = {
     elements: {

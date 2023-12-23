@@ -1,7 +1,7 @@
 import { sendToBackground } from "@plasmohq/messaging"
 import { getPort } from "@plasmohq/messaging/port"
 import { sendInternal, type MessagingData, type Payload as MsgPayload, type Response as MsgResponse } from "~background/messages"
-import type { PortingData, Payload as PortPayload, Response as PortResponse } from "~background/ports"
+import type { Payload as PortPayload, Response as PortResponse, PortingData } from "~background/ports"
 import { isBackgroundScript } from "./file"
 
 export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]> | void> {

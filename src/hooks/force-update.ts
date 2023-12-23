@@ -32,7 +32,7 @@ import { useState } from "react";
  * }, [forceUpdateState]);
  * ```
  */
-export function useForceUpdate(): [ any, () => void ] {
+export function useForceUpdate(): [any, () => void] {
     const [deps, setDeps] = useState({})
     return [
         deps,

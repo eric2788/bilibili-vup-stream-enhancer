@@ -7,7 +7,7 @@ export async function getVupDetail(uid: string): Promise<VtbMoeDetailResponse | 
             url: `https://api.vtbs.moe/v1/detail/${uid}`,
             timeout: 5000
         });
-    }catch(err: Error | any) {
+    } catch (err: Error | any) {
         console.warn(err)
         return undefined
     }
@@ -21,7 +21,7 @@ export type VupResponse = {
 
 export async function listAllVupUids(): Promise<VupResponse[]> {
     const req = await sendMessager('request', {
-        url: 'https://vdb.vtbs.moe/json/list.json', 
+        url: 'https://vdb.vtbs.moe/json/list.json',
         timeout: 5000
     }) as VtbMoeListResponse
     return req.vtbs.filter(v => v.type === 'vtuber').map(v => {

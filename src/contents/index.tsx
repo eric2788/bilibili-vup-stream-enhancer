@@ -2,13 +2,13 @@ import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoRender } from "plasmo"
 import { Fragment } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { ensureIsVtuber, getNeptuneIsMyWaifu, getStreamInfo, isNativeVtuber, type StreamInfo } from "~api/bilibili"
+import { getForwarder } from "~background/forwards"
+import type { Settings } from "~settings"
+import { getRoomId } from "~utils/bilibili"
 import { retryCatcher, withFallbacks, withRetries } from "~utils/fetch"
 import func from "~utils/func"
-import { getRoomId } from "~utils/bilibili"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
-import type { Settings } from "~settings"
-import { getForwarder } from "~background/forwards"
 
 interface RootMountable {
   feature: FeatureType

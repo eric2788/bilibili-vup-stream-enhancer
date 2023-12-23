@@ -1,9 +1,8 @@
 
-import { Input, List } from '@material-tailwind/react'
-import { type ChangeEvent, Fragment, useState } from 'react'
-import Selector from '~settings/components/Selector'
+import { Fragment } from 'react'
 import type { AdapterType } from '~adapters'
 import { type StateProxy } from '~hooks/binding'
+import Selector from '~settings/components/Selector'
 
 
 export type SettingSchema = {
@@ -30,8 +29,8 @@ function CaptureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 value={state.captureMechanism}
                 onChange={changeMechanism}
                 options={[
-                    {value: 'websocket', label: 'WebSocket挂接'},
-                    {value: 'dom', label: '捕捉元素'},
+                    { value: 'websocket', label: 'WebSocket挂接' },
+                    { value: 'dom', label: '捕捉元素' },
                 ]}
             />
         </Fragment>
