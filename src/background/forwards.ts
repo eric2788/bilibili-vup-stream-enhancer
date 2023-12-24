@@ -126,11 +126,7 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
         addHandler: (handler: (data: R) => void): (() => void) => {
             const fn = listener(handler)
             chrome.runtime.onMessage.addListener(fn)
-            console.log('added listener')
-            return () => {
-                chrome.runtime.onMessage.removeListener(fn)
-                console.log('removed listener')
-            }
+            return () => chrome.runtime.onMessage.removeListener(fn)
         },
         sendForward: <C extends ChannelType>(toTarget: C, body: T, queryInfo?: ChannelQueryInfo[C]): void => {
             sendForward<K, T, C>(toTarget, command, body, queryInfo)
