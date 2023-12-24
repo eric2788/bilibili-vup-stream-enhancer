@@ -11,7 +11,13 @@ export type ForwardBody<T> = T extends ForwardFragment<infer U> ? U : never;
 
 export type ForwardResponse<T> = T extends ForwardFragment<any, infer U> ? U : void;
 
-export type ChannelType = 'pages' | 'background' | 'content-script'
+export type ChannelType = keyof ChannelQueryInfo
+
+export type ChannelQueryInfo = {
+    'pages': never,
+    'background': never,
+    'content-script': chrome.tabs.QueryInfo
+}
 
 export type ForwardInfo<T> = {
     target: ChannelType
@@ -23,23 +29,25 @@ export type ForwardHandler<T extends object, R = T> = (req: ForwardInfo<T>) => P
 
 /**
  * Sends a forward message to the specified target channel.
- * 
+ *
  * @template T - The key type of the forward data.
  * @template V - The body type of the forward data.
- * @param {ChannelType} target - The target channel to send the forward message to.
+ * @template C - The type of the target channel.
+ * @param {C} target - The target channel to send the forward message to.
  * @param {T} command - The command of the forward data.
  * @param {V} body - The body of the forward data.
+ * @param {ChannelQueryInfo[C]} [queryInfo] - The query info for the content-script channel.
  * @returns {void}
- * 
+ *
  * @example
  * // Sending a forward message to the "pages" channel with command "update" and body { version: "1.0.0" }
  * sendForward("pages", "update", { version: "1.0.0" });
  */
-export function sendForward<T extends keyof ForwardData, V extends ForwardBody<ForwardData[T]>>(target: ChannelType, command: T, body: V): void {
-    sendForwardInternal(target, command, body)
+export function sendForward<T extends keyof ForwardData, V extends ForwardBody<ForwardData[T]>, C extends ChannelType>(target: C, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
+    sendForwardInternal<T, C, V>(target, command, body, queryInfo)
 }
 
-function sendForwardInternal<T extends keyof ForwardData, V = ForwardBody<ForwardData[T]>>(target: ChannelType, command: T, body: V): void {
+function sendForwardInternal<T extends keyof ForwardData, C extends ChannelType, V = ForwardBody<ForwardData[T]>>(target: C, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
     const message: ForwardInfo<V> = {
         target,
         command,
@@ -48,7 +56,7 @@ function sendForwardInternal<T extends keyof ForwardData, V = ForwardBody<Forwar
     if (target === 'background' || target === 'pages') {
         chrome.runtime.sendMessage(message)
     } else if (target === 'content-script') {
-        chrome.tabs.query({url: '*://live.bilibili.com/*'}, (tabs) => {
+        chrome.tabs.query(queryInfo ?? { url: '*' }, (tabs) => {
             tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message))
         })
     }
@@ -72,7 +80,6 @@ export function isForwardMessage<T extends object>(message: any): message is For
  * @param {K} command - The command to be forwarded.
  * @param {ChannelType} target - The target channel for the forwarder.
  * @returns {Forwarder<K>} - The forwarder for the specified command and target.
- * 
  * @example
  * const forwarder = getForwarder('sendMessage', 'background');
  * forwarder.addHandler((data) => {
@@ -99,7 +106,8 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
         const wrapHandler = (info: ForwardInfo<R>): void => {
             // if target changed, then do the sendForward again
             if (info.target !== message.target) {
-                sendForwardInternal<K, ForwardResponse<ForwardData[K]>>(info.target, command, info.body)
+                type QueryInfo = typeof info.target
+                sendForwardInternal<K, QueryInfo, ForwardResponse<ForwardData[K]>>(info.target, command, info.body)
                 return
             }
             invoker(info.body)
@@ -124,7 +132,9 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
                 console.log('removed listener')
             }
         },
-        sendForward: (toTarget: ChannelType, body: T): void => sendForward<K, T>(toTarget, command, body)
+        sendForward: <C extends ChannelType>(toTarget: C, body: T, queryInfo?: ChannelQueryInfo[C]): void => {
+            sendForward<K, T, C>(toTarget, command, body, queryInfo)
+        }
     }
 }
 
@@ -135,7 +145,7 @@ export function useDefaultHandler<T extends object>(): ForwardHandler<T> {
 
 export type Forwarder<K extends keyof ForwardData> = {
     addHandler: (handler: (data: ForwardResponse<ForwardData[K]>) => void) => () => void
-    sendForward: (toTarget: ChannelType, body: ForwardBody<ForwardData[K]>) => void
+    sendForward: <C extends ChannelType>(toTarget: C, body: ForwardBody<ForwardData[K]>, queryInfo?: ChannelQueryInfo[C]) => void
 }
 
 const forwards = {

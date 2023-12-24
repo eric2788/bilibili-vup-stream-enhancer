@@ -129,7 +129,7 @@ function SettingPage(): JSX.Element {
                 message: '所有设定已经保存成功。'
             })
             // 向所有页面发送重启指令
-            forwarder.sendForward('content-script', { command: 'restart' })
+            forwarder.sendForward('content-script', { command: 'restart' }, { url: '*://live.bilibili.com/*' })
             await sleep(5000)
         }
     }, (err) => {
