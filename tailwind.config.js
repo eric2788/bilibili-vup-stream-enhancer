@@ -6,5 +6,13 @@ export default withMT({
   theme: {
     extend: {}
   },
-  darkMode: "media"
+  darkMode: "class",
+  safeList: [
+    {
+      pattern: 'bg-[#{a-fA-F0-9]{3,6}]'
+    },
+    {
+      pattern: 'text-[#{a-fA-F0-9]{3,6}]'
+    }
+  ]
 })

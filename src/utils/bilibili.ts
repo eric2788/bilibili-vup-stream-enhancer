@@ -64,3 +64,9 @@ export async function w_rid(uid: string, wts: number): Promise<string> {
     const a: string = `${b}&wts=${wts}${c}`; // mid + platform + token + web_location + 时间戳wts + 一个固定值
     return await md5(a)
 }
+
+
+export function isDarkThemeBilbili(): boolean {
+    const html = document.getElementsByTagName('html')[0]
+    return html.getAttribute('lab-style')?.includes('dark')
+}
