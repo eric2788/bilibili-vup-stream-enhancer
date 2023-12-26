@@ -16,6 +16,7 @@ export type Jimaku = {
 
 const urlParams = new URLSearchParams(window.location.search)
 const roomId = urlParams.get('roomId')
+const title = urlParams.get('title')
 
 function JimakuPage(): JSX.Element {
 
@@ -32,7 +33,6 @@ function JimakuPage(): JSX.Element {
 
     const forwarder = useForwarder('jimaku', 'pages')
 
-
     useEffect(() => {
         if (bottomRef.current) {
             window.scrollTo(0, document.body.scrollHeight)
@@ -41,7 +41,7 @@ function JimakuPage(): JSX.Element {
 
     useEffect(() => {
         if (roomId) {
-            setTitle(`B站直播间 ${roomId} 的同传弹幕视窗`)
+            setTitle(title ?? `B站直播间 ${roomId} 的同传弹幕视窗`)
             forwarder.addHandler((message) => {
                 if (message.room !== roomId) return
                 setMessages(messages => [...messages, message])

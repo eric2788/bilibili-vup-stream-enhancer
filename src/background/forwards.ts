@@ -1,5 +1,6 @@
-import * as command from './forwards/command';
-import * as jimaku from './forwards/jimaku';
+import * as command from './forwards/command'
+import * as jimaku from './forwards/jimaku'
+import * as redirect from './forwards/redirect'
 
 export type ForwardData = typeof forwards
 
@@ -47,6 +48,11 @@ export function sendForward<T extends keyof ForwardData, V extends ForwardBody<F
     sendForwardInternal<T, C, V>(target, command, body, queryInfo)
 }
 
+
+export function sendRedirect<T extends keyof ForwardData, V extends ForwardBody<ForwardData[T]>, C extends ChannelType>(fromTarget: C, toTarget: ChannelType, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
+    sendForwardInternal<'redirect', C, ForwardInfo<any>>(fromTarget, 'redirect', { command, body, target: toTarget } , queryInfo)
+}
+
 function sendForwardInternal<T extends keyof ForwardData, C extends ChannelType, V = ForwardBody<ForwardData[T]>>(target: C, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
     const message: ForwardInfo<V> = {
         target,
@@ -56,7 +62,7 @@ function sendForwardInternal<T extends keyof ForwardData, C extends ChannelType,
     if (target === 'background' || target === 'pages') {
         chrome.runtime.sendMessage(message)
     } else if (target === 'content-script') {
-        chrome.tabs.query(queryInfo ?? { url: '*' }, (tabs) => {
+        chrome.tabs.query(queryInfo ?? { active: true }, (tabs) => {
             tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message))
         })
     }
@@ -102,12 +108,11 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
             invoker(message.body as R)
             return
         }
-
         const wrapHandler = (info: ForwardInfo<R>): void => {
             // if target changed, then do the sendForward again
             if (info.target !== message.target) {
                 type QueryInfo = typeof info.target
-                sendForwardInternal<K, QueryInfo, ForwardResponse<ForwardData[K]>>(info.target, command, info.body)
+                sendForwardInternal<K, QueryInfo, ForwardResponse<ForwardData[K]>>(info.target, command, info.body, { url: sender.tab.url })
                 return
             }
             invoker(info.body)
@@ -146,5 +151,6 @@ export type Forwarder<K extends keyof ForwardData> = {
 
 const forwards = {
     'jimaku': jimaku,
-    'command': command
+    'command': command,
+    'redirect': redirect,
 }

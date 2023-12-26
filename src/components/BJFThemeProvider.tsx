@@ -40,6 +40,11 @@ const lightTheme: MaterialTheme = {
         defaultProps: {
             color: 'white'
         }
+    },
+    button: {
+        defaultProps: {
+            color: 'black'
+        }
     }
 }
 
@@ -74,6 +79,11 @@ const darkTheme = {
         }
     },
     iconButton: {
+        defaultProps: {
+            color: 'white'
+        }
+    },
+    button: {
         defaultProps: {
             color: 'white'
         }
