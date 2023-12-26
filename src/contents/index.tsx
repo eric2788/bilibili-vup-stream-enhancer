@@ -1,22 +1,32 @@
-import { Button, Drawer, IconButton, Typography } from "@material-tailwind/react"
-import { useMutationObserver, useToggle } from "@react-hooks-library/core"
-import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoRender } from "plasmo"
+import { Button, Drawer, IconButton, Tooltip, Typography } from "@material-tailwind/react"
+import { useToggle } from "@react-hooks-library/core"
+import styleText from "data-text:~style.css"
+import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo"
 import extIcon from 'raw:~assets/icon.png'
-import { Fragment, useEffect, useMemo, useState } from "react"
-import { createPortal } from "react-dom"
+import { Fragment, useEffect } from "react"
 import { createRoot, type Root } from "react-dom/client"
-import hookAdapter from "~adapters"
 import { getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from "~api/bilibili"
 import { getForwarder } from "~background/forwards"
-import BJFThemeProvider from "~components/BJFThemeProvider"
-import TailwindScope from "~components/TailwindScope"
+import BLiveThemeProvider from "~components/BLiveThemeProvider"
 import { shouldInit, type Settings } from "~settings"
-import { injectTailwind } from "~tailwindcss"
-import { getRoomId, isDarkThemeBilbili } from "~utils/bilibili"
+import { getRoomId, getStreamInfoByDom } from "~utils/bilibili"
 import { withFallbacks, withRetries } from "~utils/fetch"
-import { isDarkTheme } from "~utils/misc"
+import { sendMessager } from "~utils/messaging"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
+
+
+export const config: PlasmoCSConfig = {
+  matches: ["*://live.bilibili.com/*"],
+  all_frames: true
+}
+
+export const getStyle: PlasmoGetStyle = () => {
+  const style = document.createElement("style")
+  style.textContent = styleText
+  return style
+}
+
 
 interface RootMountable {
   feature: FeatureType
@@ -38,12 +48,6 @@ interface App {
 }
 
 
-export const config: PlasmoCSConfig = {
-  matches: ["*://live.bilibili.com/*"],
-  all_frames: true
-}
-
-
 // 多重檢查直播資訊的方式
 const getStreamInfoFallbacks = [
 
@@ -59,33 +63,12 @@ const getStreamInfoFallbacks = [
     isVtuber: r.data.room_info.parent_area_id !== 9, // 分區辨識
     status: r.data.room_info.live_status === 1 ? 'online' : 'offline'
   }) as StreamInfo),
-
-  // 3. 使用 DOM query
-  (room: string) => async () => {
-
-    // TODO: move to developer
-    const title = document.querySelector<HTMLDivElement>('.text.live-skin-main-text.title-length-limit.small-title')?.innerText ?? ''
-    const username = document.querySelector<HTMLAnchorElement>('.room-owner-username')?.innerText ?? ''
-
-    const replay = document.querySelector('.web-player-round-title')
-    const ending = document.querySelector('.web-player-ending-panel')
-
-    return {
-      room: room,
-      title,
-      uid: '0', // 暫時不知道怎麼從dom取得
-      username,
-      isVtuber: true,
-      status: (replay !== null || ending !== null) ? 'offline' : 'online'
-    } as StreamInfo
-  }
 ]
-
 
 // createMountPoints will not start or the stop the app
 function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[] {
 
-  const { rootContainer } = plasmo
+  const { rootContainer, OverlayApp, anchor } = plasmo
 
   return Object.entries(features).map(([key, handler]) => {
     const { default: hook, App, init, dispose } = handler
@@ -108,10 +91,12 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
         const portals = await hook(settings, info)
         const Root: React.ReactNode = App ? await App(settings, info) : <></>
         root.render(
-          <Fragment key={key}>
-            {Root}
-            {portals}
-          </Fragment>
+          <OverlayApp anchor={anchor}>
+            <BLiveThemeProvider element={section}>
+              {Root}
+              {portals}
+            </BLiveThemeProvider>
+          </OverlayApp>
         )
       },
       unmount: async () => {
@@ -149,6 +134,17 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
       const settings = await getFullSettingStroage()
 
+      // 如果沒有取得直播資訊，就嘗試使用 DOM 取得
+      if (!info) {
+        info = getStreamInfoByDom(roomId, settings)
+      }
+
+      // 依然無法取得，就略過
+      if (!info) {
+        console.info('無法取得直播資訊，已略過')
+        return
+      }
+
       if (!(await shouldInit(roomId, settings, info))) {
         console.info('不符合初始化條件，已略過')
         return
@@ -157,11 +153,15 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       root = createRoot(section)
       console.info('開始渲染主元素....')
       root.render(
-        <App
-          roomId={roomId}
-          settings={settings}
-          info={info}
-        />
+        <OverlayApp anchor={anchor}>
+          <BLiveThemeProvider element={section}>
+            <App
+              roomId={roomId}
+              settings={settings}
+              info={info}
+            />
+          </BLiveThemeProvider>
+        </OverlayApp>
       )
       console.info('渲染主元素完成')
       // 渲染功能元素
@@ -208,11 +208,6 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
 
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
 
-    if (!info) {
-      console.info('無法取得直播資訊，已略過')
-      return
-    }
-
     const rootContainer = await createRootContainer(anchor)
     const forwarder = getForwarder('command', 'content-script')
 
@@ -255,74 +250,116 @@ function App(props: AppProps): JSX.Element {
     "settings.button": buttonSettings
   } = settings
 
-  console.info(buttonSettings)
-
   const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
 
   useEffect(() => {
-    const player = document.querySelector('.player-section')
-    player.setAttribute('style', 'z-index: 9999')
+    console.info('App element mounted!')
   }, [])
 
-  const [dark, setDark] = useState(() => isDarkTheme() && isDarkThemeBilbili())
+  // 狀態為離綫時，此處不需要顯示按鈕
+  // 離綫下載按鈕交給 feature UI 處理
+  if (info.status === 'offline') {
+    return <></>
+  }
 
-  // watch bilibili theme changes
-  useMutationObserver(document.documentElement, (mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'lab-style') {
-        setDark(() => isDarkTheme() && isDarkThemeBilbili())
-      }
-    }
-  }, { attributes: true })
+
+  const restart = () => { }
+  const addBlackList = () => sendMessager('add-black-list', { roomId })
+  const openSettings = () => sendMessager('open-tab', { tab: 'settings' })
+  const openMonitor = () => sendMessager('open-tab', { url: chrome.runtime.getURL('/tabs/stream.html?roomId=' + roomId) })
+
+  const url = (url: string) => () => sendMessager('open-tab', { url })
 
   return (
-    <BJFThemeProvider dark={dark}>
-      <TailwindScope dark={dark}>
-        <div className="fixed top-72 left-0 rounded-r-2xl shadow-md p-3 bg-white dark:bg-gray-800">
-          <button onClick={toggle} className="flex flex-col justify-center items-center text-center gap-3">
-            <img src={extIcon} alt="bjf" height={26} width={26} />
-            <span className="text-md text-gray-800 dark:text-white">同传过滤</span>
-          </button>
-        </div>
-        <Drawer placement="right" open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex justify-start items-start flex-col">
-              <Typography variant="h5" className="dark:text-white">
-                {info.username} 的直播间
-              </Typography>
-              <Typography variant="small" className="dark:text-white">
-                Bilibili Jimaku Filter
-              </Typography>
+    <Fragment>
+      <div onClick={toggle} className="cursor-pointer group fixed flex justify-end top-72 left-0 rounded-r-2xl shadow-md p-3 bg-white dark:bg-gray-800 transition-transform transform -ml-6 w-28 hover:translate-x-5 overflow-hidden">
+        <button className="flex flex-col justify-center items-center text-center gap-3">
+          <img src={extIcon} alt="bjf" height={26} width={26} className="group-hover:animate-pulse" />
+          <span className="text-md text-gray-800 dark:text-white">同传过滤</span>
+        </button>
+      </div>
+      <Drawer placement="right" open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
+        <main className="flex flex-col justify-between h-full">
+          <section>
+            <div className="mb-3 flex items-center justify-between text-ellipsis">
+              <div className="flex justify-start items-start flex-col">
+                <Typography variant="h5" className="dark:text-white">
+                  {info.title}
+                </Typography>
+                <Typography variant="small" className="dark:text-white">
+                  {info.username} 的直播间
+                </Typography>
+              </div>
+              <IconButton variant="text" onClick={closeDrawer}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="h-5 w-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </IconButton>
             </div>
-            <IconButton variant="text" onClick={closeDrawer}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="h-5 w-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </IconButton>
-          </div>
-          <div className="flex flex-col px-2 py-3 gap-4">
-            {displaySettings.blackListButton &&
-              <Button size="lg" >添加到黑名单</Button>}
-            {displaySettings.settingsButton &&
-              <Button size="lg" >进入设置</Button>}
-            {displaySettings.restartButton &&
-              <Button size="lg" >重新启动</Button>}
-            {featureSettings.monitorWindow &&
-              <Button size="lg" >打开监控式视窗</Button>}
-          </div>
-        </Drawer>
-      </TailwindScope>
-    </BJFThemeProvider>
+            <div className="flex flex-col px-2 py-3 gap-4">
+              {displaySettings.blackListButton &&
+                <Button size="lg" className="text-lg" onClick={addBlackList}>添加到黑名单</Button>}
+              {displaySettings.settingsButton &&
+                <Button size="lg" className="text-lg" onClick={openSettings}>进入设置</Button>}
+              {displaySettings.restartButton &&
+                <Button size="lg" className="text-lg" onClick={restart}>重新启动</Button>}
+              {featureSettings.monitorWindow &&
+                <Button size="lg" className="text-lg" onClick={openMonitor}>打开监控式视窗</Button>}
+            </div>
+          </section>
+          <footer>
+            <Typography variant="small">
+              Bilibili Jimaku Filter
+            </Typography>
+            <hr className="py-3 border-black dark:divide-gray-800" />
+            <div className="grid max-sm:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 content-center">
+              <FooterButton title="查看源代码" onClick={url('https://github.com/eric2788/bilibili-jimaku-filter')}>
+                <svg className="h-10 w-10 text-black" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.014-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.532 1.03 1.532 1.03.891 1.529 2.341 1.089 2.91.833.091-.646.349-1.086.635-1.337-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.682-.103-.253-.447-1.27.098-2.646 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 7.07c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.547 1.376.203 2.394.1 2.646.64.699 1.026 1.591 1.026 2.682 0 3.841-2.337 4.687-4.565 4.934.359.31.678.919.678 1.852 0 1.335-.012 2.415-.012 2.741 0 .267.18.577.688.479C19.138 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path>
+                </svg>
+              </FooterButton>
+              <FooterButton title="联络作者" onClick={url('https://tg.me/Eric1008818')}>
+                <svg className="h-10 w-10 text-[#0088cc]" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.99432,2a10,10,0,1,0,10,10A9.99917,9.99917,0,0,0,11.99432,2Zm3.17951,15.15247a.70547.70547,0,0,1-1.002.3515l-2.71467-2.10938L9.71484,17.002a.29969.29969,0,0,1-.285.03894l.334-2.98846.01069.00848.00683-.059s4.885-4.44751,5.084-4.637c.20147-.189.135-.23.135-.23.01147-.23053-.36152,0-.36152,0L8.16632,13.299l-2.69549-.918s-.414-.1485-.453-.475c-.041-.324.46649-.5.46649-.5l10.717-4.25751s.881-.39252.881.25751Z" />
+                </svg>
+              </FooterButton>
+              <FooterButton title="占位">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-black">
+                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 0 1-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 0 1-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 0 1-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584ZM12 18a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+                </svg>
+              </FooterButton>
+              <FooterButton title="使用教程">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-black">
+                  <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 0 1-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 0 1-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 0 1-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584ZM12 18a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+                </svg>
+              </FooterButton>
+            </div>
+          </footer>
+        </main>
+      </Drawer>
+    </Fragment>
+  )
+}
+
+
+
+function FooterButton({ children, title, onClick }: { children: React.ReactNode, title: string, onClick?: VoidFunction }): JSX.Element {
+  return (
+    <Tooltip content={title} placement="bottom">
+      <IconButton onClick={onClick} variant="text" size="lg" title={title} className="rounded-full shadow-md bg-white">
+        {children}
+      </IconButton>
+    </Tooltip>
   )
 }

@@ -162,6 +162,11 @@ export async function shouldInit(roomId: string, settings: SettingSchema, info: 
         return false
     }
 
+    if (info.status === 'offline' && settings.enabledRecording.length === 0) {
+        console.info('直播為下綫狀態，且沒有啓用離綫儲存，已略過。')
+        return false
+    }
+
     const isNativeVtuberFunc = func.wrap(isNativeVtuber)
 
     if (settings.onlyVtuber) {

@@ -6,13 +6,5 @@ export default withMT({
   theme: {
     extend: {}
   },
-  darkMode: "class",
-  safeList: [
-    {
-      pattern: 'bg-[#{a-fA-F0-9]{3,6}]'
-    },
-    {
-      pattern: 'text-[#{a-fA-F0-9]{3,6}]'
-    }
-  ]
+  darkMode: "class"
 })
