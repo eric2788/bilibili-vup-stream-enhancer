@@ -1,15 +1,15 @@
 
-import styled from '@emotion/styled'
 import styleText from 'data-text:~style.css'
+import ShadowRoot from './ShadowRoot'
 
-const TailwindStyle = styled.div`${styleText}`
 
-function TailwindScope({ children, dark }: { children: React.ReactNode, dark?: boolean }) {
+function TailwindScope({ children, dark }: { children: React.ReactNode, dark?: boolean }): JSX.Element {
     return (
         <div className={dark === true ? `dark` : ''}>
-            <TailwindStyle>
+            <ShadowRoot>
+                <style>{styleText}</style>
                 {children}
-            </TailwindStyle>
+            </ShadowRoot>
         </div>
     )
 }

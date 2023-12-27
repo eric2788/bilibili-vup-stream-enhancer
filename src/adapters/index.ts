@@ -1,22 +1,10 @@
-import type { Settings } from "~settings"
+import dom from 'url:~adapters/capture-element.ts'
+import websocket from 'url:~adapters/websocket-hook.js'
 
-//TODO: import js files from adapters folder
-
-
-
-export interface Adapters {
-    'dom': {},
-    'websocket': {},
-}
-
-
+export type Adapters = typeof adapters
 export type AdapterType = keyof Adapters
 
-
-async function hookAdapter(settings: Settings) {
-
+export const adapters = {
+    dom,
+    websocket
 }
-
-
-
-export default hookAdapter
