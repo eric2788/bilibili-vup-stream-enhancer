@@ -10,7 +10,7 @@ import { useWindowMessage } from "~hooks/window-message";
 import type { Settings } from "~settings";
 import type { SettingSchema as ButtonSchema } from "~settings/fragments/button";
 import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
-import { sendMessager, sendWindowMessage } from "~utils/messaging";
+import { sendMessager } from "~utils/messaging";
 import type { FeatureHookRender } from ".";
 
 
@@ -113,7 +113,7 @@ function ButtonArea({ settings }: { settings: Settings }): JSX.Element {
     console.info('backgroundListColor: ', btnStyle.backgroundListColor)
 
     const testClick = async () => {
-        const result = await sendMessager('inject-js', {
+        const result = await sendMessager('inject-func', {
             function: injectFunction('getBLiveCachedData', 'roomInitRes')
         })
         if (!result) return

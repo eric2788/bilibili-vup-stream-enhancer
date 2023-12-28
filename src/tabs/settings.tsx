@@ -1,17 +1,17 @@
 import { Button } from "@material-tailwind/react"
 import { Fragment, useRef } from "react"
-import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useForwarder } from "~hooks/forwarder"
 import { useLoader } from "~hooks/loader"
 import fragments, { type Schema, type SettingFragments, type Settings } from "~settings"
 import SettingFragment, { type SettingFragmentRef } from "~settings/components/SettingFragment"
-
-import '~tailwindcss'
 import { download, readAsJson } from "~utils/file"
+import { sendMessager } from "~utils/messaging"
 import { arrayEqual, removeInvalidKeys, sleep } from "~utils/misc"
 import { getFullSettingStroage } from "~utils/storage"
+
+import '~tailwindcss'
 
 document.title = '字幕过滤设定'
 
@@ -24,12 +24,12 @@ async function exportSettings(): Promise<void> {
         const settings = await getFullSettingStroage()
         const exportContent = JSON.stringify(settings)
         download('settings.json', exportContent, 'application/json')
-        await sendInternal('notify', {
+        await sendMessager('notify', {
             title: '导出设定成功',
             message: '设定已经导出成功。'
         })
     } catch (err: Error | any) {
-        await sendInternal('notify', {
+        await sendMessager('notify', {
             title: '导出设定失败',
             message: err.message
         })
@@ -38,16 +38,16 @@ async function exportSettings(): Promise<void> {
 
 async function clearRecords(): Promise<void> {
     try {
-        const re = await sendInternal('clear-table', { table: 'all' })
+        const re = await sendMessager('clear-table', { table: 'all' })
         if (re instanceof Object && re.result !== 'success') {
             throw re.error
         }
-        await sendInternal('notify', {
+        await sendMessager('notify', {
             title: '清空记录成功',
             message: '所有记录已经清空。'
         })
     } catch (err: Error | any) {
-        await sendInternal('notify', {
+        await sendMessager('notify', {
             title: '清空记录失败',
             message: err.message
         })
@@ -56,9 +56,9 @@ async function clearRecords(): Promise<void> {
 
 async function checkingUpdate(): Promise<void> {
     try {
-        await sendInternal('check-update')
+        await sendMessager('check-update')
     } catch (err: Error | any) {
-        await sendInternal('notify', {
+        await sendMessager('notify', {
             title: '检查更新失败',
             message: err.message
         })
@@ -99,7 +99,7 @@ function SettingPage(): JSX.Element {
                         const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
                         return ref.current.importSettings(importContent)
                     }))
-                    await sendInternal('notify', {
+                    await sendMessager('notify', {
                         title: '导入设定成功',
                         message: '设定已经导入成功。'
                     })
@@ -107,7 +107,7 @@ function SettingPage(): JSX.Element {
                     forwarder.sendForward('content-script', { command: 'restart' })
                 } catch (err: Error | any) {
                     console.error(err)
-                    await sendInternal('notify', {
+                    await sendMessager('notify', {
                         title: '导入设定失败',
                         message: err.message
                     })
@@ -125,7 +125,7 @@ function SettingPage(): JSX.Element {
                 return
             }
             await Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
-            await sendInternal('notify', {
+            await sendMessager('notify', {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
@@ -135,7 +135,7 @@ function SettingPage(): JSX.Element {
         }
     }, (err) => {
         console.error(err)
-        sendInternal('notify', {
+        sendMessager('notify', {
             title: '保存设定失败',
             message: err.message
         })

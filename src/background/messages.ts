@@ -4,13 +4,16 @@ import * as checkUpdate from "./messages/check-update"
 import * as clearTable from './messages/clear-table'
 import * as fetchDeveloper from "./messages/fetch-developer"
 import * as getStreamUrls from "./messages/get-stream-urls"
-import * as injectJs from './messages/inject-js'
+import * as injectFunc from './messages/inject-func'
+import * as injectScript from './messages/inject-script'
 import * as notify from "./messages/notify"
 import * as openTab from "./messages/open-tab"
 import * as openWindow from './messages/open-window'
 import * as request from "./messages/request"
 import * as addBlackList from './messages/add-black-list'
 import * as hookAdapter from './messages/hook-adapter'
+import { isBackgroundScript } from "~utils/file"
+import { sendMessager } from "~utils/messaging"
 
 export type MessagingData = typeof messagers
 
@@ -22,7 +25,14 @@ export type Payload<T> = T extends MessageData<infer U> ? U : never
 
 export type Response<T> = T extends MessageData<any, infer U> ? U : void;
 
+// only use this function in background script
+// or not it will generate adapter files twice!
+// if not background script, use sendMessager instead
 export async function sendInternal<K extends keyof MessagingData, R = Response<MessagingData[K]>>(name: K, body: Payload<MessagingData[K]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<R | void> {
+    // if not background script, send to background script
+    if (!isBackgroundScript()) {
+        return sendMessager(name, body, sender)
+    }
     const { default: messager } = messagers[name]
     const handler = messager as PlasmoMessaging.MessageHandler<Payload<MessagingData[K]>, R>
     return new Promise((resolve, reject) => {
@@ -53,7 +63,8 @@ const messagers = {
     'fetch-developer': fetchDeveloper,
     'open-window': openWindow,
     'clear-table': clearTable,
-    'inject-js': injectJs,
+    'inject-func': injectFunc,
+    'inject-script': injectScript,
     'add-black-list': addBlackList,
     'hook-adapter': hookAdapter
 }

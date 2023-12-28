@@ -1,8 +1,8 @@
 import { Alert, Button, Input, Typography } from "@material-tailwind/react";
 import { Fragment, type ChangeEvent } from "react";
-import { sendInternal } from "~background/messages";
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { Leaves } from "~types/common";
+import { sendMessager } from "~utils/messaging";
 
 export type SettingSchema = {
     elements: {
@@ -156,13 +156,13 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
     const fetchDeveloper = async () => {
         if (!window.confirm('这将覆盖开发者相关所有目前设定。')) return
         try {
-            await sendInternal('fetch-developer')
-            await sendInternal('notify', {
+            await sendMessager('fetch-developer')
+            await sendMessager('notify', {
                 title: '已成功获取最新版本',
                 message: '设定档已储存。请重新加载网页以应用最新版本',
             })
         }catch(err: Error | any) {
-            await sendInternal('notify', {
+            await sendMessager('notify', {
                 title: '获取最新版本失败',
                 message: err.message,
             })

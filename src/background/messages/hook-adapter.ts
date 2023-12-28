@@ -1,28 +1,55 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import type { AdapterType } from "~adapters";
 import { adapters } from "~adapters";
-
-export type RequestBody = {
-    type?: AdapterType
-    command: 'hook' | 'unhook'
-}
+import { sendInternal } from "~background/messages";
+import type { Settings } from "~settings";
 
 
-const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) => {
+export type AdaptOperation = 'hook' | 'unhook'
 
-    const { type, command } = req.body
+type HookBody = {
+    command: 'hook'
+    type: AdapterType
+    settings: Settings
+};
 
-    const file = adapters[type].split("/").pop().split("?")[0]
-    console.info('injecting file: ', file)
+type OtherBody = {
+    command: AdaptOperation
+};
 
-    chrome.scripting.executeScript({
-        target: { tabId: req.sender.tab.id },
-        injectImmediately: true,
-        world: 'MAIN',
-        files: [file],
-    })
+export type RequestBody = HookBody | OtherBody
 
-    res.send('ok')
+export type ResponseBody = chrome.scripting.InjectionResult<any>[]
+
+const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
+
+    const { command } = req.body
+
+    let result: chrome.scripting.InjectionResult<any>[] = []
+
+    if (command === 'hook') {
+        const { type, settings } = req.body as HookBody
+        const file = adapters[type].split("/").pop().split("?")[0]
+        console.info('injecting adapter: ', file)
+        const res = await sendInternal('inject-script', {
+            fileUrl: adapters[type],
+            func: command,
+            args: [settings]
+        }, req.sender)
+        if (res) {
+            result = res
+        }
+    } else {
+        console.info('unhooking adapter')
+        const res = await sendInternal('inject-script', {
+            func: command,
+        }, req.sender)
+        if (res) {
+            result = res
+        }
+    }
+
+    res.send(result)
 }
 
 

@@ -26,10 +26,10 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
             active: false,
             url: 'https://live.bilibili.com'
         })
-        await sendInternal('inject-js', {
-            target: { tabId: tab.id },
-            function: injectFunction('clearIndexedDbTable', req.body.table, req.body.room)
-        })
+        // await sendInternal('inject-func', {
+        //     target: { tabId: tab.id },
+        //     function: injectFunction('clearIndexedDbTable', req.body.table, req.body.room)
+        // }, req.sender)
         await chrome.tabs.remove(tab.id)
         res.send({ result: 'success' })
     } catch (err: Error | any) {

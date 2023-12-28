@@ -1,7 +1,7 @@
 {
   "name": "bilibili-jimaku-filter",
   "displayName": "Bilibili jimaku filter",
-  "version": "2.0-alpha.1",
+  "version": "2.0",
   "description": "功能衆多的同傳字幕過濾插件",
   "author": "Eric Lam <tsukiko852@gmail.com>",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "dev": "yarn clean && plasmo dev",
     "dev:opera": "yarn dev --target=opera-mv3",
     "dev:firefox": "yarn dev --target=firefox-mv3",
-    "build": "plasmo build --no-minify --source-maps",
+    "build": "plasmo build --source-maps",
     "package": "plasmo package",
     "clean": "rm -rf build && rm -rf .plasmo"
   },
@@ -50,7 +50,8 @@
       "*://api.vtbs.moe/*",
       "*://api.live.bilibili.com/*",
       "*://live.bilibili.com/*",
-      "*://*.bilivideo.com/*"
+      "*://*.bilivideo.com/*",
+      "*://*.ericlamm.xyz/*"
     ],
     "permissions": [
       "notifications",
@@ -66,16 +67,6 @@
         "strict_min_version": "78.0"
       }
     },
-    "web_accessible_resources": [
-      {
-        "resources": [
-          "*.wasm"
-        ],
-        "matches": [
-          "*://live.bilibili.com/*"
-        ]
-      }
-    ],
     "content_security_policy": {
       "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
     },
