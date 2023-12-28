@@ -3,6 +3,7 @@ import type { AdapterType } from "~adapters";
 import { adapters } from "~adapters";
 import { sendInternal } from "~background/messages";
 import type { Settings } from "~settings";
+import { getResourceName } from "~utils/file";
 
 
 export type AdaptOperation = 'hook' | 'unhook'
@@ -29,7 +30,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
 
     if (command === 'hook') {
         const { type, settings } = req.body as HookBody
-        const file = adapters[type].split("/").pop().split("?")[0]
+        const file = getResourceName(adapters[type])
         console.info('injecting adapter: ', file)
         const res = await sendInternal('inject-script', {
             fileUrl: adapters[type],

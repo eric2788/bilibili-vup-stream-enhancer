@@ -60,6 +60,16 @@
       "contextMenus",
       "scripting"
     ],
+    "web_accessible_resources": [
+      {
+        "matches": [
+          "*://live.bilibili.com/*"
+        ],
+        "resources": [
+          "*.wasm"
+        ]
+      }
+    ],
     "browser_specific_settings": {
       "gecko": {
         "id": "{041b8202-e9d4-4a78-a9da-465c749ed26c}",

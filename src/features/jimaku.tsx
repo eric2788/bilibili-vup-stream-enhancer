@@ -4,13 +4,11 @@ import { memo, useState } from "react";
 import { Menu as ContextMenu, Item, useContextMenu } from "react-contexify";
 import { createPortal } from "react-dom";
 import VirtualScroller from "virtual-scroller/react";
-import { injectFunction } from "~background/functions";
 import TailwindScope from "~components/TailwindScope";
-import { useWindowMessage } from "~hooks/window-message";
+import { useBLiveMessage, useBLiveMessageCommand } from "~hooks/message";
 import type { Settings } from "~settings";
 import type { SettingSchema as ButtonSchema } from "~settings/fragments/button";
 import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
-import { sendMessager } from "~utils/messaging";
 import type { FeatureHookRender } from ".";
 
 
@@ -47,6 +45,10 @@ function JimakuLine({ item, show }: { item: string, show: (e: React.MouseEvent<H
     )
 }
 
+// addWindowMessageListener('blive-ws', async (data) => {
+//     console.info('received blive-ws: ', data)
+// })
+
 function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
 
     const jimakuStyle = settings['settings.jimaku']
@@ -61,8 +63,8 @@ function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
 
     const [jimaku, setJimaku] = useState<string[]>([])
 
-    useWindowMessage('blive-ws', (data) => {
-        console.info('received blive-ws: ', data)
+    useBLiveMessageCommand('DANMU_MSG', (data) => {
+        console.info(`[BJF] ${data.info[2][1]}${data.info[1]}`)
     })
 
     return (
@@ -113,12 +115,10 @@ function ButtonArea({ settings }: { settings: Settings }): JSX.Element {
     console.info('backgroundListColor: ', btnStyle.backgroundListColor)
 
     const testClick = async () => {
-        const result = await sendMessager('inject-func', {
-            function: injectFunction('getBLiveCachedData', 'roomInitRes')
-        })
-        if (!result) return
-        console.info('inject: ', result[0].result.data)
-        console.info('sandbox: ', window)
+        // const result = await sendMessager('inject-script', {
+        //     script: injectScript('test')
+        // })
+        // console.info('result: ', result)
     }
 
     return (
