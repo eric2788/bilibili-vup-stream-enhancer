@@ -21,18 +21,17 @@ export function injectFuncAsListener(func: (...args: any[]) => void | Promise<vo
 }
 
 export function addFuncEventListener(func: string, callback: (...args: any[]) => void | Promise<void>, once: boolean = false) {
-    const listener = (e: CustomEvent) => {
-        const res = callback(...e.detail.args)
-
-        const afterRun = () => {
+    const listener = async (e: CustomEvent) => {
+        try {
+            const res = callback(...e.detail.args)
+            if (res instanceof Promise) {
+               await res
+            }
+        } catch (err: Error | any) {
+            console.error(`函數${func}執行時出現錯誤`, err)
+        } finally {
             if (once) window.removeEventListener(`bjf:func:${func}`, listener)
             window.dispatchEvent(new CustomEvent(`bjf:func:callback:${e.detail.id}`))
-        }
-
-        if (res instanceof Promise) {
-            res.finally(afterRun)
-        } else {
-           afterRun()
         }
     }
     window.addEventListener(`bjf:func:${func}`, listener)

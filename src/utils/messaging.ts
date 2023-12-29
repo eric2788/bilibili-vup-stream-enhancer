@@ -32,22 +32,40 @@ export function addWindowMessageListener(command: string, callback: (data: any, 
 
 
 export function addBLiveMessageCommandListener<K extends string>(command: K, callback: (command: BLiveDataWild<K>, event: MessageEvent) => void): VoidFunction {
-    return addBLiveMessageListener((data, event) => {
+    return addBLiveMessageListener<K>((data, event) => {
         if (data.cmd === command) {
             callback(data.command, event)
         }
     })
 }
 
-export function addBLiveMessageListener(callback: (data: {cmd: string, command: any}, event: MessageEvent) => void): VoidFunction {
-    return addWindowMessageListener('blive-ws', (data: {cmd: string, command: any, eventId: string}, event) => {
+export function addBLiveMessageListener<K extends string>(callback: (data: { cmd: K, command: BLiveDataWild<K> }, event: MessageEvent) => void): VoidFunction {
+    return addWindowMessageListener('blive-ws', (data: { cmd: K, command: BLiveDataWild<K>, eventId: string }, event) => {
         callback(data, event)
         delete data.command.dm_v2 // make sure edit is affected
         event.source.postMessage({ source: ID, data: { command: `ws:callback:${data.eventId}`, body: data } }, { targetOrigin: event.origin })
     })
 }
 
-
 export function sendWindowMessage(command: string, body: any) {
     window.postMessage({ source: ID, data: { command, body } }, '*')
+}
+
+
+export function sendBLiveMessage<K extends string>(cmd: K, command: BLiveDataWild<K>): Promise<BLiveDataWild<K>> {
+    const eventId = window.crypto.randomUUID()
+    return new Promise((res, rej) => {
+        const removeListener = addWindowMessageListener(`ws:callback:${eventId}`, (data: { cmd: K, command: BLiveDataWild<K> }, event) => {
+            if (event.origin !== window.location.origin) {
+                return
+            }
+            removeListener()
+            res(data.command)
+        })
+        setTimeout(() => {
+            removeListener()
+            rej('事件處理已逾時')
+        }, 500)
+        sendWindowMessage('blive-ws', { cmd, command, eventId })
+    })
 }
