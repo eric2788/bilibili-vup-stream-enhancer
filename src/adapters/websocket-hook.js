@@ -225,7 +225,7 @@ async function unhook() {
     WebSocket.prototype._send = WebSocket.prototype.send
     WebSocket.prototype.send = function (data) {
       this._send(data);
-      this.onmessage = onmsg
+      this.onmessage = onmsg.bind(this)
       this.send = this._send
       onmsg = null
       console.log('websocket unhooked.')

@@ -9,7 +9,7 @@
     "dev": "yarn clean && plasmo dev",
     "dev:opera": "yarn dev --target=opera-mv3",
     "dev:firefox": "yarn dev --target=firefox-mv3",
-    "build": "plasmo build --source-maps",
+    "build": "plasmo build --source-maps --no-minify",
     "package": "plasmo package",
     "clean": "rm -rf build && rm -rf .plasmo"
   },
