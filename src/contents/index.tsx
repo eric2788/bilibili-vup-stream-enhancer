@@ -17,6 +17,8 @@ import { shouldInit, type Settings } from "../settings"
 
 import "~toaster"
 import { toast } from "sonner/dist"
+import { injectAdapter } from "~utils/inject"
+import { start } from "repl"
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -159,15 +161,29 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       // hook adapter
       console.info('開始注入適配器....')
       const adapterType = settings["settings.capture"].captureMechanism
-      const hooking = sendMessager('hook-adapter', { command: 'hook', type: adapterType, settings: settings })
-      toast.dismiss()
+      const hooking = injectAdapter({ command: 'hook', type: adapterType, settings: settings })
+      //toast.dismiss()
       toast.promise(hooking, {
         loading: '正在挂接直播监听...',
         success: '挂接成功',
-        error: (err) => '挂接失敗: '+err,
-        position: 'top-left',
+        position: 'top-left'
       })
-      await hooking
+      try {
+        await hooking
+      } catch (err: Error | any) {
+        console.error('hooking error: ', err)
+        toast.dismiss()
+        toast.error('挂接失敗: ' + err.message, {
+          action: {
+            label: '重試',
+            onClick: () => this.start()
+          },
+          position: 'top-left',
+          duration: 6000000,
+          dismissible: false
+        })
+        return
+      }
       console.info('注入適配器完成')
 
       // 渲染主元素
@@ -205,7 +221,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       toast.promise(unhooking, {
         loading: '正在移除直播监听挂接...',
         success: '移除成功',
-        error: (err) => '移除失敗: '+err,
+        error: (err) => '移除失敗: ' + err,
         position: 'top-left'
       })
       await unhooking

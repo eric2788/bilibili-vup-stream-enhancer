@@ -3,6 +3,7 @@ import type { AdapterType } from "~adapters";
 import { adapters } from "~adapters";
 import { sendInternal } from "~background/messages";
 import type { Settings } from "~settings";
+import type { FuncEventResult } from "~utils/event";
 import { getResourceName } from "~utils/file";
 
 
@@ -20,13 +21,13 @@ type OtherBody = {
 
 export type RequestBody = HookBody | OtherBody
 
-export type ResponseBody = chrome.scripting.InjectionResult<any>[]
+export type ResponseBody = FuncEventResult & { result?: any }
 
 const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
 
     const { command } = req.body
 
-    let result: chrome.scripting.InjectionResult<any>[] = []
+    let result: ResponseBody = { success: true }
 
     if (command === 'hook') {
         const { type, settings } = req.body as HookBody

@@ -1,15 +1,18 @@
 import styled from "@emotion/styled";
 import { useClickOutside } from "@react-hooks-library/core";
-import { memo, useState } from "react";
-import { Menu as ContextMenu, Item, useContextMenu } from "react-contexify";
+import { memo, useEffect, useRef, useState } from "react";
+import { Menu, Item, useContextMenu } from "react-contexify";
 import { createPortal } from "react-dom";
 import VirtualScroller from "virtual-scroller/react";
+import { sendForward } from "~background/forwards";
 import TailwindScope from "~components/TailwindScope";
-import { useBLiveMessage, useBLiveMessageCommand } from "~hooks/message";
+import { useBLiveMessageCommand } from "~hooks/message";
 import type { Settings } from "~settings";
 import type { SettingSchema as ButtonSchema } from "~settings/fragments/button";
 import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
 import type { FeatureHookRender } from ".";
+
+import "react-contexify/dist/ReactContexify.css";
 
 
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
@@ -25,10 +28,10 @@ const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
     background-color: ${jimakuStyle.color};
 }
 div#subtitle-list p:first-of-type {
+    animation: ${jimakuStyle.animation} .3s ease-out;
     font-size: ${jimakuStyle.firstLineSize}px;
 }
 div#subtitle-list p {
-    animation: ${jimakuStyle.animation} .3s ease-out;
     font-weight: bold;
     color: ${jimakuStyle.color}; 
     opacity: 1.0; 
@@ -45,9 +48,8 @@ function JimakuLine({ item, show }: { item: string, show: (e: React.MouseEvent<H
     )
 }
 
-// addWindowMessageListener('blive-ws', async (data) => {
-//     console.info('received blive-ws: ', data)
-// })
+
+const queue: string[] = []
 
 function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
 
@@ -55,16 +57,27 @@ function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
 
     const Area = createJimakuScope(jimakuStyle)
 
-    const { show, hideAll } = useContextMenu({
+    const { show } = useContextMenu({
         id: 'jimaku-context-menu'
     })
 
-    useClickOutside(document.getElementById('jimaku-context-menu'), hideAll, { event: 'pointerdown' })
+    const contextMenuRef = useRef<HTMLElement>(null)
 
-    const [jimaku, setJimaku] = useState<string[]>([])
+    useEffect(() => {
+        contextMenuRef.current = document.getElementById('jimaku-context-menu')
+        const id = setInterval(() => {
+            if (queue.length > 0) {
+                setJimaku((prev) => [queue.shift(), ...prev])
+            }
+        }, 500)
+        return () => clearInterval(id)
+    }, [])
+
+    const [jimaku, setJimaku] = useState<string[]>(queue)
 
     useBLiveMessageCommand('DANMU_MSG', (data) => {
-        console.info(`[BJF] ${data.info[2][1]}${data.info[1]}`)
+        console.info(`[BJF] ${data.info[2][1]} => ${data.info[1]}`)
+        queue.push(data.info[1])
     })
 
     return (
@@ -82,12 +95,12 @@ function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
                     items={jimaku}
                     itemComponent={memo(JimakuLine)}
                     itemComponentProps={{ show: (e: React.MouseEvent<HTMLParagraphElement>) => show({ event: e }) }}
+                    preserveScrollPositionOnPrependItems={true}
                 />
             </div>
-            <ContextMenu id="jimaku-context-menu" className="fixed z-[9999] bg-[#1b1a1a] cursor-pointer">
-                <Item className="px-3 py-2 text-[#dbdbdb] text-[12px] cursor-pointer hover:bg-gray-800">屏蔽选中同传发送者</Item>
-                <Item className="px-3 py-2 text-[#dbdbdb] text-[12px] cursor-pointer hover:bg-gray-800">hello 123</Item>
-            </ContextMenu>
+            <Menu id="jimaku-context-menu">
+                <Item>屏蔽选中同传发送者</Item>
+            </Menu>
         </Area>
     )
 }
@@ -115,10 +128,7 @@ function ButtonArea({ settings }: { settings: Settings }): JSX.Element {
     console.info('backgroundListColor: ', btnStyle.backgroundListColor)
 
     const testClick = async () => {
-        // const result = await sendMessager('inject-script', {
-        //     script: injectScript('test')
-        // })
-        // console.info('result: ', result)
+        sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'stop' }, queryInfo: { url: location.href } })
     }
 
     return (

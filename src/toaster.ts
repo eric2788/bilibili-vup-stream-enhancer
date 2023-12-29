@@ -9,4 +9,4 @@ if (div == null) {
     document.body.appendChild(div)
 }
 const root = createRoot(div)
-root.render(createElement(Toaster))
+root.render(createElement(Toaster, { richColors: true }))

@@ -59,7 +59,8 @@
       "storage",
       "tabs",
       "contextMenus",
-      "scripting"
+      "scripting",
+      "activeTab"
     ],
     "web_accessible_resources": [
       {
