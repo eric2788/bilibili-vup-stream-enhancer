@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import type { StreamUrlResponse } from "~types/bilibili";
-import { fetchSameOriginV1 } from "~utils/fetch";
+import { fetchSameCredentialV1 } from "~utils/fetch";
 
 export type RequestBody = {
     roomid: number | string
@@ -9,7 +9,7 @@ export type RequestBody = {
 
 async function getStreamUrl(roomid: number | string) {
     const url = `https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo?room_id=${roomid}&protocol=0,1&format=0,2&codec=0,1&qn=10000&platform=web&ptype=16`
-    const data = await fetchSameOriginV1<StreamUrlResponse>(url)
+    const data = await fetchSameCredentialV1<StreamUrlResponse>(url)
 
     if (data.is_hidden) {
         console.warn('此直播間被隱藏')

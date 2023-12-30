@@ -62,7 +62,7 @@ export function toStreamingTime(live_time?: number): string {
     return toTimer(Math.round(Date.now() / 1000) - live_time)
 }
 
-function rgba(hex: string, opacity: number): string {
+export function rgba(hex: string, opacity: number): string {
     let c: any;
     if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
         c = hex.substring(1).split('')
@@ -70,7 +70,7 @@ function rgba(hex: string, opacity: number): string {
             c = [c[0], c[0], c[1], c[1], c[2], c[2]]
         }
         c = '0x' + c.join('')
-        return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + `,${opacity})`
+        return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + `,${opacity.toFixed(1)})`
     }
     console.warn('bad Hex: ' + hex)
     return hex

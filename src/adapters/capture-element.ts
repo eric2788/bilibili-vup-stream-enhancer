@@ -22,6 +22,7 @@ const config: MutationObserverInit = { attributes: false, childList: true, subtr
 
 const observers: MutationObserver[] = []
 const beforeInsert: string[] = []
+let keepBottomInterval: number = 0 
 
 async function hash(str: string): Promise<number> {
     const hex = await md5(str)
@@ -142,15 +143,25 @@ function startDanmakuStyleMonitor(settings: Settings): MutationObserver {
     return danmakuObserver
 }
 
+function startKeepBottom(settings: Settings): number {
+    const msgButton = document.querySelector(settings['settings.developer'].elements.newMsgButton) as HTMLElement
+    return window.setInterval(() => {
+        if (msgButton.style.display !== 'none') {
+            msgButton.click()
+        }
+    }, 1000)
+}
 
 
 async function hook(settings: Settings) {
     observers.push(startDanmakuMonitor(settings))
     observers.push(startDanmakuStyleMonitor(settings))
+    keepBottomInterval = startKeepBottom(settings)
 }
 
 
 async function unhook() {
+    clearInterval(keepBottomInterval)
     while (observers.length) {
         observers.pop().disconnect()
     }

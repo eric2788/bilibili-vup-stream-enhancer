@@ -5,7 +5,7 @@ import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } f
 import extIcon from 'raw:~assets/icon.png'
 import { Fragment, useEffect } from "react"
 import { createRoot, type Root } from "react-dom/client"
-import { getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from "~api/bilibili"
+import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from "~api/bilibili"
 import { getForwarder, sendForward } from "~background/forwards"
 import BLiveThemeProvider from "~components/BLiveThemeProvider"
 import { getRoomId, getStreamInfoByDom } from "~utils/bilibili"
@@ -19,6 +19,7 @@ import "~toaster"
 import { toast } from "sonner/dist"
 import { injectAdapter } from "~utils/inject"
 import { start } from "repl"
+import { useWebScreenChange } from "~hooks/bilibili"
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -58,7 +59,14 @@ interface App {
 const getStreamInfoFallbacks = [
 
   // 1. 使用 API (重試 5 次)
-  (room: string) => () => withRetries(() => getStreamInfo(room), 5),
+  (room: string) => () => withRetries(() => getStreamInfo(room), 5, {
+    onRetry(err, i) {
+      toast.warning(`取得直播資訊失敗: ${err.message}，正在重試第${i}次...`, { position: 'top-left' })
+    },
+    onFinalErr(err) {
+      toast.error(`取得直播資訊失敗: ${err.message}, 将采用后备方式获取。`, { position: 'top-left' })
+    }
+  }),
 
   // 2. 使用腳本注入
   () => () => getNeptuneIsMyWaifu('roomInfoRes').then(r => ({
@@ -67,7 +75,8 @@ const getStreamInfoFallbacks = [
     uid: r.data.room_info.uid.toString(),
     username: r.data.anchor_info.base_info.uname,
     isVtuber: r.data.room_info.parent_area_id !== 9, // 分區辨識
-    status: r.data.room_info.live_status === 1 ? 'online' : 'offline'
+    status: r.data.room_info.live_status === 1 ? 'online' : 'offline',
+    liveTime: r.data.room_info.live_start_time
   }) as StreamInfo),
 ]
 
@@ -150,6 +159,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       // 依然無法取得，就略過
       if (!info) {
         console.info('無法取得直播資訊，已略過')
+        toast.warning('無法取得直播資訊，请稍后刷新页面尝试。', { position: 'top-left' })
         return
       }
 
@@ -162,7 +172,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       console.info('開始注入適配器....')
       const adapterType = settings["settings.capture"].captureMechanism
       const hooking = injectAdapter({ command: 'hook', type: adapterType, settings: settings })
-      //toast.dismiss()
+      toast.dismiss()
       toast.promise(hooking, {
         loading: '正在挂接直播监听...',
         success: '挂接成功',
@@ -254,11 +264,21 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
   }
 
   try {
+
     const roomId = getRoomId()
 
     if (!roomId) {
       console.info('找不到房間號，已略過: ', location.pathname)
       return
+    }
+
+
+    const login = await ensureLogin()
+
+    console.info('login: ', login)
+
+    if (!login) {
+      toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
     }
 
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
@@ -302,7 +322,6 @@ function App(props: AppProps): JSX.Element {
   const {
     "settings.display": displaySettings,
     "settings.features": featureSettings,
-    "settings.button": buttonSettings
   } = settings
 
   const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
@@ -317,6 +336,13 @@ function App(props: AppProps): JSX.Element {
     return <></>
   }
 
+
+  const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
+
+
+  if (screenStatus !== 'normal' && !displaySettings.supportWebFullScreen) {
+    return <></>
+  }
 
   const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: location.href } })
   const addBlackList = () => confirm(`确定添加房间 ${roomId} 到黑名单?`) && sendMessager('add-black-list', { roomId })
@@ -333,7 +359,7 @@ function App(props: AppProps): JSX.Element {
           <span className="text-md text-gray-800 dark:text-white">同传过滤</span>
         </button>
       </div>
-      <Drawer placement="right" open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
+      <Drawer placement={screenStatus === 'normal' ? 'right' : 'left'} open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
         <main className="flex flex-col justify-between h-full">
           <section>
             <div className="mb-3 flex items-center justify-between text-ellipsis">
