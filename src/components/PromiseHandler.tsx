@@ -163,7 +163,6 @@ function CustomError({ children }: { children: (err: Error | any) => React.React
 
 function EmbedRender({ children }: { children: (data: any) => React.ReactNode }): React.ReactNode {
     const data = useContext(PromiseHandlerContext)
-    if (!data) return null
     return children(data)
 }
 
