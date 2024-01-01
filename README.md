@@ -1,5 +1,7 @@
 # bilibili 直播同传字幕过滤插件
 
+**此分支已過時**, 目前主分支是 manifest v3 的 master
+
 
 ## ➵ 下载
 
