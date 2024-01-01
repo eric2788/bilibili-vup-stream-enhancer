@@ -10,6 +10,7 @@ export type OfflineRecordsProviderProps<T extends TableType> = {
     settings: Settings
     room: string
     table: T
+    reverse?: boolean
     loading: React.ReactNode
     error: (err: any, retry: VoidFunction) => React.ReactNode
     children: (data: RecordType<T>[]) => React.ReactNode
@@ -18,11 +19,15 @@ export type OfflineRecordsProviderProps<T extends TableType> = {
 
 function OfflineRecordsProvider<T extends TableType>(props: OfflineRecordsProviderProps<T>): JSX.Element {
 
-    const { settings, table, feature, children, loading, error, room } = props
+    const { settings, table, feature, children, loading, error, room, reverse } = props
     const { enabledRecording } = settings['settings.features']
 
     const getRecords = useCallback(() => {
-        return db[table].where({ room }).toArray()
+        let records = db[table].where({ room })
+        if (reverse) {
+            records = records.reverse()
+        }
+        return records.toArray()
     }, [table, room])
 
     const [fetcher, setFetcher] = useState<() => Promise<unknown>>(getRecords)

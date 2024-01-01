@@ -86,7 +86,7 @@ export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX
 const handler: FeatureHookRender = async (settings, info) => {
 
     const dev = settings['settings.developer']
-    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size } = settings['settings.jimaku']
+    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size, order } = settings['settings.jimaku']
     const { backgroundListColor } = settings['settings.button']
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
@@ -102,6 +102,7 @@ const handler: FeatureHookRender = async (settings, info) => {
                     feature="jimaku"
                     settings={settings}
                     table="jimakus"
+                    reverse={order === 'top'}
                     loading={
                         <>
                             <div style={{ height: backgroundHeight, backgroundColor }} className="flex justify-center items-start">
