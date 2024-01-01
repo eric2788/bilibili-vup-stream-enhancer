@@ -1,9 +1,9 @@
 import type React from "react";
-import { Item, ItemParams, Menu, useContextMenu } from 'react-contexify';
+import { Item, type ItemParams, Menu, useContextMenu } from 'react-contexify';
 import { toast } from 'sonner/dist';
 import { useKeepBottom } from '~hooks/keep-bottom';
 import { useScrollOptimizer } from '~hooks/optimizer';
-import { SettingSchema as JimakuSchema } from '~settings/fragments/jimaku';
+import { type SettingSchema as JimakuSchema } from '~settings/fragments/jimaku';
 import { getSettingStorage, setSettingStorage } from '~utils/storage';
 
 import JimakuLine from './JimakuLine';

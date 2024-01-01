@@ -1,18 +1,5 @@
-
-
-// const monObserver = new Observer((mu,) => {
-//     const currentState = $(mu[0].target).hasClass(classes.screenWeb) ? 'web-fullscreen' : $(mu[0].target).hasClass(classes.screenFull) ? 'fullscreen' : 'normal'
-//     if (currentState === lastState) return
-//     const fullScreen = currentState === 'web-fullscreen' || currentState === 'fullscreen'
-//     fullScreenTrigger(fullScreen, settings)
-//     lastState = currentState
-// })
-// monObserver.observe(document.body, { attributes: true, subtree: false, childList: false })
-// observers.push(monObserver)
-
-import { useState } from 'react';
-
 import { useMutationObserver } from '@react-hooks-library/core';
+import { useState } from 'react';
 
 export type WebScreenStatus = 'normal' | 'web-fullscreen' | 'fullscreen'
 

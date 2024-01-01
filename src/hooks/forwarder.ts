@@ -1,7 +1,10 @@
-import { useEffect } from 'react';
 import {
-    ChannelType, ForwardData, ForwardResponse, getForwarder
-} from '~background/forwards';
+    getForwarder,
+    type ChannelType,
+    type ForwardData,
+    type ForwardResponse} from '~background/forwards';
+
+import { useEffect } from 'react';
 
 /**
  * `useForwarder` is a React hook that creates a forwarder for sending and receiving messages between different parts of a Chrome extension.

@@ -3,9 +3,9 @@ import '~toaster';
 import styleText from 'data-text:~style.css';
 import extIcon from 'raw:~assets/icon.png';
 import { Fragment, useEffect } from 'react';
-import { Root, createRoot } from 'react-dom/client';
+import { type Root, createRoot } from 'react-dom/client';
 import { toast } from 'sonner/dist';
-import { StreamInfo, ensureLogin, getNeptuneIsMyWaifu, getStreamInfo } from '~api/bilibili';
+import { type StreamInfo, ensureLogin, getNeptuneIsMyWaifu, getStreamInfo } from '~api/bilibili';
 import { getForwarder, sendForward } from '~background/forwards';
 import BLiveThemeProvider from '~components/BLiveThemeProvider';
 import { useWebScreenChange } from '~hooks/bilibili';
@@ -18,10 +18,12 @@ import { getFullSettingStroage } from '~utils/storage';
 import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
 import { useToggle } from '@react-hooks-library/core';
 
-import features, { FeatureType } from '../features';
-import { Settings, shouldInit } from '../settings';
+import features, { type FeatureType } from '../features';
+import { type Settings, shouldInit } from '../settings';
 
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
+
+
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
   all_frames: true,
