@@ -10,20 +10,20 @@
 // monObserver.observe(document.body, { attributes: true, subtree: false, childList: false })
 // observers.push(monObserver)
 
-import { useMutationObserver } from "@react-hooks-library/core";
-import { useCallback, useState } from "react";
+import { useState } from 'react';
 
+import { useMutationObserver } from '@react-hooks-library/core';
 
 export type WebScreenStatus = 'normal' | 'web-fullscreen' | 'fullscreen'
 
 export function useWebScreenChange(classes: { screenWeb: string, screenFull: string }): WebScreenStatus {
 
-    const fetchScreenStatus = (bodyElement: HTMLElement) => 
-    bodyElement.classList.contains(classes.screenWeb) ?
-        'web-fullscreen' :
-        bodyElement.classList.contains(classes.screenFull) ?
-            'fullscreen' :
-            'normal'
+    const fetchScreenStatus = (bodyElement: HTMLElement) =>
+        bodyElement.classList.contains(classes.screenWeb) ?
+            'web-fullscreen' :
+            bodyElement.classList.contains(classes.screenFull) ?
+                'fullscreen' :
+                'normal'
 
     const [screenStatus, setScreenStatus] = useState<WebScreenStatus>(() => fetchScreenStatus(document.body))
 

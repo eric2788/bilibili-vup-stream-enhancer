@@ -1,6 +1,6 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging"
+import type { PlasmoMessaging } from "@plasmohq/messaging";
 
-import icon from 'raw:~assets/icon.png'
+import icon from 'raw:~assets/icon.png';
 
 export type RequestBody = {
     title: string,

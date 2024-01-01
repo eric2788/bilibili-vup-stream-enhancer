@@ -1,5 +1,6 @@
-import getBLiveCachedData from "./getBLiveCachedData";
-import getWindowVariable from "./getWindowVariable";
+import getBLiveCachedData from './getBLiveCachedData';
+import getWindowVariable from './getWindowVariable';
+
 export interface InjectableFunction<T extends InjectableFunctionType> {
     name: T
     args: InjectableFunctionParameters<T>

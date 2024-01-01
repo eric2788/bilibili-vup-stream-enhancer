@@ -1,9 +1,9 @@
-import { type SettingSchema as ButtonSchema } from "~settings/fragments/button"
+import { type SettingSchema as ButtonSchema } from '~settings/fragments/button';
 
-export type JimakuButtonProps = { 
-    onClick?: VoidFunction, 
-    btnStyle: ButtonSchema, 
-    children: React.ReactNode 
+export type JimakuButtonProps = {
+    onClick?: VoidFunction,
+    btnStyle: ButtonSchema,
+    children: React.ReactNode
 }
 
 function JimakuButton({ onClick, btnStyle, children }: JimakuButtonProps): JSX.Element {

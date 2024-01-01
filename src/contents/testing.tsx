@@ -1,10 +1,10 @@
-import styleText from "data-text:~style.css";
+import '~toaster';
+
+import styleText from 'data-text:~style.css';
+import { toast } from 'sonner/dist';
+import { injectScript } from '~utils/inject';
+
 import type { PlasmoCSConfig, PlasmoGetStyle } from "plasmo";
-import { toast } from "sonner/dist";
-import { injectScript } from "~utils/inject";
-
-import "~toaster";
-
 export const config: PlasmoCSConfig = {
     matches: ["*://static.ericlamm.xyz/"],
 }

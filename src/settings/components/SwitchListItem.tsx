@@ -1,6 +1,9 @@
-import { ListItem, ListItemPrefix, ListItemSuffix, Switch, Typography } from "@material-tailwind/react"
-import type { colors } from "@material-tailwind/react/types/generic"
-import type { ChangeEventHandler } from "react"
+import {
+    ListItem, ListItemPrefix, ListItemSuffix, Switch, Typography
+} from '@material-tailwind/react';
+
+import type { colors } from "@material-tailwind/react/types/generic";
+import type { ChangeEventHandler } from "react";
 
 
 export type SwitchListItemProps = {

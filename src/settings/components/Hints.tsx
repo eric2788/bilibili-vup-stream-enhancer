@@ -1,6 +1,6 @@
-import { Typography } from "@material-tailwind/react"
-import { Fragment } from "react"
+import { Fragment } from 'react';
 
+import { Typography } from '@material-tailwind/react';
 
 export type HintsProps = {
     values: (string | React.ReactNode)[]

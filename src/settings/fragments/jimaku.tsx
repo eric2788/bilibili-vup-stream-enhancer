@@ -1,11 +1,11 @@
-import type { label } from "@material-tailwind/react/types/components/checkbox"
-import { Fragment, type ChangeEvent } from "react"
-import type { StateProxy } from "~hooks/binding"
-import AffixInput from "~settings/components/AffixInput"
-import ColorInput from "~settings/components/ColorInput"
-import Hints from "~settings/components/Hints"
-import Selector from "~settings/components/Selector"
-import type { HexColor, HundredNumber, NumRange } from "~types/common"
+import { type ChangeEvent, Fragment } from 'react';
+import AffixInput from '~settings/components/AffixInput';
+import ColorInput from '~settings/components/ColorInput';
+import Hints from '~settings/components/Hints';
+import Selector from '~settings/components/Selector';
+
+import type { StateProxy } from "~hooks/binding";
+import type { HexColor, HundredNumber, NumRange } from "~types/common";
 
 export type SettingSchema = {
     size: HundredNumber
@@ -48,7 +48,7 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
     return (
         <Fragment>
             <div>
-                <AffixInput label="字幕大小" variant="static" min={0} max={100} type="number" value={state.size} onChange={numberHandler('size')} suffix="px"  />
+                <AffixInput label="字幕大小" variant="static" min={0} max={100} type="number" value={state.size} onChange={numberHandler('size')} suffix="px" />
                 {hundredHints}
             </div>
             <div>
@@ -81,7 +81,7 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
                 <Hints values={[
                     '用户低于该等级将无视其同传弹幕, 同传man名单内的用户除外',
                     <span className="text-red-800">(UL等级过滤无法应用于隐藏同传弹幕和透明度)</span>
-                ]}/>
+                ]} />
             </div>
             <div>
                 <ColorInput label="字幕顏色" value={state.color} onChange={stringHandler('color')} />

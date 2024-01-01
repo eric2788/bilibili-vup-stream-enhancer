@@ -1,5 +1,5 @@
 import type { VtbMoeDetailResponse, VtbMoeListResponse } from "~types/bilibili";
-import { sendMessager } from "~utils/messaging";
+import { sendMessager } from '~utils/messaging';
 
 export async function getVupDetail(uid: string): Promise<VtbMoeDetailResponse | undefined> {
     try {

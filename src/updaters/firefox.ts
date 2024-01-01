@@ -1,6 +1,7 @@
-import semver from 'semver'
-import { sendInternal } from '~background/messages'
-import type { UpdateAction, UpdateChecker } from '.'
+import semver from 'semver';
+import { sendInternal } from '~background/messages';
+
+import type { UpdateAction, UpdateChecker } from '.';
 
 interface UpdateInfo {
     version: string

@@ -1,18 +1,16 @@
-import { useMutationObserver } from "@react-hooks-library/core";
-import { createPortal } from "react-dom";
-import { toast } from "sonner/dist";
-import TailwindScope from "~components/TailwindScope";
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { toast } from 'sonner/dist';
+import OfflineRecordsProvider from '~components/OfflineRecordsProvider';
+import TailwindScope from '~components/TailwindScope';
+
+import { useMutationObserver } from '@react-hooks-library/core';
+
+import JimakuCaptureLayer from './components/JimakuCaptureLayer';
+
+import type { StreamInfo } from "~api/bilibili";
 import type { Settings } from "~settings";
 import type { FeatureHookRender } from "..";
-import ButtonArea from "./components/ButtonArea";
-import JimakuArea from "./components/JimakuArea";
-import type { StreamInfo } from "~api/bilibili";
-import { useEffect } from "react";
-import { sleep } from "~utils/misc";
-import PromiseHandler from "~components/PromiseHandler";
-import { Typography } from "@material-tailwind/react";
-
-
 export function parseJimaku(danmaku: string, regex: string) {
     if (danmaku === undefined) return undefined
     const reg = new RegExp(regex)
@@ -86,39 +84,57 @@ export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX
 }
 
 const handler: FeatureHookRender = async (settings, info) => {
-    console.info('hello world from jimaku.tsx!')
 
     const dev = settings['settings.developer']
-    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap } = settings['settings.jimaku']
+    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size } = settings['settings.jimaku']
+    const { backgroundListColor } = settings['settings.button']
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
     const jimakuArea = document.createElement('div')
     jimakuArea.id = 'jimaku-area'
     playerSection.insertAdjacentElement('afterend', jimakuArea)
 
-    const testFetch = sleep(5000)
-
     return [
         createPortal(
             <TailwindScope>
-                <PromiseHandler promise={testFetch} >
-                    <PromiseHandler.Error>
-                        {err => (
-                            <div style={{ height: backgroundHeight }} className="flex justify-center items-center bg-gray-700 text-red-700">
-                                <div>{err}</div>
+                <OfflineRecordsProvider
+                    feature="jimaku"
+                    settings={settings}
+                    table="jimakus"
+                    loading={
+                        <>
+                            <div style={{ height: backgroundHeight, backgroundColor }} className="flex justify-center items-start">
+                                <h1 style={{ color, fontSize: firstLineSize, marginTop: lineGap }} className="animate-pulse font-bold">字幕加载中...</h1>
                             </div>
-                        )}
-                    </PromiseHandler.Error>
-                    <PromiseHandler.Response>
-                        {(data) => <JimakuArea settings={settings} info={info} />}
-                    </PromiseHandler.Response>
-                    <PromiseHandler.Loading>
-                        <div style={{ height: backgroundHeight, backgroundColor }} className="flex justify-center items-start">
-                            <h1 style={{color, fontSize: firstLineSize, marginTop: lineGap }} className="animate-pulse font-bold">字幕加载中...</h1>
-                        </div>
-                    </PromiseHandler.Loading>
-                </PromiseHandler>
-                <ButtonArea settings={settings} info={info} />
+                            <div style={{ backgroundColor: backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
+                                {...Array(3).fill(0).map((_, i) => {
+                                    // make random skeleton width
+                                    const width = [120, 160, 130][i]
+                                    return (
+                                        <div key={i} style={{ width: width }} className="m-[5px] px-[20px] py-[10px] rounded-md text-[15px] animate-pulse bg-gray-300">
+                                            &nbsp;
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </>
+                    }
+                    error={(err, retry) => (
+                        <>
+                            <div style={{ height: backgroundHeight, backgroundColor }} className="flex flex-col justify-start text-lg items-center gap-3 text-red-400">
+                                <h1 style={{ fontSize: firstLineSize, margin: `${lineGap}px 0px` }} className="font-bold">加载失败</h1>
+                                <span style={{ fontSize: size }}>{String(err)}</span>
+                            </div>
+                            <div style={{ backgroundColor: backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
+                                <button onClick={retry} className="m-[5px] px-[20px] py-[10px] text-[15px] bg-red-700 rounded-md">
+                                    重试
+                                </button>
+                            </div>
+                        </>
+                    )}
+                >
+                    {(data) => <JimakuCaptureLayer settings={settings} info={info} offlineRecords={data} />}
+                </OfflineRecordsProvider>
             </TailwindScope>
             , jimakuArea)
     ]

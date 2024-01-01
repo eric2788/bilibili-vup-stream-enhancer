@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react';
 
 function ShadowRoot({ children }) {
   const ref = useRef(null)

@@ -1,8 +1,13 @@
-import { sendToBackground } from "@plasmohq/messaging"
-import { getPort } from "@plasmohq/messaging/port"
-import { type MessagingData, type Payload as MsgPayload, type Response as MsgResponse } from "~background/messages"
-import type { Payload as PortPayload, Response as PortResponse, PortingData } from "~background/ports"
-import type { BLiveDataWild } from "~types/bilibili"
+import type {
+    MessagingData,
+    Payload as MsgPayload,
+    Response as MsgResponse
+} from '~background/messages';
+import type { Payload as PortPayload, Response as PortResponse, PortingData } from "~background/ports";
+
+import type { BLiveDataWild } from "~types/bilibili";
+import { getPort } from '@plasmohq/messaging/port';
+import { sendToBackground } from '@plasmohq/messaging';
 
 const ID = 'bilibili-jimaku-filter'
 

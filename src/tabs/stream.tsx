@@ -1,5 +1,4 @@
-import '~tailwindcss'
-
+import '~tailwindcss';
 
 document.title = 'DD监控视窗(加载中...)'
 

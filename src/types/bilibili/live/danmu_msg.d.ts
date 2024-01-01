@@ -10,7 +10,7 @@ export interface DanmuMsg {
             number, // 颜色
             number, // 时间戳（毫秒）
             number, // 随机数，前端叫作弹幕ID，可能是去重用的
-            number, 
+            number,
             string, // 用户ID文本的CRC32
             number,
             number, // 是否礼物弹幕（节奏风暴）

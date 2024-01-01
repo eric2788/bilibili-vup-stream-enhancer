@@ -1,7 +1,8 @@
-import { Spinner, Typography } from "@material-tailwind/react"
-import { createContext, useContext, useEffect } from "react"
-import { usePromise } from "~hooks/promise"
-import { findStaticComponent } from "~utils/react-node"
+import { createContext, useContext, useEffect } from 'react';
+import { usePromise } from '~hooks/promise';
+import { findStaticComponent } from '~utils/react-node';
+
+import { Spinner, Typography } from '@material-tailwind/react';
 
 const ErrorContext = createContext<Error | any>(null)
 const PromiseHandlerContext = createContext<unknown>(null)

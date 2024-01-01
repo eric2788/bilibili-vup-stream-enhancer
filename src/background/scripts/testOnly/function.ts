@@ -1,5 +1,5 @@
 
-import { sleep } from "~utils/misc"
+import { sleep } from '~utils/misc';
 
 const say = console.info
 

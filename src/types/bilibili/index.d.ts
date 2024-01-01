@@ -1,3 +1,3 @@
 export * from './api'
-export * from './vtb-moe'
 export * from './live'
+export * from './vtb-moe'

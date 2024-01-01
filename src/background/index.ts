@@ -1,7 +1,7 @@
+import { getForwarder, sendForward } from './forwards';
+import { sendInternal } from './messages';
 
-import './context-menus'
-import { getForwarder, sendForward } from './forwards'
-import { sendInternal } from './messages'
+import './context-menus';
 
 // browser extension icon click listener
 chrome.action.onClicked.addListener(() => {

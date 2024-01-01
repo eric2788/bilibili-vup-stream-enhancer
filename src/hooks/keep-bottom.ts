@@ -1,8 +1,7 @@
-import { useRef, useState, useEffect, useCallback } from "react"
-
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export function useKeepBottom<E extends HTMLElement>(enabled: boolean, calculateRange: (el: Element) => number, deps: any[]) {
-    
+
     const ref = useRef<E>(null);
     const [keepBottom, setKeepBottom] = useState(true)
 
@@ -21,7 +20,7 @@ export function useKeepBottom<E extends HTMLElement>(enabled: boolean, calculate
         if (node) {
             ref.current = node
             ref.current.addEventListener('scrollend', onScroll)
-        }  
+        }
     }, [])
 
     useEffect(() => {

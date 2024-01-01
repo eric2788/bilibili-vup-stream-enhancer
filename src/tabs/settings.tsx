@@ -1,17 +1,18 @@
-import { Button } from "@material-tailwind/react"
-import { Fragment, useRef } from "react"
-import BJFThemeProvider from "~components/BJFThemeProvider"
-import { useBinding } from "~hooks/binding"
-import { useForwarder } from "~hooks/forwarder"
-import { useLoader } from "~hooks/loader"
-import fragments, { type Schema, type SettingFragments, type Settings } from "~settings"
-import SettingFragment, { type SettingFragmentRef } from "~settings/components/SettingFragment"
-import { download, readAsJson } from "~utils/file"
-import { sendMessager } from "~utils/messaging"
-import { arrayEqual, removeInvalidKeys, sleep } from "~utils/misc"
-import { getFullSettingStroage } from "~utils/storage"
+import '~tailwindcss';
 
-import '~tailwindcss'
+import { Fragment, useRef } from 'react';
+import BJFThemeProvider from '~components/BJFThemeProvider';
+import { useBinding } from '~hooks/binding';
+import { useForwarder } from '~hooks/forwarder';
+import { useLoader } from '~hooks/loader';
+import fragments, { Schema, SettingFragments, Settings } from '~settings';
+import SettingFragment, { SettingFragmentRef } from '~settings/components/SettingFragment';
+import { download, readAsJson } from '~utils/file';
+import { sendMessager } from '~utils/messaging';
+import { arrayEqual, removeInvalidKeys, sleep } from '~utils/misc';
+import { getFullSettingStroage } from '~utils/storage';
+
+import { Button } from '@material-tailwind/react';
 
 document.title = '字幕过滤设定'
 
