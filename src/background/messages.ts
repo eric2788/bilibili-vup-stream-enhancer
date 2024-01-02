@@ -9,6 +9,7 @@ import * as notify from "./messages/notify"
 import * as openTab from "./messages/open-tab"
 import * as openWindow from './messages/open-window'
 import * as request from "./messages/request"
+import * as addBlackList from './messages/add-black-list'
 
 export type MessagingData = typeof messagers
 
@@ -51,5 +52,6 @@ const messagers = {
     'fetch-developer': fetchDeveloper,
     'open-window': openWindow,
     'clear-table': clearTable,
-    'inject-js': injectJs
+    'inject-js': injectJs,
+    'add-black-list': addBlackList
 }

@@ -6,5 +6,5 @@ export default withMT({
   theme: {
     extend: {}
   },
-  darkMode: "media"
+  darkMode: "class"
 })

@@ -2,6 +2,8 @@ import { md5 } from "hash-wasm";
 import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili";
 import { sendMessager } from "./messaging";
 import { localStorage } from "./storage";
+import type { Settings } from "~settings";
+import type { StreamInfo } from "~api/bilibili";
 
 export function getRoomId(url: string = location.pathname): string {
     return /^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id
@@ -64,3 +66,30 @@ export async function w_rid(uid: string, wts: number): Promise<string> {
     const a: string = `${b}&wts=${wts}${c}`; // mid + platform + token + web_location + 时间戳wts + 一个固定值
     return await md5(a)
 }
+
+
+export function isDarkThemeBilbili(): boolean {
+    const html = document.getElementsByTagName('html')[0]
+    return html.getAttribute('lab-style')?.includes('dark')
+}
+
+// 使用 DOM query
+export function getStreamInfoByDom(room: string, settings: Settings): StreamInfo {
+    const developer = settings["settings.developer"]
+    // TODO: move to developer
+    const title = document.querySelector<HTMLDivElement>('.text.live-skin-main-text.title-length-limit.small-title')?.innerText ?? ''
+    const username = document.querySelector<HTMLAnchorElement>('.room-owner-username')?.innerText ?? ''
+  
+    const replay = document.querySelector('.web-player-round-title')
+    const ending = document.querySelector('.web-player-ending-panel')
+  
+    return {
+      room: room,
+      title,
+      uid: '0', // 暫時不知道怎麼從dom取得
+      username,
+      isVtuber: true,
+      status: (replay !== null || ending !== null) ? 'offline' : 'online'
+    } as StreamInfo
+  }
+  

@@ -16,7 +16,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     backgroundListColor: '#808080'
 }
 
-export const title = '按钮样式设定'
+export const title = '字幕按钮样式设定'
 
 function ButtonSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 
