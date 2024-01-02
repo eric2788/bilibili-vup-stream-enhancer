@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@material-tailwind/react";
 import { usePreferredColorScheme } from "@react-hooks-library/core";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 
 
@@ -90,6 +90,20 @@ function BJFThemeProvider({ children, dark }: SettingThemeProviderProps): JSX.El
         }
 
         return systemColor === 'dark' ? darkTheme : lightTheme
+
+    }, [dark, systemColor])
+
+    useEffect(() => {
+        
+        const darkMedia = dark === true || (dark === undefined && systemColor === 'dark')
+
+        const html = document.documentElement
+        if (darkMedia) {
+            html.classList.add('dark')
+        } else {
+            html.classList.remove('dark')
+        }
+        console.info('set bjf dark theme to ', darkMedia ? 'dark' : 'light')
 
     }, [dark, systemColor])
 
