@@ -1,3 +1,4 @@
+import type { StateProxy } from "~hooks/binding"
 
 export type SettingSchema = {
     tongchuanMans: string[],
@@ -6,3 +7,16 @@ export type SettingSchema = {
 }
 
 
+export const defaultSettings: Readonly<SettingSchema> = {
+    tongchuanMans: [],
+    tongchuanBlackList: [],
+    blackListRooms: []
+}
+
+
+
+function ListingSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
+    return (
+        <></>
+    )
+}

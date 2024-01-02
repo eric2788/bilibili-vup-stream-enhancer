@@ -1,5 +1,5 @@
 import type { StateProxy } from "~hooks/binding"
-
+import type { Optional, HundredNumber, HexColor } from "~types"
 
 export type SettingSchema = {
     regex: string
@@ -17,7 +17,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
 }
 
 // TODO: change to use tailwindcss
-function DanmakuSettings({state, bind}: StateProxy<SettingSchema>): JSX.Element {
+function DanmakuSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (
         <></>
     )
