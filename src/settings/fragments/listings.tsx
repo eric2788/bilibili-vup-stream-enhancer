@@ -20,3 +20,5 @@ function ListingSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.El
         <></>
     )
 }
+
+export default ListingSettings
