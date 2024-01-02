@@ -19,7 +19,6 @@ const danmakuCache = new Map<number, DanmakuMutation>()
 const config: MutationObserverInit = { attributes: false, childList: true, subtree: true }
 
 const observers: MutationObserver[] = []
-const beforeInsert: string[] = []
 let keepBottomInterval: number = 0 
 
 async function hash(str: string): Promise<number> {
