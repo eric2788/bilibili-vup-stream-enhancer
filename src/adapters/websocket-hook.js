@@ -4,7 +4,7 @@
 // @作者  xfgryujk
 // @来源  https://ngabbs.com/read.php?tid=24449759
 
-import { addWindowMessageListener, sendWindowMessage } from "~utils/messaging"
+import { addWindowMessageListener, sendBLiveMessage, sendWindowMessage } from "~utils/messaging"
 import brotliPromise from 'brotli-dec-wasm'
 import { injectFuncAsListener } from "~utils/event"
 
@@ -154,33 +154,13 @@ async function handleCommand(command, callRealOnMessageByPacket) {
   let editedCommand = command
 
   try {
-    editedCommand = await sendEventAndWaitResult({ cmd, command })
+    editedCommand = await sendBLiveMessage({ cmd, command })
   } catch (err) {
     console.warn(err)
   }
 
   let packet = makePacketFromCommand(editedCommand)
   callRealOnMessageByPacket(packet)
-}
-
-async function sendEventAndWaitResult({ cmd, command }) {
-  const eventId = `${Math.random()}`.substring(2)
-  return new Promise((res, rej) => {
-    const removeListener = addWindowMessageListener(`ws:callback:${eventId}`, (data, event) => {
-      if (event.origin !== window.location.origin) {
-        return
-      }
-      removeListener()
-      res(data.command)
-    })
-
-    setTimeout(() => {
-      removeListener()
-      rej('事件處理已逾時')
-    }, 500)
-
-    sendWindowMessage('blive-ws', { cmd, command, eventId })
-  })
 }
 
 //修改掛接方式，將不再採用Proxy

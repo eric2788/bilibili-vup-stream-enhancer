@@ -15,6 +15,8 @@ import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
 import { shouldInit, type Settings } from "../settings"
 
+import "~toaster"
+import { toast } from "sonner/dist"
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -27,6 +29,7 @@ export const getStyle: PlasmoGetStyle = () => {
   style.textContent = styleText
   return style
 }
+
 
 
 interface RootMountable {
@@ -153,11 +156,18 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
         return
       }
 
-
       // hook adapter
       console.info('開始注入適配器....')
       const adapterType = settings["settings.capture"].captureMechanism
-      await sendMessager('hook-adapter', { command: 'hook', type: adapterType, settings: settings })
+      const hooking = sendMessager('hook-adapter', { command: 'hook', type: adapterType, settings: settings })
+      toast.dismiss()
+      toast.promise(hooking, {
+        loading: '正在挂接直播监听...',
+        success: '挂接成功',
+        error: (err) => '挂接失敗: '+err,
+        position: 'top-left',
+      })
+      await hooking
       console.info('注入適配器完成')
 
       // 渲染主元素
@@ -175,29 +185,42 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
         </OverlayApp>
       )
       console.info('渲染主元素完成')
+
       // 渲染功能元素
       console.info('開始渲染元素....')
       await Promise.all(mounters.map(m => m.mount(settings)))
       console.info('渲染元素完成')
+
     },
     stop: async () => {
       if (root === null) {
         console.warn('root is null, maybe not mounted yet')
         return
       }
-      // 卸載主元素
-      console.info('開始卸載主元素....')
-      root.unmount()
-      console.info('卸載主元素完成')
+
+      // unhook adapters
+      console.info('開始移除適配器....')
+      const unhooking = sendMessager('hook-adapter', { command: 'unhook' })
+      toast.dismiss()
+      toast.promise(unhooking, {
+        loading: '正在移除直播监听挂接...',
+        success: '移除成功',
+        error: (err) => '移除失敗: '+err,
+        position: 'top-left'
+      })
+      await unhooking
+      console.info('移除適配器完成')
+
       // 卸載功能元素
       console.info('開始卸載元素....')
       await Promise.all(mounters.map(m => m.unmount()))
       console.info('卸載元素完成')
 
-      // unhook adapters
-      console.info('開始移除適配器....')
-      await sendMessager('hook-adapter', { command: 'unhook'})
-      console.info('移除適配器完成')
+      // 卸載主元素
+      console.info('開始卸載主元素....')
+      root.unmount()
+      console.info('卸載主元素完成')
+
     }
   }
 }
