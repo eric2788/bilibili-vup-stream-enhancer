@@ -1,4 +1,4 @@
-import { sendToBackground, type MessagesMetadata, sendToContentScript } from "@plasmohq/messaging"
+import { sendToBackground } from "@plasmohq/messaging"
 import { getPort } from "@plasmohq/messaging/port"
 import { type MessagingData } from "~background/messages"
 import { type PortingData } from "~background/ports"

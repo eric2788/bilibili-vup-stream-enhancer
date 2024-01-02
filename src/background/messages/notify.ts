@@ -45,6 +45,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) =>
 
     if (buttons?.length > 0) chrome.notifications.onButtonClicked.addListener(buttonCallbackFunc)
     if (onClicked) chrome.notifications.onClicked.addListener(callbackFunc)
+    res.send(id)
 }
 
 export default handler
