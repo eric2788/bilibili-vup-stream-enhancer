@@ -13,7 +13,7 @@ export type SettingSchema = {
 export const defaultSettings: Readonly<SettingSchema> = {
     textColor: '#ffffff',
     backgroundColor: '#000000',
-    backgroundListColor: '#808080'
+    backgroundListColor: '#ffffff'
 }
 
 export const title = '字幕按钮样式设定'
