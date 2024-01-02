@@ -12,15 +12,11 @@ export type SettingFragmentProps<T extends keyof SettingFragments> = {
 }
 
 
-export type ExportRefProps<T extends keyof SettingFragments> = {
+export type ExportRefProps = {
     saveSettings: () => Promise<void>
-    settings: Schema<SettingFragments[T]>
-    fragmentKey: T
 }
 
-
-
-function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<ExportRefProps<T>>): JSX.Element {
+function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<ExportRefProps>): JSX.Element {
     
     const { fragmentKey, toggleExpanded, expanded } = props
 
@@ -29,26 +25,13 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
 
     const stateProxy = asStateProxy(useBinding(settings))
 
-    useEffect(() => {
-        const handler = stateProxy.state as ExposeHandler<Schema<SettingFragments[T]>>
-        handler.replace(settings)
-    }, [settings])
-
     const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[T]>>>
-
-    const [updated, setUpdated] = useState(false)
-
-    useEffect(() => {
-        (stateProxy.state as ExposeHandler<Schema<SettingFragments[T]>>).watch(() => setUpdated(true))
-    },[])
 
     useImperativeHandle(ref, () => ({
         saveSettings() {
             return setSettings({ ...stateProxy.state })
         },
-        settings: { ...stateProxy.state },
-        fragmentKey: fragmentKey
-    }), [settings, updated]);
+    }), [settings]);
 
     return (
         <section id={fragmentKey} className={`py-2 px-4 mx-auto max-w-screen-xl justify-center`}>

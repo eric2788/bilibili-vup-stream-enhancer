@@ -20,14 +20,11 @@ const fragmentKeys = Object.keys(fragments) as (keyof SettingFragments)[]
 
 function SettingPage(): JSX.Element {
 
-    const modified = useRef<boolean>(false)
-
     const [section] = useBinding(toggleMap)
     const toggleSection = (key: keyof typeof fragments) => section[key] = !section[key]
 
     const form = useRef<HTMLFormElement>()
-    const fragmentRefs = fragmentKeys.map(key => React.createRef<ExportRefProps<typeof key>>())
-
+    const fragmentRefs = fragmentKeys.map(() => React.createRef<ExportRefProps>())
 
     const [loader, loading] = useLoader({
         checkingUpdate: async () => {
@@ -64,54 +61,6 @@ function SettingPage(): JSX.Element {
             message: err.message
         })
     })
-
-
-    useEffect(() => {
-
-        console.info('fragmentRef updated')
-
-        const checkModifiedStatus = async () => {
-
-            console.info('checking if modified....')
-
-            // Check each fragment
-            for (const ref of fragmentRefs) {
-                if (ref.current) {
-                    // Get the current settings
-                    const { settings, fragmentKey } = ref.current;
-                    // Get the initial settings
-                    const initialSettings = await getSettingStorage(fragmentKey);
-
-                    // Compare the current settings with the initial settings
-                    if (JSON.stringify({ ...settings }) !== JSON.stringify({ ...initialSettings })) {
-                        // If they are different, set the modified ref to true
-                        modified.current = true;
-                        console.info('modified updated: ', modified.current)
-                        console.info('diff: ', settings, initialSettings)
-                        return
-                    }
-                }
-            }
-
-            modified.current = false
-            console.info('modified updated: ', modified.current)
-        };
-
-        // Run the check whenever the settings change
-        checkModifiedStatus().catch(console.error);
-    }, fragmentRefs);
-
-    useEffect(() => {
-        window.addEventListener('beforeunload', alertUser)
-        return () => window.removeEventListener('beforeunload', alertUser)
-    }, []);
-
-    const alertUser = (e: BeforeUnloadEvent) => {
-        if (modified.current) {
-            e.preventDefault()
-            e.returnValue = ''
-        }
-    }
 
     return (
         <Fragment>

@@ -9,6 +9,29 @@ export type LoaderBinding<L extends Loaders> = [
 ]
 
 
+/**
+ * Custom hook that creates a loader binding for a set of loaders.
+ * @template L - The type of the loaders object.
+ * @param loaders - An object containing loader functions.
+ * @param onCatch - Optional error handler function. Defaults to console.error.
+ * @returns A tuple containing the loader functions and a loading state object.
+ * @example
+ * const [loader, loading] = useLoader({
+ *   loadUsers: async () => {
+ *     // Load users
+ *   },
+ *   loadPosts: async () => {
+ *     // Load posts
+ *   },
+ * }, handleError);
+ * 
+ * // Usage
+ * loader.loadUsers(); // Start loading users
+ * 
+ * if (loading.loadUsers) {
+ *   // Show loading indicator for users
+ * }
+ */
 export function useLoader<L extends Loaders>(loaders: L, onCatch: (e: Error | any) => void = console.error): LoaderBinding<L> {
 
     const loading = stateProxy(Object.keys(loaders)
