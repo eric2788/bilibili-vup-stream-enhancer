@@ -3,6 +3,7 @@ import fragments, { type Schema, type SettingFragments, type Settings } from '~s
 import { Storage } from '@plasmohq/storage'
 
 export const storage = new Storage({ area: 'sync' })
+export const sessionStorage = new Storage({ area: 'session' })
 export const localStorage = new Storage({ area: 'local' })
 
 
@@ -22,6 +23,11 @@ export async function getFullSettingStroage(): Promise<Settings> {
         return { [key]: setting }
     }))
     return Object.assign({}, ...settings)
+}
+
+export async function transactions<T = void>(callback: () => Promise<T>): Promise<T> {
+    sessionStorage.set('processing', true)
+    return callback().finally(() => sessionStorage.set('processing', false))
 }
 
 export default storage

@@ -3,9 +3,9 @@ import '~toaster';
 import styleText from 'data-text:~style.css';
 import extIcon from 'raw:~assets/icon.png';
 import { Fragment, useEffect } from 'react';
-import { type Root, createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { toast } from 'sonner/dist';
-import { type StreamInfo, ensureLogin, getNeptuneIsMyWaifu, getStreamInfo } from '~api/bilibili';
+import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
 import { getForwarder, sendForward } from '~background/forwards';
 import BLiveThemeProvider from '~components/BLiveThemeProvider';
 import { useWebScreenChange } from '~hooks/bilibili';
@@ -13,13 +13,13 @@ import { getRoomId, getStreamInfoByDom } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectAdapter } from '~utils/inject';
 import { sendMessager } from '~utils/messaging';
-import { getFullSettingStroage } from '~utils/storage';
+import { getFullSettingStroage, sessionStorage, transactions } from '~utils/storage';
 
 import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
 import { useToggle } from '@react-hooks-library/core';
 
 import features, { type FeatureType } from '../features';
-import { type Settings, shouldInit } from '../settings';
+import { shouldInit, type Settings } from '../settings';
 
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
 
@@ -297,15 +297,17 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
 
     removeHandler = forwarder.addHandler(async data => {
       if (data.command === 'stop') {
-        await app.stop()
+        await transactions(app.stop)
       } else if (data.command === 'restart') {
-        await app.stop()
-        await app.start()
+        await transactions(async () => {
+          await app.stop()
+          await app.start()
+        })
       }
     })
 
     // start the app
-    await app.start()
+    await transactions(app.start)
 
   } catch (err: Error | any) {
     console.error(`渲染 bilibili-jimaku-filter 元素時出現錯誤: `, err)
