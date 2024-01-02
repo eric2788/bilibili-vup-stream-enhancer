@@ -14,21 +14,13 @@ export type SettingFragment<T extends object> = {
     title: string
 }
 
-export interface SettingFragments {
-    'button': SettingFragment<button.SettingSchema>
-    'capture': SettingFragment<capture.SettingSchema>
-    'danmaku': SettingFragment<danmaku.SettingSchema>
-    'developer': SettingFragment<developer.SettingSchema>
-    'display': SettingFragment<display.SettingSchema>
-    'jimaku': SettingFragment<jimaku.SettingSchema>
-    'listings': SettingFragment<listings.SettingSchema>
-}
+export type SettingFragments = typeof fragments 
 
 
 export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
 
 // also defined the order of the settings
-const fragments: SettingFragments = {
+const fragments = {
     'danmaku': danmaku,
     'jimaku': jimaku,
     'button': button,

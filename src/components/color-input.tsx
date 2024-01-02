@@ -13,7 +13,7 @@ export type ColorInputProps = {
 }
 
 
-function ColorInput(props: ColorInputProps) {
+function ColorInput(props: ColorInputProps): JSX.Element {
 
 
     const optional = props.optional ?? false
@@ -28,9 +28,9 @@ function ColorInput(props: ColorInputProps) {
                     type="text"
                     label={props.label}
                     required={!optional}
-                    value={props.value}
+                    value={props.value ?? ''}
                     onChange={props.onChange}
-                    color={isDarkTheme() ? 'white' : 'black'}
+                    
                     pattern="^#[A-Fa-f0-9]{6}$"
                     error={!/^#[A-Fa-f0-9]{6}$/.test(props.value) && !optional}
                     className="pr-20"
