@@ -15,3 +15,17 @@ export type ArrElement<ArrType> = ArrType extends readonly (infer ElementType)[]
   : never;
 
 
+export type Primitive = string | number | boolean | bigint | symbol | null | undefined
+
+export type Stringify<T> = `${T}`
+
+export type PrimitiveType = Stringify<Primitive>
+
+type ConvertToPrimitive<T extends PrimitiveType> = T extends 'string' ? string :
+    T extends 'number' ? number :
+    T extends 'boolean' ? boolean :
+    T extends 'bigint' ? bigint :
+    T extends 'symbol' ? symbol :
+    T extends 'null' ? null :
+    T extends 'undefined' ? undefined :
+    never;
