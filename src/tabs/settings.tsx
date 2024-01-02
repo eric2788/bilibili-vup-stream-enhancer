@@ -1,15 +1,15 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useCallback, useEffect, useRef, useState } from "react"
+import React, { Fragment, useRef } from "react"
 import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useLoader } from "~hooks/loader"
-import fragments, { type Schema, type SettingFragments } from "~settings"
+import fragments, { type SettingFragments } from "~settings"
 import SettingFragment, { type ExportRefProps } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
-import { sendMessager } from "~utils/messaging"
-import { deepCopy, sleep } from "~utils/misc"
+import { download } from "~utils/file"
+import { sleep } from "~utils/misc"
 import { getSettingStorage } from "~utils/storage"
 
 document.title = '字幕过滤设定'
@@ -18,6 +18,54 @@ const toggleMap = Object.fromEntries(Object.keys(fragments).map(key => [key, fal
 
 const fragmentKeys = Object.keys(fragments) as (keyof SettingFragments)[]
 
+async function exportSettings(): Promise<void> {
+    try {
+        const settingJsons = await Promise.all(fragmentKeys.map(async (key) => {
+            const settings = await getSettingStorage(key)
+            return { [key]: settings }
+        }))
+        const exportContent = JSON.stringify(settingJsons.reduce((prev, curr) => ({ ...prev, ...curr }), {}))
+        download(exportContent, 'settings.json', 'application/json')
+        await sendInternal('notify', {
+            title: '导出设定成功',
+            message: '设定已经导出成功。'
+        })
+    } catch (err: Error | any) {
+        await sendInternal('notify', {
+            title: '导出设定失败',
+            message: err.message
+        })
+    }
+}
+
+async function clearRecords(): Promise<void> {
+    try {
+        const re = await sendInternal('clear-table', { table: 'all' })
+        if (re instanceof Object && re.result !== 'success') {
+            throw re.error
+        }
+        await sendInternal('notify', {
+            title: '清空记录成功',
+            message: '所有记录已经清空。'
+        })
+    } catch (err: Error | any) {
+        await sendInternal('notify', {
+            title: '清空记录失败',
+            message: err.message
+        })
+    }
+}
+
+async function checkingUpdate(): Promise<void> {
+    try {
+        await sendInternal('check-update')
+    } catch (err: Error | any) {
+        await sendInternal('notify', {
+            title: '检查更新失败',
+            message: err.message
+        })
+    }
+}
 
 function SettingPage(): JSX.Element {
 
@@ -25,21 +73,14 @@ function SettingPage(): JSX.Element {
     const toggleSection = (key: keyof typeof fragments) => section[key] = !section[key]
 
     const form = useRef<HTMLFormElement>()
-    const fragmentRefs = fragmentKeys.map(() => React.createRef<ExportRefProps>())
+    const fileImport = useRef<HTMLInputElement>()
+    const fragmentRefs = fragmentKeys.map(key => React.createRef<ExportRefProps<typeof key>>())
 
     const [loader, loading] = useLoader({
-        checkingUpdate: async () => {
-            await sleep(5000)
-            await sendInternal('check-update')
-        },
+        checkingUpdate,
+        exportSettings,
+        clearRecords,
         importSettings: async () => {
-            await sleep(5000)
-        },
-        exportSettings: async () => {
-            console.info('refs: ', fragmentRefs.map(r => r.current))
-            await sleep(5000)
-        },
-        clearRecords: async () => {
             await sleep(5000)
         },
         saveAllSettings: async () => {
@@ -64,6 +105,7 @@ function SettingPage(): JSX.Element {
 
     return (
         <Fragment>
+            <input ref={fileImport} type="file" style={{display: 'none'}} accept=".json"></input>
             <section className="bg-gray-700">
                 <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 text-white">
                     <h1 className="mb-4 text-4xl tracking-tight leading-none md:text-5xl lg:text-6xl ">字幕过滤设定</h1>
