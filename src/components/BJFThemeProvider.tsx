@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@material-tailwind/react";
+import { ThemeProvider, iconButton } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 
 
@@ -33,6 +33,11 @@ const lightTheme: MaterialTheme = {
         defaultProps: {
             color: 'gray'
         }
+    },
+    iconButton: {
+        defaultProps: {
+            color: 'blue-gray'
+        }
     }
 }
 
@@ -64,6 +69,11 @@ const darkTheme = {
                     before: "peer-checked:before:bg-black",
                 }
             }
+        }
+    },
+    iconButton: {
+        defaultProps: {
+            color: 'white'
         }
     }
 }

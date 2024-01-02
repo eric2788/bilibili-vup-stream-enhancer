@@ -4,9 +4,9 @@ import { sendInternal, type MessagingData, type Payload as MsgPayload, type Resp
 import type { PortingData, Payload as PortPayload, Response as PortResponse } from "~background/ports"
 import { isBackgroundScript } from "./file"
 
-export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined): Promise<MsgResponse<MessagingData[T]> | void> {
+export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]> | void> {
     if (isBackgroundScript()) {
-        return sendInternal(name, body)
+        return sendInternal(name, body, sender)
     } else {
         return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
     }

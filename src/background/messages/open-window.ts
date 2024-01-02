@@ -1,7 +1,5 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 
-
-
 export type RequestBody = {
     url?: string
     tab?: string

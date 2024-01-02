@@ -1,8 +1,10 @@
-import { Collapse, List, Switch, Typography } from "@material-tailwind/react"
+import { Collapse, IconButton, List, Switch, Typography } from "@material-tailwind/react"
 import { type ChangeEvent } from "react"
-import SwitchListItem from "~settings/components/SwitchListItem"
+import { sendInternal } from "~background/messages"
 import type { FeatureType } from "~contents/features"
+import type { TableType } from "~database"
 import type { StateProxy } from "~hooks/binding"
+import SwitchListItem from "~settings/components/SwitchListItem"
 
 
 
@@ -13,7 +15,6 @@ export type SettingSchema = {
     noNativeVtuber: boolean,
     jimakuPopupWindow: boolean, // only when enabledFeatures.includes('jimaku')
     monitorWindow: boolean,
-    hideJimakuDanmaku: boolean,
     useStreamingTime: boolean
 }
 
@@ -25,7 +26,6 @@ export const defaultSettings: Readonly<SettingSchema> = {
     noNativeVtuber: false,
     jimakuPopupWindow: false,
     monitorWindow: false,
-    hideJimakuDanmaku: false,
     useStreamingTime: true
 }
 
@@ -78,9 +78,15 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes('jimaku')} onChange={e => toggle('jimaku')} />
                 <Collapse open={state.enabledFeatures.includes('jimaku')}>
                     <List className="pl-6">
-                        <SwitchListItem label="启用离线记录" value={state.enabledRecording.includes('jimaku')} onChange={e => toggleRecord('jimaku')} />
+                        <SwitchListItem
+                            label="启用离线记录"
+                            value={state.enabledRecording.includes('jimaku')}
+                            onChange={e => toggleRecord('jimaku')}
+                            suffix={
+                                <TrashIconButton table={'jimakus'} title="同传弹幕" />
+                            }
+                        />
                         <SwitchListItem label="启用同传弹幕彈出式视窗" hint="使用弹出式视窗时必须开着直播间才能运行" value={state.jimakuPopupWindow} onChange={checker('jimakuPopupWindow')} />
-                        <SwitchListItem label="隐藏同传弹幕" value={state.hideJimakuDanmaku} onChange={checker('hideJimakuDanmaku')} />
                     </List>
                 </Collapse>
             </div>
@@ -94,12 +100,55 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes('superchat')} onChange={e => toggle('superchat')} />
                 <Collapse open={state.enabledFeatures.includes('superchat')}>
                     <List className="pl-6">
-                        <SwitchListItem label="启用离线记录" value={state.enabledRecording.includes('superchat')} onChange={e => toggleRecord('superchat')} />
+                        <SwitchListItem
+                            label="启用离线记录"
+                            value={state.enabledRecording.includes('superchat')}
+                            onChange={e => toggleRecord('superchat')}
+                            suffix={
+                                <TrashIconButton table={'superchats'} title="醒目留言" />
+                            }
+                        />
                     </List>
                 </Collapse>
             </div>
         </div>
     )
+}
+
+
+function TrashIconButton({ table, title }: { table: TableType, title: string }): JSX.Element {
+    const deleteRecords = async () => {
+        if (!confirm(`确定要清空所有${title}吗？`)) return
+        try {
+            //TODO: clear records
+            await sendInternal('notify', {
+                title: '清空成功',
+                message: `所有${title}记录已经清空。`
+            })
+        } catch (err: Error | any) {
+            await sendInternal('notify', {
+                title: '清空失败',
+                message: `清空${title}记录失败: ${err.message}`
+            })
+        }
+    }
+
+    return (
+        <IconButton variant="text" onClick={deleteRecords}>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-5 w-5 dark:stroke-white"
+            >
+                <path
+                    fillRule="evenodd"
+                    d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z"
+                    clipRule="evenodd"
+                />
+            </svg>
+        </IconButton>
+    );
 }
 
 

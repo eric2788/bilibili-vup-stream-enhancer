@@ -1,10 +1,12 @@
-import { Switch, Typography, ListItem } from "@material-tailwind/react"
+import { Switch, Typography, ListItem, ListItemSuffix, ListItemPrefix } from "@material-tailwind/react"
 import type { colors } from "@material-tailwind/react/types/generic"
 import type { ChangeEventHandler } from "react"
 
 
 export type SwitchListItemProps = {
     onChange?: ChangeEventHandler<HTMLInputElement>
+    prefix?: React.ReactNode
+    suffix?: React.ReactNode
     value: boolean
     label: string | ((b: boolean) => string)
     hint?: string
@@ -18,6 +20,11 @@ function SwitchListItem(props: SwitchListItemProps): JSX.Element {
     return (
         <ListItem className="p-0 dark:hover:bg-gray-800 dark:focus:bg-gray-800">
             <label className="flex w-full cursor-pointer items-center px-3 py-2">
+                {props.prefix && (
+                    <ListItemPrefix>
+                        {props.prefix}
+                    </ListItemPrefix>
+                )}
                 <Switch
                     onChange={props.onChange}
                     crossOrigin={'annoymous'}
@@ -38,6 +45,11 @@ function SwitchListItem(props: SwitchListItemProps): JSX.Element {
                         className: "flex items-center p-0",
                     }}
                 />
+                {props.suffix && (
+                    <ListItemSuffix>
+                        {props.suffix}
+                    </ListItemSuffix>
+                )}
             </label>
         </ListItem>
     )
