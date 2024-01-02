@@ -5,7 +5,7 @@ import type { Settings } from '~settings';
 
 export type FeatureHookRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<React.ReactPortal[]>
 
-export type FeatureAppRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<React.ReactElement>
+export type FeatureAppRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<React.ReactNode>
 
 export type FeatureType = keyof typeof features
 

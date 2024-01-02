@@ -1,4 +1,4 @@
-import { type BaseResponse, type V1Response } from "~types/bilibili"
+import { type BaseResponse, type CommonResponse, type V1Response } from "~types/bilibili"
 import { sleep } from "./misc"
 
 export async function fetchSameOrigin<T extends object = any>(url: string): Promise<T> {
@@ -9,40 +9,23 @@ export async function fetchSameOrigin<T extends object = any>(url: string): Prom
   return await res.json() as T
 }
 
-export function fetchSameOriginWith<B extends object>(validate: (b: B, url: string) => void): <T extends object = any>(url: string) => Promise<T> {
-  return async <T extends object = any>(url: string) => {
-    const data = await fetchSameOrigin<B>(url)
+
+const defaultHandle = <R extends CommonResponse<any>>(data: R) => {
+  if (data.code != 0) {
+    throw new Error(`B站API请求错误: ${data.message}`)
+  }
+}
+
+export function fetchSameOriginWith<R extends CommonResponse<any>>(validate: (b: R, url: string) => void = defaultHandle): <T = any>(url: string) => Promise<T> {
+  return async <T = any>(url: string) => {
+    const data = await fetchSameOrigin<R>(url)
     validate(data, url)
-    return data as T
+    return data.data as T
   }
 }
 
-const fetchSameOriginBase = fetchSameOriginWith<BaseResponse<any>>((data, url) => {
-  if (data.code != 0) {
-    throw new Error(`B站API请求错误: ${data.message}`)
-  }
-})
-
-const fetchSameOriginV1 = fetchSameOriginWith<V1Response<any>>((data, url) => {
-  if (data.code != 0) {
-    throw new Error(`B站API请求错误: ${data.message}`)
-  }
-})
-
-
-
-export async function getPageVariable(name: string, tabId: number): Promise<any> {
-  const [{ result }] = await chrome.scripting.executeScript({
-    func: name => window[name],
-    args: [name],
-    target: {
-      tabId: tabId ??
-        (await chrome.tabs.query({ active: true, currentWindow: true }))[0].id
-    },
-    world: 'MAIN',
-  });
-  return result;
-}
+export const fetchSameOriginBase = fetchSameOriginWith<BaseResponse<any>>()
+export const fetchSameOriginV1 = fetchSameOriginWith<V1Response<any>>()
 
 
 /**
@@ -74,19 +57,37 @@ export async function withRetries<T>(
         info.onFinalErr ? info.onFinalErr(err) : console.error(`重試${maxTimes}次后依然錯誤，已略過`, err)
         throw err
       }
-      info.onRetry ? info.onRetry(err) : console.warn(`請求錯誤，3秒後重試`, err)
-      await sleep(3000)
+      info.onRetry ? info.onRetry(err) : console.warn(`請求錯誤，5秒後重試`, err)
+      await sleep(5000)
       retryTimes++
     }
   }
 }
 
-export async function catcher<T>(job: Promise<T>, defaultValue: T | undefined = undefined): Promise<T | undefined> {
+
+export async function withFallbacks<T>(jobs: (() => Promise<T>)[], defaultValue: T | undefined = undefined): Promise<T | undefined> {
+  for (const job of jobs) {
+    try {
+      return await job()
+    } catch (err: Error | any) {
+      console.warn('請求錯誤', err, ', 5秒後嘗試下一個')
+      await sleep(5000)
+    }
+  }
+  console.warn('所有請求都失敗了，返回預設值')
+  return defaultValue
+}
+
+export async function catcher<T>(job: Promise<T>, defaultValue: (T | undefined) | ((err: Error | any) => (T | undefined)) = undefined): Promise<T | undefined> {
   try {
     return await job
   } catch (err: Error | any) {
-    console.warn('got', err, ', returning undefined')
-    return defaultValue
+    console.warn('got', err, ', returning defaultValue')
+    if (defaultValue instanceof Function) {
+      return defaultValue(err)
+    } else {
+      return defaultValue as T
+    }
   }
 }
 

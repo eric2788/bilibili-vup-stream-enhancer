@@ -1,5 +1,5 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useRef, type ChangeEvent } from "react"
+import React, { Fragment, useRef, type ChangeEvent, useEffect } from "react"
 import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
@@ -72,6 +72,11 @@ function SettingPage(): JSX.Element {
     const form = useRef<HTMLFormElement>()
     const fileImport = useRef<HTMLInputElement>()
     const fragmentRefs = fragmentKeys.map(key => useRef<SettingFragmentRef<typeof key>>())
+
+
+    useEffect(() => {
+        form.current.addEventListener('submit', e => e.preventDefault())
+    }, [])
 
     const [loader, loading] = useLoader({
         checkingUpdate,
