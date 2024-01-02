@@ -1,5 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import type { Table } from "dexie";
+import { injectFunction } from "~background/functions";
 import { sendInternal } from "~background/messages";
 import db, { type CommonSchema, type TableType } from "~database";
 import { getAllTables } from "~utils/database";
@@ -27,9 +28,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         })
         await sendInternal('inject-js', {
             target: { tabId: tab.id },
-            function: {
-                name: 'c'
-            }
+            function: injectFunction('clearIndexedDbTable', req.body.table, req.body.room)
         })
         await chrome.tabs.remove(tab.id)
         res.send({ result: 'success' })
