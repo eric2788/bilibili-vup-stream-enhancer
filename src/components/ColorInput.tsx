@@ -1,6 +1,7 @@
 import { Input, type InputProps } from "@material-tailwind/react"
 import { type ChangeEvent, type RefAttributes } from "react"
 import type { HexColor } from "~types"
+import AffixInput from "./AffixInput"
 
 
 export type ColorInputProps = {
@@ -11,7 +12,7 @@ export type ColorInputProps = {
 
 function ColorInput(props: ColorInputProps): JSX.Element {
 
-    const { optional: opt, value, ...rest } = props
+    const { optional: opt, value = '', ...attrs } = props
     const optional = opt ?? false
 
     return (
@@ -20,19 +21,20 @@ function ColorInput(props: ColorInputProps): JSX.Element {
                 <Input
                     id="hs-color-input"
                     variant="static"
-                    crossOrigin="anonymous"
+                    crossOrigin={'annoymous'}
                     type="text"
                     required={!optional}
                     pattern="^#[A-Fa-f0-9]{6}$"
+                    maxLength={7}
                     value={value}
-                    error={!/^#[A-Fa-f0-9]{6}$/.test(value) && !optional}
-                    className="pr-20"
+                    error={!/^#[A-Fa-f0-9]{6}$/.test(value) && (!optional === !value)}
+                    className="pr-20 font-mono tracking-[0.2rem] font-medium"
                     containerProps={{
                         className: "min-w-0",
                     }}
-                    {...rest}
+                    {...attrs}
                 />
-                { value && <input type="color" required={!optional} className="!absolute right-0 bottom-0 h-8 rounded bg-transparent cursor-crosshair" defaultValue={value} onChange={props.onChange} onBlur={props.onBlur} />}
+                { value && <input type="color" required={!optional} className="!absolute right-0 bottom-0 h-8 rounded bg-transparent cursor-crosshair" value={value} onChange={props.onChange} onBlur={props.onBlur} />}
             </div>
         </div>
     )

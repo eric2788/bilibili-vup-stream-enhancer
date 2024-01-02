@@ -6,6 +6,7 @@ import * as developer from './fragments/developer'
 import * as display from './fragments/display'
 import * as jimaku from './fragments/jimaku'
 import * as listings from './fragments/listings'
+import * as features from './fragments/features'
 
 
 interface SettingFragment<T extends object> {
@@ -25,6 +26,7 @@ const fragments = {
     'jimaku': jimaku,
     'button': button,
     'listings': listings,
+    'features': features,
     'capture': capture,
     'display': display,
     'developer': developer

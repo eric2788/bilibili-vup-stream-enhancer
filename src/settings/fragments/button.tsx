@@ -1,6 +1,6 @@
 
 import { Fragment, type ChangeEvent } from "react"
-import ColorInput from "~components/color-input"
+import ColorInput from "~components/ColorInput"
 import type { StateProxy } from "~hooks/binding"
 import type { HexColor } from "~types"
 

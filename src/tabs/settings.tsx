@@ -1,10 +1,10 @@
 import { Button } from "@material-tailwind/react"
 import React, { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react"
-import BJFThemeProvider from "~components/theme"
+import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useLoader } from "~hooks/loader"
 import fragments, { type Schema, type SettingFragments } from "~settings"
-import SettingFragment, { type ExportRefProps } from "~settings/components/setting-fragment"
+import SettingFragment, { type ExportRefProps } from "~settings/components/SettingFragment"
 
 import '~tailwind'
 import { sendBackground } from "~utils/messaging"
