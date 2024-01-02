@@ -34,9 +34,9 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
         // 超大型字体
         if (Array.isArray(data.info[1])) return
         const jimaku = parseJimaku(data.info[1], regex)
-        //if (jimaku === undefined) return
-        //console.info(`[BJF] ${data.info[2][1]}: ${jimaku}`)
-        console.info(`[BJF] ${data.info[2][1]} => ${data.info[1]} (${data.info[0][5]})`)
+        if (jimaku === undefined) return
+        console.info(`[BJF] ${data.info[2][1]}: ${jimaku}`)
+        //console.info(`[BJF] ${data.info[2][1]} => ${data.info[1]} (${data.info[0][5]})`)
         const datetime = useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp()
         const jimakuBlock = {
             date: datetime,
