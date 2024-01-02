@@ -1,8 +1,11 @@
-import { Collapse } from "@material-tailwind/react"
+import { Collapse, Spinner } from "@material-tailwind/react"
 import { useStorage } from "@plasmohq/storage/hook"
-import { forwardRef, useImperativeHandle, type Ref, useEffect, useRef, useState } from "react"
+import { forwardRef, useImperativeHandle, type Ref, useEffect, useRef, useState, useCallback, useMemo } from "react"
+import PromiseHandler from "~components/PromiseHandler"
 import { asStateProxy, useBinding, type StateProxy, type ExposeHandler } from "~hooks/binding"
 import fragments, { type Schema, type SettingFragments } from "~settings"
+import { deepCopy, sleep } from "~utils/misc"
+import { getSettingStorage, setSettingStorage } from "~utils/storage"
 
 
 export type SettingFragmentProps<T extends keyof SettingFragments> = {
@@ -11,27 +14,27 @@ export type SettingFragmentProps<T extends keyof SettingFragments> = {
     expanded: boolean
 }
 
-
-export type ExportRefProps = {
-    saveSettings: () => Promise<void>
+export type SettingFragmentContentProps<T extends keyof SettingFragments> = {
+    fragmentKey: T
+    settings: Schema<SettingFragments[T]>
+    Component: React.FC<StateProxy<Schema<SettingFragments[T]>>>
 }
 
-function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<ExportRefProps>): JSX.Element {
-    
+
+export type ExportRefProps<K extends keyof SettingFragments> = {
+    saveSettings: () => Promise<void>
+    fragmentKey: K
+    importSettings: (settings: Schema<SettingFragments[K]>) => Promise<void>
+}
+
+function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmentProps<T>, ref: Ref<ExportRefProps<T>>): JSX.Element {
+
     const { fragmentKey, toggleExpanded, expanded } = props
-
-    const { title, defaultSettings, default: component } = fragments[fragmentKey] as SettingFragments[T]
-    const [settings, setSettings] = useStorage<Schema<SettingFragments[T]>>(fragmentKey as string, (v) => v ?? defaultSettings as Schema<SettingFragments[T]>)
-
-    const stateProxy = asStateProxy(useBinding(settings))
+    const { title, default: component } = fragments[fragmentKey] as SettingFragments[T]
 
     const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[T]>>>
 
-    useImperativeHandle(ref, () => ({
-        saveSettings() {
-            return setSettings({ ...stateProxy.state })
-        },
-    }), [settings]);
+    const fetchSettings = useCallback(() => getSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey), [props.fragmentKey])
 
     return (
         <section id={fragmentKey} className={`py-2 px-4 mx-auto max-w-screen-xl justify-center`}>
@@ -48,14 +51,61 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
             </div>
             <Collapse open={expanded}>
                 <div className="container p-5 text-black dark:text-white bg-gray-200 dark:bg-gray-700 rounded-b-lg border border-[#d1d5db] dark:border-[#4b4b4b6c] border-l border-r transition-all ease-out duration-200 transform">
-                    <div className="px-5 py-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
-                        <ComponentFragment {...stateProxy} />
-                    </div>
+                    <PromiseHandler promise={fetchSettings}>
+                        <PromiseHandler.Response>
+                            {settings => (
+                                <div className="px-5 py-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
+                                    <SettingFragmentContent ref={ref} fragmentKey={fragmentKey} settings={settings} Component={ComponentFragment} />
+                                </div>
+                            )}
+                        </PromiseHandler.Response>
+                    </PromiseHandler>
                 </div>
             </Collapse>
         </section>
     )
 }
+
+
+const SettingFragmentContent = forwardRef(function SettingFragmentContent<T extends keyof SettingFragments>(props: SettingFragmentContentProps<T>, ref: Ref<ExportRefProps<T>>): JSX.Element {
+
+    const { settings, fragmentKey, Component } = props
+
+    const [beforeSettings, setBeforeSettings] = useState<Schema<SettingFragments[T]>>(settings)
+
+    const stateProxy = asStateProxy(useBinding(beforeSettings))
+
+    useImperativeHandle(ref, () => ({
+        async saveSettings() {
+            if (!isModified()) return // if not modified, do nothing
+            await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, { ...stateProxy.state }) // set the settings to storage
+            setBeforeSettings(deepCopy(stateProxy.state)) // update before settings so that to update check modified status
+        },
+        async importSettings(settings: Schema<SettingFragments[T]>) {
+            await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, settings)
+            setBeforeSettings(deepCopy(settings))
+        },
+        fragmentKey: fragmentKey
+    }), [beforeSettings]);
+
+    // create a memo function for check modified status
+    // only before settings changed or after settings changed, the modified status will be changed
+    const isModified = useCallback(() => JSON.stringify(beforeSettings) !== JSON.stringify(stateProxy.state), [beforeSettings])
+
+    // create beforeunload event listener for alert user when leaving page without saving
+    useEffect(() => {
+        const listener = (e: BeforeUnloadEvent) => {
+            if (isModified()) {
+                e.preventDefault()
+                e.returnValue = ''
+            }
+        }
+        window.addEventListener('beforeunload', listener)
+        return () => window.removeEventListener('beforeunload', listener)
+    }, [beforeSettings])
+
+    return <Component {...stateProxy} />
+})
 
 
 export default forwardRef(SettingFragment)
