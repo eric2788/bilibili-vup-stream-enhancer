@@ -12,4 +12,6 @@ Promise.all([
 })
 
 
+
+// browser extension icon click listener
 chrome.browserAction.onClicked.addListener(() => sendBackground('open-tab', { tab: 'settings' }))
