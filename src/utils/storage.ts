@@ -7,7 +7,7 @@ export const localStorage = new Storage({ area: 'local' })
 
 export async function getSettingStorage<K extends keyof SettingFragments, V extends Schema<SettingFragments[K]>>(key: K): Promise<V> {
     const { defaultSettings } = fragments[key]
-    const result = storage.get<V>(key)
+    const result = await storage.get<V>(key)
     return { ...defaultSettings, ...result }
 }
 

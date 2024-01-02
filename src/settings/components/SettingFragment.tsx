@@ -1,9 +1,8 @@
 import { Collapse } from "@material-tailwind/react"
 import { useStorage } from "@plasmohq/storage/hook"
-import { forwardRef, useImperativeHandle, type Ref } from "react"
-import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding"
+import { forwardRef, useImperativeHandle, type Ref, useEffect, useRef, useState } from "react"
+import { asStateProxy, useBinding, type StateProxy, type ExposeHandler } from "~hooks/binding"
 import fragments, { type Schema, type SettingFragments } from "~settings"
-
 
 
 export type SettingFragmentProps<T extends keyof SettingFragments> = {
@@ -16,7 +15,7 @@ export type SettingFragmentProps<T extends keyof SettingFragments> = {
 export type ExportRefProps<T extends keyof SettingFragments> = {
     saveSettings: () => Promise<void>
     settings: Schema<SettingFragments[T]>
-    fragmentKey: string
+    fragmentKey: T
 }
 
 
@@ -30,15 +29,26 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
 
     const stateProxy = asStateProxy(useBinding(settings))
 
+    useEffect(() => {
+        const handler = stateProxy.state as ExposeHandler<Schema<SettingFragments[T]>>
+        handler.replace(settings)
+    }, [settings])
+
     const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[T]>>>
+
+    const [updated, setUpdated] = useState(false)
+
+    useEffect(() => {
+        (stateProxy.state as ExposeHandler<Schema<SettingFragments[T]>>).watch(() => setUpdated(true))
+    },[])
 
     useImperativeHandle(ref, () => ({
         saveSettings() {
             return setSettings({ ...stateProxy.state })
         },
-        settings: stateProxy.state,
-        fragmentKey: fragmentKey as string
-    }));
+        settings: { ...stateProxy.state },
+        fragmentKey: fragmentKey
+    }), [settings, updated]);
 
     return (
         <section id={fragmentKey} className={`py-2 px-4 mx-auto max-w-screen-xl justify-center`}>
