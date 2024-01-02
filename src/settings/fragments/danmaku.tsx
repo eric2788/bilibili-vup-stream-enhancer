@@ -6,7 +6,7 @@ import Hints from "~settings/components/Hints"
 import Selector from "~settings/components/Selector"
 import type { StateProxy } from "~hooks/binding"
 import type { HexColor, HundredNumber, Optional } from "~types"
-import { sendBackground } from "~utils/messaging"
+import { sendMessage } from "~utils/messaging"
 
 export type SettingSchema = {
     regex: string
@@ -45,7 +45,7 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                         有关正则表达式可以到
                         <span
                             className="font-bold antialiased cursor-pointer text-sm leading-normal dark:text-white"
-                            onClick={() => sendBackground('open-tab', { url: 'https://regex101.com' })}>这里</span>
+                            onClick={() => sendMessage('open-tab', { url: 'https://regex101.com' })}>这里</span>
                         进行测试。
                     </Fragment>,
                     '必须包含名称为cc的正则组别以捕捉字幕。',

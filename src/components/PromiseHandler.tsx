@@ -1,5 +1,5 @@
-import { Spinner } from "@material-tailwind/react"
-import { createContext, useContext } from "react"
+import { Spinner, Typography } from "@material-tailwind/react"
+import { createContext, useContext, useEffect } from "react"
 import { usePromise } from "~hooks/promise"
 import { findStaticComponent } from "~utils/react-node"
 
@@ -15,11 +15,28 @@ export type PromiseHandlerProps<T> = {
 }
 
 function DefaultErrorMessage({ error }: { error: Error | any }): JSX.Element {
-    return <div className="text-red-500 font-semibold">Error: {error?.message ?? error}</div>
+
+    useEffect(() => {
+        console.warn('Error while fetching promise: (Caught from PromiseHandler)')
+        console.warn(error)
+    }, [error])
+
+    return (
+        <div className="flex justify-center items-center text-center max-w-full max-h-full">
+            <div className="text-red-500">
+                <Typography variant="h5" color="red" className="semi-bold">加载错误:</Typography>
+                <span className="text-[17px]">{error.message}</span>
+            </div>
+        </div>
+    )
 }
 
 function DefaultLoading(): JSX.Element {
-    return <Spinner color="blue" />
+    return (
+        <div className="flex justify-center items-center max-w-full max-h-full">
+            <Spinner />
+        </div>
+    )
 }
 
 

@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig, PlasmoGetStyle } from "plasmo"
 import { usePort } from "@plasmohq/messaging/hook"
-import { sendBackground, sendPort } from "~utils/messaging"
+import { sendMessage, sendPort } from "~utils/messaging"
 
 
 import cssText from 'data-text:~style.css'
@@ -21,6 +21,7 @@ export const getStyle: PlasmoGetStyle = () => {
 
 function TestApp(): JSX.Element {
 
+  console.info('this is background script: ', chrome.tabs)
 
   const jimaku = useForwarder('jimaku', 'content-script')
 
