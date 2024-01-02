@@ -1,16 +1,9 @@
-export default {}
+import type { FeatureHookRender } from ".";
 
 
+const handler: FeatureHookRender = async (settings, info) => {
+    console.info('hello world from jimaku.tsx!')
+    return []
+}
 
-
-
-
-
-
-
-
-
-export const Launch = () => {}
-
-
-export const Dispose = () => {}
+export default handler

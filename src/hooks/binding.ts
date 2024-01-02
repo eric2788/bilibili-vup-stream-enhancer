@@ -1,6 +1,6 @@
 import { type SyntheticEvent } from 'react';
 import { stateProxy, stateWrapper } from 'react-state-proxy';
-import type { Leaves, PathLeafType, Paths, PickLeaves } from '~types';
+import type { Leaves, PathLeafType, Paths, PickLeaves } from '~types/common';
 
 export type StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => <R extends PickLeaves<T, W>>(k: R) => (e: E) => void
 

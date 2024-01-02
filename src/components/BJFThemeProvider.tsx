@@ -1,5 +1,6 @@
 import { ThemeProvider, iconButton } from "@material-tailwind/react";
-import { useEffect, useState } from "react";
+import { usePreferredColorScheme } from "@react-hooks-library/core";
+import { useEffect, useMemo, useState } from "react";
 
 
 
@@ -81,27 +82,16 @@ const darkTheme = {
 
 function BJFThemeProvider({ children, dark }: SettingThemeProviderProps): JSX.Element {
 
-    const [theme, setTheme] = useState(dark ? darkTheme : lightTheme)
+    const systemColor = usePreferredColorScheme()
+    const theme = useMemo(() => {
 
-    useEffect(() => {
-        const onSwitchTheme = (e: MediaQueryListEvent) => {
-            const darkMode = e.matches
-            if (darkMode) {
-                setTheme(darkTheme)
-            } else {
-                setTheme(lightTheme)
-            }
+        if (dark !== undefined) {
+            return dark ? darkTheme : lightTheme
         }
-        // if dark is manually set, do not listen to system theme
-        if (dark) return;
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-        mediaQuery.addEventListener('change', onSwitchTheme)
-        // do it once first because the event listener will not be triggered on first load
-        setTheme(mediaQuery.matches ? darkTheme : lightTheme)
-        return () => {
-            mediaQuery.removeEventListener('change', onSwitchTheme)
-        }
-    })
+
+        return systemColor === 'dark' ? darkTheme : lightTheme
+
+    }, [dark, systemColor])
 
     return (
         <ThemeProvider value={theme}>

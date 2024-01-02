@@ -74,3 +74,37 @@ export type PathLeafType<T, P extends Leaves<T> | Paths<T>> =
 export type PickLeaves<T, V> = {
     [K in Leaves<T>]: PathLeafType<T, K> extends V ? K : never
 }[Leaves<T>];
+
+
+/**
+ * Returns the keys of an object `T` whose values are of type `V`.
+ *
+ * @template T - The object type.
+ * @template V - The value type.
+ * @param {T} obj - The object to pick keys from.
+ * @returns {PickKeys<T, V>} - The keys of `obj` whose values are of type `V`.
+ *
+ * @example
+ * // Example 1
+ * type Person = {
+ *   name: string;
+ *   age: number;
+ *   address: string;
+ * };
+ *
+ * type StringKeys = PickKeys<Person, string>;
+ * // StringKeys is "name" | "address"
+ *
+ * // Example 2
+ * const obj = {
+ *   a: 1,
+ *   b: 'hello',
+ *   c: true,
+ * };
+ *
+ * type NumberKeys = PickKeys<typeof obj, number>;
+ * // NumberKeys is "a"
+ */
+export type PickKeys<T extends object, V> = {
+    [K in keyof T]: T[K] extends V ? K : never
+}[keyof T];

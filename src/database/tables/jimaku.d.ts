@@ -11,5 +11,3 @@ interface Jimaku extends CommonSchema {
     text: string
     sender: string
 }
-
-export default "text, sender"

@@ -10,8 +10,6 @@ declare module '~database' {
 interface Superchat extends CommonSchema {
     text: string
     color: string
-    rmb: number
+    price: number
     sender: string
 }
-
-export default "text, color, rmb, sender"
