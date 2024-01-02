@@ -10,6 +10,7 @@ import * as openTab from "./messages/open-tab"
 import * as openWindow from './messages/open-window'
 import * as request from "./messages/request"
 import * as addBlackList from './messages/add-black-list'
+import * as hookAdapter from './messages/hook-adapter'
 
 export type MessagingData = typeof messagers
 
@@ -53,5 +54,6 @@ const messagers = {
     'open-window': openWindow,
     'clear-table': clearTable,
     'inject-js': injectJs,
-    'add-black-list': addBlackList
+    'add-black-list': addBlackList,
+    'hook-adapter': hookAdapter
 }

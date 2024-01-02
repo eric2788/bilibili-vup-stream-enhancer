@@ -2576,6 +2576,11 @@ braces@^3.0.2, braces@~3.0.2:
   dependencies:
     fill-range "^7.0.1"
 
+brotli-dec-wasm@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/brotli-dec-wasm/-/brotli-dec-wasm-2.1.0.tgz#d0a7f4887ec12123e689e93a30f2c5b3cde98aa7"
+  integrity sha512-ibXultYwKMk+8Zy2utgLuIcoTjwkrV1I1QkNToLndgVJq73JuUwJiUix2A28L6X9dMCJByyylzgcqW7KoRHGEQ==
+
 browserslist@4.21.10:
   version "4.21.10"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.21.10.tgz#dbbac576628c13d3b2231332cb2ec5a46e015bb0"

@@ -3,8 +3,6 @@ import { sendInternal } from "~background/messages"
 import updaters from "~updater"
 
 export const browser = process.env.PLASMO_BROWSER || 'chrome'
-export const { version } = chrome.runtime.getManifest()
-
 
 export async function notifyUpdate(version: string): Promise<void> {
     await sendInternal('notify', {
@@ -28,6 +26,7 @@ export async function notifyUpdate(version: string): Promise<void> {
 }
 
 export async function checkUpdate(): Promise<chrome.runtime.RequestUpdateCheckResult> {
+    const { version } = chrome.runtime.getManifest()
     const { checkUpdate } = updaters[browser] ?? updaters['chrome']
     return await checkUpdate(version)
 }

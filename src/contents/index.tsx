@@ -14,6 +14,7 @@ import { withFallbacks, withRetries } from "~utils/fetch"
 import { sendMessager } from "~utils/messaging"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
+import { injectFunction } from "~background/functions"
 
 
 export const config: PlasmoCSConfig = {
@@ -93,8 +94,10 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
         root.render(
           <OverlayApp anchor={anchor}>
             <BLiveThemeProvider element={section}>
-              {Root}
-              {portals}
+              <Fragment>
+                {Root}
+                {portals}
+              </Fragment>
             </BLiveThemeProvider>
           </OverlayApp>
         )
@@ -149,6 +152,14 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
         console.info('不符合初始化條件，已略過')
         return
       }
+
+
+      // hook adapter
+      console.info('開始注入適配器....')
+      const adapterType = settings["settings.capture"].captureMechanism
+      await sendMessager('hook-adapter', { command: 'hook', type: adapterType })
+      console.info('注入適配器完成')
+
       // 渲染主元素
       root = createRoot(section)
       console.info('開始渲染主元素....')
@@ -182,6 +193,11 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       console.info('開始卸載元素....')
       await Promise.all(mounters.map(m => m.unmount()))
       console.info('卸載元素完成')
+
+      // unhook adapters
+      console.info('開始移除適配器....')
+      await sendMessager('hook-adapter', { command: 'unhook'})
+      console.info('移除適配器完成')
     }
   }
 }

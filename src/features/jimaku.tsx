@@ -1,13 +1,17 @@
 import styled from "@emotion/styled";
+import { useClickOutside } from "@react-hooks-library/core";
+import { memo, useState } from "react";
 import { Menu as ContextMenu, Item, useContextMenu } from "react-contexify";
 import { createPortal } from "react-dom";
+import VirtualScroller from "virtual-scroller/react";
+import { injectFunction } from "~background/functions";
 import TailwindScope from "~components/TailwindScope";
+import { useWindowMessage } from "~hooks/window-message";
 import type { Settings } from "~settings";
 import type { SettingSchema as ButtonSchema } from "~settings/fragments/button";
 import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
+import { sendMessager, sendWindowMessage } from "~utils/messaging";
 import type { FeatureHookRender } from ".";
-import { useClickOutside } from "@react-hooks-library/core";
-import { useRef } from "react";
 
 
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
@@ -33,11 +37,15 @@ div#subtitle-list p {
     margin: ${jimakuStyle.lineGap}px;
     font-size: ${jimakuStyle.size}px;  
 }
-/* create context menu for each subtitle element */
-div#subtitle-list p:not(:first-of-type) {
-    cursor: context-menu;
-}
 `
+
+function JimakuLine({ item, show }: { item: string, show: (e: React.MouseEvent<HTMLParagraphElement>) => void }): JSX.Element {
+    return (
+        <p key={item} onContextMenu={show}>
+            {item}
+        </p>
+    )
+}
 
 function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
 
@@ -51,6 +59,12 @@ function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
 
     useClickOutside(document.getElementById('jimaku-context-menu'), hideAll, { event: 'pointerdown' })
 
+    const [jimaku, setJimaku] = useState<string[]>([])
+
+    useWindowMessage('blive-ws', (data) => {
+        console.info('received blive-ws: ', data)
+    })
+
     return (
         <Area>
             <div id="subtitle-list" style={{
@@ -62,11 +76,11 @@ function JimakuArea({ settings }: { settings: Settings }): JSX.Element {
                 scrollbarWidth: 'thin',
                 scrollbarColor: `${jimakuStyle.color} ${jimakuStyle.backgroundColor}`
             }} className="z-10 overflow-y-auto overflow-x-hidden w-full subtitle-normal">
-                {Array(20).fill(1).map((_, i) => (
-                    <p key={i} onContextMenu={e => show({ event: e })}>
-                        123123131231
-                    </p>
-                ))}
+                <VirtualScroller
+                    items={jimaku}
+                    itemComponent={memo(JimakuLine)}
+                    itemComponentProps={{ show: (e: React.MouseEvent<HTMLParagraphElement>) => show({ event: e }) }}
+                />
             </div>
             <ContextMenu id="jimaku-context-menu" className="fixed z-[9999] bg-[#1b1a1a] cursor-pointer">
                 <Item className="px-3 py-2 text-[#dbdbdb] text-[12px] cursor-pointer hover:bg-gray-800">屏蔽选中同传发送者</Item>
@@ -98,6 +112,15 @@ function ButtonArea({ settings }: { settings: Settings }): JSX.Element {
 
     console.info('backgroundListColor: ', btnStyle.backgroundListColor)
 
+    const testClick = async () => {
+        const result = await sendMessager('inject-js', {
+            function: injectFunction('getBLiveCachedData', 'roomInitRes')
+        })
+        if (!result) return
+        console.info('inject: ', result[0].result.data)
+        console.info('sandbox: ', window)
+    }
+
     return (
         <div style={{ backgroundColor: btnStyle.backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
             <JimakuButton btnStyle={btnStyle}>
@@ -113,6 +136,9 @@ function ButtonArea({ settings }: { settings: Settings }): JSX.Element {
                     弹出同传视窗
                 </JimakuButton>
             }
+            <JimakuButton btnStyle={btnStyle} onClick={testClick}>
+                測試按鈕
+            </JimakuButton>
         </div>
     )
 }

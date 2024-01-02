@@ -1,7 +1,7 @@
 import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData";
-import type { GetInfoByRoomResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse } from "~types/bilibili";
+import type { GetInfoByRoomResponse, RoomInitResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse } from "~types/bilibili";
 import { w_rid } from "~utils/bilibili";
-import { fetchSameOriginV1, retryCatcher } from "~utils/fetch";
+import { fetchSameOriginBase, fetchSameOriginV1, retryCatcher } from "~utils/fetch";
 import func from "~utils/func";
 import { sendMessager } from "~utils/messaging";
 import { identifyVup } from "./vtb-moe";
@@ -9,10 +9,11 @@ import { identifyVup } from "./vtb-moe";
 export type StreamInfo = {
     room: string
     title: string
-    uid: string,
+    uid: string
     username: string
     isVtuber: boolean
     status: 'online' | 'offline'
+    liveTime: number
 }
 
 export async function getStreamInfo(room: string): Promise<StreamInfo> {
@@ -23,7 +24,8 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
         uid: data.room_info.uid.toString(),
         username: data.anchor_info.base_info.uname,
         isVtuber: data.room_info.parent_area_id !== 9, // 分區辨識
-        status: data.room_info.live_status === 1 ? 'online' : 'offline'
+        status: data.room_info.live_status === 1 ? 'online' : 'offline',
+        liveTime: data.room_info.live_start_time
     }
 }
 

@@ -7,7 +7,8 @@
     ".plasmo/index.d.ts",
     "./**/*.d.ts",
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "./src/adapters/*.js",
   ],
   "compilerOptions": {
     "jsx": "react-jsx",
