@@ -5,7 +5,7 @@ import BJFThemeProvider from "~components/BJFThemeProvider";
 import VirtualScroller from "virtual-scroller/react";
 
 import '~tailwindcss'
-import Jimaku from "~contents/features/jimaku";
+import Jimaku from "~features/jimaku";
 import { useMessage, usePort } from "@plasmohq/messaging/hook";
 import { useForwarder } from "~hooks/forwarder";
 import { useBinding } from "~hooks/binding";

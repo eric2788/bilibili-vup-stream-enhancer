@@ -1,12 +1,12 @@
 import type { PlasmoCSConfig, PlasmoRender } from "plasmo"
 import { Fragment } from "react"
-import { createRoot } from "react-dom/client"
-import { getNeptuneIsMyWaifu, getStreamInfo, isNativeVtuber, type StreamInfo } from "~api/bilibili"
+import { createRoot, type Root } from "react-dom/client"
+import { ensureIsVtuber, getNeptuneIsMyWaifu, getStreamInfo, isNativeVtuber, type StreamInfo } from "~api/bilibili"
 import { retryCatcher, withFallbacks, withRetries } from "~utils/fetch"
 import func from "~utils/func"
-import { getRoomId } from "~utils/misc"
+import { getRoomId } from "~utils/bilibili"
 import { getFullSettingStroage } from "~utils/storage"
-import features from "./features"
+import features, { type FeatureType } from "../features"
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -33,7 +33,7 @@ const getStreamInfoFallbacks = [
   // 3. 使用 DOM query
   (room: string | number) => async () => {
 
-    // TODO: move to developer settings
+    // TODO: move to developer
     const title = document.querySelector<HTMLDivElement>('.text.live-skin-main-text.title-length-limit.small-title')?.innerText ?? ''
     const username = document.querySelector<HTMLAnchorElement>('.room-owner-username')?.innerText ?? ''
 
@@ -54,7 +54,6 @@ const getStreamInfoFallbacks = [
 
 export const render: PlasmoRender<any> = async ({ anchor, createRootContainer }, _, OverlayApp) => {
 
-
   const isNativeVtuberFunc = func.wrap(isNativeVtuber)
 
   try {
@@ -66,6 +65,13 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       return
     }
 
+    const settings = await getFullSettingStroage()
+    
+    if (settings["settings.listings"].blackListRooms.some((r) => r.room === roomId.toString()) === !settings["settings.listings"].useAsWhiteListRooms) {
+      console.info('房間已被列入黑名單，已略過')
+      return
+    }
+
     const info: StreamInfo = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(roomId)))
 
     if (!info) {
@@ -74,9 +80,11 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       return
     }
 
-    const settings = await getFullSettingStroage()
-
     if (settings["settings.features"].onlyVtuber) {
+
+      if (info.uid !== '0') {
+        await ensureIsVtuber(info)
+      }
 
       if (!info.isVtuber) {
         // do log
@@ -91,9 +99,9 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       }
     }
 
-
     const rootContainer = await createRootContainer(anchor)
 
+    const mounters: Partial<Record<FeatureType, Root>> = {}
 
     console.info('開始渲染元素....')
 
@@ -109,6 +117,7 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
         rootContainer.appendChild(section)
 
         const root = createRoot(section)
+        mounters[key] = root
 
         root.render(
           <OverlayApp anchor={anchor} >

@@ -16,15 +16,7 @@ export function toTimer(secs: number): string {
     return `${hr}:${mu}:${ms}`
 }
 
-
-export function getRoomId(url: string = location.pathname) {
-    return parseInt(/^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id)
-}
-
-
 export const isDarkTheme: () => boolean = () => matchMedia('(prefers-color-scheme: dark)').matches
-
-
 
 export function removeArr<T>(arr: T[], item: T): boolean {
     const index = arr.findIndex(v => JSON.stringify(v) === JSON.stringify(item))
