@@ -1,4 +1,6 @@
 
+import { Input } from '@material-tailwind/react'
+import { Fragment } from 'react'
 import type { AdapterType } from '~contents/adapters'
 import { type StateProxy } from '~hooks/binding'
 
@@ -19,8 +21,7 @@ export const title = '字幕捕捉机制相关'
 
 function CaptureSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (
-        <>
-        </>
+        <></>
     )
 }
 
