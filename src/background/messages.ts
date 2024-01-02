@@ -5,6 +5,7 @@ import * as openTab from "./messages/open-tab";
 import * as request from "./messages/request";
 import * as getStreamUrls from "./messages/get-stream-urls";
 import * as checkUpdate from "./messages/check-update";
+import * as fetchDeveloper from "./messages/fetch-developer";
 
 export type MessagingData = typeof messagers
 
@@ -21,11 +22,12 @@ const messagers = {
     'open-tab': openTab,
     'request': request,
     'get-stream-urls': getStreamUrls,
-    'check-update': checkUpdate
+    'check-update': checkUpdate,
+    'fetch-developer': fetchDeveloper,
 }
 
 
-export async function sendInternal<K extends keyof MessagingData, R = Response<MessagingData[K]>>(name: K, body: Payload<MessagingData[K]>): Promise<R | void> {
+export async function sendInternal<K extends keyof MessagingData, R = Response<MessagingData[K]>>(name: K, body: Payload<MessagingData[K]> = undefined): Promise<R | void> {
     const { default: messager } = messagers[name]
     const handler = messager as PlasmoMessaging.MessageHandler<Payload<MessagingData[K]>, R>
     return new Promise((resolve, reject) => {

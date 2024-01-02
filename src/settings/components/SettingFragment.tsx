@@ -26,7 +26,7 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
     const { fragmentKey, toggleExpanded, expanded } = props
 
     const { title, defaultSettings, default: component } = fragments[fragmentKey] as SettingFragments[T]
-    const [settings, setSettings] = useStorage<Schema<SettingFragments[T]>>(`settings.${fragmentKey as string}`, (v) => v ?? defaultSettings as Schema<SettingFragments[T]>)
+    const [settings, setSettings] = useStorage<Schema<SettingFragments[T]>>(fragmentKey as string, (v) => v ?? defaultSettings as Schema<SettingFragments[T]>)
 
     const stateProxy = asStateProxy(useBinding(settings))
 

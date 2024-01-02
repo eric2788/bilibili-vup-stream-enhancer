@@ -33,3 +33,6 @@ export function removeArr<T>(arr: T[], item: T): boolean {
     return true
 }
 
+export function deepCopy<T extends object>(obj: T): T {
+    return JSON.parse(JSON.stringify(obj)) as T
+}
