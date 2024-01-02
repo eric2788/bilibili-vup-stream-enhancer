@@ -1,6 +1,6 @@
 import { Collapse, List, Switch, Typography } from "@material-tailwind/react"
 import { type ChangeEvent } from "react"
-import SwitchListItem from "~components/SwitchListItem"
+import SwitchListItem from "~settings/components/SwitchListItem"
 import type { FeatureType } from "~contents/features"
 import type { StateProxy } from "~hooks/binding"
 

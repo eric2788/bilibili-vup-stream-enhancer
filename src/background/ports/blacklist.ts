@@ -1,24 +1,43 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import { sendInternal } from "~background/messages";
-import storage from "~utils/storage";
+import { getSettingStorage, setSettingStorage } from "~utils/storage";
 
 export type RequestBody = {
     command: 'add' | 'remove'
-    roomId: number | string
+    roomId: string
 }
 
 const handler: PlasmoMessaging.PortHandler<RequestBody> = async (req, res) => {
     const { command, roomId } = req.body;
-    const settings = await storage.get<any>('settings')
+    const settings = await getSettingStorage('settings.listings')
 
-    //TODO: this settings is not final version
+    const containRoom = (roomId: string) => settings.blackListRooms.map(r => r.room).includes(roomId)
+
+    const addRoom = async (room: string) => {
+        settings.blackListRooms.push({
+            room,
+            addedDate: new Date().toLocaleString()
+        })
+        await setSettingStorage('settings.listings', settings)
+        // send to CS
+        res.send({
+            command: 'blacklisted',
+            room: roomId
+        })
+    }
+
+    const removeRoom = async (room: string) => {
+        settings.blackListRooms = settings.blackListRooms.filter(r => r.room !== room)
+        await setSettingStorage('settings.listings', settings)
+    }
+
     if (command === 'add') {
-        if (!settings.blacklistRooms.includes(roomId)) {
+        if (!containRoom(roomId)) {
+            await addRoom(roomId)
             await sendInternal('notify', {
                 title: '已添加到黑名单',
                 message: `房间 ${roomId} 已添加到黑名单。`
             })
-            settings.blacklistRooms.push(roomId)
         } else {
             await sendInternal('notify', {
                 title: '你已添加过此房间到黑名单。',
@@ -26,13 +45,12 @@ const handler: PlasmoMessaging.PortHandler<RequestBody> = async (req, res) => {
             })
         }
     } else if (command === 'remove') {
-        const index = settings.blacklistRooms.indexOf(roomId)
-        if (index !== -1) {
+        if (!containRoom(roomId)) {
+            await removeRoom(roomId)
             await sendInternal('notify', {
                 title: '已从黑名单中移除',
                 message: `房间 ${roomId} 已从黑名单中移除。`
             })
-            settings.blacklistRooms.splice(index, 1)
         } else {
             await sendInternal('notify', {
                 title: '你未添加过此房间到黑名单。',
@@ -40,6 +58,8 @@ const handler: PlasmoMessaging.PortHandler<RequestBody> = async (req, res) => {
             })
         }
     }
+
+
 }
 
 

@@ -1,14 +1,15 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { Fragment, useCallback, useEffect, useRef, useState } from "react"
+import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useLoader } from "~hooks/loader"
 import fragments, { type Schema, type SettingFragments } from "~settings"
 import SettingFragment, { type ExportRefProps } from "~settings/components/SettingFragment"
 
-import '~tailwind'
-import { sendBackground } from "~utils/messaging"
-import { isDarkTheme, sleep } from "~utils/misc"
+import '~tailwindcss'
+import { deepCopy, sleep } from "~utils/misc"
+import { getSettingStorage } from "~utils/storage"
 
 document.title = '字幕过滤设定'
 
@@ -16,11 +17,10 @@ const toggleMap = Object.fromEntries(Object.keys(fragments).map(key => [key, fal
 
 const fragmentKeys = Object.keys(fragments) as (keyof SettingFragments)[]
 
-// ========================
 
 function SettingPage(): JSX.Element {
 
-    const [originalSettings, setOriginalSettings] = useState<Record<string, Schema<any>>>()
+    const modified = useRef<boolean>(false)
 
     const [section] = useBinding(toggleMap)
     const toggleSection = (key: keyof typeof fragments) => section[key] = !section[key]
@@ -37,6 +37,7 @@ function SettingPage(): JSX.Element {
             await sleep(5000)
         },
         exportSettings: async () => {
+            console.info('refs: ', fragmentRefs.map(r => r.current))
             await sleep(5000)
         },
         clearRecords: async () => {
@@ -48,46 +49,65 @@ function SettingPage(): JSX.Element {
                 return
             }
             await Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
-            await sendBackground('notify', {
+            await sendInternal('notify', {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
-
             await sleep(5000)
+            console.info('chrome.storage:')
+            chrome.storage.sync.get(console.info)
         }
     }, (err) => {
         console.error(err)
-        sendBackground('notify', {
+        sendInternal('notify', {
             title: '保存设定失败',
             message: err.message
         })
     })
 
-    const unChanged = () => fragmentRefs.some(ref => {
-        const { fragmentKey, settings } = ref.current
-        return JSON.stringify(settings) !== JSON.stringify(originalSettings[fragmentKey])
-    })
 
+    useEffect(() => {
+
+        console.info('fragmentRef updated')
+
+        const checkModifiedStatus = async () => {
+
+            console.info('checking if modified....')
+
+            // Check each fragment
+            for (const ref of fragmentRefs) {
+                if (ref.current) {
+                    // Get the current settings
+                    const { settings, fragmentKey } = ref.current;
+                    // Get the initial settings
+                    const initialSettings = await getSettingStorage(fragmentKey);
+
+                    // Compare the current settings with the initial settings
+                    if (JSON.stringify({ ...settings }) !== JSON.stringify({ ...initialSettings })) {
+                        // If they are different, set the modified ref to true
+                        modified.current = true;
+                        console.info('modified updated: ', modified.current)
+                        console.info('diff: ', settings, initialSettings)
+                        return
+                    }
+                }
+            }
+
+            modified.current = false
+            console.info('modified updated: ', modified.current)
+        };
+
+        // Run the check whenever the settings change
+        checkModifiedStatus().catch(console.error);
+    }, fragmentRefs);
 
     useEffect(() => {
         window.addEventListener('beforeunload', alertUser)
         return () => window.removeEventListener('beforeunload', alertUser)
-    }, [])
-
-    useEffect(() => {
-        console.info('refs: ', fragmentRefs)
-        if (fragmentRefs.every(ref => ref.current !== null)) {
-            setOriginalSettings(fragmentRefs.reduce((acc, ref) => ({
-                ...acc,
-                [ref.current.fragmentKey]: ref.current.settings
-            }), {}))
-        }
-    }, fragmentRefs.map(ref => ref.current));
-
-
+    }, []);
 
     const alertUser = (e: BeforeUnloadEvent) => {
-        if (unChanged()) {
+        if (modified.current) {
             e.preventDefault()
             e.returnValue = ''
         }
@@ -122,8 +142,8 @@ function SettingPage(): JSX.Element {
                 </div>
             </section>
             <form ref={form} className="container mx-auto m-10" onSubmit={e => e.preventDefault()}>
-                {fragmentKeys.map(key => (
-                    <SettingFragment ref={fragmentRefs[key]} key={key} fragmentKey={key} toggleExpanded={() => toggleSection(key)} expanded={section[key]} />
+                {fragmentKeys.map((key, index) => (
+                    <SettingFragment ref={fragmentRefs[index]} key={key} fragmentKey={key} toggleExpanded={() => toggleSection(key)} expanded={section[key]} />
                 ))}
                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3 px-4 pt-3 mx-auto max-w-screen-xl">
                     <Button
@@ -163,3 +183,4 @@ function SettingApp(): JSX.Element {
 }
 
 export default SettingApp
+
