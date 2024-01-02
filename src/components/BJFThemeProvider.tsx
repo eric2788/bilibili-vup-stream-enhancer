@@ -7,6 +7,7 @@ import { useEffect, useMemo } from "react";
 export type SettingThemeProviderProps = {
     children: React.ReactNode
     dark?: boolean
+    controller?: Element | Element[]
 }
 
 
@@ -37,7 +38,7 @@ const lightTheme: MaterialTheme = {
     },
     iconButton: {
         defaultProps: {
-            color: 'blue-gray'
+            color: 'white'
         }
     }
 }
@@ -80,9 +81,12 @@ const darkTheme = {
 }
 
 
-function BJFThemeProvider({ children, dark }: SettingThemeProviderProps): JSX.Element {
+// controling material tailwind theme + tailwindcss dark mode
+function BJFThemeProvider({ children, dark, controller }: SettingThemeProviderProps): JSX.Element {
 
     const systemColor = usePreferredColorScheme()
+    const htmls = controller ? Array.isArray(controller) ? controller : [controller] : [document.documentElement]
+
     const theme = useMemo(() => {
 
         if (dark !== undefined) {
@@ -96,12 +100,10 @@ function BJFThemeProvider({ children, dark }: SettingThemeProviderProps): JSX.El
     useEffect(() => {
         
         const darkMedia = dark === true || (dark === undefined && systemColor === 'dark')
-
-        const html = document.documentElement
         if (darkMedia) {
-            html.classList.add('dark')
+            htmls.forEach(html => html.classList.add('dark'))
         } else {
-            html.classList.remove('dark')
+            htmls.forEach(html => html.classList.remove('dark'))
         }
         console.info('set bjf dark theme to ', darkMedia ? 'dark' : 'light')
 
