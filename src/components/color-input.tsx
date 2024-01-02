@@ -38,7 +38,7 @@ function ColorInput(props: ColorInputProps): JSX.Element {
                         className: "min-w-0",
                     }}
                 />
-                <input type="color" required className="!absolute right-0 bottom-0 h-8 rounded bg-transparent" defaultValue={props.value} onChange={props.onChange} onBlur={props.onBlur} />
+                <input type="color" required className="!absolute right-0 bottom-0 h-8 rounded bg-transparent cursor-crosshair" defaultValue={props.value} onChange={props.onChange} onBlur={props.onBlur} />
             </div>
         </div>
     )

@@ -42,7 +42,7 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 <Typography
                     variant="small"
 
-                    className="mt-2 flex items-center gap-1 font-normal"
+                    className="mt-2 flex items-center gap-1 font-normal dark:text-gray-400"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -58,17 +58,17 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                     </svg>
                     有关正则表达式可以到
                     <span
-                        className="font-bold antialiased cursor-pointer text-sm leading-normal"
+                        className="font-bold antialiased cursor-pointer text-sm leading-normal dark:text-white"
                         onClick={() => sendBackground('open-tab', { url: 'https://regex101.com' })}>这里</span>
                     进行测试。
                 </Typography>
-                <Typography variant="small" className="font-normal pl-5">必须包含名称为cc的正则组别以捕捉字幕。</Typography>
-                <Typography variant="small" className="font-normal pl-5">可包含名称为n的正则组别以捕捉说话者。</Typography>
+                <Typography variant="small" className="font-normal pl-5 dark:text-gray-400">必须包含名称为cc的正则组别以捕捉字幕。</Typography>
+                <Typography variant="small" className="font-normal pl-5 dark:text-gray-400">可包含名称为n的正则组别以捕捉说话者。</Typography>
 
             </div>
             <div>
                 <ColorInput label="同传弹幕颜色" optional={true} onChange={handler('color')} value={state.color} />
-                <Typography variant="small" className="mt-2 flex items-center gap-1 font-normal">
+                <Typography variant="small" className="mt-2 flex items-center gap-1 font-normal dark:text-gray-400">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -86,7 +86,7 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
             </div>
             <div>
                 <Input label="同传弹幕透明度" crossOrigin={'annoymous'} onChange={e => changeOpacity(e.target.valueAsNumber)} value={state.opacity ?? -1} variant="static" type="number" min={-1} max={100} />
-                <Typography variant="small" className="mt-2 flex items-center gap-1 font-normal">
+                <Typography variant="small" className="mt-2 flex items-center gap-1 font-normal dark:text-gray-400">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
