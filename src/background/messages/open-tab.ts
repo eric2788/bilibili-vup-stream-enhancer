@@ -1,8 +1,8 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 export type RequestBody = {
-    url: string | undefined
-    tab: string | undefined
+    url?: string
+    tab?: string
 }
 
 const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) => {

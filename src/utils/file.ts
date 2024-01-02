@@ -15,15 +15,24 @@ export function download(filename: string, content: string, type: string = 'text
 }
 
 
-export function *getModuleStream(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<Promise<any>, void, any> {
+export type IModule = {
+    name: string,
+    file: string,
+    module: any
+}
+
+
+export function *getModuleStream(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<Promise<IModule>, void, any> {
     for (const file of getTSFiles(dirPath, options)) {
-        yield import(file)
+        const name = file.split('/').pop().split('.')[0]
+        yield import(file).then(module => ({ name, file, module }))
     }
 }
 
 
-export function *getModuleStreamSync(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<any, void, any> {
+export function *getModuleStreamSync(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<IModule, void, any> {
     for (const file of getTSFiles(dirPath, options)) {
-        yield require(file)
+        const name = file.split('/').pop().split('.')[0]
+        yield { name, file, module: require(file) }
     }
 }
