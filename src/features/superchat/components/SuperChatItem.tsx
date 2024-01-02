@@ -1,4 +1,3 @@
-import type { Superchat } from "~database/tables/superchat"
 
 
 export type SuperChatItemProps = {

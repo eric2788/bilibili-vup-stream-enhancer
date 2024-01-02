@@ -1,25 +1,24 @@
-import { Fragment, useDeferredValue, useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import type { StreamInfo } from "~api/bilibili";
+import ShadowRoot from "~components/ShadowRoot";
 import type { Settings } from "~settings";
 import type { FeatureHookRender } from "..";
-import ShadowRoot from "~components/ShadowRoot";
 
 
 import styleText from 'data-text:react-contexify/dist/ReactContexify.css';
-import { Item, Menu, useContextMenu } from "react-contexify";
-import SuperChatArea, { type SuperChatCard } from "./components/SuperChatArea";
+import { Menu, useContextMenu } from "react-contexify";
 import { useBLiveMessageCommand } from "~hooks/message";
 import type { SuperChatList } from "~types/bilibili";
 import { fetchSameCredentialBase } from "~utils/fetch";
-import type { SuperChatItemProps } from "./components/SuperChatItem";
+import SuperChatArea, { type SuperChatCard } from "./components/SuperChatArea";
 
 
 
 
 export function App({ settings, info }: { settings: Settings, info: StreamInfo }): JSX.Element {
 
-    const { show, hideAll } = useContextMenu({
+    const { show } = useContextMenu({
         id: 'superchat-menu'
     })
 

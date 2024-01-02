@@ -1,11 +1,6 @@
-import { Fragment, useEffect, useState } from "react"
 import type { StreamInfo } from "~api/bilibili"
 import type { Settings } from "~settings"
 import SuperChatItem, { type SuperChatItemProps } from "./SuperChatItem"
-import type { Superchat } from "~database/tables/superchat"
-import { useBLiveMessage, useBLiveMessageCommand } from "~hooks/message"
-import { fetchSameCredentialBase, fetchSameCredentialV1 } from "~utils/fetch"
-import type { SuperChatList } from "~types/bilibili"
 
 
 

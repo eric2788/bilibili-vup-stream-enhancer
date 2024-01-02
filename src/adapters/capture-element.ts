@@ -105,7 +105,7 @@ function startDanmakuMonitor(settings: Settings): MutationObserver {
 // opacity and hide should be handle from features because they are not common mutation
 // please note that the modification of mutation observer is limited due to lack of information
 function startDanmakuStyleMonitor(settings: Settings): MutationObserver {
-    const { elements: { webPlayer: danmakuArea } } = settings['settings.developer']
+    const { elements: { danmakuArea } } = settings['settings.developer']
     const danmakuContainer = document.querySelector(danmakuArea)
     const danmakuObserver = new MutationObserver(async (mutationsList: MutationRecord[]) => {
         for (const node of mutationsList.flatMap(mu => mu.addedNodes)) {
