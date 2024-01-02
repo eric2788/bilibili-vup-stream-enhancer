@@ -6,6 +6,11 @@ import type { Settings } from "~settings";
 import type { FeatureHookRender } from "..";
 import ButtonArea from "./components/ButtonArea";
 import JimakuArea from "./components/JimakuArea";
+import type { StreamInfo } from "~api/bilibili";
+import { useEffect } from "react";
+import { sleep } from "~utils/misc";
+import PromiseHandler from "~components/PromiseHandler";
+import { Typography } from "@material-tailwind/react";
 
 
 export function parseJimaku(danmaku: string, regex: string) {
@@ -20,8 +25,16 @@ export function parseJimaku(danmaku: string, regex: string) {
     return name && danmaku ? `${name}: ${danmaku}` : danmaku
 }
 
+function warnIfAdaptive() {
+    // warn: this will make context menu wrong position
+    if (!document.documentElement.getAttribute('lab-style').includes('adaptive')) return
+    toast.error(`检测到你已启用屏幕适配，这将导致字幕右键菜单位置错乱，建议关闭。`, {
+        position: 'top-center',
+        duration: 10000,
+    })
+}
 
-function App({ settings }: { settings: Settings }): JSX.Element {
+export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX.Element {
 
     const dev = settings['settings.developer']
     const { regex, opacity, hide } = settings['settings.danmaku']
@@ -30,6 +43,17 @@ function App({ settings }: { settings: Settings }): JSX.Element {
     if (!danmakuArea) {
         toast.warning(`找不到弹幕区域 ${dev.elements.danmakuArea}，部分功能可能无法正常工作`)
     }
+
+    useEffect(warnIfAdaptive, [])
+
+    // adaptive style callback
+    useMutationObserver(
+        document.documentElement,
+        (mutations) => mutations
+            .find((mu) => mu.type === 'attributes' && mu.attributeName === 'lab-style') &&
+            warnIfAdaptive(),
+        { attributes: true }
+    )
 
     // danmaku style callback
     useMutationObserver(danmakuArea, (mutationsList: MutationRecord[]) => {
@@ -65,19 +89,35 @@ const handler: FeatureHookRender = async (settings, info) => {
     console.info('hello world from jimaku.tsx!')
 
     const dev = settings['settings.developer']
+    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap } = settings['settings.jimaku']
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
     const jimakuArea = document.createElement('div')
     jimakuArea.id = 'jimaku-area'
     playerSection.insertAdjacentElement('afterend', jimakuArea)
 
-
+    const testFetch = sleep(5000)
 
     return [
         createPortal(
             <TailwindScope>
-                <App settings={settings} />
-                <JimakuArea settings={settings} info={info} />
+                <PromiseHandler promise={testFetch} >
+                    <PromiseHandler.Error>
+                        {err => (
+                            <div style={{ height: backgroundHeight }} className="flex justify-center items-center bg-gray-700 text-red-700">
+                                <div>{err}</div>
+                            </div>
+                        )}
+                    </PromiseHandler.Error>
+                    <PromiseHandler.Response>
+                        {(data) => <JimakuArea settings={settings} info={info} />}
+                    </PromiseHandler.Response>
+                    <PromiseHandler.Loading>
+                        <div style={{ height: backgroundHeight, backgroundColor }} className="flex justify-center items-start">
+                            <h1 style={{color, fontSize: firstLineSize, marginTop: lineGap }} className="animate-pulse font-bold">字幕加载中...</h1>
+                        </div>
+                    </PromiseHandler.Loading>
+                </PromiseHandler>
                 <ButtonArea settings={settings} info={info} />
             </TailwindScope>
             , jimakuArea)

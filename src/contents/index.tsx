@@ -15,11 +15,11 @@ import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
 import { shouldInit, type Settings } from "../settings"
 
-import "~toaster"
 import { toast } from "sonner/dist"
-import { injectAdapter } from "~utils/inject"
-import { start } from "repl"
 import { useWebScreenChange } from "~hooks/bilibili"
+import { injectAdapter } from "~utils/inject"
+
+import "~toaster"
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -104,12 +104,11 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
         }
         root = createRoot(section)
         const portals = await hook(settings, info)
-        const Root: React.ReactNode = App ? await App(settings, info) : <></>
         root.render(
           <OverlayApp anchor={anchor}>
             <BLiveThemeProvider element={section}>
               <Fragment>
-                {Root}
+                {App ? <App settings={settings} info={info} /> : <></>}
                 {portals}
               </Fragment>
             </BLiveThemeProvider>

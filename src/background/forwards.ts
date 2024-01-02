@@ -55,10 +55,10 @@ function sendForwardInternal<T extends keyof ForwardData, C extends ChannelType,
         body
     }
     if (target === 'background' || target === 'pages') {
-        chrome.runtime.sendMessage(message)
+        chrome.runtime.sendMessage(message).catch(console.warn)
     } else if (target === 'content-script') {
         chrome.tabs.query(queryInfo ?? { active: true }, (tabs) => {
-            tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message))
+            tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message).catch(console.warn))
         })
     }
 }

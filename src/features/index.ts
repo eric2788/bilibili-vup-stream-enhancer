@@ -5,7 +5,7 @@ import * as superchat from './superchat';
 
 export type FeatureHookRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<React.ReactPortal[]>
 
-export type FeatureAppRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<React.ReactNode>
+export type FeatureAppRender = React.FC<{settings: Readonly<Settings>, info: StreamInfo}>
 
 export type FeatureType = keyof typeof features
 
