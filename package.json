@@ -53,7 +53,8 @@
       "storage",
       "tabs",
       "contextMenus",
-      "scripting"
+      "scripting",
+      "activeTabs"
     ],
     "browser_specific_settings": {
       "gecko": {

@@ -48,7 +48,7 @@ function sendForwardInternal<T extends keyof ForwardData, V = ForwardBody<Forwar
     if (target === 'background' || target === 'pages') {
         chrome.runtime.sendMessage(message)
     } else if (target === 'content-script') {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.query({url: '*://live.bilibili.com/*'}, (tabs) => {
             tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message))
         })
     }
