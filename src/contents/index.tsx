@@ -1,4 +1,4 @@
-import type { PlasmoCSConfig, PlasmoRender } from "plasmo"
+import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoRender } from "plasmo"
 import { Fragment } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { ensureIsVtuber, getNeptuneIsMyWaifu, getStreamInfo, isNativeVtuber, type StreamInfo } from "~api/bilibili"
@@ -7,6 +7,7 @@ import func from "~utils/func"
 import { getRoomId } from "~utils/bilibili"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
+import type { Settings } from "~settings"
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -52,12 +53,134 @@ const getStreamInfoFallbacks = [
 ]
 
 
-export const render: PlasmoRender<any> = async ({ anchor, createRootContainer }, _, OverlayApp) => {
+
+async function shouldInit(roomId: number, settings: Settings, info: StreamInfo): Promise<boolean> {
 
   const isNativeVtuberFunc = func.wrap(isNativeVtuber)
 
-  try {
+  if (settings["settings.listings"].blackListRooms.some((r) => r.room === roomId.toString()) === !settings["settings.listings"].useAsWhiteListRooms) {
+    console.info('房間已被列入黑名單，已略過')
+    return false
+  }
 
+
+  if (!info) {
+    // do log
+    console.info('無法取得直播資訊，已略過')
+    return false
+  }
+
+  if (settings["settings.features"].onlyVtuber) {
+
+    if (info.uid !== '0') {
+      await ensureIsVtuber(info)
+    }
+
+    if (!info.isVtuber) {
+      // do log
+      console.info('不是 VTuber, 已略過')
+      return false
+    }
+
+    if (settings["settings.features"].noNativeVtuber && (await retryCatcher(isNativeVtuberFunc(info.uid), 5))) {
+      // do log
+      console.info('檢測到為國V, 已略過')
+      return false
+    }
+  }
+
+  return true
+}
+
+
+async function hookAdapter(settings: Settings) {
+
+}
+
+
+interface RootMountable {
+  feature: FeatureType
+  mount: () => Promise<void>
+  unmount: () => Promise<void>
+}
+
+interface PlasmoSpec {
+  rootContainer: Element
+  anchor: PlasmoCSUIAnchor
+  OverlayApp?: any
+  InlineApp?: any
+}
+
+async function createMountPoints(plasmo: PlasmoSpec, settings: Settings, info: StreamInfo): Promise<RootMountable[]> {
+
+
+  const { anchor, OverlayApp, rootContainer } = plasmo
+
+  return await Promise.all(
+    Object.entries(features).map(async ([key, handler]) => {
+      const { default: hook, App, init, dispose } = handler
+
+      const section = document.createElement('section')
+      section.id = `bjf-feature-${key}`
+      rootContainer.appendChild(section)
+
+      const root = createRoot(section)
+
+      return {
+        feature: key as FeatureType,
+        mount: async () => {
+          if (init) {
+            // for extra init
+            await init()
+          }
+          const portals = await hook(settings, info)
+          const Root: React.ReactNode = App ? await App(settings, info) : <></>
+          root.render(
+            <OverlayApp anchor={anchor} >
+              <Fragment key={key}>
+                {Root}
+                {portals}
+              </Fragment>
+            </OverlayApp>
+          )
+        },
+        unmount: async () => {
+          if (dispose) {
+            // for extra dispose
+            await dispose()
+          }
+          root.unmount()
+        }
+      }
+    })
+  )
+
+}
+
+
+async function startExtensions(roomId: number, plasmo: PlasmoSpec, settings: Settings, info: StreamInfo): Promise<boolean> {
+  
+  if (!(await shouldInit(roomId, settings, info))) {
+    return false
+  }
+
+  const { anchor, OverlayApp, rootContainer } = plasmo
+  
+  const mounters = await createMountPoints({ rootContainer, anchor, OverlayApp }, settings, info)
+
+  console.info('開始渲染元素....')
+
+  await Promise.all(mounters.map(m => m.mount()))
+
+  console.info('渲染元素完成')
+
+  return true
+}
+
+
+export const render: PlasmoRender<any> = async ({ anchor, createRootContainer }, _, OverlayApp) => {
+
+  try {
     const roomId = getRoomId()
 
     if (!roomId) {
@@ -66,72 +189,16 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
     }
 
     const settings = await getFullSettingStroage()
-    
-    if (settings["settings.listings"].blackListRooms.some((r) => r.room === roomId.toString()) === !settings["settings.listings"].useAsWhiteListRooms) {
-      console.info('房間已被列入黑名單，已略過')
-      return
-    }
-
-    const info: StreamInfo = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(roomId)))
+    const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
 
     if (!info) {
-      // do log
       console.info('無法取得直播資訊，已略過')
       return
     }
 
-    if (settings["settings.features"].onlyVtuber) {
-
-      if (info.uid !== '0') {
-        await ensureIsVtuber(info)
-      }
-
-      if (!info.isVtuber) {
-        // do log
-        console.info('不是 VTuber, 已略過')
-        return
-      }
-
-      if (settings["settings.features"].noNativeVtuber && (await retryCatcher(isNativeVtuberFunc(info.uid), 5))) {
-        // do log
-        console.info('檢測到為國V, 已略過')
-        return
-      }
-    }
-
     const rootContainer = await createRootContainer(anchor)
 
-    const mounters: Partial<Record<FeatureType, Root>> = {}
-
-    console.info('開始渲染元素....')
-
-    await Promise.all(
-      Object.entries(features).map(async ([key, handler]) => {
-        const { default: hook, App } = handler
-        const portals = await hook(settings, info)
-
-        const Root: React.ReactNode = App ? await App(settings, info) : <></>
-
-        const section = document.createElement('section')
-        section.id = `bjf-feature-${key}`
-        rootContainer.appendChild(section)
-
-        const root = createRoot(section)
-        mounters[key] = root
-
-        root.render(
-          <OverlayApp anchor={anchor} >
-            <Fragment key={key}>
-              {Root}
-              {portals}
-            </Fragment>
-          </OverlayApp>
-        )
-
-      })
-    )
-
-    console.info('渲染元素完成')
+    await startExtensions(roomId, { rootContainer, anchor, OverlayApp }, settings, info)
 
   } catch (err: Error | any) {
     console.error(`渲染 bilibili-jimaku-filter 元素時出現錯誤: `, err)

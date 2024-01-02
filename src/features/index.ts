@@ -12,6 +12,8 @@ export type FeatureType = keyof typeof features
 export interface FeatureHandler {
     default: FeatureHookRender,
     App?: FeatureAppRender
+    init?: () => Promise<void>
+    dispose?: () => Promise<void>
 }
 
 const features = {
