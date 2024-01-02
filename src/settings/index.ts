@@ -27,14 +27,15 @@ export interface SettingFragments {
 
 export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
 
+// also defined the order of the settings
 const fragments: SettingFragments = {
-    'button': button,
-    'capture': capture,
     'danmaku': danmaku,
-    'developer': developer,
-    'display': display,
     'jimaku': jimaku,
-    'listings': listings
+    'button': button,
+    'listings': listings,
+    'capture': capture,
+    'display': display,
+    'developer': developer
 }
 
 
