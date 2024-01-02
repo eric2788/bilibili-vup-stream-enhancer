@@ -1,9 +1,7 @@
 import type { Table } from "dexie"
 import db, { type CommonSchema, type TableType } from "~database"
 import { getAllTables } from "~utils/database"
-import { injectFuncAsListener } from "~utils/event"
 
-// yup chrome scripting v3 supports async functions
 async function clearIndexedDbTable(table: TableType | 'all', room?: string) {
     try {
         const tables: Table<CommonSchema, number>[] = []
@@ -22,4 +20,4 @@ async function clearIndexedDbTable(table: TableType | 'all', room?: string) {
     }
 }
 
-injectFuncAsListener(clearIndexedDbTable)
+export default clearIndexedDbTable
