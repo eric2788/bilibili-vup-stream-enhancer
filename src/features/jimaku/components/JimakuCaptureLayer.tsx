@@ -40,7 +40,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
         const datetime = useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp()
         const jimakuBlock = {
             date: datetime,
-            text: data.info[1],
+            text: jimaku,
             uid: data.info[2][0],
             uname: data.info[2][1],
             hash: randomString() + Date.now() + data.info[0][5],

@@ -98,7 +98,7 @@ function JimakuArea({ settings, jimaku }: JimakuAreaProps): JSX.Element {
                     <ConditionalWrapper
                         as={Rnd}
                         condition={screenStatus !== 'normal'}
-                        bounds={dev.elements.danmakuArea}
+                        bounds={dev.elements.webPlayer}
                         style={{ zIndex: 9999, display: visible ? 'block' : 'none' }}
                         minHeight={100}
                         minWidth={200}
