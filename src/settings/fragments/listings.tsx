@@ -2,7 +2,7 @@
 import { Fragment } from "react"
 import DataTable, { type TableHeader } from "~settings/components/DataTable"
 import type { StateProxy } from "~hooks/binding"
-import type { ArrElement } from "~types"
+import type { ArrElement } from "~types/common"
 import { removeArr } from "~utils/misc"
 
 

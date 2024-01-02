@@ -1,4 +1,4 @@
-import { Input, List } from "@material-tailwind/react"
+import { Input, List, Switch, Typography } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
 import AffixInput from "~settings/components/AffixInput"
 import ColorInput from "~settings/components/ColorInput"
@@ -6,7 +6,7 @@ import SwitchListItem from "~settings/components/SwitchListItem"
 import Hints from "~settings/components/Hints"
 import Selector from "~settings/components/Selector"
 import type { StateProxy } from "~hooks/binding"
-import type { HexColor, HundredNumber, Optional } from "~types"
+import type { HexColor, HundredNumber, Optional } from "~types/common"
 import { sendMessager } from "~utils/messaging"
 
 export type SettingSchema = {
@@ -57,9 +57,14 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 ]} />
             </div>
             <div className="md:col-span-2 max-md:col-span-1">
-                <List>
-                    <SwitchListItem label="隐藏同传弹幕" value={state.hide} onChange={checker('hide')} />
-                </List>
+                <Switch
+                    crossOrigin={'annoymous'}
+                    label={
+                        <Typography className="font-medium" >隐藏同传弹幕</Typography>
+                    }
+                    checked={state.hide}
+                    onChange={checker('hide')}
+                />
             </div>
             <div>
                 <ColorInput disabled={state.hide} label="同传弹幕颜色" optional={true} onChange={handler('color')} value={state.color} />

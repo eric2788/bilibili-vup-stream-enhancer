@@ -1,15 +1,15 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useRef } from "react"
+import React, { Fragment, useRef, type ChangeEvent } from "react"
 import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useLoader } from "~hooks/loader"
 import fragments, { type SettingFragments } from "~settings"
-import SettingFragment, { type ExportRefProps } from "~settings/components/SettingFragment"
+import SettingFragment, { type SettingFragmentProps, type SettingFragmentRef } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
-import { download } from "~utils/file"
-import { sleep } from "~utils/misc"
+import { download, readAsJson } from "~utils/file"
+import { arrayEqual, removeInvalidKeys, sleep } from "~utils/misc"
 import { getSettingStorage } from "~utils/storage"
 
 document.title = '字幕过滤设定'
@@ -25,7 +25,7 @@ async function exportSettings(): Promise<void> {
             return { [key]: settings }
         }))
         const exportContent = JSON.stringify(settingJsons.reduce((prev, curr) => ({ ...prev, ...curr }), {}))
-        download(exportContent, 'settings.json', 'application/json')
+        download('settings.json', exportContent, 'application/json')
         await sendInternal('notify', {
             title: '导出设定成功',
             message: '设定已经导出成功。'
@@ -74,14 +74,47 @@ function SettingPage(): JSX.Element {
 
     const form = useRef<HTMLFormElement>()
     const fileImport = useRef<HTMLInputElement>()
-    const fragmentRefs = fragmentKeys.map(key => React.createRef<ExportRefProps<typeof key>>())
+    const fragmentRefs = fragmentKeys.map(key => useRef<SettingFragmentRef<typeof key>>())
 
     const [loader, loading] = useLoader({
         checkingUpdate,
         exportSettings,
         clearRecords,
         importSettings: async () => {
-            await sleep(5000)
+            const listener = async (e: Event) => {
+                const target = e.target as HTMLInputElement
+                if (target.files.length === 0) return
+                const file = target.files[0]
+                try {
+                    const settings = await readAsJson(file)
+                    if (!(settings instanceof Object)) {
+                        throw new Error('导入的设定文件格式错误。')
+                    }
+                    if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
+                        throw new Error('导入的设定文件格式错误。')
+                    }
+                    await Promise.all(fragmentRefs.map((ref) => {
+                        const { defaultSettings } = fragments[ref.current.fragmentKey]
+                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[ref.current.fragmentKey]}, defaultSettings)
+                        return ref.current.importSettings(importContent)
+                    }))
+                    await sendInternal('notify', {
+                        title: '导入设定成功',
+                        message: '设定已经导入成功。'
+                    })
+                }catch (err: Error | any) {
+                    console.error(err)
+                    await sendInternal('notify', {
+                        title: '导入设定失败',
+                        message: err.message
+                    })
+                } finally {
+                    fileImport.current.files = null
+                    fileImport.current.removeEventListener('change', listener)
+                }
+            }
+            fileImport.current.addEventListener('change', listener)
+            fileImport.current.click()
         },
         saveAllSettings: async () => {
             if (!form.current.checkValidity()) {
@@ -105,7 +138,6 @@ function SettingPage(): JSX.Element {
 
     return (
         <Fragment>
-            <input ref={fileImport} type="file" style={{display: 'none'}} accept=".json"></input>
             <section className="bg-gray-700">
                 <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 text-white">
                     <h1 className="mb-4 text-4xl tracking-tight leading-none md:text-5xl lg:text-6xl ">字幕过滤设定</h1>
@@ -136,6 +168,7 @@ function SettingPage(): JSX.Element {
                 {fragmentKeys.map((key, index) => (
                     <SettingFragment ref={fragmentRefs[index]} key={key} fragmentKey={key} toggleExpanded={() => toggleSection(key)} expanded={section[key]} />
                 ))}
+                <input ref={fileImport} placeholder="" title="" type="file" style={{display: 'none'}} accept=".json"></input>
                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3 px-4 pt-3 mx-auto max-w-screen-xl">
                     <Button
                         type="submit"
