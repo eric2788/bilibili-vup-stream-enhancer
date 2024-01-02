@@ -5,9 +5,10 @@ export type RequestBody = {
     tab?: string
 }
 
-const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) => {
+const handler: PlasmoMessaging.MessageHandler<RequestBody, chrome.tabs.Tab> = async (req, res) => {
     const { url, tab } = req.body
-    chrome.tabs.create({ url: tab ? `../tabs/${tab}.html` : url })
+    const result = await chrome.tabs.create({ url: tab ? `../tabs/${tab}.html` : url })
+    res.send(result)
 }
 
 

@@ -10,7 +10,7 @@ export async function fetchSameOrigin<T = any>(url: string): Promise<T> {
     return data as T
 }
 
-async function getPageVariable(name: string, tabId: number) {
+async function getPageVariable(name: string, tabId: number): Promise<any> {
     const [{result}] = await chrome.scripting.executeScript({
       func: name => window[name],
       args: [name],

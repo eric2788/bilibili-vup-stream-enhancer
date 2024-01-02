@@ -1,0 +1,104 @@
+import { ThemeProvider } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+
+
+
+export type SettingThemeProviderProps = {
+    children: React.ReactNode
+    dark?: boolean
+}
+
+
+type MaterialTheme = {
+    [components: string]: {
+        defaultProps?: Record<string, any>,
+        valid?: Record<string, any>,
+        styles?: Record<string, any>
+    }
+}
+
+
+const lightTheme: MaterialTheme = {
+    input: {
+        defaultProps: {
+            color: 'black'
+        }
+    },
+    typography: {
+        defaultProps: {
+            color: 'gray'
+        }
+    },
+    switch: {
+        defaultProps: {
+            color: 'gray'
+        }
+    }
+}
+
+const darkTheme = {
+    input: {
+        defaultProps: {
+            color: 'white'
+        }
+    },
+    typography: {
+        defaultProps: {
+            color: 'white'
+        }
+    },
+    switch: {
+        defaultProps: {
+            color: 'brown'
+        },
+        styles: {
+            base: {
+                input: {
+                    background: "bg-gray-500",
+                }
+            },
+            colors: {
+                'brown': {
+                    input: "checked:bg-gray-900",
+                    circle: "peer-checked:border-gray-200",
+                    before: "peer-checked:before:bg-black",
+                }
+            }
+        }
+    }
+}
+
+
+function BJFThemeProvider({ children, dark }: SettingThemeProviderProps): JSX.Element {
+
+    const [theme, setTheme] = useState(dark ? darkTheme : lightTheme)
+
+    useEffect(() => {
+        const onSwitchTheme = (e: MediaQueryListEvent) => {
+            const darkMode = e.matches
+            if (darkMode) {
+                setTheme(darkTheme)
+            } else {
+                setTheme(lightTheme)
+            }
+        }
+        // if dark is manually set, do not listen to system theme
+        if (dark) return;
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+        mediaQuery.addEventListener('change', onSwitchTheme)
+        // do it once first because the event listener will not be triggered on first load
+        setTheme(mediaQuery.matches ? darkTheme : lightTheme)
+        return () => {
+            mediaQuery.removeEventListener('change', onSwitchTheme)
+        }
+    })
+
+    return (
+        <ThemeProvider value={theme}>
+            {children}
+        </ThemeProvider>
+    )
+}
+
+
+export default BJFThemeProvider

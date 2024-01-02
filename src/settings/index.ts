@@ -6,32 +6,32 @@ import * as developer from './fragments/developer'
 import * as display from './fragments/display'
 import * as jimaku from './fragments/jimaku'
 import * as listings from './fragments/listings'
+import * as features from './fragments/features'
 
 
-export type SettingFragment<T extends object> = {
+interface SettingFragment<T extends object> {
     defaultSettings: Readonly<T>
     default: React.FC<StateProxy<T>>
+    title: string
 }
 
-export interface SettingFragments {
-    'button': SettingFragment<button.SettingSchema>
-    'capture': SettingFragment<capture.SettingSchema>
-    'danmaku': SettingFragment<danmaku.SettingSchema>
-    'developer': SettingFragment<developer.SettingSchema>
-    'display': SettingFragment<display.SettingSchema>
-    'jimaku': SettingFragment<jimaku.SettingSchema>
-    'listings': SettingFragment<listings.SettingSchema>
-}
+export type SettingFragments = typeof fragments 
 
-const fragments: SettingFragments = {
-    'button': button,
-    'capture': capture,
+
+export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
+
+// also defined the order of the settings
+const fragments = {
     'danmaku': danmaku,
-    'developer': developer,
-    'display': display,
     'jimaku': jimaku,
-    'listings': listings
+    'button': button,
+    'listings': listings,
+    'features': features,
+    'capture': capture,
+    'display': display,
+    'developer': developer
 }
 
 
 export default fragments
+
