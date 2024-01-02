@@ -1,7 +1,7 @@
 {
   "name": "bilibili-jimaku-filter",
   "displayName": "Bilibili jimaku filter",
-  "version": "0.0.1",
+  "version": "2.0-alpha.1",
   "description": "功能衆多的同傳字幕過濾插件",
   "author": "Eric Lam <tsukiko852@gmail.com>",
   "license": "MIT",
