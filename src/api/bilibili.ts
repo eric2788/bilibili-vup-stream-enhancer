@@ -15,7 +15,7 @@ export type StreamInfo = {
     status: 'online' | 'offline'
 }
 
-export async function getStreamInfo(room: string | number): Promise<StreamInfo> {
+export async function getStreamInfo(room: string): Promise<StreamInfo> {
     const data = await fetchSameOriginV1<GetInfoByRoomResponse>(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${room}`)
     return {
         room: room.toString(),

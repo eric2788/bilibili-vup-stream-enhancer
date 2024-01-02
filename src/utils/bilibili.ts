@@ -3,8 +3,8 @@ import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili";
 import { sendMessager } from "./messaging";
 import { localStorage } from "./storage";
 
-export function getRoomId(url: string = location.pathname) {
-    return parseInt(/^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id)
+export function getRoomId(url: string = location.pathname): string {
+    return /^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id
 }
 
 
