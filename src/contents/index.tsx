@@ -13,7 +13,7 @@ import { getRoomId, getStreamInfoByDom } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectAdapter } from '~utils/inject';
 import { sendMessager } from '~utils/messaging';
-import { getFullSettingStroage, sessionStorage, transactions } from '~utils/storage';
+import { getFullSettingStroage, transactions } from '~utils/storage';
 
 import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
 import { useToggle } from '@react-hooks-library/core';
