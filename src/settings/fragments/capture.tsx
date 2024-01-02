@@ -1,11 +1,10 @@
 
-import { Fragment } from 'react'
-import { toast } from 'sonner/dist'
-import type { AdapterType } from '~adapters'
-import { type StateProxy } from '~hooks/binding'
-import Selector from '~settings/components/Selector'
+import { Fragment } from 'react';
+import { toast } from 'sonner/dist';
+import { type StateProxy } from '~hooks/binding';
+import Selector from '~settings/components/Selector';
 
-
+import type { AdapterType } from '~adapters';
 export type SettingSchema = {
     captureMechanism: AdapterType
 }
@@ -23,7 +22,7 @@ function CaptureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
         if (e === 'dom' && !window.confirm('捕捉元素功能受限, 我们仅建议在WS挂接无法运作的情况下才作为备用, 是否继续?')) return
         state.captureMechanism = e
         if (state.captureMechanism === 'dom') {
-            toast.warning('已切换到捕捉元素机制, 以下功能将无法使用:',{
+            toast.warning('已切换到捕捉元素机制, 以下功能将无法使用:', {
                 description: (
                     <ul>
                         <li>弹幕位置</li>

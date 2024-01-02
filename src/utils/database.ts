@@ -1,5 +1,5 @@
-import type { Table } from "dexie"
-import db, { type CommonSchema } from "~database"
+import type { Table } from "dexie";
+import db, { CommonSchema } from '~database';
 
 export const getAllTables = () => Object.entries(db).filter(([, value]) => isTable(value)).map(([, v]) => v) as Table<CommonSchema, number>[]
 

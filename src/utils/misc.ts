@@ -85,5 +85,5 @@ export function randomRange(min: number, max: number): number {
 }
 
 export function randomNumber(length: number = 20): number {
-    return Math.round(Math.random() * (10**length))
+    return Math.round(Math.random() * (10 ** length))
 }

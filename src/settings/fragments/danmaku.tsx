@@ -1,13 +1,14 @@
-import { Input, Switch, Typography } from "@material-tailwind/react"
-import { Fragment, type ChangeEvent } from "react"
-import type { StateProxy } from "~hooks/binding"
-import AffixInput from "~settings/components/AffixInput"
-import ColorInput from "~settings/components/ColorInput"
-import Hints from "~settings/components/Hints"
-import Selector from "~settings/components/Selector"
-import type { HexColor, HundredNumber, Optional } from "~types/common"
-import { sendMessager } from "~utils/messaging"
+import { type ChangeEvent, Fragment } from 'react';
+import AffixInput from '~settings/components/AffixInput';
+import ColorInput from '~settings/components/ColorInput';
+import Hints from '~settings/components/Hints';
+import Selector from '~settings/components/Selector';
+import { sendMessager } from '~utils/messaging';
 
+import { Input, Switch, Typography } from '@material-tailwind/react';
+
+import type { StateProxy } from "~hooks/binding";
+import type { HexColor, HundredNumber, Optional } from "~types/common";
 export type SettingSchema = {
     regex: string
     hide: boolean,

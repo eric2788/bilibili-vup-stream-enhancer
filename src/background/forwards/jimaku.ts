@@ -1,4 +1,5 @@
-import { md5 } from "hash-wasm";
+import { md5 } from 'hash-wasm';
+
 import type { ForwardHandler } from "../forwards";
 
 export type ForwardBody = {

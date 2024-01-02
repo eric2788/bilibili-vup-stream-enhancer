@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import { useState } from 'react';
 
 /**
  * Custom hook that returns a state and a function to force update the component.

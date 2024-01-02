@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import type { InjectableFunction } from "~background/functions";
-import functions from "~background/functions";
+import functions from '~background/functions';
 
 export type RequestBody = Omit<Partial<chrome.scripting.ScriptInjection<any[], any>>, 'func' | 'args'> & {
     function: InjectableFunction<any>

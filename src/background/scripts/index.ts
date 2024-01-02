@@ -1,6 +1,6 @@
 
-import clearIndexedDbTable from "./clearIndexedDbTable";
-import testOnly from "./testOnly";
+import clearIndexedDbTable from './clearIndexedDbTable';
+import testOnly from './testOnly';
 
 export interface InjectableScript<T extends InjectableScriptType> {
     name: T

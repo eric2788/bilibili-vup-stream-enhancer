@@ -1,14 +1,14 @@
 
-import { Switch, Typography } from "@material-tailwind/react"
-import { Fragment, type ChangeEvent } from "react"
-import { requestUserInfo, type StreamInfo } from "~api/bilibili"
-import type { ExposeHandler, StateProxy } from "~hooks/binding"
-import DataTable, { type TableHeader } from "~settings/components/DataTable"
-import type { ArrElement, PickKeys } from "~types/common"
-import { catcher } from "~utils/fetch"
-import { removeArr } from "~utils/misc"
+import { type ChangeEvent, Fragment } from 'react';
+import { type StreamInfo, requestUserInfo } from '~api/bilibili';
+import DataTable, { type TableHeader } from '~settings/components/DataTable';
+import { catcher } from '~utils/fetch';
+import { removeArr } from '~utils/misc';
 
+import { Switch, Typography } from '@material-tailwind/react';
 
+import type { ExposeHandler, StateProxy } from "~hooks/binding";
+import type { ArrElement, PickKeys } from "~types/common";
 export type UserRecord = {
     id: string,
     name: string,

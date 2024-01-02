@@ -1,5 +1,5 @@
-import { sendInternal } from '~background/messages'
-import { getRoomId } from '~utils/bilibili'
+import { sendInternal } from '~background/messages';
+import { getRoomId } from '~utils/bilibili';
 
 export const properties: chrome.contextMenus.CreateProperties = {
     id: 'add-black-list',
@@ -23,5 +23,5 @@ export default async function (info: chrome.contextMenus.OnClickData, tab?: chro
     }
 
     await sendInternal('add-black-list', { roomId, sourceUrl: tab.url })
-   
+
 }

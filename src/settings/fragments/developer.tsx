@@ -1,9 +1,10 @@
-import { Alert, Button, Input, Typography } from "@material-tailwind/react";
-import { Fragment, type ChangeEvent } from "react";
+import { type ChangeEvent, Fragment } from 'react';
+import { sendMessager } from '~utils/messaging';
+
+import { Alert, Button, Input, Typography } from '@material-tailwind/react';
+
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { Leaves } from "~types/common";
-import { sendMessager } from "~utils/messaging";
-
 export type SettingSchema = {
     elements: {
         upperButtonArea: string;
@@ -15,6 +16,7 @@ export type SettingSchema = {
         liveTitle: string;
         chatItems: string;
         newMsgButton: string;
+        upperInputArea: string;
     };
     classes: {
         screenWeb: string;
@@ -40,6 +42,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
         liveTitle: '.live-skin-main-text.small-title', // 直播标题
         chatItems: '#chat-items', // 直播聊天栏列表
         newMsgButton: 'div#danmaku-buffer-prompt', // 新消息按钮
+        upperInputArea: '.control-panel-icon-row .icon-left-part' // 输入框区域的上方
     },
     classes: {
         screenWeb: 'player-full-win', // 直播网页全屏 class
@@ -69,7 +72,7 @@ type ElementDefinerList = {
 
 
 const elementDefiners: ElementDefinerList = {
-    "元素捕捉 (JQuery)": [
+    "元素捕捉": [
         {
             label: "上方按钮界面元素",
             key: "elements.upperButtonArea"
@@ -79,15 +82,15 @@ const elementDefiners: ElementDefinerList = {
             key: "elements.danmakuArea"
         },
         {
-            label: "用户 ID 元素  (.attr('href'))",
+            label: "用户 ID 元素",
             key: "elements.userId"
         },
         {
-            label: "字幕区块全屏插入元素  (.after(字幕区块))",
+            label: "字幕区块全屏插入元素",
             key: "elements.jimakuArea"
         },
         {
-            label: "字幕区块非全屏插入元素  (.after(字幕区块))",
+            label: "字幕区块非全屏插入元素",
             key: "elements.jimakuFullArea"
         },
         {
@@ -95,7 +98,7 @@ const elementDefiners: ElementDefinerList = {
             key: "elements.videoArea"
         },
         {
-            label: "直播标题  ([0].innerText)",
+            label: "直播标题",
             key: "elements.liveTitle"
         },
         {
@@ -105,6 +108,10 @@ const elementDefiners: ElementDefinerList = {
         {
             label: "新消息按钮  (聊天栏置底按钮)",
             key: "elements.newMsgButton"
+        },
+        {
+            label: "输入框区域的上方",
+            key: "elements.upperInputArea"
         },
     ],
     "字样捕捉": [
@@ -161,7 +168,7 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
                 title: '已成功获取最新版本',
                 message: '设定档已储存。请重新加载网页以应用最新版本',
             })
-        }catch(err: Error | any) {
+        } catch (err: Error | any) {
             await sendMessager('notify', {
                 title: '获取最新版本失败',
                 message: err.message,

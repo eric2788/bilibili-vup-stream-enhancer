@@ -1,19 +1,20 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging"
+import type { PlasmoMessaging } from "@plasmohq/messaging";
+import { isBackgroundScript } from '~utils/file';
+import { sendMessager } from '~utils/messaging';
+
+import * as addBlackList from './messages/add-black-list';
 // follow from ./messages/*.ts
-import * as checkUpdate from "./messages/check-update"
-import * as clearTable from './messages/clear-table'
-import * as fetchDeveloper from "./messages/fetch-developer"
-import * as getStreamUrls from "./messages/get-stream-urls"
-import * as injectFunc from './messages/inject-func'
-import * as injectScript from './messages/inject-script'
-import * as notify from "./messages/notify"
-import * as openTab from "./messages/open-tab"
-import * as openWindow from './messages/open-window'
-import * as request from "./messages/request"
-import * as addBlackList from './messages/add-black-list'
-import * as hookAdapter from './messages/hook-adapter'
-import { isBackgroundScript } from "~utils/file"
-import { sendMessager } from "~utils/messaging"
+import * as checkUpdate from './messages/check-update';
+import * as clearTable from './messages/clear-table';
+import * as fetchDeveloper from './messages/fetch-developer';
+import * as getStreamUrls from './messages/get-stream-urls';
+import * as hookAdapter from './messages/hook-adapter';
+import * as injectFunc from './messages/inject-func';
+import * as injectScript from './messages/inject-script';
+import * as notify from './messages/notify';
+import * as openTab from './messages/open-tab';
+import * as openWindow from './messages/open-window';
+import * as request from './messages/request';
 
 export type MessagingData = typeof messagers
 

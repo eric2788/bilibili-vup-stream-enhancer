@@ -1,10 +1,11 @@
 import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData";
-import type { WebInterfaceNavResponse, GetInfoByRoomResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse } from "~types/bilibili";
-import { w_rid } from "~utils/bilibili";
-import { fetchSameCredentialV1, retryCatcher } from "~utils/fetch";
-import func from "~utils/func";
-import { sendMessager } from "~utils/messaging";
-import { identifyVup } from "./vtb-moe";
+import type { GetInfoByRoomResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili";
+import { w_rid } from '~utils/bilibili';
+import { fetchSameCredentialV1, retryCatcher } from '~utils/fetch';
+import func from '~utils/func';
+import { sendMessager } from '~utils/messaging';
+
+import { identifyVup } from './vtb-moe';
 
 export type StreamInfo = {
     room: string

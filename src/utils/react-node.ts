@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 /**
  * Checks if the given node is an iterable node.

@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react"
-import { useRowOptimizer } from "~hooks/optimizer"
+import { useRowOptimizer } from '~hooks/optimizer';
 
+// here must be a subset of database Jimaku schema
 export type Jimaku = {
+    date: string
     text: string
     uid: number
     uname: string
@@ -20,8 +21,8 @@ export type JimakuLineProps = {
 
 function JimakuLine({ item, show, index, observer }: JimakuLineProps): JSX.Element {
 
-    const ref = useRowOptimizer(observer)
-    
+    const ref = useRowOptimizer<HTMLParagraphElement>(observer)
+
     return (
         <p ref={ref} onContextMenu={show} jimaku-hash={item.hash} jimaku-index={index} >
             {item.text}

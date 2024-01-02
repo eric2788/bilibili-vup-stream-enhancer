@@ -1,7 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
-import { getScriptUrl, type InjectableScript } from "~background/scripts";
-import { dispatchFuncEvent, isFuncEventResult, type FuncEventResult } from "~utils/event";
-import { getResourceName } from "~utils/file";
+import { getScriptUrl, type InjectableScript } from '~background/scripts';
+import { dispatchFuncEvent, type FuncEventResult, isFuncEventResult } from '~utils/event';
+import { getResourceName } from '~utils/file';
 
 export type RequestBody = {
     fileUrl?: string

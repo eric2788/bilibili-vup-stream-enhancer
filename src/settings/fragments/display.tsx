@@ -1,10 +1,9 @@
-import { List } from "@material-tailwind/react"
-import { Fragment, type ChangeEvent } from "react"
-import type { StateProxy } from "~hooks/binding"
-import CheckBoxListItem from "~settings/components/CheckBoxListItem"
+import { type ChangeEvent, Fragment } from 'react';
+import CheckBoxListItem from '~settings/components/CheckBoxListItem';
 
+import { List } from '@material-tailwind/react';
 
-
+import type { StateProxy } from "~hooks/binding";
 export type SettingSchema = {
     restartButton: boolean
     blackListButton: boolean
@@ -32,7 +31,7 @@ function DisplaySettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     return (
         <Fragment>
             <List className="md:col-span-2 max-md:col-span-1">
-                <CheckBoxListItem 
+                <CheckBoxListItem
                     label="支持在网页全屏下显示"
                     value={state.supportWebFullScreen}
                     onChange={checker('supportWebFullScreen')}

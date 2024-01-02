@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import type { StreamUrlResponse } from "~types/bilibili";
-import { fetchSameCredentialV1 } from "~utils/fetch";
+import { fetchSameCredentialV1 } from '~utils/fetch';
 
 export type RequestBody = {
     roomid: number | string

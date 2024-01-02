@@ -1,10 +1,8 @@
-import { md5 } from "hash-wasm";
+import { injectFuncAsListener } from '~utils/event';
+import { sendBLiveMessage } from '~utils/messaging';
+import { md5 } from 'hash-wasm';
+
 import type { Settings } from "~settings";
-import { injectFuncAsListener } from "~utils/event";
-import { sendBLiveMessage } from "~utils/messaging";
-import { randomNumber } from "~utils/misc";
-
-
 // mutation observer danmaku must be text node
 type DanmakuMutation = {
     content: string

@@ -1,5 +1,4 @@
-import { stateProxy } from "react-state-proxy"
-
+import { stateProxy } from 'react-state-proxy';
 
 export type Loaders = Record<string, () => Promise<void>>
 

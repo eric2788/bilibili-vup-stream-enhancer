@@ -1,12 +1,12 @@
+import { injectFuncAsListener } from "~utils/event"
+import { sendBLiveMessage } from "~utils/messaging"
+import brotliPromise from 'brotli-dec-wasm'
+
 // @名称  bliveproxy
 // @版本  0.4
 // @描述  B站直播websocket hook框架
 // @作者  xfgryujk
 // @来源  https://ngabbs.com/read.php?tid=24449759
-
-import brotliPromise from 'brotli-dec-wasm'
-import { injectFuncAsListener } from "~utils/event"
-import { sendBLiveMessage } from "~utils/messaging"
 
 // 其修改和使用已经经过 xfgryujk 本人的授权
 

@@ -1,11 +1,10 @@
-import { useMutationObserver } from "@react-hooks-library/core"
-import { useEffect, useState } from "react"
-import { isDarkThemeBilbili } from "~utils/bilibili"
-import { isDarkTheme } from "~utils/misc"
-import BJFThemeProvider from "./BJFThemeProvider"
-import { toast } from "sonner/dist"
+import { useEffect, useState } from 'react';
+import { isDarkThemeBilbili } from '~utils/bilibili';
+import { isDarkTheme } from '~utils/misc';
 
+import { useMutationObserver } from '@react-hooks-library/core';
 
+import BJFThemeProvider from './BJFThemeProvider';
 
 function BLiveThemeProvider({ children, element }: { children: React.ReactNode, element?: Element | Element[] }): JSX.Element {
 

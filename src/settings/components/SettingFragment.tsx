@@ -1,12 +1,15 @@
-import { Collapse } from "@material-tailwind/react"
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from "react"
-import PromiseHandler from "~components/PromiseHandler"
-import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding"
-import { useForceUpdate } from "~hooks/force-update"
-import fragments, { type Schema, type SettingFragments } from "~settings"
-import { deepCopy } from "~utils/misc"
-import { getSettingStorage, setSettingStorage } from "~utils/storage"
+import {
+    forwardRef, type Ref,
+    useCallback, useEffect, useImperativeHandle, useRef, useState
+} from 'react';
+import PromiseHandler from '~components/PromiseHandler';
+import { asStateProxy, type StateProxy, useBinding } from '~hooks/binding';
+import { useForceUpdate } from '~hooks/force-update';
+import fragments, { type Schema,  type SettingFragments } from '~settings';
+import { deepCopy } from '~utils/misc';
+import { getSettingStorage, setSettingStorage } from '~utils/storage';
 
+import { Collapse } from '@material-tailwind/react';
 
 export type SettingFragmentProps<T extends keyof SettingFragments> = {
     fragmentKey: T

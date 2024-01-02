@@ -1,26 +1,27 @@
-import { Button, Drawer, IconButton, Tooltip, Typography } from "@material-tailwind/react"
-import { useToggle } from "@react-hooks-library/core"
-import styleText from "data-text:~style.css"
-import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo"
-import extIcon from 'raw:~assets/icon.png'
-import { Fragment, useEffect } from "react"
-import { createRoot, type Root } from "react-dom/client"
-import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from "~api/bilibili"
-import { getForwarder, sendForward } from "~background/forwards"
-import BLiveThemeProvider from "~components/BLiveThemeProvider"
-import { getRoomId, getStreamInfoByDom } from "~utils/bilibili"
-import { withFallbacks, withRetries } from "~utils/fetch"
-import { sendMessager } from "~utils/messaging"
-import { getFullSettingStroage } from "~utils/storage"
-import features, { type FeatureType } from "../features"
-import { shouldInit, type Settings } from "../settings"
+import '~toaster';
 
-import { toast } from "sonner/dist"
-import { useWebScreenChange } from "~hooks/bilibili"
-import { injectAdapter } from "~utils/inject"
+import styleText from 'data-text:~style.css';
+import extIcon from 'raw:~assets/icon.png';
+import { Fragment, useEffect } from 'react';
+import { Root, createRoot } from 'react-dom/client';
+import { toast } from 'sonner/dist';
+import { StreamInfo, ensureLogin, getNeptuneIsMyWaifu, getStreamInfo } from '~api/bilibili';
+import { getForwarder, sendForward } from '~background/forwards';
+import BLiveThemeProvider from '~components/BLiveThemeProvider';
+import { useWebScreenChange } from '~hooks/bilibili';
+import { getRoomId, getStreamInfoByDom } from '~utils/bilibili';
+import { withFallbacks, withRetries } from '~utils/fetch';
+import { injectAdapter } from '~utils/inject';
+import { sendMessager } from '~utils/messaging';
+import { getFullSettingStroage } from '~utils/storage';
 
-import "~toaster"
+import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
+import { useToggle } from '@react-hooks-library/core';
 
+import features, { FeatureType } from '../features';
+import { Settings, shouldInit } from '../settings';
+
+import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
   all_frames: true,
@@ -167,33 +168,38 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
         return
       }
 
-      // hook adapter
-      console.info('開始注入適配器....')
-      const adapterType = settings["settings.capture"].captureMechanism
-      const hooking = injectAdapter({ command: 'hook', type: adapterType, settings: settings })
-      toast.dismiss()
-      toast.promise(hooking, {
-        loading: '正在挂接直播监听...',
-        success: '挂接成功',
-        position: 'top-left'
-      })
-      try {
-        await hooking
-      } catch (err: Error | any) {
-        console.error('hooking error: ', err)
+      // hook adapter (only when online)
+      if (info.status === 'online') {
+        console.info('開始注入適配器....')
+        const adapterType = settings["settings.capture"].captureMechanism
+        const hooking = injectAdapter({ command: 'hook', type: adapterType, settings: settings })
         toast.dismiss()
-        toast.error('挂接失敗: ' + err.message, {
-          action: {
-            label: '重試',
-            onClick: () => this.start()
-          },
-          position: 'top-left',
-          duration: 6000000,
-          dismissible: false
+        toast.promise(hooking, {
+          loading: '正在挂接直播监听...',
+          success: '挂接成功',
+          position: 'top-left'
         })
-        return
+        try {
+          await hooking
+        } catch (err: Error | any) {
+          console.error('hooking error: ', err)
+          toast.dismiss()
+          toast.error('挂接失敗: ' + err.message, {
+            action: {
+              label: '重試',
+              onClick: () => this.start()
+            },
+            position: 'top-left',
+            duration: 6000000,
+            dismissible: false
+          })
+          return
+        }
+        console.info('注入適配器完成')
+      } else {
+        console.info('直播尚未開始或已下線，將不會注入適配器')
+        // 但依然會渲染元素
       }
-      console.info('注入適配器完成')
 
       // 渲染主元素
       root = createRoot(section)

@@ -1,9 +1,9 @@
 
-import { sendInternal } from './messages'
-import { notifyUpdate} from './messages/check-update'
+import { sendInternal } from './messages';
+import { notifyUpdate } from './messages/check-update';
 
 chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDetails) => {
-    
+
     const { version } = chrome.runtime.getManifest()
 
     if (data.reason === 'install') { // 第一次安裝
@@ -28,10 +28,10 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
         await sendInternal('notify', {
             title: 'bilibili-jimaku-filter 已更新',
             message: `已更新到版本 v${version}`,
-        })   
+        })
 
     }
-    
+
 })
 
 

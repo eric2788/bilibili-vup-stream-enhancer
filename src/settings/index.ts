@@ -1,12 +1,13 @@
 import type { StateProxy } from '~hooks/binding';
 import * as button from './fragments/button';
-import * as capture from './fragments/capture'
-import * as danmaku from './fragments/danmaku'
-import * as developer from './fragments/developer'
-import * as display from './fragments/display'
-import * as jimaku from './fragments/jimaku'
-import * as listings from './fragments/listings'
-import * as features from './fragments/features'
+import * as capture from './fragments/capture';
+import * as danmaku from './fragments/danmaku';
+import * as developer from './fragments/developer';
+import * as display from './fragments/display';
+import * as features from './fragments/features';
+import * as jimaku from './fragments/jimaku';
+import * as listings from './fragments/listings';
+
 import type { StreamInfo } from '~api/bilibili';
 
 
@@ -29,11 +30,11 @@ export type Settings = {
 
 export async function shouldInit(roomId: string, settings: Settings, info: StreamInfo): Promise<boolean> {
     const shouldInits = Object.entries(fragments).map(([key, fragment]) => {
-       const shouldInit = (fragment as any).shouldInit as ShouldInit<Schema<typeof fragment>>
-         if (shouldInit) {
-              return shouldInit(roomId, settings[key], info)
-         }
-         return Promise.resolve(true)
+        const shouldInit = (fragment as any).shouldInit as ShouldInit<Schema<typeof fragment>>
+        if (shouldInit) {
+            return shouldInit(roomId, settings[key], info)
+        }
+        return Promise.resolve(true)
     })
     return (await Promise.all(shouldInits)).every(Boolean)
 }

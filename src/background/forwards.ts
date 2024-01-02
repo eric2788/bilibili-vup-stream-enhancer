@@ -1,6 +1,6 @@
-import * as command from './forwards/command'
-import * as jimaku from './forwards/jimaku'
-import * as redirect from './forwards/redirect'
+import * as command from './forwards/command';
+import * as jimaku from './forwards/jimaku';
+import * as redirect from './forwards/redirect';
 
 export type ForwardData = typeof forwards
 

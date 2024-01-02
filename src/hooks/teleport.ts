@@ -1,8 +1,5 @@
-import { memo, useCallback, useEffect, useMemo } from "react"
-import { createPortal } from "react-dom"
-
-
-
+import { memo, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 
 export type TeleportSettings<T> = {
     parentQuerySelector: string
