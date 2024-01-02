@@ -15,3 +15,31 @@
         background-color: #1a1a1a;
     }
 }
+
+@keyframes slide-y {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+}
+
+@keyframes slide-x {
+    from {
+        transform: translatex(-50px);
+        opacity: 0;
+    }
+}
+
+@keyframes scale {
+    from {
+        font-size: 5px;
+        opacity: 0;
+    }
+}
+
+@keyframes y-down {
+    from {
+        height: 0px;
+        opacity: 0;
+    }
+}

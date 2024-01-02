@@ -48,3 +48,15 @@ export function removeInvalidKeys<T>(obj: Record<string, any>, sample: T): T {
     });
     return obj as T;
 }
+
+export function getTimeStamp(): string {
+    return new Date().toTimeString().substring(0, 8)
+}
+
+export function toStreamingTime(live_time?: number): string {
+    if (!live_time) {
+        console.warn('獲取直播串流時間時出現錯誤，將改為獲取真實時間戳記')
+        return getTimeStamp()
+    }
+    return toTimer(Math.round(Date.now() / 1000) - live_time)
+}

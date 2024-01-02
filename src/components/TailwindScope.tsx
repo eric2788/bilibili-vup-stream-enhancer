@@ -1,11 +1,15 @@
 
 import styleText from 'data-text:~style.css'
+import ShadowRoot from './ShadowRoot'
 
-function TailwindScope({ children, dark }: { children: React.ReactNode, dark?: boolean }) {
+
+function TailwindScope({ children, dark }: { children: React.ReactNode, dark?: boolean }): JSX.Element {
     return (
         <div className={dark === true ? `dark` : ''}>
-            <style scoped>{styleText}</style>
-            {children}
+            <ShadowRoot>
+                <style>{styleText}</style>
+                {children}
+            </ShadowRoot>
         </div>
     )
 }

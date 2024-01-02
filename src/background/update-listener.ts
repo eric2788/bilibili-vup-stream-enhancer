@@ -1,9 +1,11 @@
 
 import { sendInternal } from './messages'
-import { notifyUpdate, version } from './messages/check-update'
+import { notifyUpdate} from './messages/check-update'
 
 chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDetails) => {
     
+    const { version } = chrome.runtime.getManifest()
+
     if (data.reason === 'install') { // 第一次安裝
 
         try {
