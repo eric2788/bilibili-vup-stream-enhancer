@@ -1,5 +1,5 @@
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoRender } from "plasmo"
-import { Fragment } from "react"
+import { Fragment, useState } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { ensureIsVtuber, getNeptuneIsMyWaifu, getStreamInfo, isNativeVtuber, type StreamInfo } from "~api/bilibili"
 import { getForwarder } from "~background/forwards"
@@ -10,6 +10,10 @@ import func from "~utils/func"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
 import hookAdapter from "~adapters"
+import { useToggle } from "@react-hooks-library/core"
+import { Button, Drawer, IconButton, Typography } from "@material-tailwind/react"
+import extIcon from 'raw:~assets/icon.png'
+import { createPortal } from "react-dom"
 
 interface RootMountable {
   feature: FeatureType
@@ -232,6 +236,39 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
 
 
 function App(props: { roomId: string, settings: Settings, info: StreamInfo }): JSX.Element {
-  console.info('render main app content!')
-  return (<></>)
+  const { bool: open, setTrue, setFalse } = useToggle(false)
+
+  const sideBar = document.querySelector('#sidebar-vm')
+
+  const btn = (
+    <div data-v-12f789d4>
+      <div data-v-12f789d4="" className="side-bar-cntr" style={{ bottom: '0%' }}>
+        <div data-v-12f789d4="" onClick={setTrue} role="button" data-upgrade-intro="BJf" className="side-bar-btn">
+          <div data-v-0bb03e88="" data-v-12f789d4="" className="side-bar-btn-cntr">
+            <span data-v-0bb03e88="" className="side-bar-icon dp-i-block">
+              <img src={extIcon} alt="bjf" height={26} width={26} />
+            </span>
+            <p data-v-0bb03e88="" className="size-bar-text color-#0080c6" style={{ color: 'rgb(0, 128, 198)' }}>同傳過濾</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // TODO: navigation drawer
+  const drawer = open && (
+    <div className="fixed inset-0 flex justify-end">
+      <div className="h-full w-64 bg-blue-500 overflow-auto">
+        hello world!
+        <button onClick={setFalse}>Close</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <Fragment>
+      {createPortal(btn, sideBar)}
+      {createPortal(drawer, document.body)}
+    </Fragment>
+  )
 }
