@@ -45,7 +45,7 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
             await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, settings)
             refresh()
         },
-    }))
+    }), [])
 
     const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[T]>>>
 

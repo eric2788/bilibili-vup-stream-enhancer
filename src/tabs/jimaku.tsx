@@ -18,18 +18,6 @@ export type Jimaku = {
     hash: string
 }
 
-const generateExamples = (num: number) => {
-    const examples: Jimaku[] = []
-    for (let i = 0; i < num; i++) {
-        examples.push({
-            text: '这是一条弹幕',
-            date: '00:00:00',
-            hash: 'hash' + i
-        })
-    }
-    return examples
-}
-
 const urlParams = new URLSearchParams(window.location.search)
 const roomId = urlParams.get('roomId')
 
@@ -44,9 +32,16 @@ function JimakuPage(): JSX.Element {
         bottomRef.current = keepBottom
     }, [keepBottom])
 
-    const [messages, setMessages] = useState<Jimaku[]>(() => generateExamples(100))
+    const [messages, setMessages] = useState<Jimaku[]>([])
 
     const forwarder = useForwarder('jimaku', 'pages')
+
+
+    useEffect(() => {
+        if (bottomRef.current) {
+            window.scrollTo(0, document.body.scrollHeight)
+        }
+    }, [messages])
 
     useEffect(() => {
         if (roomId) {
@@ -54,9 +49,6 @@ function JimakuPage(): JSX.Element {
             forwarder.addHandler((message) => {
                 if (message.room !== roomId) return
                 setMessages(messages => [...messages, message])
-                if (bottomRef.current) {
-                    window.scrollTo(0, document.body.scrollHeight)
-                }
             })
         } else {
             alert('未知房间Id, 此同传弹幕视窗不会运行。')
