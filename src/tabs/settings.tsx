@@ -5,7 +5,7 @@ import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useForwarder } from "~hooks/forwarder"
 import { useLoader } from "~hooks/loader"
-import fragments, { type SettingFragments, type Settings } from "~settings"
+import fragments, { type Schema, type SettingFragments, type Settings } from "~settings"
 import SettingFragment, { type SettingFragmentRef } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
@@ -94,8 +94,9 @@ function SettingPage(): JSX.Element {
                         throw new Error('导入的设定文件格式错误。')
                     }
                     await Promise.all(fragmentRefs.map((ref) => {
-                        const { defaultSettings } = fragments[ref.current.fragmentKey]
-                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[ref.current.fragmentKey] }, defaultSettings)
+                        const fragmentKey = ref.current.fragmentKey
+                        const { defaultSettings } = fragments[fragmentKey]
+                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
                         return ref.current.importSettings(importContent)
                     }))
                     await sendInternal('notify', {

@@ -1,10 +1,13 @@
 import { Collapse, IconButton, List, Switch, Typography } from "@material-tailwind/react"
 import { type ChangeEvent } from "react"
+import { ensureIsVtuber, isNativeVtuber, type StreamInfo } from "~api/bilibili"
 import { sendInternal } from "~background/messages"
 import type { TableType } from "~database"
 import type { FeatureType } from "~features"
 import type { StateProxy } from "~hooks/binding"
 import SwitchListItem from "~settings/components/SwitchListItem"
+import { retryCatcher } from "~utils/fetch"
+import func from "~utils/func"
 
 
 
@@ -151,5 +154,36 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
     );
 }
 
+export async function shouldInit(roomId: string, settings: SettingSchema, info: StreamInfo): Promise<boolean> {
+    
+    if (!info) {
+        // do log
+        console.info('無法取得直播資訊，已略過')
+        return false
+    }
+
+    const isNativeVtuberFunc = func.wrap(isNativeVtuber)
+
+    if (settings.onlyVtuber) {
+
+        if (info.uid !== '0') {
+            await ensureIsVtuber(info)
+        }
+
+        if (!info.isVtuber) {
+            // do log
+            console.info('不是 VTuber, 已略過')
+            return false
+        }
+
+        if (settings.noNativeVtuber && (await retryCatcher(isNativeVtuberFunc(info.uid), 5))) {
+            // do log
+            console.info('檢測到為國V, 已略過')
+            return false
+        }
+    }
+
+    return true
+}
 
 export default FeatureSettings

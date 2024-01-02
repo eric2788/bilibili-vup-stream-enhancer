@@ -1,7 +1,7 @@
 
 import { Switch, Typography } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
-import { requestUserInfo } from "~api/bilibili"
+import { requestUserInfo, type StreamInfo } from "~api/bilibili"
 import type { ExposeHandler, StateProxy } from "~hooks/binding"
 import DataTable, { type TableHeader } from "~settings/components/DataTable"
 import type { ArrElement, PickKeys } from "~types/common"
@@ -178,6 +178,14 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
             </div>
         </Fragment>
     )
+}
+
+export async function shouldInit(roomId: number, settings: Readonly<SettingSchema>, info: StreamInfo): Promise<boolean> {
+    if (settings.blackListRooms.some((r) => r.room === roomId.toString()) === !settings.useAsWhiteListRooms) {
+        console.info('房間已被列入黑名單，已略過')
+        return false
+    }
+    return true
 }
 
 export default ListingSettings

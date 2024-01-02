@@ -3,12 +3,13 @@ import { Fragment } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { ensureIsVtuber, getNeptuneIsMyWaifu, getStreamInfo, isNativeVtuber, type StreamInfo } from "~api/bilibili"
 import { getForwarder } from "~background/forwards"
-import type { Settings } from "~settings"
+import { shouldInit, type Settings } from "~settings"
 import { getRoomId } from "~utils/bilibili"
 import { retryCatcher, withFallbacks, withRetries } from "~utils/fetch"
 import func from "~utils/func"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
+import hookAdapter from "~adapters"
 
 interface RootMountable {
   feature: FeatureType
@@ -73,49 +74,6 @@ const getStreamInfoFallbacks = [
   }
 ]
 
-async function shouldInit(roomId: number, settings: Settings, info: StreamInfo): Promise<boolean> {
-
-  const isNativeVtuberFunc = func.wrap(isNativeVtuber)
-
-  if (settings["settings.listings"].blackListRooms.some((r) => r.room === roomId.toString()) === !settings["settings.listings"].useAsWhiteListRooms) {
-    console.info('房間已被列入黑名單，已略過')
-    return false
-  }
-
-
-  if (!info) {
-    // do log
-    console.info('無法取得直播資訊，已略過')
-    return false
-  }
-
-  if (settings["settings.features"].onlyVtuber) {
-
-    if (info.uid !== '0') {
-      await ensureIsVtuber(info)
-    }
-
-    if (!info.isVtuber) {
-      // do log
-      console.info('不是 VTuber, 已略過')
-      return false
-    }
-
-    if (settings["settings.features"].noNativeVtuber && (await retryCatcher(isNativeVtuberFunc(info.uid), 5))) {
-      // do log
-      console.info('檢測到為國V, 已略過')
-      return false
-    }
-  }
-
-  return true
-}
-
-
-async function hookAdapter(settings: Settings) {
-
-}
-
 
 // createMountPoints will not start or the stop the app
 function createMountPoints(plasmo: PlasmoSpec, settings: Settings, info: StreamInfo): RootMountable[] {
@@ -175,7 +133,7 @@ function createApp(roomId: number, plasmo: PlasmoSpec, settings: Settings, info:
 
   return {
     async start(): Promise<void> {
-      if (!(await shouldInit(roomId, settings, info))) {
+      if (!(await shouldInit(roomId.toString(), settings, info))) {
         console.info('不符合初始化條件，已略過')
         return
       }
