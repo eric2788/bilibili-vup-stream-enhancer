@@ -25,7 +25,7 @@ export async function getStreamInfo(room: string | number): Promise<StreamInfo> 
         title: data.room_info.title,
         uid: data.room_info.uid.toString(),
         username: data.anchor_info.base_info.uname,
-        isVtuber: data.room_info.parent_area_id != 9, // 分區辨識
+        isVtuber: data.room_info.parent_area_id !== 9, // 分區辨識
         status: data.room_info.live_status === 1 ? 'online' : 'offline'
     }
 

@@ -17,7 +17,7 @@ export const config: PlasmoCSConfig = {
 // 多重檢查直播資訊的方式
 const getStreamInfoFallbacks = [
 
-  // 1. 使用 API
+  // 1. 使用 API (重試 5 次)
   (room: string | number) => () => withRetries(() => getStreamInfo(room), 5),
 
   // 2. 使用腳本注入
@@ -26,13 +26,14 @@ const getStreamInfoFallbacks = [
     title: r.data.room_info.title,
     uid: r.data.room_info.uid.toString(),
     username: r.data.anchor_info.base_info.uname,
-    isVtuber: r.data.room_info.parent_area_id != 9, // 分區辨識
+    isVtuber: r.data.room_info.parent_area_id !== 9, // 分區辨識
     status: r.data.room_info.live_status === 1 ? 'online' : 'offline'
   }) as StreamInfo),
 
   // 3. 使用 DOM query
   (room: string | number) => async () => {
 
+    // TODO: move to developer settings
     const title = document.querySelector<HTMLDivElement>('.text.live-skin-main-text.title-length-limit.small-title')?.innerText ?? ''
     const username = document.querySelector<HTMLAnchorElement>('.room-owner-username')?.innerText ?? ''
 
