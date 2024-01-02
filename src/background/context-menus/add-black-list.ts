@@ -1,5 +1,5 @@
-import { sendInternal } from '~background/messages';
-import { getRoomId } from '~utils/bilibili';
+import { sendInternal } from '~background/messages'
+import { getRoomId } from '~utils/bilibili'
 
 export const properties: chrome.contextMenus.CreateProperties = {
     id: 'add-black-list',

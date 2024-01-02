@@ -1,22 +1,22 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging";
-import type { AdapterType } from "~adapters";
-import { adapters } from '~adapters';
-import { sendInternal } from '~background/messages';
-import { getResourceName } from '~utils/file';
+import type { PlasmoMessaging } from "@plasmohq/messaging"
+import type { AdapterType } from "~adapters"
+import { adapters } from '~adapters'
+import { sendInternal } from '~background/messages'
+import { getResourceName } from '~utils/file'
 
-import type { Settings } from "~settings";
-import type { FuncEventResult } from "~utils/event";
+import type { Settings } from "~settings"
+import type { FuncEventResult } from "~utils/event"
 export type AdaptOperation = 'hook' | 'unhook'
 
 type HookBody = {
     command: 'hook'
     type: AdapterType
     settings: Settings
-};
+}
 
 type OtherBody = {
     command: AdaptOperation
-};
+}
 
 export type RequestBody = HookBody | OtherBody
 

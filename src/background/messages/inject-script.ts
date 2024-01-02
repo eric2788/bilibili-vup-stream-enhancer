@@ -1,9 +1,10 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging";
-import { getScriptUrl, type InjectableScript } from '~background/scripts';
-import { dispatchFuncEvent, type FuncEventResult, isFuncEventResult } from '~utils/event';
-import { getResourceName } from '~utils/file';
+import type { PlasmoMessaging } from "@plasmohq/messaging"
+import { getScriptUrl, type InjectableScript } from '~background/scripts'
+import { dispatchFuncEvent, type FuncEventResult, isFuncEventResult } from '~utils/event'
+import { getResourceName } from '~utils/file'
 
 export type RequestBody = {
+    tabId?: number
     fileUrl?: string
     func?: string
     args?: any[]
@@ -15,6 +16,9 @@ export type ResponseBody = FuncEventResult & { result?: any }
 
 // the chrome.runtime undefined error will only throw on development at once
 const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
+
+
+    const tabId = req.body.tabId ?? req.sender.tab.id
 
     const fileUrl: string = req.body.script ? getScriptUrl(req.body.script) : req.body.fileUrl
     const funcName: string = req.body.script?.name ?? req.body.func
@@ -30,7 +34,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         const file = getResourceName(fileUrl)
         console.info('injecting file: ', file)
         results.push(...await chrome.scripting.executeScript({
-            target: { tabId: req.sender.tab.id },
+            target: { tabId },
             injectImmediately: true,
             world: 'MAIN',
             files: [file],
@@ -40,7 +44,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
     if (funcName) {
         console.info('injecting function: ', funcName)
         results.push(...await chrome.scripting.executeScript({
-            target: { tabId: req.sender.tab.id },
+            target: { tabId },
             injectImmediately: true,
             world: 'MAIN',
             func: dispatchFuncEvent,

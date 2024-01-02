@@ -2,10 +2,10 @@ import {
     addBLiveMessageCommandListener,
     addBLiveMessageListener,
     addWindowMessageListener
-} from '~utils/messaging';
+} from '~utils/messaging'
 
-import type { BLiveDataWild } from "~types/bilibili";
-import { useEffect } from 'react';
+import type { BLiveDataWild } from "~types/bilibili"
+import { useEffect } from 'react'
 
 export function useWindowMessage(command: string, handler: (data: any, event: MessageEvent) => void) {
     useEffect(() => {

@@ -1,11 +1,11 @@
-import { md5 } from 'hash-wasm';
+import { md5 } from 'hash-wasm'
 
-import { sendMessager } from './messaging';
-import { localStorage } from './storage';
+import { sendMessager } from './messaging'
+import { localStorage } from './storage'
 
-import type { StreamInfo } from "~api/bilibili";
-import type { Settings } from "~settings";
-import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili";
+import type { StreamInfo } from "~api/bilibili"
+import type { Settings } from "~settings"
+import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili"
 
 export function getRoomId(url: string = location.pathname): string {
     return /^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id
@@ -13,7 +13,7 @@ export function getRoomId(url: string = location.pathname): string {
 
 
 export async function generateWbi(): Promise<string> {
-    const url = 'https://api.bilibili.com/x/web-interface/nav';
+    const url = 'https://api.bilibili.com/x/web-interface/nav'
     // get wbi keys
     const res = await sendMessager('request', {
         url,
@@ -30,9 +30,9 @@ export async function generateWbi(): Promise<string> {
     // because -101 also can be a valid response
     if (res.code !== 0 && res.code !== -101) throw new Error(`B站API请求错误: ${res.message}`)
 
-    const { img_url, sub_url } = res.data.wbi_img;
+    const { img_url, sub_url } = res.data.wbi_img
 
-    const img_key = img_url.substring(img_url.lastIndexOf('/') + 1, img_url.length).split('.')[0];
+    const img_key = img_url.substring(img_url.lastIndexOf('/') + 1, img_url.length).split('.')[0]
     const sub_key = sub_url.substring(sub_url.lastIndexOf('/') + 1, sub_url.length).split('.')[0]
 
     const mixinKeyEncTab = [
@@ -42,7 +42,7 @@ export async function generateWbi(): Promise<string> {
         36, 20, 34, 44, 52
     ]
 
-    const orig = img_key + sub_key;
+    const orig = img_key + sub_key
 
     let temp = ''
     mixinKeyEncTab.forEach((n) => {
@@ -63,16 +63,15 @@ export async function w_rid(uid: string, wts: number): Promise<string> {
         await localStorage.set('wbi_salt_last_update', Date.now())
         console.info(`wbi_salt saved to local storage`)
     }
-    const c: string = salt;
-    const b: string = `mid=${uid}&platform=web&token=&web_location=1550101`;
-    const a: string = `${b}&wts=${wts}${c}`; // mid + platform + token + web_location + 时间戳wts + 一个固定值
+    const c: string = salt
+    const b: string = `mid=${uid}&platform=web&token=&web_location=1550101`
+    const a: string = `${b}&wts=${wts}${c}` // mid + platform + token + web_location + 时间戳wts + 一个固定值
     return await md5(a)
 }
 
 
 export function isDarkThemeBilbili(): boolean {
-    const html = document.getElementsByTagName('html')[0]
-    return html.getAttribute('lab-style')?.includes('dark')
+    return document.documentElement.getAttribute('lab-style')?.includes('dark')
 }
 
 // 使用 DOM query

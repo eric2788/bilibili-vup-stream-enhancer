@@ -1,4 +1,4 @@
-import { stateProxy } from 'react-state-proxy';
+import { stateProxy } from 'react-state-proxy'
 
 export type Loaders = Record<string, () => Promise<void>>
 
@@ -22,10 +22,10 @@ export type LoaderBinding<L extends Loaders> = [
  *   loadPosts: async () => {
  *     // Load posts
  *   },
- * }, handleError);
+ * }, handleError)
  * 
  * // Usage
- * loader.loadUsers(); // Start loading users
+ * loader.loadUsers() // Start loading users
  * 
  * if (loading.loadUsers) {
  *   // Show loading indicator for users

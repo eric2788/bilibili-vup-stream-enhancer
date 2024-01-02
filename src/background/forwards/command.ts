@@ -1,4 +1,4 @@
-import { useDefaultHandler } from '~background/forwards';
+import { useDefaultHandler } from '~background/forwards'
 
 export type ForwardBody = {
     command: string

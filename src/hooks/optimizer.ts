@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react'
 
 type ScrollOptimizeOptions<E extends Element> = {
     root: React.MutableRefObject<E>
-    rootMargin?: string;
-    threshold?: number | number[];
+    rootMargin?: string
+    threshold?: number | number[]
 }
 
 

@@ -4,6 +4,7 @@ export * from './spec-area-rank'
 export * from './stream-url'
 export * from './wbi-acc-info'
 export * from './web-interface-nav'
+export * from './superchat-list'
 
 export interface CommonResponse<T extends object> {
     code: number

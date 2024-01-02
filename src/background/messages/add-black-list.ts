@@ -1,9 +1,9 @@
-import { sendForward } from '~background/forwards';
-import { sendInternal } from '~background/messages';
-import { getSettingStorage, setSettingStorage } from '~utils/storage';
+import { sendForward } from '~background/forwards'
+import { sendInternal } from '~background/messages'
+import { getSettingStorage, setSettingStorage } from '~utils/storage'
 
 
-import type { PlasmoMessaging } from "@plasmohq/messaging";
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 export type RequestBody = {
     roomId: string,
     sourceUrl?: string

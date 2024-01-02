@@ -159,6 +159,7 @@ function CustomLoading({ children }: { children: React.ReactNode }): React.React
 function CustomError({ children }: { children: (err: Error | any) => React.ReactNode }): React.ReactNode {
     const error = useContext(ErrorContext)
     if (!error) return null
+    console.error(error)
     return children(error)
 }
 

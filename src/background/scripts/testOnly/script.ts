@@ -1,5 +1,5 @@
-import { injectFuncAsListener } from '~utils/event';
+import { injectFuncAsListener } from '~utils/event'
 
-import testOnly from './function';
+import testOnly from './function'
 
 injectFuncAsListener(testOnly)

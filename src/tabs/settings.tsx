@@ -5,14 +5,17 @@ import BJFThemeProvider from '~components/BJFThemeProvider';
 import { useBinding } from '~hooks/binding';
 import { useForwarder } from '~hooks/forwarder';
 import { useLoader } from '~hooks/loader';
-import fragments, { type Schema, type  SettingFragments,type  Settings } from '~settings';
-import SettingFragment, { type  SettingFragmentRef } from '~settings/components/SettingFragment';
+import fragments, { type Schema, type SettingFragments, type Settings } from '~settings';
+import SettingFragment, { type SettingFragmentRef } from '~settings/components/SettingFragment';
 import { download, readAsJson } from '~utils/file';
 import { sendMessager } from '~utils/messaging';
-import { arrayEqual, removeInvalidKeys, sleep } from '~utils/misc';
+import { arrayEqual, removeInvalidKeys } from '~utils/misc';
 import { getFullSettingStroage } from '~utils/storage';
 
+import "~toaster"
+
 import { Button } from '@material-tailwind/react';
+import { useStorageWatch } from '~hooks/storage';
 
 document.title = '字幕过滤设定'
 
@@ -75,6 +78,8 @@ function SettingPage(): JSX.Element {
     const fileImport = useRef<HTMLInputElement>()
     const fragmentRefs = fragmentKeys.map(key => useRef<SettingFragmentRef<typeof key>>())
 
+    const processing = useStorageWatch('processing', 'session', false)
+
     const forwarder = useForwarder('command', 'pages')
 
     const [loader, loading] = useLoader({
@@ -104,8 +109,10 @@ function SettingPage(): JSX.Element {
                         title: '导入设定成功',
                         message: '设定已经导入成功。'
                     })
-                    // 向所有页面发送重启指令
-                    forwarder.sendForward('content-script', { command: 'restart' })
+                    if (!processing) {
+                        // 向所有页面发送重启指令
+                        forwarder.sendForward('content-script', { command: 'restart' })
+                    }
                 } catch (err: Error | any) {
                     console.error(err)
                     await sendMessager('notify', {
@@ -125,14 +132,22 @@ function SettingPage(): JSX.Element {
                 form.current.reportValidity()
                 return
             }
+            if (fragmentRefs.every(ref => ref.current.saveSettings === undefined)) {
+                await sendMessager('notify', {
+                    title: '无需保存设定',
+                    message: '没有设定被变更。'
+                })
+                return
+            }
             await Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
             await sendMessager('notify', {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
-            // 向所有页面发送重启指令
-            forwarder.sendForward('content-script', { command: 'restart' }, { url: '*://live.bilibili.com/*' })
-            await sleep(5000)
+            if (!processing) {
+                // 向所有页面发送重启指令
+                forwarder.sendForward('content-script', { command: 'restart' }, { url: '*://live.bilibili.com/*' })
+            }
         }
     }, (err) => {
         console.error(err)
@@ -155,7 +170,7 @@ function SettingPage(): JSX.Element {
                             </svg>
                             检查更新
                         </Button>
-                        <Button onClick={loader.importSettings} disabled={loading.importSettings} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">
+                        <Button onClick={loader.importSettings} disabled={loading.importSettings || processing} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">
                             导入设定
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 group-disabled:animate-bounce">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -178,7 +193,7 @@ function SettingPage(): JSX.Element {
                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3 px-4 pt-3 mx-auto max-w-screen-xl">
                     <Button
                         type="submit"
-                        disabled={loading.saveAllSettings}
+                        disabled={loading.saveAllSettings || processing}
                         onClick={loader.saveAllSettings}
                         className="group flex items-center justify-center gap-3 text-white bg-green-600 px-3 py-3 text-[1rem] hover:shadow-lg hover:shadow-green-600/50">
                         保存设定

@@ -55,7 +55,7 @@ export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX
 
     // danmaku style callback
     useMutationObserver(danmakuArea, (mutationsList: MutationRecord[]) => {
-        for (const node of mutationsList.flatMap(mu => mu.addedNodes)) {
+        for (const node of mutationsList.flatMap(mu => mu.addedNodes).flatMap(node => [...node.values()])) {
             let danmaku: string = undefined
             let danmakuNode: HTMLElement = undefined
             if (node instanceof Text) {
@@ -77,7 +77,7 @@ export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX
                 danmakuNode.style.opacity = opacity.toFixed(1)
             }
         }
-    }, { childList: true })
+    }, { childList: true, subtree: true })
 
 
     return <></>

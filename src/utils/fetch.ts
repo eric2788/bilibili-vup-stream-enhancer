@@ -1,6 +1,6 @@
-import type { BaseResponse, CommonResponse, V1Response } from '~types/bilibili';
+import type { BaseResponse, CommonResponse, V1Response } from '~types/bilibili'
 
-import { sleep } from './misc';
+import { sleep } from './misc'
 
 export async function fetchSameCredential<T extends object = any>(url: string): Promise<T> {
   const res = await fetch(url, { credentials: 'include' })

@@ -8,6 +8,7 @@ import type { Leaves } from "~types/common";
 export type SettingSchema = {
     elements: {
         upperButtonArea: string;
+        webPlayer: string;
         danmakuArea: string;
         userId: string;
         jimakuArea: string;
@@ -34,7 +35,8 @@ export type SettingSchema = {
 export const defaultSettings: Readonly<SettingSchema> = {
     elements: {
         upperButtonArea: '.rows-ctnr', // 上方按钮界面元素
-        danmakuArea: '.web-player-danmaku', // 弹幕容器元素
+        webPlayer: '.web-player-danmaku', // 播放器元素
+        danmakuArea: '.danmaku-item-container', // 弹幕容器元素
         userId: 'a.room-owner-username', // 用户 ID 元素
         jimakuArea: 'div.player-section', // 字幕区块全屏插入元素
         jimakuFullArea: '.web-player-inject-wrap', // 字幕区块非全屏插入元素
@@ -80,6 +82,10 @@ const elementDefiners: ElementDefinerList = {
         {
             label: "弹幕容器元素",
             key: "elements.danmakuArea"
+        },
+        {
+            label: '播放器元素',
+            key: 'elements.webPlayer'
         },
         {
             label: "用户 ID 元素",

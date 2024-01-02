@@ -7,8 +7,11 @@ import { type SettingSchema as JimakuSchema } from '~settings/fragments/jimaku';
 import { getSettingStorage, setSettingStorage } from '~utils/storage';
 
 import JimakuLine from './JimakuLine';
-
 import type { Jimaku } from "./JimakuLine";
+
+import 'react-contexify/dist/ReactContexify.css';
+
+
 export type JimakuListProps = {
     schema: JimakuSchema
     jimaku: Jimaku[]

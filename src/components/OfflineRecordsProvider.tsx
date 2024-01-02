@@ -3,6 +3,7 @@ import PromiseHandler from '~components/PromiseHandler';
 import db, { type RecordType, type TableType } from '~database';
 import type { FeatureType } from "~features";
 import type { Settings } from "~settings";
+import { sleep } from '~utils/misc';
 
 
 export type OfflineRecordsProviderProps<T extends TableType> = {
@@ -10,6 +11,8 @@ export type OfflineRecordsProviderProps<T extends TableType> = {
     settings: Settings
     room: string
     table: T
+    filter?: (x: RecordType<T>) => boolean
+    sortBy?: keyof RecordType<T>
     reverse?: boolean
     loading: React.ReactNode
     error: (err: any, retry: VoidFunction) => React.ReactNode
@@ -19,13 +22,19 @@ export type OfflineRecordsProviderProps<T extends TableType> = {
 
 function OfflineRecordsProvider<T extends TableType>(props: OfflineRecordsProviderProps<T>): JSX.Element {
 
-    const { settings, table, feature, children, loading, error, room, reverse } = props
+    const { settings, table, feature, children, loading, error, room, reverse, sortBy, filter } = props
     const { enabledRecording } = settings['settings.features']
 
     const getRecords = useCallback(() => {
         let records = db[table].where({ room })
+        if (filter) {
+            records = records.filter((t: any) => filter(t))
+        }
         if (reverse) {
             records = records.reverse()
+        }
+        if (sortBy) {
+            return records.sortBy(sortBy.toString())
         }
         return records.toArray()
     }, [table, room])

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
 /**
  * Custom hook that returns a state and a function to force update the component.
@@ -11,24 +11,24 @@ import { useState } from 'react';
  *
  * @example
  * ```typescript
- * const [forceUpdateState, forceUpdate] = useForceUpdate();
+ * const [forceUpdateState, forceUpdate] = useForceUpdate()
  *
  * useEffect(() => {
  *   // This effect will be triggered whenever `forceUpdateState` changes.
  *   // You can use this to force a re-render of the component.
- * }, [forceUpdateState]);
+ * }, [forceUpdateState])
  *
  * const handleClick = useCallback(() => {
  *   // This callback will be memoized and will only change when `forceUpdateState` changes.
  *   // You can use this to trigger a re-render of the component.
- *   forceUpdate();
- * }, [forceUpdateState]);
+ *   forceUpdate()
+ * }, [forceUpdateState])
  *
  * const memoizedValue = useMemo(() => {
  *   // This value will be memoized and will only change when `forceUpdateState` changes.
  *   // You can use this to trigger a re-render of the component.
- *   return someExpensiveComputation();
- * }, [forceUpdateState]);
+ *   return someExpensiveComputation()
+ * }, [forceUpdateState])
  * ```
  */
 export function useForceUpdate(): [any, () => void] {
@@ -46,10 +46,10 @@ export function useForceUpdate(): [any, () => void] {
  * 
  * @example
  * // Usage
- * const forceRender = useForceRender();
+ * const forceRender = useForceRender()
  * 
  * // Call the function to force re-rendering
- * forceRender();
+ * forceRender()
  */
 export function useForceRender(): () => void {
     const [, forceUpdate] = useForceUpdate()

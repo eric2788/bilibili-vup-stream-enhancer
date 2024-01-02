@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export function useKeepBottom<E extends HTMLElement>(enabled: boolean, calculateRange: (el: Element) => number, deps: any[]) {
 
-    const ref = useRef<E>(null);
+    const ref = useRef<E>(null)
     const [keepBottom, setKeepBottom] = useState(true)
 
     const onScroll = useCallback((e: Event) => {

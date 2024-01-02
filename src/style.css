@@ -43,3 +43,16 @@
         opacity: 0;
     }
 }
+
+.bjf-scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.bjf-scrollbar::-webkit-scrollbar-track {
+    background-color: #ffffff;
+}
+
+.bjf-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #808080;
+    border-radius: 20px;
+}

@@ -11,13 +11,14 @@ export type TableAction<T> = {
 }
 
 
-export type TableHeader<T> = {
+export type TableHeader<T, K extends keyof T = keyof T> = {
     name: string
-    value: keyof T
+    value: K
+    render?: (v: T[K]) => React.ReactNode
     align?: 'left' | 'right' | 'center'
 }
 
-export type SettingTableProps<T extends object> = {
+export type DataTableProps<T extends object> = {
     title: string
     headers: TableHeader<T>[]
     values: T[]
@@ -34,7 +35,7 @@ function ClickableAddIcon({ onClick }: { onClick: (e: BaseSyntheticEvent) => voi
     )
 }
 
-function DataTable<T extends object>(props: SettingTableProps<T>): JSX.Element {
+function DataTable<T extends object>(props: DataTableProps<T>): JSX.Element {
 
     const [input, setInput] = useState('')
 
@@ -97,7 +98,7 @@ function DataTable<T extends object>(props: SettingTableProps<T>): JSX.Element {
                                                 color="blue-gray"
                                                 className="font-normal dark:text-gray-200"
                                             >
-                                                {String(row[header.value])}
+                                                {header.render ? header.render(row[header.value]) : String(row[header.value])}
                                             </Typography>
                                         </td>
                                     ))}

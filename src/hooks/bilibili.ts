@@ -1,5 +1,5 @@
-import { useMutationObserver } from '@react-hooks-library/core';
-import { useState } from 'react';
+import { useMutationObserver } from '@react-hooks-library/core'
+import { useState } from 'react'
 
 export type WebScreenStatus = 'normal' | 'web-fullscreen' | 'fullscreen'
 

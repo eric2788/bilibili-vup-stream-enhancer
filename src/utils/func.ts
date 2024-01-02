@@ -13,14 +13,14 @@ import type { InjectableFunction, InjectableFunctionParameters, InjectableFuncti
  * @example
  * // Define a function
  * function add(a: number, b: number): number {
- *   return a + b;
+ *   return a + b
  * }
  * 
  * // Create a flattened function
- * const flattenedAdd = flat(add, 2, 3);
+ * const flattenedAdd = flat(add, 2, 3)
  * 
  * // Call the flattened function
- * const result = flattenedAdd(); // Returns 5
+ * const result = flattenedAdd() // Returns 5
  */
 export function flat<T extends (...args: any[]) => any, R extends Parameters<T>>(fn: T, ...args: R): () => ReturnType<T> {
     return () => fn(...args)
@@ -40,15 +40,15 @@ export function flat<T extends (...args: any[]) => any, R extends Parameters<T>>
  * @example
  * // Define a function
  * function add(a: number, b: number): number {
- *   return a + b;
+ *   return a + b
  * }
  * 
  * // Wrap the function
- * const wrappedAdd = wrap(add);
+ * const wrappedAdd = wrap(add)
  * 
  * // Invoke the wrapped function
- * const result = wrappedAdd(2, 3);
- * console.log(result()); // Output: 5
+ * const result = wrappedAdd(2, 3)
+ * console.log(result()) // Output: 5
  */
 export function wrap<T extends (...args: any[]) => any, R extends Parameters<T>>(fn: T): (...args: R) => (() => ReturnType<T>) {
     return (...args: R) => flat(fn, ...args)
@@ -61,13 +61,13 @@ export function wrap<T extends (...args: any[]) => any, R extends Parameters<T>>
  * @returns A function that takes arguments and returns an injectable function.
  * @example
  * // Define an injectable function
- * const myFunction = inject('myFunction');
+ * const myFunction = inject('myFunction')
  * 
  * // Use the injectable function
- * const result = myFunction('arg1', 'arg2');
+ * const result = myFunction('arg1', 'arg2')
  * 
  * // Then run it for background sendMessagers
- * const result = await sendMessager('inject-func', { function: result });
+ * const result = await sendMessager('inject-func', { function: result })
  */
 export function inject<K extends InjectableFunctionType>(key: K): (...args: InjectableFunctionParameters<K>) => InjectableFunction<K> {
     return (...args) => ({ name: key as K, args })

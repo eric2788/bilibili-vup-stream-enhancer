@@ -1,14 +1,14 @@
-import type { StateProxy } from '~hooks/binding';
-import * as button from './fragments/button';
-import * as capture from './fragments/capture';
-import * as danmaku from './fragments/danmaku';
-import * as developer from './fragments/developer';
-import * as display from './fragments/display';
-import * as features from './fragments/features';
-import * as jimaku from './fragments/jimaku';
-import * as listings from './fragments/listings';
+import type { StateProxy } from '~hooks/binding'
+import * as button from './fragments/button'
+import * as capture from './fragments/capture'
+import * as danmaku from './fragments/danmaku'
+import * as developer from './fragments/developer'
+import * as display from './fragments/display'
+import * as features from './fragments/features'
+import * as jimaku from './fragments/jimaku'
+import * as listings from './fragments/listings'
 
-import type { StreamInfo } from '~api/bilibili';
+import type { StreamInfo } from '~api/bilibili'
 
 
 type ShouldInit<T extends object> = (roomId: string, settings: Readonly<T>, info: StreamInfo) => Promise<boolean>
@@ -21,7 +21,7 @@ interface SettingFragment<T extends object> {
 
 export type SettingFragments = typeof fragments
 
-export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
+export type Schema<T> = T extends SettingFragment<infer U> ? U : never
 
 export type Settings = {
     [K in keyof SettingFragments]: Schema<SettingFragments[K]>

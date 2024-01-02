@@ -1,11 +1,11 @@
-import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData";
-import type { GetInfoByRoomResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili";
-import { w_rid } from '~utils/bilibili';
-import { fetchSameCredentialV1, retryCatcher } from '~utils/fetch';
-import func from '~utils/func';
-import { sendMessager } from '~utils/messaging';
+import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData"
+import type { GetInfoByRoomResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
+import { w_rid } from '~utils/bilibili'
+import { fetchSameCredentialV1, retryCatcher } from '~utils/fetch'
+import func from '~utils/func'
+import { sendMessager } from '~utils/messaging'
 
-import { identifyVup } from './vtb-moe';
+import { identifyVup } from './vtb-moe'
 
 export type StreamInfo = {
     room: string
@@ -82,9 +82,9 @@ export async function isNativeVtuber(uid: string | number): Promise<boolean> {
 
 export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> {
 
-    const now: number = Math.round(Date.now() / 1000);
-    const wrid = await w_rid(mid, now);
-    const url = `https://api.bilibili.com/x/space/wbi/acc/info?platform=web&token=&web_location=1550101&wts=${now}&mid=${mid}&w_rid=${wrid}`;
+    const now: number = Math.round(Date.now() / 1000)
+    const wrid = await w_rid(mid, now)
+    const url = `https://api.bilibili.com/x/space/wbi/acc/info?platform=web&token=&web_location=1550101&wts=${now}&mid=${mid}&w_rid=${wrid}`
 
     const res = await sendMessager('request', {
         url,

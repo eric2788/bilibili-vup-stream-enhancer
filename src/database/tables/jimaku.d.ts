@@ -1,9 +1,9 @@
-import { Table } from 'dexie';
-import { CommonSchema } from '~database';
+import { Table } from 'dexie'
+import { CommonSchema } from '~database'
 
 declare module '~database' {
     interface IndexedDatabase {
-        jimakus: Table<Jimaku, number>;
+        jimakus: Table<Jimaku, number>
     }
 }
 

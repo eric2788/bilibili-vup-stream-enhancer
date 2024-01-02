@@ -3,9 +3,9 @@ import '~toaster';
 import styleText from 'data-text:~style.css';
 import extIcon from 'raw:~assets/icon.png';
 import { Fragment, useEffect } from 'react';
-import { type Root, createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { toast } from 'sonner/dist';
-import { type StreamInfo, ensureLogin, getNeptuneIsMyWaifu, getStreamInfo } from '~api/bilibili';
+import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
 import { getForwarder, sendForward } from '~background/forwards';
 import BLiveThemeProvider from '~components/BLiveThemeProvider';
 import { useWebScreenChange } from '~hooks/bilibili';
@@ -13,21 +13,20 @@ import { getRoomId, getStreamInfoByDom } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectAdapter } from '~utils/inject';
 import { sendMessager } from '~utils/messaging';
-import { getFullSettingStroage } from '~utils/storage';
+import { getFullSettingStroage, transactions } from '~utils/storage';
 
 import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
 import { useToggle } from '@react-hooks-library/core';
 
 import features, { type FeatureType } from '../features';
-import { type Settings, shouldInit } from '../settings';
+import { shouldInit, type Settings } from '../settings';
 
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
 
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
-  all_frames: true,
-  run_at: 'document_end'
+  all_frames: true
 }
 
 export const getStyle: PlasmoGetStyle = () => {
@@ -35,7 +34,6 @@ export const getStyle: PlasmoGetStyle = () => {
   style.textContent = styleText
   return style
 }
-
 
 
 interface RootMountable {
@@ -119,13 +117,12 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
         )
       },
       unmount: async () => {
+        if (root === null) {
+          return
+        }
         if (dispose) {
           // for extra dispose
           await dispose()
-        }
-        if (root === null) {
-          console.warn('root is null, maybe not mounted yet')
-          return
         }
         root.unmount()
       }
@@ -152,6 +149,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
     async start(): Promise<void> {
 
       const settings = await getFullSettingStroage()
+      const enabled = settings['settings.features'].enabledFeatures
 
       // 如果沒有取得直播資訊，就嘗試使用 DOM 取得
       if (!info) {
@@ -221,7 +219,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
       // 渲染功能元素
       console.info('開始渲染元素....')
-      await Promise.all(mounters.map(m => m.mount(settings)))
+      await Promise.all(mounters.filter(m => enabled.includes(m.feature)).map(m => m.mount(settings)))
       console.info('渲染元素完成')
 
     },
@@ -297,15 +295,17 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
 
     removeHandler = forwarder.addHandler(async data => {
       if (data.command === 'stop') {
-        await app.stop()
+        await transactions(app.stop)
       } else if (data.command === 'restart') {
-        await app.stop()
-        await app.start()
+        await transactions(async () => {
+          await app.stop()
+          await app.start()
+        })
       }
     })
 
     // start the app
-    await app.start()
+    await transactions(app.start)
 
   } catch (err: Error | any) {
     console.error(`渲染 bilibili-jimaku-filter 元素時出現錯誤: `, err)
@@ -333,16 +333,11 @@ function App(props: AppProps): JSX.Element {
 
   const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
 
-  useEffect(() => {
-    console.info('App element mounted!')
-  }, [])
-
   // 狀態為離綫時，此處不需要顯示按鈕
   // 離綫下載按鈕交給 feature UI 處理
   if (info.status === 'offline') {
     return <></>
   }
-
 
   const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
 

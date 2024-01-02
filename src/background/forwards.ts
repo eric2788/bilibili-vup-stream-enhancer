@@ -1,6 +1,6 @@
-import * as command from './forwards/command';
-import * as jimaku from './forwards/jimaku';
-import * as redirect from './forwards/redirect';
+import * as command from './forwards/command'
+import * as jimaku from './forwards/jimaku'
+import * as redirect from './forwards/redirect'
 
 export type ForwardData = typeof forwards
 
@@ -8,9 +8,9 @@ interface ForwardFragment<T extends object, R = T> {
     default?: ForwardHandler<T, R>
 }
 
-export type ForwardBody<T> = T extends ForwardFragment<infer U> ? U : never;
+export type ForwardBody<T> = T extends ForwardFragment<infer U> ? U : never
 
-export type ForwardResponse<T> = T extends ForwardFragment<any, infer U> ? U : void;
+export type ForwardResponse<T> = T extends ForwardFragment<any, infer U> ? U : void
 
 export type ChannelType = keyof ChannelQueryInfo
 
@@ -42,7 +42,7 @@ export type ForwardHandler<T extends object, R = T> = (req: ForwardInfo<T>) => P
  *
  * @example
  * // Sending a forward message to the "pages" channel with command "update" and body { version: "1.0.0" }
- * sendForward("pages", "update", { version: "1.0.0" });
+ * sendForward("pages", "update", { version: "1.0.0" })
  */
 export function sendForward<T extends keyof ForwardData, V extends ForwardBody<ForwardData[T]>, C extends ChannelType>(target: C, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
     sendForwardInternal<T, C, V>(target, command, body, queryInfo)
@@ -82,11 +82,11 @@ export function isForwardMessage<T extends object>(message: any): message is For
  * @param {ChannelType} target - The target channel for the forwarder.
  * @returns {Forwarder<K>} - The forwarder for the specified command and target.
  * @example
- * const forwarder = getForwarder('sendMessage', 'background');
+ * const forwarder = getForwarder('sendMessage', 'background')
  * forwarder.addHandler((data) => {
- *   console.log('Received message:', data);
- * });
- * forwarder.sendForward('background', { message: 'Hello' });
+ *   console.log('Received message:', data)
+ * })
+ * forwarder.sendForward('background', { message: 'Hello' })
  */
 export function getForwarder<K extends keyof ForwardData>(command: K, target: ChannelType): Forwarder<K> {
 

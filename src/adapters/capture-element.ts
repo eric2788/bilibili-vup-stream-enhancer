@@ -1,8 +1,8 @@
-import { injectFuncAsListener } from '~utils/event';
-import { sendBLiveMessage } from '~utils/messaging';
-import { md5 } from 'hash-wasm';
+import { injectFuncAsListener } from '~utils/event'
+import { sendBLiveMessage } from '~utils/messaging'
+import { md5 } from 'hash-wasm'
 
-import type { Settings } from "~settings";
+import type { Settings } from "~settings"
 // mutation observer danmaku must be text node
 type DanmakuMutation = {
     content: string
@@ -16,10 +16,9 @@ type DanmakuMutation = {
 
 const danmakuCache = new Map<number, DanmakuMutation>()
 
-const config: MutationObserverInit = { attributes: false, childList: true, subtree: true };
+const config: MutationObserverInit = { attributes: false, childList: true, subtree: true }
 
 const observers: MutationObserver[] = []
-const beforeInsert: string[] = []
 let keepBottomInterval: number = 0 
 
 async function hash(str: string): Promise<number> {
@@ -31,7 +30,7 @@ function startDanmakuMonitor(settings: Settings): MutationObserver {
     const { attr: attribute, elements } = settings['settings.developer']
     const chatList = document.querySelector(elements.chatItems)
     const observer = new MutationObserver(async (mutationsList: MutationRecord[]) => {
-        for (const node of mutationsList.flatMap(mu => mu.addedNodes)) {
+        for (const node of mutationsList.flatMap(mu => mu.addedNodes).flatMap(n => [...n.values()])) {
             if (!(node instanceof HTMLElement)) continue
             const danmaku = node.getAttribute(attribute.chatDanmaku)?.trim()
             const userId = node.getAttribute(attribute.chatUserId)?.trim()
@@ -109,7 +108,7 @@ function startDanmakuStyleMonitor(settings: Settings): MutationObserver {
     const { elements: { danmakuArea } } = settings['settings.developer']
     const danmakuContainer = document.querySelector(danmakuArea)
     const danmakuObserver = new MutationObserver(async (mutationsList: MutationRecord[]) => {
-        for (const node of mutationsList.flatMap(mu => mu.addedNodes)) {
+        for (const node of mutationsList.flatMap(mu => mu.addedNodes).flatMap(n => [...n.values()])) {
             let danmaku: string = undefined
             let danmakuNode: HTMLElement = undefined
             if (node instanceof Text) {
@@ -123,7 +122,7 @@ function startDanmakuStyleMonitor(settings: Settings): MutationObserver {
             if (danmaku === undefined || danmaku === '') continue
             const danmakuId = await hash(danmaku)
             if (!danmakuCache.has(danmakuId)) continue
-            const modified = danmakuCache.get(danmakuId);
+            const modified = danmakuCache.get(danmakuId)
             // currently only these 3 attributes are supported to modify in mutation observer
             if (modified.color) {
                 danmakuNode.style.color = `#${modified.color.toString(16)}`
