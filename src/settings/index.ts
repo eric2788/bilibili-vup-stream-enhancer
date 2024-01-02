@@ -17,8 +17,11 @@ interface SettingFragment<T extends object> {
 
 export type SettingFragments = typeof fragments 
 
-
 export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
+
+export type Settings = {
+    [K in keyof SettingFragments]: Schema<SettingFragments[K]>
+}
 
 // also defined the order of the settings
 const fragments = {

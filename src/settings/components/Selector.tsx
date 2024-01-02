@@ -1,3 +1,4 @@
+import { useClickOutside, useToggle } from "@react-hooks-library/core"
 import { useState, useRef, useEffect } from "react"
 
 
@@ -19,42 +20,21 @@ export type SelectorProps<T> = {
 
 function Selector<T = any>(props: SelectorProps<T>): JSX.Element {
 
-    const [isOpen, setIsOpen] = useState(false);
+
+    const { bool: isOpen, toggle, setFalse } = useToggle()
     const dropdownRef = useRef(null);
 
-    useEffect(() => {
-        const pageClickEvent = (e: Event) => {
-            // If the active element exists and is clicked outside of
-            if (dropdownRef.current !== null && !dropdownRef.current.contains(e.target)) {
-                setIsOpen(!isOpen);
-            }
-        };
-
-        // If the item is active (ie open) then listen for clicks
-        if (isOpen) {
-            window.addEventListener('click', pageClickEvent);
-        }
-
-        return () => {
-            window.removeEventListener('click', pageClickEvent);
-        }
-    }, [isOpen]);
-
-    const toggleOpen = () => {
-        if (props.disabled) return
-        setIsOpen(!isOpen)
-    }
-
+    useClickOutside(dropdownRef, setFalse)
 
     const selectOption = (option: SelectorOption<T>) => {
         props.onChange && props.onChange(option.value);
-        setIsOpen(false);
+        setFalse();
     }
 
     return (
         <section className={`relative block text-left`}>
             <label className="text-sm ml-1 font-medium text-gray-900 dark:text-white">{props.label}</label>
-            <div ref={dropdownRef} className={`mt-2 ${props.disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`} onClick={toggleOpen}>
+            <div ref={dropdownRef} className={`mt-2 ${props.disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`} onClick={() => !props.disabled && toggle()}>
                 <div className={`inline-flex justify-between h-full w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 text-sm font-medium text-gray-700 dark:text-white ${props.disabled ? 'opacity-50 bg-transparent' : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-gray-500`}>
                     {props.options.find((option) => option.value === props.value)?.label ?? String(props.value)}
                     <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

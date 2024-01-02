@@ -4,13 +4,13 @@ import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useLoader } from "~hooks/loader"
-import fragments, { type SettingFragments } from "~settings"
+import fragments, { type SettingFragments, type Settings } from "~settings"
 import SettingFragment, { type SettingFragmentProps, type SettingFragmentRef } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
 import { download, readAsJson } from "~utils/file"
 import { arrayEqual, removeInvalidKeys, sleep } from "~utils/misc"
-import { getSettingStorage } from "~utils/storage"
+import { getFullSettingStroage, getSettingStorage } from "~utils/storage"
 
 document.title = '字幕过滤设定'
 
@@ -20,11 +20,8 @@ const fragmentKeys = Object.keys(fragments) as (keyof SettingFragments)[]
 
 async function exportSettings(): Promise<void> {
     try {
-        const settingJsons = await Promise.all(fragmentKeys.map(async (key) => {
-            const settings = await getSettingStorage(key)
-            return { [key]: settings }
-        }))
-        const exportContent = JSON.stringify(settingJsons.reduce((prev, curr) => ({ ...prev, ...curr }), {}))
+        const settings = await getFullSettingStroage()
+        const exportContent = JSON.stringify(settings)
         download('settings.json', exportContent, 'application/json')
         await sendInternal('notify', {
             title: '导出设定成功',
@@ -86,7 +83,7 @@ function SettingPage(): JSX.Element {
                 if (target.files.length === 0) return
                 const file = target.files[0]
                 try {
-                    const settings = await readAsJson(file)
+                    const settings = (await readAsJson(file)) as Settings
                     if (!(settings instanceof Object)) {
                         throw new Error('导入的设定文件格式错误。')
                     }
