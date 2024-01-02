@@ -1,14 +1,12 @@
 
-import { Fragment, type ChangeEvent } from "react"
-import DataTable, { type TableHeader } from "~settings/components/DataTable"
-import type { ExposeHandler, StateProxy } from "~hooks/binding"
-import type { ArrElement, PickKeys, PickLeaves } from "~types/common"
-import { removeArr } from "~utils/misc"
-import { identifyVup } from "~api/vtb-moe"
-import { catcher } from "~utils/fetch"
-import { sendInternal } from "~background/messages"
-import { requestUserInfo } from "~api/bilibili"
 import { Switch, Typography } from "@material-tailwind/react"
+import { Fragment, type ChangeEvent } from "react"
+import { requestUserInfo } from "~api/bilibili"
+import type { ExposeHandler, StateProxy } from "~hooks/binding"
+import DataTable, { type TableHeader } from "~settings/components/DataTable"
+import type { ArrElement, PickKeys } from "~types/common"
+import { catcher } from "~utils/fetch"
+import { removeArr } from "~utils/misc"
 
 
 export type UserRecord = {
@@ -32,7 +30,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     blackListRooms: [
         {
             room: '1',
-            addedDate: '2021-01-01'
+            addedDate: '2021/1/1'
         }
     ],
     useAsWhiteListRooms: false

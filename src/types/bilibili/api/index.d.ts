@@ -1,9 +1,9 @@
 export * from './room-info'
+export * from './room-init'
 export * from './spec-area-rank'
 export * from './stream-url'
-export * from './room-init'
-export * from './web-interface-nav'
 export * from './wbi-acc-info'
+export * from './web-interface-nav'
 
 export interface CommonResponse<T extends object> {
     code: number

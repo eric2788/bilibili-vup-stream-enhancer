@@ -33,7 +33,7 @@ function ColorInput(props: ColorInputProps): JSX.Element {
                     }}
                     {...attrs}
                 />
-                { value && <input type="color" disabled={attrs.disabled} required={!optional} className="!absolute right-0 bottom-0 h-8 rounded bg-transparent cursor-crosshair disabled:opacity-50 disabled:cursor-not-allowed" value={value} onChange={props.onChange} onBlur={props.onBlur} />}
+                {value && <input type="color" disabled={attrs.disabled} required={!optional} className="!absolute right-0 bottom-0 h-8 rounded bg-transparent cursor-crosshair disabled:opacity-50 disabled:cursor-not-allowed" value={value} onChange={props.onChange} onBlur={props.onBlur} />}
             </div>
         </div>
     )

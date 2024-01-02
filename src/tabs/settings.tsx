@@ -1,16 +1,17 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useRef, type ChangeEvent, useEffect } from "react"
+import { Fragment, useRef } from "react"
 import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
+import { useForwarder } from "~hooks/forwarder"
 import { useLoader } from "~hooks/loader"
 import fragments, { type SettingFragments, type Settings } from "~settings"
-import SettingFragment, { type SettingFragmentProps, type SettingFragmentRef } from "~settings/components/SettingFragment"
+import SettingFragment, { type SettingFragmentRef } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
 import { download, readAsJson } from "~utils/file"
 import { arrayEqual, removeInvalidKeys, sleep } from "~utils/misc"
-import { getFullSettingStroage, getSettingStorage } from "~utils/storage"
+import { getFullSettingStroage } from "~utils/storage"
 
 document.title = '字幕过滤设定'
 
@@ -73,10 +74,7 @@ function SettingPage(): JSX.Element {
     const fileImport = useRef<HTMLInputElement>()
     const fragmentRefs = fragmentKeys.map(key => useRef<SettingFragmentRef<typeof key>>())
 
-
-    useEffect(() => {
-        form.current.addEventListener('submit', e => e.preventDefault())
-    }, [])
+    const forwarder = useForwarder('command', 'pages')
 
     const [loader, loading] = useLoader({
         checkingUpdate,
@@ -97,14 +95,16 @@ function SettingPage(): JSX.Element {
                     }
                     await Promise.all(fragmentRefs.map((ref) => {
                         const { defaultSettings } = fragments[ref.current.fragmentKey]
-                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[ref.current.fragmentKey]}, defaultSettings)
+                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[ref.current.fragmentKey] }, defaultSettings)
                         return ref.current.importSettings(importContent)
                     }))
                     await sendInternal('notify', {
                         title: '导入设定成功',
                         message: '设定已经导入成功。'
                     })
-                }catch (err: Error | any) {
+                    // 向所有页面发送重启指令
+                    forwarder.sendForward('content-script', { command: 'restart' })
+                } catch (err: Error | any) {
                     console.error(err)
                     await sendInternal('notify', {
                         title: '导入设定失败',
@@ -128,6 +128,8 @@ function SettingPage(): JSX.Element {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
+            // 向所有页面发送重启指令
+            forwarder.sendForward('content-script', { command: 'restart' })
             await sleep(5000)
         }
     }, (err) => {
@@ -170,7 +172,7 @@ function SettingPage(): JSX.Element {
                 {fragmentKeys.map((key, index) => (
                     <SettingFragment ref={fragmentRefs[index]} key={key} fragmentKey={key} toggleExpanded={() => toggleSection(key)} expanded={section[key]} />
                 ))}
-                <input ref={fileImport} placeholder="" title="" type="file" style={{display: 'none'}} accept=".json"></input>
+                <input ref={fileImport} placeholder="" title="" type="file" style={{ display: 'none' }} accept=".json"></input>
                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3 px-4 pt-3 mx-auto max-w-screen-xl">
                     <Button
                         type="submit"

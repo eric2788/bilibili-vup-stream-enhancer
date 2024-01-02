@@ -14,20 +14,6 @@ export type ResponseBody = {
     error?: Error
 }
 
-async function clearTable(info: RequestBody) {
-    const tables: Table<CommonSchema, number>[] = []
-    if (info.table === 'all') {
-        tables.push(...getAllTables())
-    } else {
-        tables.push(db[info.table])
-    }
-    if (info.room) {
-        await Promise.all(tables.map(table => table.where({ room: info.room }).delete()))
-    } else {
-        await Promise.all(tables.map(table => table.clear()))
-    }
-}
-
 const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
     try {
         const tabs = await chrome.tabs.query({ url: '*://live.bilibili.com/*' })
@@ -41,8 +27,9 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         })
         await sendInternal('inject-js', {
             target: { tabId: tab.id },
-            func: clearTable,
-            args: [req.body]
+            function: {
+                name: 'c'
+            }
         })
         await chrome.tabs.remove(tab.id)
         res.send({ result: 'success' })

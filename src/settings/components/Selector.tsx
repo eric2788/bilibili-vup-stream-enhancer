@@ -1,5 +1,5 @@
-import { useClickOutside, useToggle } from "@react-hooks-library/core"
-import { useState, useRef, useEffect } from "react"
+import { useClickOutside } from "@react-hooks-library/core"
+import { useRef, useState } from "react"
 
 
 export type SelectorOption<T> = {

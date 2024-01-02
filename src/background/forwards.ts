@@ -1,4 +1,5 @@
-import * as jimaku from './forwards/jimaku'
+import * as command from './forwards/command';
+import * as jimaku from './forwards/jimaku';
 
 export type ForwardData = typeof forwards
 
@@ -19,11 +20,6 @@ export type ForwardInfo<T> = {
 }
 
 export type ForwardHandler<T extends object, R = T> = (req: ForwardInfo<T>) => Promise<ForwardInfo<R>> | ForwardInfo<R>
-
-const forwards = {
-    'jimaku': jimaku
-}
-
 
 /**
  * Sends a forward message to the specified target channel.
@@ -53,8 +49,7 @@ function sendForwardInternal<T extends keyof ForwardData, V = ForwardBody<Forwar
         chrome.runtime.sendMessage(message)
     } else if (target === 'content-script') {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (!tabs.length) return
-            chrome.tabs.sendMessage(tabs[0].id, message)
+            tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message))
         })
     }
 }
@@ -90,7 +85,7 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
     type T = ForwardBody<ForwardData[K]>
     type R = ForwardResponse<ForwardData[K]>
 
-    const listener  = (invoker: (data: R) => void) => (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean | void => {
+    const listener = (invoker: (data: R) => void) => (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean | void => {
         if (!isForwardMessage<T>(message)) return
         if (message.target !== target) return
         if (message.command !== command) return
@@ -102,15 +97,15 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
         }
 
         const wrapHandler = (info: ForwardInfo<R>): void => {
-             // if target changed, then do the sendForward again
-             if (info.target !== message.target) {
+            // if target changed, then do the sendForward again
+            if (info.target !== message.target) {
                 sendForwardInternal<K, ForwardResponse<ForwardData[K]>>(info.target, command, info.body)
                 return
             }
             invoker(info.body)
         }
-
-        const response = handler(message) as (ForwardInfo<R> | Promise<ForwardInfo<R>>)
+        const handle = handler as ForwardHandler<T, R>
+        const response = handle(message) as (ForwardInfo<R> | Promise<ForwardInfo<R>>)
         if (response instanceof Promise) {
             response.then(wrapHandler).then(sendResponse)
             return true
@@ -133,8 +128,17 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
     }
 }
 
+export function useDefaultHandler<T extends object>(): ForwardHandler<T> {
+    return (req: ForwardInfo<T>) => req
+}
+
 
 export type Forwarder<K extends keyof ForwardData> = {
     addHandler: (handler: (data: ForwardResponse<ForwardData[K]>) => void) => () => void
     sendForward: (toTarget: ChannelType, body: ForwardBody<ForwardData[K]>) => void
+}
+
+const forwards = {
+    'jimaku': jimaku,
+    'command': command
 }

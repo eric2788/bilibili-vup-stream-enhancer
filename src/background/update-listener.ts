@@ -1,6 +1,6 @@
 
 import { sendInternal } from './messages'
-import { version, notifyUpdate } from './messages/check-update'
+import { notifyUpdate, version } from './messages/check-update'
 
 chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDetails) => {
     

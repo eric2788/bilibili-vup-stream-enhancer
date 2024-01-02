@@ -1,33 +1,17 @@
 
-import { Navbar, Typography, IconButton, Menu, MenuHandler, MenuList, MenuItem, Checkbox, List, ListItem } from "@material-tailwind/react";
-import { Fragment, useState, useEffect, lazy, Suspense, memo, useRef } from "react";
-import BJFThemeProvider from "~components/BJFThemeProvider";
+import { Checkbox, IconButton, List, ListItem, Menu, MenuHandler, MenuItem, MenuList, Navbar, Typography } from "@material-tailwind/react";
+import { Fragment, memo, useEffect, useRef, useState } from "react";
 import VirtualScroller from "virtual-scroller/react";
+import BJFThemeProvider from "~components/BJFThemeProvider";
 
-import '~tailwindcss'
-import Jimaku from "~contents/features/jimaku";
-import { useMessage, usePort } from "@plasmohq/messaging/hook";
 import { useForwarder } from "~hooks/forwarder";
-import { useBinding } from "~hooks/binding";
-import { stateProxy } from "react-state-proxy";
+import '~tailwindcss';
 
 
 export type Jimaku = {
     text: string
     date: string
     hash: string
-}
-
-const generateExamples = (num: number) => {
-    const examples: Jimaku[] = []
-    for (let i = 0; i < num; i++) {
-        examples.push({
-            text: '这是一条弹幕',
-            date: '00:00:00',
-            hash: 'hash' + i
-        })
-    }
-    return examples
 }
 
 const urlParams = new URLSearchParams(window.location.search)
@@ -44,9 +28,16 @@ function JimakuPage(): JSX.Element {
         bottomRef.current = keepBottom
     }, [keepBottom])
 
-    const [messages, setMessages] = useState<Jimaku[]>(() => generateExamples(100))
+    const [messages, setMessages] = useState<Jimaku[]>([])
 
     const forwarder = useForwarder('jimaku', 'pages')
+
+
+    useEffect(() => {
+        if (bottomRef.current) {
+            window.scrollTo(0, document.body.scrollHeight)
+        }
+    }, [messages])
 
     useEffect(() => {
         if (roomId) {
@@ -54,9 +45,6 @@ function JimakuPage(): JSX.Element {
             forwarder.addHandler((message) => {
                 if (message.room !== roomId) return
                 setMessages(messages => [...messages, message])
-                if (bottomRef.current) {
-                    window.scrollTo(0, document.body.scrollHeight)
-                }
             })
         } else {
             alert('未知房间Id, 此同传弹幕视窗不会运行。')
