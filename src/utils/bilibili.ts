@@ -71,8 +71,7 @@ export async function w_rid(uid: string, wts: number): Promise<string> {
 
 
 export function isDarkThemeBilbili(): boolean {
-    const html = document.getElementsByTagName('html')[0]
-    return html.getAttribute('lab-style')?.includes('dark')
+    return document.documentElement.getAttribute('lab-style')?.includes('dark')
 }
 
 // 使用 DOM query

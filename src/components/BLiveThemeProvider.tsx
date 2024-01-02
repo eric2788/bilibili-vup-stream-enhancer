@@ -6,9 +6,11 @@ import { useMutationObserver } from '@react-hooks-library/core';
 
 import BJFThemeProvider from './BJFThemeProvider';
 
+const fetchDarkMode = () => /*isDarkTheme() &&*/ isDarkThemeBilbili()
+
 function BLiveThemeProvider({ children, element }: { children: React.ReactNode, element?: Element | Element[] }): JSX.Element {
 
-  const [dark, setDark] = useState(() => isDarkTheme() && isDarkThemeBilbili())
+  const [dark, setDark] = useState(fetchDarkMode)
 
   const controller = element ?? document.documentElement
 
@@ -16,14 +18,14 @@ function BLiveThemeProvider({ children, element }: { children: React.ReactNode, 
   useMutationObserver(document.documentElement, (mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'lab-style') {
-        setDark(() => isDarkTheme() && isDarkThemeBilbili())
+        setDark(fetchDarkMode)
         break
       }
     }
   }, { attributes: true })
 
   useEffect(() => {
-    setDark(() => isDarkTheme() && isDarkThemeBilbili())
+    setDark(fetchDarkMode)
   }, [])
 
   return (

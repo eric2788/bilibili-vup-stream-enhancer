@@ -1,12 +1,13 @@
-import type { Settings } from "~settings"
-import type { SuperChatCard } from "./SuperChatItem"
-import type { StreamInfo } from "~api/bilibili"
-import { useBLiveMessageCommand } from "~hooks/message"
-import { useRef, useState } from "react"
 import { useInterval } from "@react-hooks-library/core"
-import SuperChatFloatingButton from "./SuperChatFloatingButton"
+import { useCallback, useMemo, useRef, useState } from "react"
+import type { StreamInfo } from "~api/bilibili"
+import SuperChatContext from "~contexts/SuperChatContext"
 import db from "~database"
-import { getTimeStamp, randomString, toStreamingTime, toTimer } from "~utils/misc"
+import { useBLiveMessageCommand } from "~hooks/message"
+import type { Settings } from "~settings"
+import { getTimeStamp, randomString, toStreamingTime } from "~utils/misc"
+import SuperChatFloatingButton from "./SuperChatFloatingButton"
+import type { SuperChatCard } from "./SuperChatItem"
 
 
 export type SuperChatCaptureLayerProps = {
@@ -37,7 +38,7 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
             price: data.price,
             message: data.message,
             timestamp: data.start_time,
-            date: useStreamingTime ? getTimeStamp() : toStreamingTime(info.liveTime),
+            date: useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp(),
             hash: `${randomString()}${data.id}`
         }
         transactions.current.push(superChatProps)
@@ -60,10 +61,15 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
         }
     }, 500)
 
+
+    const clearSuperChat = useCallback(() => setSuperChat([]), [])
+    const context = useMemo(() => ({ superchats: superchat, clearSuperChat }), [superchat, clearSuperChat])
+
+
     return (
-        <>
-            <SuperChatFloatingButton superchats={superchat} settings={settings} info={info} />
-        </>
+        <SuperChatContext.Provider value={context}>
+            <SuperChatFloatingButton settings={settings} info={info} />
+        </SuperChatContext.Provider>
     )
 }
 

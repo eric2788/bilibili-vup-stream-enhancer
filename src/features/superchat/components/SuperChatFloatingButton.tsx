@@ -8,10 +8,8 @@ import type { StreamInfo } from '~api/bilibili';
 import ShadowRoot from '~components/ShadowRoot';
 import type { Settings } from '~settings';
 import SuperChatArea from './SuperChatArea';
-import type { SuperChatCard } from './SuperChatItem';
 
 export type SuperChatFloatingButtonProps = {
-    superchats: SuperChatCard[]
     settings: Settings
     info: StreamInfo
 }
@@ -19,7 +17,7 @@ export type SuperChatFloatingButtonProps = {
 
 function SuperChatFloatingButton(props: SuperChatFloatingButtonProps): JSX.Element {
 
-    const { superchats, settings, info } = props
+    const { settings, info } = props
 
     const [position, setPosition] = useState({ x: 48, y: 96 })
     const pos = useDeferredValue(position)
@@ -39,7 +37,7 @@ function SuperChatFloatingButton(props: SuperChatFloatingButtonProps): JSX.Eleme
                     width: 85,
                     height: 85
                 }}
-                className="absolute rounded-full bg-blue-600 duration-150 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-800 p-3 drop-shadow-lg flex flex-col justify-center items-center gap-3 text-white">
+                className="absolute rounded-full bg-red-600 duration-150 hover:bg-red-700 dark:bg-gray-700 dark:hover:bg-gray-800 p-3 drop-shadow-lg flex flex-col justify-center items-center gap-3 text-white">
                 <div className="hover:animate-pulse">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m9 7.5 3 4.5m0 0 3-4.5M12 12v5.25M15 12H9m6 3H9m12-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -69,7 +67,7 @@ function SuperChatFloatingButton(props: SuperChatFloatingButtonProps): JSX.Eleme
                 </div>
             </Rnd>
             <Menu id="superchat-menu" style={{ backgroundColor: '#f1f1f1', overscrollBehaviorY: 'none' }}>
-                <SuperChatArea superchats={superchats} settings={settings} info={info} />
+                <SuperChatArea settings={settings} info={info} />
             </Menu>
         </ShadowRoot>
     )

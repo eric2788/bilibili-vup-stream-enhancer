@@ -30,7 +30,7 @@ function SuperChatItem(props: SuperChatItemProps): JSX.Element {
     } = props;
 
     return (
-        <div className="min-h-[70px] mb-[10px] border-solid border-[1px] w-full" style={{
+        <div className="mb-[10px] border-solid border-[1px] w-full" style={{
             backgroundColor: backgroundColor,
             borderColor: backgroundColor,
             animation: 'slide-y .5s ease-out',
@@ -61,14 +61,8 @@ function SuperChatItem(props: SuperChatItemProps): JSX.Element {
                     }}>{uname}</a>
                 <span className="text-[15px] float-right text-black">￥{price}</span>
             </div>
-            <div className="p-[10px] break-words text-[14px] relative">
+            <div className="p-[10px] break-words text-[14px] text-white">
                 {message}
-                <div
-                    className="bg-cover w-[16px] h-[16px] absolute bottom-0 right-0"
-                    style={{
-                        backgroundImage: `url(${backgroundImage})`,
-                    }}
-                />
             </div>
         </div>
     )

@@ -13,8 +13,11 @@ export function useStorageWatch<T = any>(key: string, area: "sync" | "local" | "
     const [watchedValue, setWatchedValue] = useState(defaultValue)
     const watchCallback: StorageCallbackMap = {
         [key]: (value, ar) => ar === area && setWatchedValue(value.newValue)
-    } 
+    }
     useEffect(() => {
+        storage.get<T>(key)
+            .then(value => setWatchedValue(value))
+            .catch(() => console.error(`Failed to get ${key} from ${area} storage`))
         storage.watch(watchCallback)
         return () => {
             storage.unwatch(watchCallback)

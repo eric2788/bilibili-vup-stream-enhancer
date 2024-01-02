@@ -26,7 +26,7 @@ export async function getFullSettingStroage(): Promise<Settings> {
 }
 
 export async function transactions<T = void>(callback: () => Promise<T>): Promise<T> {
-    sessionStorage.set('processing', true)
+    await sessionStorage.set('processing', true)
     return callback().finally(() => sessionStorage.set('processing', false))
 }
 

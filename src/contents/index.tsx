@@ -26,8 +26,7 @@ import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } f
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
-  all_frames: true,
-  run_at: 'document_end'
+  all_frames: true
 }
 
 export const getStyle: PlasmoGetStyle = () => {
@@ -35,7 +34,6 @@ export const getStyle: PlasmoGetStyle = () => {
   style.textContent = styleText
   return style
 }
-
 
 
 interface RootMountable {
@@ -335,16 +333,11 @@ function App(props: AppProps): JSX.Element {
 
   const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
 
-  useEffect(() => {
-    console.info('App element mounted!')
-  }, [])
-
   // 狀態為離綫時，此處不需要顯示按鈕
   // 離綫下載按鈕交給 feature UI 處理
   if (info.status === 'offline') {
     return <></>
   }
-
 
   const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
 

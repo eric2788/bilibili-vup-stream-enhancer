@@ -14,29 +14,31 @@ import type { Settings } from "~settings";
 import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
 import type { Jimaku } from "./JimakuLine";
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
-.subtitle-normal::-webkit-scrollbar {
-    width: 5px;
-}
+        .subtitle-normal > ::-webkit-scrollbar {
+            width: 5px;
+        }
 
-.subtitle-normal::-webkit-scrollbar-track {
-    background-color: ${jimakuStyle.backgroundColor};
-}
+        .subtitle-normal > ::-webkit-scrollbar-track {
+            background-color: ${jimakuStyle.backgroundColor};
+        }
 
-.subtitle-normal::-webkit-scrollbar-thumb {
-    background-color: ${jimakuStyle.color};
-}
-#subtitle-list p:${jimakuStyle.order === 'top' ? 'first' : 'last'}-of-type {
-    animation: ${jimakuStyle.animation} .3s ease-out;
-    font-size: ${jimakuStyle.firstLineSize}px;
-}
-#subtitle-list p {
-    font-weight: bold;
-    color: ${jimakuStyle.color}; 
-    opacity: 1.0; 
-    margin: ${jimakuStyle.lineGap}px 0px;
-    font-size: ${jimakuStyle.size}px;  
-}
-`
+        .subtitle-normal > ::-webkit-scrollbar-thumb {
+            background-color: ${jimakuStyle.color};
+        }
+
+        #subtitle-list p:${jimakuStyle.order === 'top' ? 'first' : 'last'}-of-type {
+            animation: ${jimakuStyle.animation} .3s ease-out;
+            font-size: ${jimakuStyle.firstLineSize}px;
+        }
+
+        #subtitle-list p {
+            font-weight: bold;
+            color: ${jimakuStyle.color}; 
+            opacity: 1.0; 
+            margin: ${jimakuStyle.lineGap}px 0px;
+            font-size: ${jimakuStyle.size}px;  
+        }
+        `
 
 export type JimakuAreaProps = {
     jimaku: Jimaku[]

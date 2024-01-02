@@ -8,6 +8,7 @@ chrome.action.onClicked.addListener(() => {
     sendInternal('open-tab', { tab: 'settings' })
 })
 
+chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' })
 
 getForwarder('redirect', 'background').addHandler(data => {
     console.info('received redirect: ', data)

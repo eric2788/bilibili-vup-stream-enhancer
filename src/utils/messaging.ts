@@ -47,7 +47,6 @@ export function addBLiveMessageCommandListener<K extends string>(command: K, cal
 export function addBLiveMessageListener<K extends string>(callback: (data: { cmd: K, command: BLiveDataWild<K> }, event: MessageEvent) => void): VoidFunction {
     return addWindowMessageListener('blive-ws', (data: { cmd: K, command: BLiveDataWild<K>, eventId: string }, event) => {
         callback(data, event)
-        delete data.command.dm_v2 // make sure edit is affected
         event.source.postMessage({ source: ID, data: { command: `ws:callback:${data.eventId}`, body: data } }, { targetOrigin: event.origin })
     })
 }

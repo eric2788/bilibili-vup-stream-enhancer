@@ -68,6 +68,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
         if (position !== 'unchanged') {
             data.info[0][1] = position === 'top' ? 5 : 4
         }
+        delete data.dm_v2 // delete dm_v2 to affect the modification
     })
 
     // 此處同理
