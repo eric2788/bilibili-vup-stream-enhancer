@@ -192,7 +192,16 @@ function createApp(roomId: number, plasmo: PlasmoSpec, settings: Settings, info:
 }
 
 
+let removeHandler: VoidFunction = null
+
+// start from here
 export const render: PlasmoRender<any> = async ({ anchor, createRootContainer }, _, OverlayApp) => {
+
+  // for hot reload (if it has?)
+  if (removeHandler !== null) {
+    removeHandler()
+    removeHandler = null
+  }
 
   try {
     const roomId = getRoomId()
@@ -213,9 +222,11 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
     const rootContainer = await createRootContainer(anchor)
     const forwarder = getForwarder('command', 'content-script')
 
+    await hookAdapter(settings)
+
     const app = createApp(roomId, { rootContainer, anchor, OverlayApp }, settings, info)
 
-    forwarder.addHandler(async data => {
+    removeHandler = forwarder.addHandler(async data => {
       if (data.command === 'stop') {
         await app.stop()
       } else if (data.command === 'restart') {

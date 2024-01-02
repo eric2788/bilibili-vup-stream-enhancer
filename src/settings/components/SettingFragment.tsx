@@ -44,11 +44,11 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
             await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, settings)
             refresh()
         },
-    }), [])
+    }))
 
     const ComponentFragment = component as React.FC<StateProxy<Schema<SettingFragments[T]>>>
 
-    const fetchSettings = useCallback(() => getSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey), [props.fragmentKey, dependency])
+    const fetchSettings = useCallback(() => getSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey), [dependency])
 
     return (
         <section id={fragmentKey} className={`py-2 px-4 mx-auto max-w-screen-xl justify-center`}>

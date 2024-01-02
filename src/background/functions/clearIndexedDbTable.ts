@@ -3,6 +3,7 @@ import db, { type CommonSchema, type TableType } from "~database"
 import { getAllTables } from "~utils/database"
 
 
+// yup chrome scripting v3 supports async functions
 async function clearIndexedDbTable(table: TableType | 'all', room?: string) {
     const tables: Table<CommonSchema, number>[] = []
     if (table === 'all') {
