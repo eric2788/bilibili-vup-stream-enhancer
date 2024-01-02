@@ -8,7 +8,7 @@ import fragments, { type Schema, type SettingFragments } from "~settings"
 import SettingFragment, { type ExportRefProps } from "~settings/components/SettingFragment"
 
 import '~tailwindcss'
-import { sendMessage } from "~utils/messaging"
+import { sendMessager } from "~utils/messaging"
 import { deepCopy, sleep } from "~utils/misc"
 import { getSettingStorage } from "~utils/storage"
 

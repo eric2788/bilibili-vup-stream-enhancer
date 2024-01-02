@@ -1,11 +1,12 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging";
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 // follow from ./messages/*.ts
-import * as notify from "./messages/notify";
-import * as openTab from "./messages/open-tab";
-import * as request from "./messages/request";
-import * as getStreamUrls from "./messages/get-stream-urls";
-import * as checkUpdate from "./messages/check-update";
-import * as fetchDeveloper from "./messages/fetch-developer";
+import * as notify from "./messages/notify"
+import * as openTab from "./messages/open-tab"
+import * as request from "./messages/request"
+import * as getStreamUrls from "./messages/get-stream-urls"
+import * as checkUpdate from "./messages/check-update"
+import * as fetchDeveloper from "./messages/fetch-developer"
+import * as openWindow from './messages/open-window'
 
 export type MessagingData = typeof messagers
 
@@ -13,9 +14,9 @@ interface MessageData<T extends object, R = any> {
     default: PlasmoMessaging.MessageHandler<T, R>
 }
 
-export type Payload<T> =  T extends MessageData<infer U> ? U : never;
+export type Payload<T> =  T extends MessageData<infer U> ? U : never
 
-export type Response<T> = T extends MessageData<any, infer U> ? U : void; 
+export type Response<T> = T extends MessageData<any, infer U> ? U : void;
 
 const messagers = {
     'notify': notify,
@@ -24,6 +25,7 @@ const messagers = {
     'get-stream-urls': getStreamUrls,
     'check-update': checkUpdate,
     'fetch-developer': fetchDeveloper,
+    'open-window': openWindow
 }
 
 
