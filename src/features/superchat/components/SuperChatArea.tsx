@@ -1,18 +1,13 @@
 import type { StreamInfo } from "~api/bilibili"
 import type { Settings } from "~settings"
-import SuperChatItem, { type SuperChatItemProps } from "./SuperChatItem"
+import SuperChatItem, { type SuperChatCard } from "./SuperChatItem"
 
-
-
-export type SuperChatCard = SuperChatItemProps & { id: number }
 
 export type SuperChatAreaProps = {
     superchats: SuperChatCard[]
     settings: Settings
     info: StreamInfo
 }
-
-
 
 function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
 

@@ -10,6 +10,7 @@ export type OfflineRecordsProviderProps<T extends TableType> = {
     settings: Settings
     room: string
     table: T
+    sortBy?: keyof RecordType<T>
     reverse?: boolean
     loading: React.ReactNode
     error: (err: any, retry: VoidFunction) => React.ReactNode
@@ -19,13 +20,16 @@ export type OfflineRecordsProviderProps<T extends TableType> = {
 
 function OfflineRecordsProvider<T extends TableType>(props: OfflineRecordsProviderProps<T>): JSX.Element {
 
-    const { settings, table, feature, children, loading, error, room, reverse } = props
+    const { settings, table, feature, children, loading, error, room, reverse, sortBy } = props
     const { enabledRecording } = settings['settings.features']
 
     const getRecords = useCallback(() => {
         let records = db[table].where({ room })
         if (reverse) {
             records = records.reverse()
+        }
+        if (sortBy) {
+            return records.sortBy(sortBy.toString())
         }
         return records.toArray()
     }, [table, room])

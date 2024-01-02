@@ -8,11 +8,12 @@ declare module '~database' {
 }
 
 interface Superchat extends CommonSchema {
+    scId: number
     backgroundColor: string
-    backgroundImage: string,
-    backgroundHeaderColor: string,
-    userIcon: string,
-    nameColor: string,
+    backgroundImage: string
+    backgroundHeaderColor: string
+    userIcon: string
+    nameColor: string
     uid: number
     uname: string
     price: number
