@@ -1,18 +1,20 @@
-import { Fragment, type ChangeEvent } from "react"
-import type { StateProxy } from "~hooks/binding"
-import AffixInput from "~settings/components/AffixInput"
-import ColorInput from "~settings/components/ColorInput"
-import Hints from "~settings/components/Hints"
-import Selector from "~settings/components/Selector"
-import type { HexColor, HundredNumber, NumRange } from "~types/common"
+import { type ChangeEvent, Fragment } from 'react';
+import AffixInput from '~settings/components/AffixInput';
+import ColorInput from '~settings/components/ColorInput';
+import Hints from '~settings/components/Hints';
+import Selector from '~settings/components/Selector';
+
+import type { StateProxy } from "~hooks/binding";
+import type { HexColor, HundredNumber, NumRange } from "~types/common";
 
 export type SettingSchema = {
     size: HundredNumber
     firstLineSize: HundredNumber
-    position: 'left' | 'right' | 'center',
+    position: 'left' | 'right' | 'center'
     lineGap: HundredNumber
     color: HexColor
     animation: 'slide-x' | 'slide-y' | 'scale'
+    order: 'top' | 'bottom'
     backgroundHeight: NumRange<100, 700>
     backgroundColor: HexColor
     backgroundOpacity: HundredNumber
@@ -27,6 +29,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     lineGap: 7,
     color: '#ffffff',
     animation: 'slide-y',
+    order: 'top',
     backgroundHeight: 100,
     backgroundColor: '#808080',
     backgroundOpacity: 40,
@@ -45,7 +48,7 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
     return (
         <Fragment>
             <div>
-                <AffixInput label="字幕大小" variant="static" min={0} max={100} type="number" value={state.size} onChange={numberHandler('size')} suffix="px"  />
+                <AffixInput label="字幕大小" variant="static" min={0} max={100} type="number" value={state.size} onChange={numberHandler('size')} suffix="px" />
                 {hundredHints}
             </div>
             <div>
@@ -78,7 +81,7 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
                 <Hints values={[
                     '用户低于该等级将无视其同传弹幕, 同传man名单内的用户除外',
                     <span className="text-red-800">(UL等级过滤无法应用于隐藏同传弹幕和透明度)</span>
-                ]}/>
+                ]} />
             </div>
             <div>
                 <ColorInput label="字幕顏色" value={state.color} onChange={stringHandler('color')} />
@@ -87,6 +90,15 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
                 <AffixInput label="字幕背景高度" variant="static" min={0} max={700} type="number" value={state.backgroundHeight} onChange={numberHandler('backgroundHeight')} suffix="px" />
                 <Hints values={['范围 100 ~ 700']} />
             </div>
+            <Selector<typeof state.order>
+                label="字幕顺序"
+                value={state.order}
+                onChange={e => state.order = e}
+                options={[
+                    { value: 'top', label: '上到下' },
+                    { value: 'bottom', label: '下到上' },
+                ]}
+            />
         </Fragment>
     )
 }

@@ -1,5 +1,8 @@
-import { Checkbox, ListItem, ListItemPrefix, ListItemSuffix, Tooltip, Typography } from "@material-tailwind/react"
-import type { ChangeEventHandler } from "react"
+import {
+    Checkbox, ListItem, ListItemPrefix, ListItemSuffix, Tooltip, Typography
+} from '@material-tailwind/react';
+
+import type { ChangeEventHandler } from "react";
 
 
 export type CheckboxListItemProps = {

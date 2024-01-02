@@ -1,6 +1,6 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging"
-import { sendInternal } from "~background/messages"
-import updaters from "~updaters"
+import type { PlasmoMessaging } from "@plasmohq/messaging";
+import { sendInternal } from '~background/messages';
+import updaters from '~updaters';
 
 export const browser = process.env.PLASMO_BROWSER || 'chrome'
 

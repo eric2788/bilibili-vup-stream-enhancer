@@ -1,10 +1,9 @@
-import { tab } from "@material-tailwind/react";
+import { sendForward } from '~background/forwards';
+import { sendInternal } from '~background/messages';
+import { getSettingStorage, setSettingStorage } from '~utils/storage';
+
+
 import type { PlasmoMessaging } from "@plasmohq/messaging";
-import { sendForward } from "~background/forwards";
-import { sendInternal } from "~background/messages";
-import { getSettingStorage, setSettingStorage } from "~utils/storage";
-
-
 export type RequestBody = {
     roomId: string,
     sourceUrl?: string
@@ -12,7 +11,7 @@ export type RequestBody = {
 
 
 
-const handler: PlasmoMessaging.MessageHandler<RequestBody>  = async (req, res) => {
+const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) => {
 
     const { roomId, sourceUrl } = req.body
 

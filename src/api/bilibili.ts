@@ -1,10 +1,11 @@
 import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData";
-import type { GetInfoByRoomResponse, RoomInitResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse } from "~types/bilibili";
-import { w_rid } from "~utils/bilibili";
-import { fetchSameOriginBase, fetchSameOriginV1, retryCatcher } from "~utils/fetch";
-import func from "~utils/func";
-import { sendMessager } from "~utils/messaging";
-import { identifyVup } from "./vtb-moe";
+import type { GetInfoByRoomResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili";
+import { w_rid } from '~utils/bilibili';
+import { fetchSameCredentialV1, retryCatcher } from '~utils/fetch';
+import func from '~utils/func';
+import { sendMessager } from '~utils/messaging';
+
+import { identifyVup } from './vtb-moe';
 
 export type StreamInfo = {
     room: string
@@ -17,7 +18,7 @@ export type StreamInfo = {
 }
 
 export async function getStreamInfo(room: string): Promise<StreamInfo> {
-    const data = await fetchSameOriginV1<GetInfoByRoomResponse>(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${room}`)
+    const data = await fetchSameCredentialV1<GetInfoByRoomResponse>(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${room}`)
     return {
         room: room.toString(),
         title: data.room_info.title,
@@ -29,6 +30,22 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
     }
 }
 
+
+export async function ensureLogin(): Promise<boolean> {
+   try {
+    const data = await fetchSameCredentialV1<WebInterfaceNavResponse>('https://api.bilibili.com/x/web-interface/nav')
+    return data.isLogin
+   } catch(err: Error | any) {
+    if (err instanceof Error) {
+        throw err
+    }
+    const res = (err as V1Response<WebInterfaceNavResponse>)
+    if (res.data) {
+        return res.data.isLogin
+    }
+    throw res
+   }
+}
 
 export async function ensureIsVtuber(info: StreamInfo): Promise<StreamInfo> {
     // real vtuber identification
@@ -49,7 +66,7 @@ export async function isNativeVtuber(uid: string | number): Promise<boolean> {
     let page = 1
 
     while (true) {
-        const data = await fetchSameOriginV1<SpecAreaRankResponse>(`https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${page}`)
+        const data = await fetchSameCredentialV1<SpecAreaRankResponse>(`https://api.live.bilibili.com/xlive/activity-interface/v1/bls2020/getSpecAreaRank?act_id=23&_=1607569699845&period=1&team=1&page=${page}`)
         if (data.list === null) return false // 沒有資料了
 
         for (const { uid: user, tag } of data.list) {
@@ -87,7 +104,7 @@ export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> 
 
 
 export async function getNeptuneIsMyWaifu<K extends keyof NeptuneIsMyWaifu>(key: K): Promise<NeptuneIsMyWaifu[K]> {
-    const result = await sendMessager('inject-js', {
+    const result = await sendMessager('inject-func', {
         function: func.inject('getBLiveCachedData')(key)
     })
     if (!result || result.length === 0) return undefined

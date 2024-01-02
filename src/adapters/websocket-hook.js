@@ -1,11 +1,12 @@
+import { injectFuncAsListener } from "~utils/event"
+import { sendBLiveMessage } from "~utils/messaging"
+import brotliPromise from 'brotli-dec-wasm'
+
 // @名称  bliveproxy
 // @版本  0.4
 // @描述  B站直播websocket hook框架
 // @作者  xfgryujk
 // @来源  https://ngabbs.com/read.php?tid=24449759
-
-import { addWindowMessageListener, sendWindowMessage } from "~utils/messaging"
-import brotliPromise from 'brotli-dec-wasm'
 
 // 其修改和使用已经经过 xfgryujk 本人的授权
 
@@ -19,33 +20,14 @@ const OP_HEARTBEAT_REPLY = 3 // WS_OP_HEARTBEAT_REPLY
 const OP_SEND_MSG_REPLY = 5 // WS_OP_MESSAGE
 const OP_AUTH_REPLY = 8 // WS_OP_CONNECT_SUCCESS
 
-let textEncoder = new TextEncoder()
-let textDecoder = new TextDecoder()
+const textEncoder = new TextEncoder()
+const textDecoder = new TextDecoder()
 
-function initApi() {
-  window.proxyLaunched = true
-}
+let brotli = null
+let hooked = false
+let abortController = {}
 
-//修改掛接方式，將不再採用Proxy
-async function hook() {
-  const brotli = await brotliPromise
-  console.log('injecting websocket..')
-  WebSocket.prototype._send = WebSocket.prototype.send;
-  WebSocket.prototype.send = function (data) {
-    this._send(data);
-    const onmsg = this.onmessage
-    if (onmsg instanceof Function) {
-      this.onmessage = function (msg) {
-        myOnMessage(msg, onmsg, brotli)
-      }
-      console.log('websocket injected.')
-    }
-    this.send = this._send
-  }
-}
-
-
-function myOnMessage(event, realOnMessage, brotli) {
+function myOnMessage(event, realOnMessage) {
   if (!(event.data instanceof ArrayBuffer)) {
     realOnMessage(event)
     return
@@ -54,7 +36,7 @@ function myOnMessage(event, realOnMessage, brotli) {
   function callRealOnMessageByPacket(packet) {
     realOnMessage({ ...event, data: packet })
   }
-  handleMessage(data, callRealOnMessageByPacket, brotli)
+  handleMessage(data, callRealOnMessageByPacket)
     .catch(e => {
       console.warn(`error encountered. use back old packet: ${e.message}`)
       console.warn(e)
@@ -62,7 +44,7 @@ function myOnMessage(event, realOnMessage, brotli) {
     })
 }
 
-function makePacketFromCommand(command, ver) {
+function makePacketFromCommand(command) {
   let body = textEncoder.encode(JSON.stringify(command))
   return makePacketFromUint8Array(body, OP_SEND_MSG_REPLY)
 }
@@ -86,7 +68,7 @@ function makePacketFromUint8Array(body, operation) {
   return packet
 }
 
-async function handleMessage(data, callRealOnMessageByPacket, brotli) {
+async function handleMessage(data, callRealOnMessageByPacket) {
   let dataView = new DataView(data.buffer)
   let operation = dataView.getUint32(8)
 
@@ -117,7 +99,7 @@ async function handleMessage(data, callRealOnMessageByPacket, brotli) {
             case WS_BODY_PROTOCOL_VERSION_BROTLI: {
               // body是压缩过的多个消息
               body = brotli.decompress(body)
-              await handleMessage(body, callRealOnMessageByPacket, brotli)
+              await handleMessage(body, callRealOnMessageByPacket)
               break
             }
             default: {
@@ -155,10 +137,10 @@ async function handleMessage(data, callRealOnMessageByPacket, brotli) {
   }
 }
 
-async function handleCommand(command, callRealOnMessageByPacket, ver) {
+async function handleCommand(command, callRealOnMessageByPacket) {
   if (command instanceof Array) {
     for (let oneCommand of command) {
-      await handleCommand(oneCommand, callRealOnMessageByPacket, ver)
+      await handleCommand(oneCommand, callRealOnMessageByPacket)
     }
     return
   }
@@ -172,53 +154,83 @@ async function handleCommand(command, callRealOnMessageByPacket, ver) {
   let editedCommand = command
 
   try {
-    editedCommand = await sendEventAndWaitResult({ cmd, command })
+    editedCommand = await sendBLiveMessage(cmd, command, abortController.signal)
   } catch (err) {
     console.warn(err)
   }
 
-  let packet = makePacketFromCommand(editedCommand, ver)
+  let packet = makePacketFromCommand(editedCommand)
   callRealOnMessageByPacket(packet)
 }
 
-async function sendEventAndWaitResult({ cmd, command }) {
+//修改掛接方式，將不再採用Proxy
+async function hook() {
+  // singleton
+  if (brotli === null) {
+    brotli = await brotliPromise
+  }
+
+  if (hooked) {
+    console.warn('cannot hook websocket, please unhook first.')
+    return
+  }
+
+  console.log('injecting websocket..')
+  abortController = new AbortController()
   return new Promise((res, rej) => {
-
-    let timeoutId = 0
-
-    const removeListener = addWindowMessageListener('blive-ws', (data, event) => {
-      if (event.origin !== window.location.origin) {
-        return
+    // 先前已經掛接過，直接進行快速掛接
+    if (WebSocket.prototype.onInterceptMessage) {
+      WebSocket.prototype.onInterceptMessage = function (msg, realOnMessage) {
+        myOnMessage(msg, realOnMessage)
       }
-
-      if (timeoutId !== 0) {
-        clearTimeout(timeoutId)
+      console.log('websocket speed injected.')
+      hooked = true
+      res()
+      return
+    }
+    WebSocket.prototype.onInterceptMessage = function (msg, realOnMessage) {
+      myOnMessage(msg, realOnMessage)
+    }
+    WebSocket.prototype._send = WebSocket.prototype.send
+    WebSocket.prototype.send = function (data) {
+      this._send(data);
+      const onmsg = this.onmessage
+      if (onmsg instanceof Function) {
+        this.onmessage = function (event) {
+          this.onInterceptMessage(event, onmsg)
+        }
+        console.log('websocket injected.')
+        hooked = true
+        res()
+      } else {
+        rej('cannot hook websocket, onmessage is not a function.')
       }
+      this.send = this._send
+    }
+  })
+}
 
-      removeListener()
-
-      res(data)
-    })
-
-    sendWindowMessage('blive-ws', { cmd, command })
-
-    timeoutId = setTimeout(() => {
-      removeListener()
-      rej('事件處理已逾時')
-    }, 500)
-
+async function unhook() {
+  if (!hooked) {
+    console.warn('websocket not hooked.')
+    return
+  }
+  console.log('unhooking websocket..')
+  if (abortController) {
+    abortController.abort()
+    console.log('aborted all waiting events')
+  }
+  return new Promise((res,) => {
+    WebSocket.prototype.onInterceptMessage = function (msg, realOnMessage) {
+      realOnMessage(msg)
+    }
+    console.log('websocket unhooked.')
+    hooked = false
+    abortController = null
+    res()
   })
 }
 
 
-function main() {
-  if (window.proxyLaunched) {
-    console.info('bliveproxy already launched.')
-    return
-  }
-  initApi()
-  hook()
-}
-
-
-main()
+injectFuncAsListener(hook)
+injectFuncAsListener(unhook)

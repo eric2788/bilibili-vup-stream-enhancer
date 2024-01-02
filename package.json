@@ -1,7 +1,7 @@
 {
   "name": "bilibili-jimaku-filter",
   "displayName": "Bilibili jimaku filter",
-  "version": "2.0-alpha.1",
+  "version": "2.0",
   "description": "功能衆多的同傳字幕過濾插件",
   "author": "Eric Lam <tsukiko852@gmail.com>",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "dev": "yarn clean && plasmo dev",
     "dev:opera": "yarn dev --target=opera-mv3",
     "dev:firefox": "yarn dev --target=firefox-mv3",
-    "build": "plasmo build --no-minify --source-maps",
+    "build": "plasmo build --source-maps --no-minify",
     "package": "plasmo package",
     "clean": "rm -rf build && rm -rf .plasmo"
   },
@@ -29,7 +29,9 @@
     "react": "18.2.0",
     "react-contexify": "^6.0.0",
     "react-dom": "18.2.0",
+    "react-rnd": "^10.4.1",
     "react-state-proxy": "^1.4.11",
+    "sonner": "^1.3.1",
     "tailwindcss": "3.3.5",
     "virtual-scroller": "^1.12.4"
   },
@@ -50,14 +52,26 @@
       "*://api.vtbs.moe/*",
       "*://api.live.bilibili.com/*",
       "*://live.bilibili.com/*",
-      "*://*.bilivideo.com/*"
+      "*://*.bilivideo.com/*",
+      "*://*.ericlamm.xyz/*"
     ],
     "permissions": [
       "notifications",
       "storage",
       "tabs",
       "contextMenus",
-      "scripting"
+      "scripting",
+      "activeTab"
+    ],
+    "web_accessible_resources": [
+      {
+        "matches": [
+          "*://live.bilibili.com/*"
+        ],
+        "resources": [
+          "*.wasm"
+        ]
+      }
     ],
     "browser_specific_settings": {
       "gecko": {
@@ -66,16 +80,6 @@
         "strict_min_version": "78.0"
       }
     },
-    "web_accessible_resources": [
-      {
-        "resources": [
-          "*.wasm"
-        ],
-        "matches": [
-          "*://live.bilibili.com/*"
-        ]
-      }
-    ],
     "content_security_policy": {
       "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
     },

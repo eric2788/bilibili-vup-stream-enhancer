@@ -1,6 +1,6 @@
-import * as command from './forwards/command'
-import * as jimaku from './forwards/jimaku'
-import * as redirect from './forwards/redirect'
+import * as command from './forwards/command';
+import * as jimaku from './forwards/jimaku';
+import * as redirect from './forwards/redirect';
 
 export type ForwardData = typeof forwards
 
@@ -48,11 +48,6 @@ export function sendForward<T extends keyof ForwardData, V extends ForwardBody<F
     sendForwardInternal<T, C, V>(target, command, body, queryInfo)
 }
 
-
-export function sendRedirect<T extends keyof ForwardData, V extends ForwardBody<ForwardData[T]>, C extends ChannelType>(fromTarget: C, toTarget: ChannelType, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
-    sendForwardInternal<'redirect', C, ForwardInfo<any>>(fromTarget, 'redirect', { command, body, target: toTarget } , queryInfo)
-}
-
 function sendForwardInternal<T extends keyof ForwardData, C extends ChannelType, V = ForwardBody<ForwardData[T]>>(target: C, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
     const message: ForwardInfo<V> = {
         target,
@@ -60,10 +55,10 @@ function sendForwardInternal<T extends keyof ForwardData, C extends ChannelType,
         body
     }
     if (target === 'background' || target === 'pages') {
-        chrome.runtime.sendMessage(message)
+        chrome.runtime.sendMessage(message).catch(console.warn)
     } else if (target === 'content-script') {
         chrome.tabs.query(queryInfo ?? { active: true }, (tabs) => {
-            tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message))
+            tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, message).catch(console.warn))
         })
     }
 }

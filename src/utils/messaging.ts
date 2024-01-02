@@ -1,17 +1,18 @@
-import { sendToBackground } from "@plasmohq/messaging"
-import { getPort } from "@plasmohq/messaging/port"
-import { sendInternal, type MessagingData, type Payload as MsgPayload, type Response as MsgResponse } from "~background/messages"
-import type { Payload as PortPayload, Response as PortResponse, PortingData } from "~background/ports"
-import { isBackgroundScript } from "./file"
+import type {
+    MessagingData,
+    Payload as MsgPayload,
+    Response as MsgResponse
+} from '~background/messages';
+import type { Payload as PortPayload, Response as PortResponse, PortingData } from "~background/ports";
+
+import type { BLiveDataWild } from "~types/bilibili";
+import { getPort } from '@plasmohq/messaging/port';
+import { sendToBackground } from '@plasmohq/messaging';
 
 const ID = 'bilibili-jimaku-filter'
 
 export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]> | void> {
-    if (isBackgroundScript()) {
-        return sendInternal(name, body, sender)
-    } else {
-        return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
-    }
+    return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
 }
 
 export async function sendMessagerFromMain<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, extensionId: string = 'ooofiabfmndbfglabnjmnmpdmddehido'): Promise<MsgResponse<MessagingData[T]> | void> {
@@ -22,20 +23,54 @@ export async function sendPort<T extends keyof PortingData>(name: T, body: PortP
     return getPort(name).postMessage({ body })
 }
 
-export function addWindowMessageListener(command: string, callback: (data: object, event: MessageEvent) => void): VoidFunction {
+export function addWindowMessageListener(command: string, callback: (data: any, event: MessageEvent) => void, signal?: AbortSignal): VoidFunction {
     const listener = (e: MessageEvent) => {
         if (e.source !== window) return
         if (e.data.source === ID && e.data.data.command === command) {
             const content = e.data.data.body
             callback(content, e)
-            e.source.postMessage({ source: ID, data: { command, body: content } }, e.origin)
         }
     }
-    window.addEventListener('message', listener)
+    window.addEventListener('message', listener, { capture: false, signal })
     return () => window.removeEventListener('message', listener)
 }
 
 
-export function sendWindowMessage(command: string, body: object) {
+export function addBLiveMessageCommandListener<K extends string>(command: K, callback: (command: BLiveDataWild<K>, event: MessageEvent) => void): VoidFunction {
+    return addBLiveMessageListener<K>((data, event) => {
+        if (data.cmd === command) {
+            callback(data.command, event)
+        }
+    })
+}
+
+export function addBLiveMessageListener<K extends string>(callback: (data: { cmd: K, command: BLiveDataWild<K> }, event: MessageEvent) => void): VoidFunction {
+    return addWindowMessageListener('blive-ws', (data: { cmd: K, command: BLiveDataWild<K>, eventId: string }, event) => {
+        callback(data, event)
+        delete data.command.dm_v2 // make sure edit is affected
+        event.source.postMessage({ source: ID, data: { command: `ws:callback:${data.eventId}`, body: data } }, { targetOrigin: event.origin })
+    })
+}
+
+export function sendWindowMessage(command: string, body: any) {
     window.postMessage({ source: ID, data: { command, body } }, '*')
+}
+
+
+export function sendBLiveMessage<K extends string>(cmd: K, command: BLiveDataWild<K>, signal?: AbortSignal): Promise<BLiveDataWild<K>> {
+    const eventId = window.crypto.randomUUID()
+    return new Promise((res, rej) => {
+        const removeListener = addWindowMessageListener(`ws:callback:${eventId}`, (data: { cmd: K, command: BLiveDataWild<K> }, event) => {
+            if (event.origin !== window.location.origin) {
+                return
+            }
+            removeListener()
+            res(data.command)
+        }, signal)
+        setTimeout(() => {
+            removeListener()
+            rej('事件處理已逾時')
+        }, 500)
+        sendWindowMessage('blive-ws', { cmd, command, eventId })
+    })
 }

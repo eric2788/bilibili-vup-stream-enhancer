@@ -1,8 +1,7 @@
-import { ThemeProvider } from "@material-tailwind/react";
-import { usePreferredColorScheme } from "@react-hooks-library/core";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from 'react';
 
-
+import { ThemeProvider } from '@material-tailwind/react';
+import { usePreferredColorScheme } from '@react-hooks-library/core';
 
 export type SettingThemeProviderProps = {
     children: React.ReactNode
@@ -38,7 +37,7 @@ const lightTheme: MaterialTheme = {
     },
     iconButton: {
         defaultProps: {
-            color: 'white'
+            color: 'black'
         }
     },
     button: {
@@ -108,7 +107,7 @@ function BJFThemeProvider({ children, dark, controller }: SettingThemeProviderPr
     }, [dark, systemColor])
 
     useEffect(() => {
-        
+
         const darkMedia = dark === true || (dark === undefined && systemColor === 'dark')
         if (darkMedia) {
             htmls.forEach(html => html.classList.add('dark'))

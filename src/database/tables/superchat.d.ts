@@ -1,5 +1,5 @@
-import { type Table } from "dexie";
-import { type CommonSchema } from "~database";
+import { Table } from 'dexie';
+import { CommonSchema } from '~database';
 
 declare module '~database' {
     interface IndexedDatabase {
@@ -11,5 +11,7 @@ interface Superchat extends CommonSchema {
     text: string
     color: string
     price: number
-    sender: string
+    uname: string
+    uid: number
+    hash: string
 }

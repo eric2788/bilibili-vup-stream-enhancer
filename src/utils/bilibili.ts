@@ -1,9 +1,11 @@
-import { md5 } from "hash-wasm";
-import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili";
-import { sendMessager } from "./messaging";
-import { localStorage } from "./storage";
-import type { Settings } from "~settings";
+import { md5 } from 'hash-wasm';
+
+import { sendMessager } from './messaging';
+import { localStorage } from './storage';
+
 import type { StreamInfo } from "~api/bilibili";
+import type { Settings } from "~settings";
+import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili";
 
 export function getRoomId(url: string = location.pathname): string {
     return /^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id

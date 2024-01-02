@@ -1,6 +1,6 @@
-import { useClickOutside } from "@react-hooks-library/core"
-import { useRef, useState } from "react"
+import { useRef, useState } from 'react';
 
+import { useClickOutside } from '@react-hooks-library/core';
 
 export type SelectorOption<T> = {
     value: T
@@ -21,7 +21,7 @@ export type SelectorProps<T> = {
 function Selector<T = any>(props: SelectorProps<T>): JSX.Element {
 
 
-    const [ isOpen, setOpen ] = useState(false)
+    const [isOpen, setOpen] = useState(false)
     const dropdownRef = useRef(null);
 
     useClickOutside(dropdownRef, () => setOpen(false))

@@ -1,3 +1,4 @@
+import type { NumRange } from "~types/common"
 
 
 export async function sleep(ms: number) {
@@ -59,4 +60,30 @@ export function toStreamingTime(live_time?: number): string {
         return getTimeStamp()
     }
     return toTimer(Math.round(Date.now() / 1000) - live_time)
+}
+
+export function rgba(hex: string, opacity: number): string {
+    let c: any;
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+        c = hex.substring(1).split('')
+        if (c.length == 3) {
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]]
+        }
+        c = '0x' + c.join('')
+        return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + `,${opacity.toFixed(1)})`
+    }
+    console.warn('bad Hex: ' + hex)
+    return hex
+}
+
+export function randomString(radix: NumRange<2, 36> = 16): string {
+    return Math.random().toString(radix).slice(2)
+}
+
+export function randomRange(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+export function randomNumber(length: number = 20): number {
+    return Math.round(Math.random() * (10 ** length))
 }

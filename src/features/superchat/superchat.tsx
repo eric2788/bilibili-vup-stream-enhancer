@@ -1,4 +1,4 @@
-import type { FeatureHookRender } from ".";
+import type { FeatureHookRender } from "..";
 
 
 

@@ -1,6 +1,6 @@
-import getBLiveCachedData from "./getBLiveCachedData";
-import getWindowVariable from "./getWindowVariable";
-import clearIndexedDbTable from './clearIndexedDbTable';
+import getBLiveCachedData from './getBLiveCachedData';
+import getWindowVariable from './getWindowVariable';
+
 export interface InjectableFunction<T extends InjectableFunctionType> {
     name: T
     args: InjectableFunctionParameters<T>
@@ -16,16 +16,9 @@ export type InjectableFunctionReturnType<T extends InjectableFunctionType> = Ret
 
 const functions = {
     getWindowVariable,
-    getBLiveCachedData,
-    clearIndexedDbTable
+    getBLiveCachedData
 }
 
-export function injectFunction<T extends InjectableFunctionType>(name: T, ...args: InjectableFunctionParameters<T>) {
-    return {
-        name,
-        args
-    }
-}
 
 export default functions
 

@@ -1,6 +1,7 @@
-import semver from 'semver'
-import { sendMessager } from '~utils/messaging'
-import type { UpdateAction, UpdateChecker } from '.'
+import semver from 'semver';
+import { sendInternal } from '~background/messages';
+
+import type { UpdateAction, UpdateChecker } from '.';
 
 interface UpdateInfo {
     version: string
@@ -19,7 +20,7 @@ export const checkUpdate: UpdateChecker = async (version: string): Promise<chrom
             status: 'no_update'
         }
     }
-    const { addons } = await sendMessager('request', { url: update_url })
+    const { addons } = await sendInternal('request', { url: update_url })
     if (!addons) {
         console.error('Cannot get addons from update_url')
         return {

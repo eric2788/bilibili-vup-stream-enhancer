@@ -1,8 +1,9 @@
-import { type BaseResponse, type CommonResponse, type V1Response } from "~types/bilibili"
-import { sleep } from "./misc"
+import type { BaseResponse, CommonResponse, V1Response } from '~types/bilibili';
 
-export async function fetchSameOrigin<T extends object = any>(url: string): Promise<T> {
-  const res = await fetch(url, { credentials: 'same-origin' })
+import { sleep } from './misc';
+
+export async function fetchSameCredential<T extends object = any>(url: string): Promise<T> {
+  const res = await fetch(url, { credentials: 'include' })
   if (!res.ok) {
     throw new Error(res.statusText)
   }
@@ -12,20 +13,20 @@ export async function fetchSameOrigin<T extends object = any>(url: string): Prom
 
 const defaultHandle = <R extends CommonResponse<any>>(data: R) => {
   if (data.code != 0) {
-    throw new Error(`B站API请求错误: ${data.message}`)
+    throw data
   }
 }
 
-export function fetchSameOriginWith<R extends CommonResponse<any>>(validate: (b: R, url: string) => void = defaultHandle): <T = any>(url: string) => Promise<T> {
+export function fetchSameCredentialWith<R extends CommonResponse<any>>(validate: (b: R, url: string) => void = defaultHandle): <T = any>(url: string) => Promise<T> {
   return async <T = any>(url: string) => {
-    const data = await fetchSameOrigin<R>(url)
+    const data = await fetchSameCredential<R>(url)
     validate(data, url)
     return data.data as T
   }
 }
 
-export const fetchSameOriginBase = fetchSameOriginWith<BaseResponse<any>>()
-export const fetchSameOriginV1 = fetchSameOriginWith<V1Response<any>>()
+export const fetchSameCredentialBase = fetchSameCredentialWith<BaseResponse<any>>()
+export const fetchSameCredentialV1 = fetchSameCredentialWith<V1Response<any>>()
 
 
 /**
@@ -42,7 +43,7 @@ export async function withRetries<T>(
   job: () => Promise<T>,
   maxTimes: number,
   info: {
-    onRetry?: (err: Error | any) => void,
+    onRetry?: (err: Error | any, times: number) => void,
     onFinalErr?: (err: Error | any) => void
   } = {}
 ): Promise<T> {
@@ -57,7 +58,7 @@ export async function withRetries<T>(
         info.onFinalErr ? info.onFinalErr(err) : console.error(`重試${maxTimes}次后依然錯誤，已略過`, err)
         throw err
       }
-      info.onRetry ? info.onRetry(err) : console.warn(`請求錯誤，5秒後重試`, err)
+      info.onRetry ? info.onRetry(err, retryTimes) : console.warn(`請求錯誤，5秒後重試`, err)
       await sleep(5000)
       retryTimes++
     }

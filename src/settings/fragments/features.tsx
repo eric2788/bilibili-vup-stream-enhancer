@@ -1,16 +1,15 @@
-import { Collapse, IconButton, List, Switch, Typography } from "@material-tailwind/react"
-import { type ChangeEvent } from "react"
-import { ensureIsVtuber, isNativeVtuber, type StreamInfo } from "~api/bilibili"
-import { sendInternal } from "~background/messages"
-import type { TableType } from "~database"
-import type { FeatureType } from "~features"
-import type { StateProxy } from "~hooks/binding"
-import SwitchListItem from "~settings/components/SwitchListItem"
-import { retryCatcher } from "~utils/fetch"
-import func from "~utils/func"
+import { type ChangeEvent } from 'react';
+import { type StreamInfo, ensureIsVtuber, isNativeVtuber } from '~api/bilibili';
+import SwitchListItem from '~settings/components/SwitchListItem';
+import { retryCatcher } from '~utils/fetch';
+import func from '~utils/func';
+import { sendMessager } from '~utils/messaging';
 
+import { Collapse, IconButton, List, Switch, Typography } from '@material-tailwind/react';
 
-
+import type { TableType } from "~database";
+import type { FeatureType } from "~features";
+import type { StateProxy } from "~hooks/binding";
 export type SettingSchema = {
     enabledFeatures: FeatureType[],
     enabledRecording: FeatureType[],
@@ -124,12 +123,12 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
         if (!confirm(`确定要清空所有${title}吗？`)) return
         try {
             //TODO: clear records
-            await sendInternal('notify', {
+            await sendMessager('notify', {
                 title: '清空成功',
                 message: `所有${title}记录已经清空。`
             })
         } catch (err: Error | any) {
-            await sendInternal('notify', {
+            await sendMessager('notify', {
                 title: '清空失败',
                 message: `清空${title}记录失败: ${err.message}`
             })
@@ -155,7 +154,7 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
 }
 
 export async function shouldInit(roomId: string, settings: SettingSchema, info: StreamInfo): Promise<boolean> {
-    
+
     if (!info) {
         // do log
         console.info('無法取得直播資訊，已略過')

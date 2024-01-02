@@ -1,25 +1,33 @@
-import { Button, Drawer, IconButton, Tooltip, Typography } from "@material-tailwind/react"
-import { useToggle } from "@react-hooks-library/core"
-import styleText from "data-text:~style.css"
-import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo"
-import extIcon from 'raw:~assets/icon.png'
-import { Fragment, useEffect } from "react"
-import { createRoot, type Root } from "react-dom/client"
-import { getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from "~api/bilibili"
-import { getForwarder, sendForward } from "~background/forwards"
-import BLiveThemeProvider from "~components/BLiveThemeProvider"
-import { shouldInit, type Settings } from "~settings"
-import { getRoomId, getStreamInfoByDom } from "~utils/bilibili"
-import { withFallbacks, withRetries } from "~utils/fetch"
-import { sendMessager } from "~utils/messaging"
-import { getFullSettingStroage } from "~utils/storage"
-import features, { type FeatureType } from "../features"
-import { injectFunction } from "~background/functions"
+import '~toaster';
+
+import styleText from 'data-text:~style.css';
+import extIcon from 'raw:~assets/icon.png';
+import { Fragment, useEffect } from 'react';
+import { type Root, createRoot } from 'react-dom/client';
+import { toast } from 'sonner/dist';
+import { type StreamInfo, ensureLogin, getNeptuneIsMyWaifu, getStreamInfo } from '~api/bilibili';
+import { getForwarder, sendForward } from '~background/forwards';
+import BLiveThemeProvider from '~components/BLiveThemeProvider';
+import { useWebScreenChange } from '~hooks/bilibili';
+import { getRoomId, getStreamInfoByDom } from '~utils/bilibili';
+import { withFallbacks, withRetries } from '~utils/fetch';
+import { injectAdapter } from '~utils/inject';
+import { sendMessager } from '~utils/messaging';
+import { getFullSettingStroage } from '~utils/storage';
+
+import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
+import { useToggle } from '@react-hooks-library/core';
+
+import features, { type FeatureType } from '../features';
+import { type Settings, shouldInit } from '../settings';
+
+import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
 
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
-  all_frames: true
+  all_frames: true,
+  run_at: 'document_end'
 }
 
 export const getStyle: PlasmoGetStyle = () => {
@@ -27,6 +35,7 @@ export const getStyle: PlasmoGetStyle = () => {
   style.textContent = styleText
   return style
 }
+
 
 
 interface RootMountable {
@@ -53,7 +62,14 @@ interface App {
 const getStreamInfoFallbacks = [
 
   // 1. 使用 API (重試 5 次)
-  (room: string) => () => withRetries(() => getStreamInfo(room), 5),
+  (room: string) => () => withRetries(() => getStreamInfo(room), 5, {
+    onRetry(err, i) {
+      toast.warning(`取得直播資訊失敗: ${err.message}，正在重試第${i}次...`, { position: 'top-left' })
+    },
+    onFinalErr(err) {
+      toast.error(`取得直播資訊失敗: ${err.message}, 将采用后备方式获取。`, { position: 'top-left' })
+    }
+  }),
 
   // 2. 使用腳本注入
   () => () => getNeptuneIsMyWaifu('roomInfoRes').then(r => ({
@@ -62,7 +78,8 @@ const getStreamInfoFallbacks = [
     uid: r.data.room_info.uid.toString(),
     username: r.data.anchor_info.base_info.uname,
     isVtuber: r.data.room_info.parent_area_id !== 9, // 分區辨識
-    status: r.data.room_info.live_status === 1 ? 'online' : 'offline'
+    status: r.data.room_info.live_status === 1 ? 'online' : 'offline',
+    liveTime: r.data.room_info.live_start_time
   }) as StreamInfo),
 ]
 
@@ -90,12 +107,11 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
         }
         root = createRoot(section)
         const portals = await hook(settings, info)
-        const Root: React.ReactNode = App ? await App(settings, info) : <></>
         root.render(
           <OverlayApp anchor={anchor}>
             <BLiveThemeProvider element={section}>
               <Fragment>
-                {Root}
+                {App ? <App settings={settings} info={info} /> : <></>}
                 {portals}
               </Fragment>
             </BLiveThemeProvider>
@@ -145,6 +161,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       // 依然無法取得，就略過
       if (!info) {
         console.info('無法取得直播資訊，已略過')
+        toast.warning('無法取得直播資訊，请稍后刷新页面尝试。', { position: 'top-left' })
         return
       }
 
@@ -153,12 +170,38 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
         return
       }
 
-
-      // hook adapter
-      console.info('開始注入適配器....')
-      const adapterType = settings["settings.capture"].captureMechanism
-      await sendMessager('hook-adapter', { command: 'hook', type: adapterType })
-      console.info('注入適配器完成')
+      // hook adapter (only when online)
+      if (info.status === 'online') {
+        console.info('開始注入適配器....')
+        const adapterType = settings["settings.capture"].captureMechanism
+        const hooking = injectAdapter({ command: 'hook', type: adapterType, settings: settings })
+        toast.dismiss()
+        toast.promise(hooking, {
+          loading: '正在挂接直播监听...',
+          success: '挂接成功',
+          position: 'top-left'
+        })
+        try {
+          await hooking
+        } catch (err: Error | any) {
+          console.error('hooking error: ', err)
+          toast.dismiss()
+          toast.error('挂接失敗: ' + err.message, {
+            action: {
+              label: '重試',
+              onClick: () => this.start()
+            },
+            position: 'top-left',
+            duration: 6000000,
+            dismissible: false
+          })
+          return
+        }
+        console.info('注入適配器完成')
+      } else {
+        console.info('直播尚未開始或已下線，將不會注入適配器')
+        // 但依然會渲染元素
+      }
 
       // 渲染主元素
       root = createRoot(section)
@@ -175,29 +218,42 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
         </OverlayApp>
       )
       console.info('渲染主元素完成')
+
       // 渲染功能元素
       console.info('開始渲染元素....')
       await Promise.all(mounters.map(m => m.mount(settings)))
       console.info('渲染元素完成')
+
     },
     stop: async () => {
       if (root === null) {
         console.warn('root is null, maybe not mounted yet')
         return
       }
-      // 卸載主元素
-      console.info('開始卸載主元素....')
-      root.unmount()
-      console.info('卸載主元素完成')
+
+      // unhook adapters
+      console.info('開始移除適配器....')
+      const unhooking = sendMessager('hook-adapter', { command: 'unhook' })
+      toast.dismiss()
+      toast.promise(unhooking, {
+        loading: '正在移除直播监听挂接...',
+        success: '移除成功',
+        error: (err) => '移除失敗: ' + err,
+        position: 'top-left'
+      })
+      await unhooking
+      console.info('移除適配器完成')
+
       // 卸載功能元素
       console.info('開始卸載元素....')
       await Promise.all(mounters.map(m => m.unmount()))
       console.info('卸載元素完成')
 
-      // unhook adapters
-      console.info('開始移除適配器....')
-      await sendMessager('hook-adapter', { command: 'unhook'})
-      console.info('移除適配器完成')
+      // 卸載主元素
+      console.info('開始卸載主元素....')
+      root.unmount()
+      console.info('卸載主元素完成')
+
     }
   }
 }
@@ -215,11 +271,21 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
   }
 
   try {
+
     const roomId = getRoomId()
 
     if (!roomId) {
       console.info('找不到房間號，已略過: ', location.pathname)
       return
+    }
+
+
+    const login = await ensureLogin()
+
+    console.info('login: ', login)
+
+    if (!login) {
+      toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
     }
 
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
@@ -263,7 +329,6 @@ function App(props: AppProps): JSX.Element {
   const {
     "settings.display": displaySettings,
     "settings.features": featureSettings,
-    "settings.button": buttonSettings
   } = settings
 
   const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
@@ -278,6 +343,13 @@ function App(props: AppProps): JSX.Element {
     return <></>
   }
 
+
+  const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
+
+
+  if (screenStatus !== 'normal' && !displaySettings.supportWebFullScreen) {
+    return <></>
+  }
 
   const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: location.href } })
   const addBlackList = () => confirm(`确定添加房间 ${roomId} 到黑名单?`) && sendMessager('add-black-list', { roomId })
@@ -294,7 +366,7 @@ function App(props: AppProps): JSX.Element {
           <span className="text-md text-gray-800 dark:text-white">同传过滤</span>
         </button>
       </div>
-      <Drawer placement="right" open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
+      <Drawer placement={screenStatus === 'normal' ? 'right' : 'left'} open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
         <main className="flex flex-col justify-between h-full">
           <section>
             <div className="mb-3 flex items-center justify-between text-ellipsis">
