@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import PromiseHandler from '~components/PromiseHandler';
-import db, { RecordType, TableType } from '~database';
-
+import db, { type RecordType, type TableType } from '~database';
 import type { FeatureType } from "~features";
 import type { Settings } from "~settings";
 
@@ -9,6 +8,7 @@ import type { Settings } from "~settings";
 export type OfflineRecordsProviderProps<T extends TableType> = {
     feature: FeatureType
     settings: Settings
+    room: string
     table: T
     loading: React.ReactNode
     error: (err: any, retry: VoidFunction) => React.ReactNode
@@ -18,11 +18,15 @@ export type OfflineRecordsProviderProps<T extends TableType> = {
 
 function OfflineRecordsProvider<T extends TableType>(props: OfflineRecordsProviderProps<T>): JSX.Element {
 
-    const { settings, table, feature, children, loading, error } = props
+    const { settings, table, feature, children, loading, error, room } = props
     const { enabledRecording } = settings['settings.features']
 
-    const [fetcher, setFetcher] = useState<() => Promise<unknown>>(() => db[table].toArray())
-    const retry = () => setFetcher(() => db[table].toArray())
+    const getRecords = useCallback(() => {
+        return db[table].where({ room }).toArray()
+    }, [table, room])
+
+    const [fetcher, setFetcher] = useState<() => Promise<unknown>>(getRecords)
+    const retry = () => setFetcher(getRecords)
 
     return (
         <>

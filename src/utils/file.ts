@@ -1,4 +1,4 @@
-import { glob, IOptions } from 'glob';
+import { glob, type IOptions } from 'glob';
 
 // Imporntant!!! Only Node.js can use this function.
 export function getTSFiles(dirPath: string, options?: IOptions): string[] {

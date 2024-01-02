@@ -98,6 +98,7 @@ const handler: FeatureHookRender = async (settings, info) => {
         createPortal(
             <TailwindScope>
                 <OfflineRecordsProvider
+                    room={info.room}
                     feature="jimaku"
                     settings={settings}
                     table="jimakus"
