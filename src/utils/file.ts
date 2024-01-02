@@ -63,3 +63,9 @@ export function* getModuleStreamSync(dirPath: string, options: IOptions = { igno
 export function isBackgroundScript(): boolean {
     return chrome.tabs !== undefined
 }
+
+
+
+export function getResourceName(url: string): string {
+    return url.split('/').pop().split('?')[0]
+}

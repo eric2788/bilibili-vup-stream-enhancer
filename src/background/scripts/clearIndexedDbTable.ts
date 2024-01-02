@@ -23,4 +23,3 @@ async function clearIndexedDbTable(table: TableType | 'all', room?: string) {
 }
 
 injectFuncAsListener(clearIndexedDbTable)
-export default clearIndexedDbTable

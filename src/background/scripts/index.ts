@@ -1,5 +1,5 @@
-import clearIndexedDbTable from "./clearIndexedDbTable";
-import clearIndexedDbTableUrl from "url:./clearIndexedDbTable";
+import clearIndexedDbTable from "url:./clearIndexedDbTable";
+import test from 'url:./test'
 
 export interface InjectableScript<T extends InjectableScriptType> {
     url: string
@@ -23,10 +23,15 @@ export function injectScript<T extends InjectableScriptType>(name: T, ...args: I
     }
 }
 
+// TODO: make prototype but without getManifest error
 const scripts = {
     clearIndexedDbTable: {
-        prototype: clearIndexedDbTable,
-        url: clearIndexedDbTableUrl
+        prototype: await import(clearIndexedDbTable),
+        url: clearIndexedDbTable
+    },
+    test: {
+        prototype: await import(test),
+        url: test
     }
 }
 

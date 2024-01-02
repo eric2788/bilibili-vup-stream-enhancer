@@ -166,27 +166,20 @@ async function handleCommand(command, callRealOnMessageByPacket) {
 async function sendEventAndWaitResult({ cmd, command }) {
   const eventId = `${Math.random()}`.substring(2)
   return new Promise((res, rej) => {
-    let timeoutId = 0
-    const removeListener = addWindowMessageListener('blive-ws', (data, event) => {
+    const removeListener = addWindowMessageListener(`ws:callback:${eventId}`, (data, event) => {
       if (event.origin !== window.location.origin) {
         return
-      } else if (data.eventId !== eventId) {
-        return
-      }
-      if (timeoutId !== 0) {
-        clearTimeout(timeoutId)
       }
       removeListener()
       res(data.command)
     })
 
-    sendWindowMessage('blive-ws', { cmd, command, eventId })
-
-    timeoutId = setTimeout(() => {
+    setTimeout(() => {
       removeListener()
       rej('事件處理已逾時')
     }, 500)
 
+    sendWindowMessage('blive-ws', { cmd, command, eventId })
   })
 }
 
@@ -203,35 +196,42 @@ async function hook() {
   }
 
   console.log('injecting websocket..')
-  WebSocket.prototype._send = WebSocket.prototype.send
-  WebSocket.prototype.send = function (data) {
-    this._send(data);
-    onmsg = this.onmessage
-    if (onmsg instanceof Function) {
-      this.onmessage = function (msg) {
-        myOnMessage(msg, onmsg)
+  return new Promise((res, rej) => {
+    WebSocket.prototype._send = WebSocket.prototype.send
+    WebSocket.prototype.send = function (data) {
+      this._send(data);
+      onmsg = this.onmessage
+      if (onmsg instanceof Function) {
+        this.onmessage = function (msg) {
+          myOnMessage(msg, onmsg)
+        }
+        console.log('websocket injected.')
+        res()
+      } else {
+        rej('cannot hook websocket, onmessage is not a function.')
       }
-      console.log('websocket injected.')
+      this.send = this._send
     }
-    this.send = this._send
-  }
+  })
 }
 
-function unhook() {
+async function unhook() {
   if (onmsg === null) {
     console.warn('websocket not hooked.')
     return
   }
-
   console.log('unhooking websocket..')
-  WebSocket.prototype._send = WebSocket.prototype.send
-  WebSocket.prototype.send = function (data) {
-    this._send(data);
-    this.onmessage = onmsg
-    this.send = this._send
-  }
-  onmsg = null
-  console.log('websocket unhooked.')
+  return new Promise((res,) => {
+    WebSocket.prototype._send = WebSocket.prototype.send
+    WebSocket.prototype.send = function (data) {
+      this._send(data);
+      this.onmessage = onmsg
+      this.send = this._send
+      onmsg = null
+      console.log('websocket unhooked.')
+      res()
+    }
+  })
 }
 
 
