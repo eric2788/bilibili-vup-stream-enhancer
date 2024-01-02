@@ -87,7 +87,7 @@ export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> 
 
 
 export async function getNeptuneIsMyWaifu<K extends keyof NeptuneIsMyWaifu>(key: K): Promise<NeptuneIsMyWaifu[K]> {
-    const result = await sendMessager('inject-js', {
+    const result = await sendMessager('inject-func', {
         function: func.inject('getBLiveCachedData')(key)
     })
     if (!result || result.length === 0) return undefined

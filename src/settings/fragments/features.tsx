@@ -1,13 +1,13 @@
 import { Collapse, IconButton, List, Switch, Typography } from "@material-tailwind/react"
 import { type ChangeEvent } from "react"
 import { ensureIsVtuber, isNativeVtuber, type StreamInfo } from "~api/bilibili"
-import { sendInternal } from "~background/messages"
 import type { TableType } from "~database"
 import type { FeatureType } from "~features"
 import type { StateProxy } from "~hooks/binding"
 import SwitchListItem from "~settings/components/SwitchListItem"
 import { retryCatcher } from "~utils/fetch"
 import func from "~utils/func"
+import { sendMessager } from "~utils/messaging"
 
 
 
@@ -124,12 +124,12 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
         if (!confirm(`确定要清空所有${title}吗？`)) return
         try {
             //TODO: clear records
-            await sendInternal('notify', {
+            await sendMessager('notify', {
                 title: '清空成功',
                 message: `所有${title}记录已经清空。`
             })
         } catch (err: Error | any) {
-            await sendInternal('notify', {
+            await sendMessager('notify', {
                 title: '清空失败',
                 message: `清空${title}记录失败: ${err.message}`
             })

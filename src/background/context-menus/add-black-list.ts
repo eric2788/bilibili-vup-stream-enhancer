@@ -1,10 +1,5 @@
-import { getPort } from '@plasmohq/messaging/port'
-import { sendForward } from '~background/forwards'
-import command from '~background/forwards/command'
 import { sendInternal } from '~background/messages'
 import { getRoomId } from '~utils/bilibili'
-import { sendMessager } from '~utils/messaging'
-import { getSettingStorage, setSettingStorage } from '~utils/storage'
 
 export const properties: chrome.contextMenus.CreateProperties = {
     id: 'add-black-list',
@@ -21,7 +16,7 @@ export default async function (info: chrome.contextMenus.OnClickData, tab?: chro
 
     if (!roomId) {
         console.warn(`unknown room id (${url.pathname})`)
-        await sendMessager('notify', {
+        await sendInternal('notify', {
             title: '添加失败',
             message: `未知的直播间: ${url.pathname}`
         })

@@ -1,17 +1,12 @@
 import { sendToBackground } from "@plasmohq/messaging"
 import { getPort } from "@plasmohq/messaging/port"
-import { sendInternal, type MessagingData, type Payload as MsgPayload, type Response as MsgResponse } from "~background/messages"
+import { type MessagingData, type Payload as MsgPayload, type Response as MsgResponse } from "~background/messages"
 import type { Payload as PortPayload, Response as PortResponse, PortingData } from "~background/ports"
-import { isBackgroundScript } from "./file"
 
 const ID = 'bilibili-jimaku-filter'
 
 export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]> | void> {
-    if (isBackgroundScript()) {
-        return sendInternal(name, body, sender)
-    } else {
-        return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
-    }
+    return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
 }
 
 export async function sendMessagerFromMain<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, extensionId: string = 'ooofiabfmndbfglabnjmnmpdmddehido'): Promise<MsgResponse<MessagingData[T]> | void> {

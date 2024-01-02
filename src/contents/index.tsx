@@ -8,13 +8,12 @@ import { createRoot, type Root } from "react-dom/client"
 import { getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from "~api/bilibili"
 import { getForwarder, sendForward } from "~background/forwards"
 import BLiveThemeProvider from "~components/BLiveThemeProvider"
-import { shouldInit, type Settings } from "~settings"
 import { getRoomId, getStreamInfoByDom } from "~utils/bilibili"
 import { withFallbacks, withRetries } from "~utils/fetch"
 import { sendMessager } from "~utils/messaging"
 import { getFullSettingStroage } from "~utils/storage"
 import features, { type FeatureType } from "../features"
-import { injectFunction } from "~background/functions"
+import { shouldInit, type Settings } from "../settings"
 
 
 export const config: PlasmoCSConfig = {
@@ -157,7 +156,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
       // hook adapter
       console.info('開始注入適配器....')
       const adapterType = settings["settings.capture"].captureMechanism
-      await sendMessager('hook-adapter', { command: 'hook', type: adapterType })
+      await sendMessager('hook-adapter', { command: 'hook', type: adapterType, settings: settings })
       console.info('注入適配器完成')
 
       // 渲染主元素

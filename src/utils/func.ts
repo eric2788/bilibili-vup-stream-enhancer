@@ -67,7 +67,7 @@ export function wrap<T extends (...args: any[]) => any, R extends Parameters<T>>
  * const result = myFunction('arg1', 'arg2');
  * 
  * // Then run it for background sendMessagers
- * const result = await sendMessager('inject-js', { function: result });
+ * const result = await sendMessager('inject-func', { function: result });
  */
 export function inject<K extends InjectableFunctionType>(key: K): (...args: InjectableFunctionParameters<K>) => InjectableFunction<K> {
     return (...args) => ({ name: key as K, args })
