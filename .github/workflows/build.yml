@@ -1,0 +1,50 @@
+name: Build Extensions
+on:
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                browser: [chrome, firefox, edge]
+        steps:
+            - uses: actions/checkout@v2
+            - name: Setup Node.js
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 20
+            - name: Install dependencies
+              run: yarn
+            - name: Build And Package Extensions
+              run: yarn build --zip --target=${{ matrix.browser }}-mv3
+            # upload to github artifacts for each browser with matrix
+            - name: Upload to GitHub Artifacts
+              uses: actions/upload-artifact@v2
+              with:
+                  name: ${{ matrix.browser }}-mv3.zip
+                  path: dist/
+    publish:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            # download artifacts
+            - name: Download Artifacts
+              uses: actions/download-artifact@v2
+              with:
+                  path: dist/
+            # publish with BPP
+            - name: Browser Platform Publish
+              uses: PlasmoHQ/bpp@v3
+              with:
+                keys: ${{ secrets.SUBMIT_KEYS }}
+    sign-firefox:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            # download artifacts
+            - name: Download Artifacts
+              uses: actions/download-artifact@v2
+              with:
+                  path: dist/
+            # sign and export xpi without publish to store
