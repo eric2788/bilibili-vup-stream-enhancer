@@ -11,6 +11,7 @@ import * as listings from './fragments/listings'
 export type SettingFragment<T extends object> = {
     defaultSettings: Readonly<T>
     default: React.FC<StateProxy<T>>
+    title: string
 }
 
 export interface SettingFragments {
@@ -22,6 +23,9 @@ export interface SettingFragments {
     'jimaku': SettingFragment<jimaku.SettingSchema>
     'listings': SettingFragment<listings.SettingSchema>
 }
+
+
+export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
 
 const fragments: SettingFragments = {
     'button': button,
@@ -35,3 +39,4 @@ const fragments: SettingFragments = {
 
 
 export default fragments
+
