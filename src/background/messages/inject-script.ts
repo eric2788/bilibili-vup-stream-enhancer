@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import { getScriptUrl, type InjectableScript } from "~background/scripts";
-import { dispatchFuncEvent } from "~utils/event";
+import { dispatchFuncEvent, isFuncEventResult, type FuncEventResult } from "~utils/event";
 import { getResourceName } from "~utils/file";
 
 export type RequestBody = {
@@ -11,12 +11,11 @@ export type RequestBody = {
     script?: InjectableScript<any>
 }
 
-export type ResponseBody = chrome.scripting.InjectionResult<any>[]
+export type ResponseBody = FuncEventResult & { result?: any }
 
 // the chrome.runtime undefined error will only throw on development at once
 const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
 
-    let result: chrome.scripting.InjectionResult<any>[] = []
     const fileUrl: string = req.body.script ? getScriptUrl(req.body.script) : req.body.fileUrl
     const funcName: string = req.body.script?.name ?? req.body.func
     const funcArgs: any[] = req.body.script?.args ?? req.body.args
@@ -25,31 +24,47 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         throw new Error('no fileUrl or funcName provided in inject-script handler.')
     }
 
+    const results: chrome.scripting.InjectionResult<any>[] = []
+
     if (fileUrl) {
         const file = getResourceName(fileUrl)
         console.info('injecting file: ', file)
-        result = await chrome.scripting.executeScript({
+        results.push(...await chrome.scripting.executeScript({
             target: { tabId: req.sender.tab.id },
             injectImmediately: true,
             world: 'MAIN',
             files: [file],
-        })
+        }))
     }
 
     if (funcName) {
-
         console.info('injecting function: ', funcName)
-        result = await chrome.scripting.executeScript({
+        results.push(...await chrome.scripting.executeScript({
             target: { tabId: req.sender.tab.id },
             injectImmediately: true,
             world: 'MAIN',
             func: dispatchFuncEvent,
             args: [funcName, ...(funcArgs ?? [])],
-        })
-
+        }))
     }
 
-    res.send(result)
+    const finalResults = []
+    for (const result of results) {
+        // if invoking function, always return function result
+        if (isFuncEventResult(result.result)) {
+            if (result.result.error) {
+                return res.send({ success: false, error: result.result.error })
+            }
+            return res.send({ success: true })
+        }
+
+        // if injecting file, return the result of the last script
+        if (result.result) {
+            finalResults.push(result.result)
+        }
+    }
+
+    return res.send({ success: true, result: finalResults })
 }
 
 

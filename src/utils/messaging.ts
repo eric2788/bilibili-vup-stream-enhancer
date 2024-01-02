@@ -18,7 +18,7 @@ export async function sendPort<T extends keyof PortingData>(name: T, body: PortP
     return getPort(name).postMessage({ body })
 }
 
-export function addWindowMessageListener(command: string, callback: (data: any, event: MessageEvent) => void): VoidFunction {
+export function addWindowMessageListener(command: string, callback: (data: any, event: MessageEvent) => void, signal?: AbortSignal): VoidFunction {
     const listener = (e: MessageEvent) => {
         if (e.source !== window) return
         if (e.data.source === ID && e.data.data.command === command) {
@@ -26,7 +26,7 @@ export function addWindowMessageListener(command: string, callback: (data: any, 
             callback(content, e)
         }
     }
-    window.addEventListener('message', listener, false)
+    window.addEventListener('message', listener, { capture: false, signal })
     return () => window.removeEventListener('message', listener)
 }
 
@@ -52,7 +52,7 @@ export function sendWindowMessage(command: string, body: any) {
 }
 
 
-export function sendBLiveMessage<K extends string>(cmd: K, command: BLiveDataWild<K>): Promise<BLiveDataWild<K>> {
+export function sendBLiveMessage<K extends string>(cmd: K, command: BLiveDataWild<K>, signal?: AbortSignal): Promise<BLiveDataWild<K>> {
     const eventId = window.crypto.randomUUID()
     return new Promise((res, rej) => {
         const removeListener = addWindowMessageListener(`ws:callback:${eventId}`, (data: { cmd: K, command: BLiveDataWild<K> }, event) => {
@@ -61,7 +61,7 @@ export function sendBLiveMessage<K extends string>(cmd: K, command: BLiveDataWil
             }
             removeListener()
             res(data.command)
-        })
+        }, signal)
         setTimeout(() => {
             removeListener()
             rej('事件處理已逾時')

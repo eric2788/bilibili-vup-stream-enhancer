@@ -2,11 +2,8 @@ import styleText from "data-text:~style.css";
 import type { PlasmoCSConfig, PlasmoGetStyle } from "plasmo";
 import { toast } from "sonner/dist";
 import { injectScript } from "~utils/inject";
-import { sendMessager } from "~utils/messaging";
-import iconImg from 'url:~assets/icon.png'
 
 import "~toaster";
-import TailwindScope from "~components/TailwindScope";
 
 export const config: PlasmoCSConfig = {
     matches: ["*://static.ericlamm.xyz/"],
@@ -21,23 +18,20 @@ export const getStyle: PlasmoGetStyle = () => {
 function App(): JSX.Element {
 
     const click = async () => {
-        console.info('running inject script...')
-        const running = sendMessager('inject-script', {
-            script: injectScript('testOnly')
-        })
-        toast.promise(running, {
-            loading: (
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <div>Loading....</div>
-                    <div><img src={iconImg} alt="icon" height={26} width={26} /></div>
-                </div>
-            ),
-            success: 'Running Successfully.',
-            error: 'Error',
-            position: 'top-center'
-        })
-        await running
-        console.info('inject script done.')
+        try {
+            console.info('running inject script...')
+            const running = injectScript('testOnly')
+            toast.promise(running, {
+                loading: 'Loading...',
+                success: 'Running Successfully.',
+                error: err => err.toString(),
+                position: 'top-center'
+            })
+            const result = await running
+            console.info('inject script done: ', result)
+        } catch (err: Error | any) {
+            console.warn('captured errorfrom testing.tsx: ', err)
+        }
     }
 
     return (

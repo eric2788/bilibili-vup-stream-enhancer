@@ -4,9 +4,9 @@
 // @作者  xfgryujk
 // @来源  https://ngabbs.com/read.php?tid=24449759
 
-import { addWindowMessageListener, sendBLiveMessage, sendWindowMessage } from "~utils/messaging"
 import brotliPromise from 'brotli-dec-wasm'
 import { injectFuncAsListener } from "~utils/event"
+import { sendBLiveMessage } from "~utils/messaging"
 
 // 其修改和使用已经经过 xfgryujk 本人的授权
 
@@ -24,8 +24,8 @@ const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
 
 let brotli = null
-let onmsg = null
-
+let hooked = false
+let abortController = {}
 
 function myOnMessage(event, realOnMessage) {
   if (!(event.data instanceof ArrayBuffer)) {
@@ -154,7 +154,7 @@ async function handleCommand(command, callRealOnMessageByPacket) {
   let editedCommand = command
 
   try {
-    editedCommand = await sendBLiveMessage({ cmd, command })
+    editedCommand = await sendBLiveMessage(cmd, command, abortController.signal)
   } catch (err) {
     console.warn(err)
   }
@@ -170,22 +170,37 @@ async function hook() {
     brotli = await brotliPromise
   }
 
-  if (onmsg !== null) {
+  if (hooked) {
     console.warn('cannot hook websocket, please unhook first.')
     return
   }
 
   console.log('injecting websocket..')
+  abortController = new AbortController()
   return new Promise((res, rej) => {
+    // 先前已經掛接過，直接進行快速掛接
+    if (WebSocket.prototype.onInterceptMessage) {
+      WebSocket.prototype.onInterceptMessage = function (msg, realOnMessage) {
+        myOnMessage(msg, realOnMessage)
+      }
+      console.log('websocket speed injected.')
+      hooked = true
+      res()
+      return
+    }
+    WebSocket.prototype.onInterceptMessage = function (msg, realOnMessage) {
+      myOnMessage(msg, realOnMessage)
+    }
     WebSocket.prototype._send = WebSocket.prototype.send
     WebSocket.prototype.send = function (data) {
       this._send(data);
-      onmsg = this.onmessage
+      const onmsg = this.onmessage
       if (onmsg instanceof Function) {
-        this.onmessage = function (msg) {
-          myOnMessage(msg, onmsg)
+        this.onmessage = function (event) {
+          this.onInterceptMessage(event, onmsg)
         }
         console.log('websocket injected.')
+        hooked = true
         res()
       } else {
         rej('cannot hook websocket, onmessage is not a function.')
@@ -196,21 +211,23 @@ async function hook() {
 }
 
 async function unhook() {
-  if (onmsg === null) {
+  if (!hooked) {
     console.warn('websocket not hooked.')
     return
   }
   console.log('unhooking websocket..')
+  if (abortController) {
+    abortController.abort()
+    console.log('aborted all waiting events')
+  }
   return new Promise((res,) => {
-    WebSocket.prototype._send = WebSocket.prototype.send
-    WebSocket.prototype.send = function (data) {
-      this._send(data);
-      this.onmessage = onmsg.bind(this)
-      this.send = this._send
-      onmsg = null
-      console.log('websocket unhooked.')
-      res()
+    WebSocket.prototype.onInterceptMessage = function (msg, realOnMessage) {
+      realOnMessage(msg)
     }
+    console.log('websocket unhooked.')
+    hooked = false
+    abortController = null
+    res()
   })
 }
 

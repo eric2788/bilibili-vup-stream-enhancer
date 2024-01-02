@@ -48,30 +48,6 @@ export function sendForward<T extends keyof ForwardData, V extends ForwardBody<F
     sendForwardInternal<T, C, V>(target, command, body, queryInfo)
 }
 
-
-/**
- * Sends a redirect message to a specified channel.
- *
- * @template T - The type of the command. Must be a key of `ForwardData`.
- * @template V - The type of the body of the forward data. Must be a `ForwardBody` of `ForwardData[T]`.
- * @template C - The type of the channel. Must be a `ChannelType`.
- *
- * @param {C} fromTarget - The channel from which the message is being redirected.
- * @param {ChannelType} toTarget - The channel to which the message is being redirected.
- * @param {T} command - The command of the forward data.
- * @param {V} body - The body of the forward data.
- * @param {ChannelQueryInfo[C]} [queryInfo] - The query info for the content-script channel.
- *
- * @returns {void}
- *
- * @example
- * // Redirecting a forward message from the "pages" channel to the "background" channel with command "update" and body { version: "1.0.0" }
- * sendRedirect("pages", "background", "update", { version: "1.0.0" });
- */
-export function sendRedirect<T extends keyof ForwardData, V extends ForwardBody<ForwardData[T]>, C extends ChannelType>(fromTarget: C, toTarget: ChannelType, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
-    sendForwardInternal<'redirect', C>(fromTarget, 'redirect', { command, body, target: toTarget, queryInfo } , queryInfo)
-}
-
 function sendForwardInternal<T extends keyof ForwardData, C extends ChannelType, V = ForwardBody<ForwardData[T]>>(target: C, command: T, body: V, queryInfo?: ChannelQueryInfo[C]): void {
     const message: ForwardInfo<V> = {
         target,

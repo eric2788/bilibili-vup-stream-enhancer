@@ -38,7 +38,7 @@ const lightTheme: MaterialTheme = {
     },
     iconButton: {
         defaultProps: {
-            color: 'white'
+            color: 'black'
         }
     },
     button: {
