@@ -1,6 +1,6 @@
 
 import storage from '~/utils/storage'
-import { sendNotify } from '~utils/messaging'
+import { sendBackground } from '~utils/messaging'
 import { sendViaRelay } from '@plasmohq/messaging/relay'
 import { getRoomId } from '~utils/misc'
 
@@ -27,7 +27,7 @@ export default async function (info: chrome.contextMenus.OnClickData, tab?: chro
             body: { roomId }
         })
     } else {
-        await sendNotify({
+        await sendBackground('notify', {
             title: '你已添加过此房间到黑名单。',
             message: '已略过操作。'
         })

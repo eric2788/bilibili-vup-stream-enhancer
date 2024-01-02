@@ -3,15 +3,15 @@ export async function sleep(ms: number) {
 }
 
 export function toTimer(secs: number): string {
-    const hr = Math.floor(secs / 3600);
-    secs %= 3600;
-    const min = Math.floor(secs / 60);
-    secs %= 60;
+    const hr = Math.floor(secs / 3600)
+    secs %= 3600
+    const min = Math.floor(secs / 60)
+    secs %= 60
 
-    const mu = min > 9 ? `${min}` : `0${min}`;
-    const ms = secs > 9 ? `${secs}` : `0${secs}`;
+    const mu = min > 9 ? `${min}` : `0${min}`
+    const ms = secs > 9 ? `${secs}` : `0${secs}`
 
-    return `${hr}:${mu}:${ms}`;
+    return `${hr}:${mu}:${ms}`
 }
 
 

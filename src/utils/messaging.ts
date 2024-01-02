@@ -1,17 +1,6 @@
-import { sendToBackground, type PlasmoMessaging, type MessagesMetadata } from "@plasmohq/messaging";
+import { sendToBackground, type MessagesMetadata } from "@plasmohq/messaging"
+import { type MessagingData } from "~background/messaging"
 
-async function sendData(name: keyof MessagesMetadata, body: any){
-    return sendToBackground({name, body});
-}
-
-export async function sendRequest(url: string, timer = 15000) {
-    return sendData("request", { url, timer });
-}
-
-export async function sendNotify(body: {title: string, message: string | string[]}) {
-    return sendData("notify", body);
-}
-
-export async function checkUpdate() {
-    return sendData("check-update", {});
+export async function sendBackground<T extends keyof MessagesMetadata>(name: T, body: MessagingData[T]) {
+    return sendToBackground({name, body})
 }
