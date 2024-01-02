@@ -1,6 +1,4 @@
-import { useEffect, useRef } from 'react';
-
-
+import { useCallback, useEffect, useRef } from 'react';
 
 type ScrollOptimizeOptions<E extends Element> = {
     root: React.MutableRefObject<E>
@@ -20,7 +18,7 @@ export function useScrollOptimizer<E extends Element = Element>(options: ScrollO
         const observer = new IntersectionObserver((list) => {
             for (const entry of list) {
                 if (entry.isIntersecting) {
-                    (entry.target as HTMLElement).style.visibility = 'unset'
+                    (entry.target as HTMLElement).style.visibility = 'visible'
                 } else {
                     (entry.target as HTMLElement).style.visibility = 'hidden'
                 }
@@ -46,11 +44,24 @@ export function useRowOptimizer<E extends HTMLElement>(observerRef: React.Mutabl
 
     const ref = useRef<E>(null)
 
-    useEffect(() => {
-        observer?.observe(ref.current)
-        return () => observer?.unobserve(ref.current)
+    const refCallback = useCallback((node: E) => {
+        if (ref.current) {
+            observer?.unobserve(ref.current)
+        }
+        if (node) {
+            ref.current = node
+            observer?.observe(ref.current)
+        }
     }, [observer])
 
-    return ref
+    useEffect(() => {
+        return () => {
+            if (ref.current) {
+                observer?.unobserve(ref.current)
+            }
+        }
+    }, [])
+
+    return refCallback
 
 }

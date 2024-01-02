@@ -1,14 +1,12 @@
-import type { StreamInfo } from "~api/bilibili"
-import { toast } from 'sonner/dist';
-import { sendForward } from '~background/forwards';
+import type { Jimaku } from "./JimakuLine";
+import JimakuButton from './JimakuButton';
+import type { Settings } from "~settings";
+import type { StreamInfo } from "~api/bilibili";
 import db from '~database';
 import { download } from '~utils/file';
 import { sendMessager } from '~utils/messaging';
+import { toast } from 'sonner/dist';
 
-import JimakuButton from './JimakuButton';
-
-import type { Settings } from "~settings"
-import type { Jimaku } from "./JimakuLine"
 export type ButtonAreaProps = {
     settings: Settings,
     info: StreamInfo
@@ -25,17 +23,19 @@ function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): 
 
     const deleteRecords = () => {
         const deleting = async () => {
+            let count = jimakus.length
             if (features.enabledRecording.includes('jimaku')) {
-                await db.jimakus
+                count = await db.jimakus
                     .where({ room: info.room })
                     .delete()
             }
             clearJimaku()
+            return count
         }
         toast.promise(deleting, {
             loading: `正在删除房间 ${info.room} 的所有字幕记录...`,
             error: (err) => `删除字幕记录失败: ${err}`,
-            success: `已删除房间 ${info.room} 的所有字幕记录`,
+            success: (count) => `已删除房间 ${info.room} 共${count}条字幕记录`,
             position: 'bottom-center'
         })
     }

@@ -1,19 +1,16 @@
 import { Fragment, useRef, useState } from 'react';
-import { sendForward } from '~background/forwards';
-import db from '~database';
-import { useBLiveMessageCommand } from '~hooks/message';
 import { getTimeStamp, randomString, toStreamingTime } from '~utils/misc';
 
-import { useInterval } from '@react-hooks-library/core';
-
-import { parseJimaku } from '../';
 import ButtonArea from './ButtonArea';
-import JimakuArea from './JimakuArea';
-
-import type { StreamInfo } from "~api/bilibili";
-import type { Settings } from "~settings";
 import type { Jimaku } from "./JimakuLine";
-
+import JimakuArea from './JimakuArea';
+import type { Settings } from "~settings";
+import type { StreamInfo } from "~api/bilibili";
+import db from '~database';
+import { parseJimaku } from '../';
+import { sendForward } from '~background/forwards';
+import { useBLiveMessageCommand } from '~hooks/message';
+import { useInterval } from '@react-hooks-library/core';
 
 export type JimakuCaptureLayerProps = {
     offlineRecords: Jimaku[]
@@ -34,8 +31,11 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
     // 離線時，由於沒有注入適配器，此處的訊息監聽器不會被觸發
     useBLiveMessageCommand('DANMU_MSG', (data) => {
+        // 超大型字体
+        if (Array.isArray(data.info[1])) return
         const jimaku = parseJimaku(data.info[1], regex)
         //if (jimaku === undefined) return
+        //console.info(`[BJF] ${data.info[2][1]}: ${jimaku}`)
         console.info(`[BJF] ${data.info[2][1]} => ${data.info[1]} (${data.info[0][5]})`)
         const datetime = useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp()
         const jimakuBlock = {
@@ -60,7 +60,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
         if (enabledRecording.includes('jimaku')) {
             db.jimakus
                 .add({ ...jimaku, room: info.room })
-                .then(() => console.info(`[BJF] ${jimaku.uname}(${jimaku.uid}) 的同传弹幕已记录`))
+                .then(() => console.debug(`[BJF] ${jimaku.uname}(${jimaku.uid}) 的同传弹幕已记录`))
                 .catch((err) => console.error(`[BJF] ${jimaku.uname}(${jimaku.uid}) 的同传弹幕记录失败`, err))
         }
     }, 500)
