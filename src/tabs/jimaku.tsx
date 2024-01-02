@@ -1,15 +1,11 @@
 
-import { Navbar, Typography, IconButton, Menu, MenuHandler, MenuList, MenuItem, Checkbox, List, ListItem } from "@material-tailwind/react";
-import { Fragment, useState, useEffect, lazy, Suspense, memo, useRef } from "react";
-import BJFThemeProvider from "~components/BJFThemeProvider";
+import { Checkbox, IconButton, List, ListItem, Menu, MenuHandler, MenuItem, MenuList, Navbar, Typography } from "@material-tailwind/react";
+import { Fragment, memo, useEffect, useRef, useState } from "react";
 import VirtualScroller from "virtual-scroller/react";
+import BJFThemeProvider from "~components/BJFThemeProvider";
 
-import '~tailwindcss'
-import Jimaku from "~features/jimaku";
-import { useMessage, usePort } from "@plasmohq/messaging/hook";
 import { useForwarder } from "~hooks/forwarder";
-import { useBinding } from "~hooks/binding";
-import { stateProxy } from "react-state-proxy";
+import '~tailwindcss';
 
 
 export type Jimaku = {

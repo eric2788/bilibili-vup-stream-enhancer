@@ -15,7 +15,7 @@ interface SettingFragment<T extends object> {
     title: string
 }
 
-export type SettingFragments = typeof fragments 
+export type SettingFragments = typeof fragments
 
 export type Schema<T> = T extends SettingFragment<infer U> ? U : never;
 

@@ -1,11 +1,10 @@
-import { Collapse, Spinner } from "@material-tailwind/react"
-import { useStorage } from "@plasmohq/storage/hook"
-import { forwardRef, useImperativeHandle, type Ref, useEffect, useRef, useState, useCallback, useMemo } from "react"
+import { Collapse } from "@material-tailwind/react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from "react"
 import PromiseHandler from "~components/PromiseHandler"
-import { asStateProxy, useBinding, type StateProxy, type ExposeHandler } from "~hooks/binding"
+import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding"
 import { useForceUpdate } from "~hooks/force-update"
 import fragments, { type Schema, type SettingFragments } from "~settings"
-import { deepCopy, sleep } from "~utils/misc"
+import { deepCopy } from "~utils/misc"
 import { getSettingStorage, setSettingStorage } from "~utils/storage"
 
 

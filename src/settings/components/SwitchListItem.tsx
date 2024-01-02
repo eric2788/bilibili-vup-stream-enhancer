@@ -1,4 +1,4 @@
-import { Switch, Typography, ListItem, ListItemSuffix, ListItemPrefix } from "@material-tailwind/react"
+import { ListItem, ListItemPrefix, ListItemSuffix, Switch, Typography } from "@material-tailwind/react"
 import type { colors } from "@material-tailwind/react/types/generic"
 import type { ChangeEventHandler } from "react"
 
@@ -36,7 +36,7 @@ function SwitchListItem(props: SwitchListItemProps): JSX.Element {
                             <Typography className="font-medium">
                                 {props.label instanceof Function ? props.label(props.value) : props.label}
                             </Typography>
-                            {props.hint && <Typography variant="small"  className="font-normal">
+                            {props.hint && <Typography variant="small" className="font-normal">
                                 {props.hint}
                             </Typography>}
                         </div>

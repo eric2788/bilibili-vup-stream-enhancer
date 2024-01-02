@@ -1,5 +1,5 @@
-import { getRoomId } from '~utils/bilibili'
 import { getPort } from '@plasmohq/messaging/port'
+import { getRoomId } from '~utils/bilibili'
 import { sendMessager } from '~utils/messaging'
 
 export const properties: chrome.contextMenus.CreateProperties = {

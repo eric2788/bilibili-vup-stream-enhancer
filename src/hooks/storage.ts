@@ -1,5 +1,5 @@
-import { useStorage as useStorageApi } from "@plasmohq/storage/hook"
-import { storage } from "~utils/storage"
+import { useStorage as useStorageApi } from "@plasmohq/storage/hook";
+import { storage } from "~utils/storage";
 
 
 type Setter<T> = ((v?: T, isHydrated?: boolean) => T) | T;
