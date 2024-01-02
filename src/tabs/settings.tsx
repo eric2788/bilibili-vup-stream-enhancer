@@ -1,5 +1,6 @@
 import { Button } from "@material-tailwind/react"
-import React, { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { Fragment, useEffect, useRef, useState } from "react"
+import { sendInternal } from "~background/messages"
 import BJFThemeProvider from "~components/BJFThemeProvider"
 import { useBinding } from "~hooks/binding"
 import { useLoader } from "~hooks/loader"
@@ -7,8 +8,7 @@ import fragments, { type Schema, type SettingFragments } from "~settings"
 import SettingFragment, { type ExportRefProps } from "~settings/components/SettingFragment"
 
 import '~tailwind'
-import { sendBackground } from "~utils/messaging"
-import { isDarkTheme, sleep } from "~utils/misc"
+import { sleep } from "~utils/misc"
 
 document.title = '字幕过滤设定'
 
@@ -16,7 +16,6 @@ const toggleMap = Object.fromEntries(Object.keys(fragments).map(key => [key, fal
 
 const fragmentKeys = Object.keys(fragments) as (keyof SettingFragments)[]
 
-// ========================
 
 function SettingPage(): JSX.Element {
 
@@ -48,7 +47,7 @@ function SettingPage(): JSX.Element {
                 return
             }
             await Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
-            await sendBackground('notify', {
+            await sendInternal('notify', {
                 title: '保存设定成功',
                 message: '所有设定已经保存成功。'
             })
@@ -57,7 +56,7 @@ function SettingPage(): JSX.Element {
         }
     }, (err) => {
         console.error(err)
-        sendBackground('notify', {
+        sendInternal('notify', {
             title: '保存设定失败',
             message: err.message
         })
@@ -163,3 +162,4 @@ function SettingApp(): JSX.Element {
 }
 
 export default SettingApp
+

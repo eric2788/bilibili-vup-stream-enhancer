@@ -31,7 +31,6 @@ export async function sendInternal<K extends keyof MessagingData, R = Response<M
     return new Promise((resolve, reject) => {
         const response: PlasmoMessaging.Response<R> = {
             send: (responseBody) => {
-                console.log(`Response from ${name}:`, responseBody);
                 resolve(responseBody)
             }
         };

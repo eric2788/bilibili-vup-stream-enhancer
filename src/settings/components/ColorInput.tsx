@@ -1,7 +1,6 @@
 import { Input, type InputProps } from "@material-tailwind/react"
-import { type ChangeEvent, type RefAttributes } from "react"
+import { type RefAttributes } from "react"
 import type { HexColor } from "~types"
-import AffixInput from "./AffixInput"
 
 
 export type ColorInputProps = {
