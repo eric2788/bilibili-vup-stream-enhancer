@@ -125,6 +125,13 @@ function SettingPage(): JSX.Element {
                 form.current.reportValidity()
                 return
             }
+            if (fragmentRefs.every(ref => ref.current.saveSettings === undefined)) {
+                await sendMessager('notify', {
+                    title: '无需保存设定',
+                    message: '没有设定被变更。'
+                })
+                return
+            }
             await Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
             await sendMessager('notify', {
                 title: '保存设定成功',
