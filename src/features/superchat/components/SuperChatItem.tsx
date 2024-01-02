@@ -1,6 +1,6 @@
 
 
-export type SuperChatCard = SuperChatItemProps & { id: number }
+export type SuperChatCard = SuperChatItemProps & { id: number, date: string, hash: string }
 
 export type SuperChatItemProps = {
     backgroundColor: string
@@ -12,6 +12,7 @@ export type SuperChatItemProps = {
     uname: string
     price: number
     message: string
+    timestamp: number
 }
 
 function SuperChatItem(props: SuperChatItemProps): JSX.Element {

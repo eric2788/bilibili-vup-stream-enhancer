@@ -8,16 +8,11 @@ import type { SuperChatList } from "~types/bilibili";
 import { fetchSameCredentialBase } from "~utils/fetch";
 import { type SuperChatCard } from "./components/SuperChatItem";
 import SuperChatCaptureLayer from "./components/SuperChatCaptureLayer";
-
-
-
-
-export function App({ settings, info }: { settings: Settings, info: StreamInfo }): JSX.Element {
-    return null
-}
-
+import { randomString, toStreamingTime, toTimer } from "~utils/misc";
 
 const handler: FeatureHookRender = async (settings, info) => {
+
+    const { useStreamingTime } = settings['settings.features']
 
     const { list } = await fetchSameCredentialBase<SuperChatList>(`https://api.live.bilibili.com/av/v1/SuperChat/getMessageList?room_id=${info.room}`)
     const superchats: SuperChatCard[] = (list ?? [])
@@ -28,11 +23,14 @@ const handler: FeatureHookRender = async (settings, info) => {
             backgroundImage: item.background_image,
             backgroundHeaderColor: item.background_color,
             userIcon: item.user_info.face,
-            nameColor: '#646c7a',
+            nameColor: item.font_color,
             uid: item.uid,
             uname: item.user_info.uname,
             price: item.price,
             message: item.message,
+            timestamp: item.start_time,
+            date: useStreamingTime ? toTimer(info.liveTime - item.start_time) : toStreamingTime(item.start_time),
+            hash: `${randomString()}${item.id}`
         }))
 
     return [
@@ -47,7 +45,7 @@ const handler: FeatureHookRender = async (settings, info) => {
             error={(err) => <></>}
         >
             {(records) => {
-                const offlineRecords = [...superchats, ...records.map((r) => ({...r, id: r.scId }))]
+                const offlineRecords = [...superchats, ...records.map((r) => ({ ...r, id: r.scId }))]
                 return (
                     <SuperChatCaptureLayer offlineRecords={offlineRecords} settings={settings} info={info} />
                 )

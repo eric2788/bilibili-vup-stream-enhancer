@@ -5,6 +5,8 @@ import { useBLiveMessageCommand } from "~hooks/message"
 import { useRef, useState } from "react"
 import { useInterval } from "@react-hooks-library/core"
 import SuperChatFloatingButton from "./SuperChatFloatingButton"
+import db from "~database"
+import { getTimeStamp, randomString, toStreamingTime, toTimer } from "~utils/misc"
 
 
 export type SuperChatCaptureLayerProps = {
@@ -18,6 +20,7 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
 
     const { settings, info, offlineRecords } = props
 
+    const { enabledRecording, useStreamingTime } = settings['settings.features']
     const [superchat, setSuperChat] = useState<SuperChatCard[]>(offlineRecords)
     const transactions = useRef<SuperChatCard[]>([])
 
@@ -28,11 +31,14 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
             backgroundImage: data.background_image,
             backgroundHeaderColor: data.background_color,
             userIcon: data.user_info.face,
-            nameColor: '#646c7a',
+            nameColor: data.user_info.name_color,
             uid: data.uid,
             uname: data.user_info.uname,
             price: data.price,
             message: data.message,
+            timestamp: data.start_time,
+            date: useStreamingTime ? getTimeStamp() : toStreamingTime(info.liveTime),
+            hash: `${randomString()}${data.id}`
         }
         transactions.current.push(superChatProps)
     })
@@ -42,6 +48,16 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
         if (transactions.current.length === 0) return
         const superchat = transactions.current.shift()
         setSuperChat(prev => [superchat, ...prev])
+        if (enabledRecording.includes('superchat')) {
+            db.superchats
+                .add({
+                    ...superchat,
+                    scId: superchat.id,
+                    room: info.room,
+                })
+                .then(() => console.debug(`[BJF] SuperChat: ${superchat.uname}(${superchat.price}) 的醒目留言已记录`))
+                .catch(err => console.error(`[BJF] SuperChat: ${superchat.uname}(${superchat.price}) 的醒目留言记录失败`, err))
+        }
     }, 500)
 
     return (

@@ -23,7 +23,7 @@ function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
             <hr className="my-3 border-black" />
             <section className="flex flex-col gap-3 overflow-y-auto p-[5px] overflow-x-hidden w-[300px] h-[300px]">
                 {superchats.map((item) => (
-                    <SuperChatItem key={item.id} {...item} />
+                    <SuperChatItem key={item.hash} {...item} />
                 ))}
             </section>
         </div>
