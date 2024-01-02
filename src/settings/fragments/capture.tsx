@@ -1,5 +1,5 @@
 
-import type { AdapterType } from '~content/adapters'
+import type { AdapterType } from '~contents/adapters'
 import { type StateProxy } from '~hooks/binding'
 
 
@@ -9,15 +9,13 @@ export type SettingSchema = {
     captureMechanism: AdapterType
 }
 
-
-
 export const defaultSettings: Readonly<SettingSchema> = {
     useStreamingTime: false,
     hideJimakuDanmaku: false,
     captureMechanism: 'websocket',
 }
 
-
+export const title = '字幕捕捉机制相关'
 
 function CaptureSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return (

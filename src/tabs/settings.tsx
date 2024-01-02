@@ -19,12 +19,6 @@ function SettingPage(): JSX.Element {
         console.info(`toggle collapse ${key} to ${section[key]}`)
     }
 
-
-    const [open, setOpen] = useState(false)
-
-    console.log('render!!')
-
-
     return (
         <Fragment>
             <section className="bg-gray-700 ">

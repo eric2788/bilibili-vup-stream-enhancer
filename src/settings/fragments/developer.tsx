@@ -50,6 +50,8 @@ export const defaultSettings: Readonly<SettingSchema> = {
     }
 }
 
+export const title = '开发者相关'
+
 function DeveloperSettings({state, useHandler}: StateProxy<SettingSchema>): JSX.Element {
     return <></>
 }
