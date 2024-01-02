@@ -23,8 +23,9 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
     const { settings, info, offlineRecords } = props
 
     const { jimakuPopupWindow, useStreamingTime, enabledRecording } = settings["settings.features"]
-    const { regex } = settings['settings.danmaku']
+    const { regex, color, position } = settings['settings.danmaku']
     const jimakuStyle = settings['settings.jimaku']
+    const { tongchuanBlackList, tongchuanMans } = settings['settings.listings']
 
     const [jimaku, setJimaku] = useState<Jimaku[]>(offlineRecords)
     const transactions = useRef<Jimaku[]>([])
@@ -33,9 +34,23 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
     useBLiveMessageCommand('DANMU_MSG', (data) => {
         // 超大型字体
         if (Array.isArray(data.info[1])) return
-        const jimaku = parseJimaku(data.info[1], regex)
+        const uid = data.info[2][0]
+        const uname = data.info[2][1]
+        const text = data.info[1]
+        const ul = data.info[4][0]
+        // do filtering
+        if (tongchuanBlackList.some(u => u.id === uid.toString())) {
+            console.debug(`用户 ${uname}(${uid}) 在同传黑名单内, 已略过。`)
+            return
+        }
+        const isTranslator = tongchuanMans.some(u => u.id === uid.toString())
+        if (ul < jimakuStyle.filterUserLevel && !isTranslator) return
+        let jimaku = parseJimaku(text, regex)
+        if (jimaku === undefined && isTranslator) {
+            jimaku = text
+        }
         if (jimaku === undefined) return
-        console.info(`[BJF] ${data.info[2][1]}: ${jimaku}`)
+        console.info(`[BJF] ${uname}: ${jimaku}`)
         //console.info(`[BJF] ${data.info[2][1]} => ${data.info[1]} (${data.info[0][5]})`)
         const datetime = useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp()
         const jimakuBlock = {
@@ -46,6 +61,13 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
             hash: randomString() + Date.now() + data.info[0][5],
         }
         transactions.current.push(jimakuBlock)
+        // change color and position
+        if (color) {
+            data.info[0][3] = parseInt(color.substring(1), 16)
+        }
+        if (position !== 'unchanged') {
+            data.info[0][1] = position === 'top' ? 5 : 4
+        }
     })
 
     // 此處同理
