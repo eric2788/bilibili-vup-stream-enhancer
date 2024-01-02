@@ -9,6 +9,8 @@ import { Switch, Typography } from '@material-tailwind/react';
 
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { ArrElement, PickKeys } from "~types/common";
+import { toast } from 'sonner/dist';
+
 export type UserRecord = {
     id: string,
     name: string,
@@ -83,12 +85,12 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
         const handler = (state as ExposeHandler<SettingSchema>)
 
         if (state[key].some(e => e.id === value)) {
-            alert(`用户 ${value} 已经在列表中`)
+            toast.error(`用户 ${value} 已经在列表中`)
             return
         }
         const user = await catcher(requestUserInfo(value))
         if (!user) {
-            alert(`用户 ${value} 不存在`)
+            toast.error(`用户 ${value} 不存在`)
             return
         }
         state[key].push({ id: user.mid.toString(), name: user.name, addedDate: new Date().toLocaleDateString() })
@@ -110,7 +112,7 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                             onClick: (e) => {
                                 const result = removeArr(state.tongchuanMans, e)
                                 if (!result) {
-                                    alert('删除失败')
+                                    toast.error('删除失败')
                                 }
                             }
                         }
@@ -130,7 +132,7 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                             onClick: (e) => {
                                 const result = removeArr(state.tongchuanBlackList, e)
                                 if (!result) {
-                                    alert('删除失败')
+                                    toast.error('删除失败')
                                 }
                             }
                         }
@@ -144,7 +146,7 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                     values={state.blackListRooms}
                     onAdd={(value) => {
                         if (state.blackListRooms.some(e => e.room === value)) {
-                            alert(`房间 ${value} 已经在列表中`)
+                            toast.error(`房间 ${value} 已经在列表中`)
                             return
                         }
                         state.blackListRooms.push({ room: value, addedDate: new Date().toLocaleDateString() })
@@ -156,7 +158,7 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                             onClick: (e) => {
                                 const result = removeArr(state.blackListRooms, e)
                                 if (!result) {
-                                    alert('删除失败')
+                                    toast.error('删除失败')
                                 }
                             }
                         }

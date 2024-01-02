@@ -1,6 +1,6 @@
 import '~tailwindcss';
 
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useRef } from 'react';
 import BJFThemeProvider from '~components/BJFThemeProvider';
 import { useBinding } from '~hooks/binding';
 import { useForwarder } from '~hooks/forwarder';
@@ -9,8 +9,10 @@ import fragments, { type Schema, type SettingFragments, type Settings } from '~s
 import SettingFragment, { type SettingFragmentRef } from '~settings/components/SettingFragment';
 import { download, readAsJson } from '~utils/file';
 import { sendMessager } from '~utils/messaging';
-import { arrayEqual, removeInvalidKeys, sleep } from '~utils/misc';
-import { getFullSettingStroage, sessionStorage } from '~utils/storage';
+import { arrayEqual, removeInvalidKeys } from '~utils/misc';
+import { getFullSettingStroage } from '~utils/storage';
+
+import "~toaster"
 
 import { Button } from '@material-tailwind/react';
 import { useStorageWatch } from '~hooks/storage';
