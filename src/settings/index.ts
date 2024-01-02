@@ -8,7 +8,7 @@ import * as jimaku from './fragments/jimaku'
 import * as listings from './fragments/listings'
 
 
-export type SettingFragment<T extends object> = {
+interface SettingFragment<T extends object> {
     defaultSettings: Readonly<T>
     default: React.FC<StateProxy<T>>
     title: string

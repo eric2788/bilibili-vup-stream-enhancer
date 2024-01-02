@@ -21,7 +21,7 @@ async function createNotification(option: chrome.notifications.NotificationOptio
     })
 }
 
-const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) => {
+const handler: PlasmoMessaging.MessageHandler<RequestBody, string> = async (req, res) => {
     const { title, message, buttons, onClicked } = req.body
     const id = await createNotification({
         type: 'basic',
