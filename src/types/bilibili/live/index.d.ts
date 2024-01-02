@@ -1,6 +1,6 @@
-import { DanmuMsg } from './danmu_msg';
-import { InteractWord } from './interact_word';
-import { SuperChatMessage } from './super_chat_message';
+import { DanmuMsg } from './danmu_msg'
+import { InteractWord } from './interact_word'
+import { SuperChatMessage } from './super_chat_message'
 
 export type BLiveData = {
     'DANMU_MSG': DanmuMsg,
@@ -17,4 +17,4 @@ export {
     DanmuMsg,
     InteractWord,
     SuperChatMessage
-};
+}

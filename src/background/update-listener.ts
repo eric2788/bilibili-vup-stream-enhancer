@@ -1,6 +1,6 @@
 
-import { sendInternal } from './messages';
-import { notifyUpdate } from './messages/check-update';
+import { sendInternal } from './messages'
+import { notifyUpdate } from './messages/check-update'
 
 chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDetails) => {
 

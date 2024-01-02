@@ -10,6 +10,7 @@ import { Collapse, IconButton, List, Switch, Typography } from '@material-tailwi
 import type { TableType } from "~database";
 import type { FeatureType } from "~features";
 import type { StateProxy } from "~hooks/binding";
+import { InjectScript, injectScript } from '~utils/inject';
 export type SettingSchema = {
     enabledFeatures: FeatureType[],
     enabledRecording: FeatureType[],
@@ -122,7 +123,10 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
     const deleteRecords = async () => {
         if (!confirm(`确定要清空所有${title}吗？`)) return
         try {
-            //TODO: clear records
+            const re = await sendMessager('clear-table', { table })
+            if (re instanceof Object && re.result !== 'success') {
+                throw re.error
+            }
             await sendMessager('notify', {
                 title: '清空成功',
                 message: `所有${title}记录已经清空。`

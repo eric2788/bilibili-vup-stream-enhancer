@@ -1,7 +1,7 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging";
-import { sendInternal } from '~background/messages';
-import { type TableType } from '~database';
-import { injectScript } from '~utils/inject';
+import type { PlasmoMessaging } from "@plasmohq/messaging"
+import { sendInternal } from '~background/messages'
+import { type TableType } from '~database'
+import { InjectScript, injectScript } from '~utils/inject'
 
 export type RequestBody = {
     table: TableType | 'all'
@@ -24,7 +24,10 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
             active: false,
             url: 'https://live.bilibili.com'
         })
-        await injectScript('clearIndexedDbTable', req.body.table, req.body.room)
+        await sendInternal('inject-script', { 
+            tabId: tab.id,
+            script: new InjectScript('clearIndexedDbTable', req.body.table, req.body.room)
+        })
         await chrome.tabs.remove(tab.id)
         res.send({ result: 'success' })
     } catch (err: Error | any) {

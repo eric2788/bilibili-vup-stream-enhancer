@@ -1,7 +1,7 @@
-import { type SyntheticEvent } from 'react';
-import { stateProxy, stateWrapper } from 'react-state-proxy';
+import { type SyntheticEvent } from 'react'
+import { stateProxy, stateWrapper } from 'react-state-proxy'
 
-import type { Leaves, PathLeafType, Paths, PickLeaves } from '~types/common';
+import type { Leaves, PathLeafType, Paths, PickLeaves } from '~types/common'
 
 export type StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => <R extends PickLeaves<T, W>>(k: R) => (e: E) => void
 
@@ -26,19 +26,19 @@ export type ExposeHandler<T extends object> = T & {
  *
  * @example
  * // Usage
- * const [state, useHandler] = useBinding({ text: '' });
+ * const [state, useHandler] = useBinding({ text: '' })
  * 
  * // Accessing the state object
- * console.log(state.text); // Output: ''
+ * console.log(state.text) // Output: ''
  * 
  * // Creating a handler for updating the state
- * const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value);
+ * const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value)
  * 
  * // Using the handler to update the state
  * <input onChange={handler('text')} value={state.text} />
  * 
  * // The state is updated when the input changes
- * console.log(state.text); // Output: (new value of the input)
+ * console.log(state.text) // Output: (new value of the input)
  */
 export function useBinding<T extends object>(initialState: T): [T, StateHandler<T>] {
 
@@ -73,16 +73,16 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
 
     const proxy = stateProxy<T>(state)
     const useHandler: StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => {
-        type H = ReturnType<typeof getter>;
+        type H = ReturnType<typeof getter>
         return function <R extends PickLeaves<T, H>>(k: R) {
             return (e: E) => {
-                const value = getter(e) as PathLeafType<T, R>;
-                (state as ExposeHandler<T>).set<R>(k, value);
+                const value = getter(e) as PathLeafType<T, R>
+                (state as ExposeHandler<T>).set<R>(k, value)
             }
         }
     }
 
-    return [proxy, useHandler] as const;
+    return [proxy, useHandler] as const
 }
 
 
@@ -95,14 +95,14 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
  * @returns The state proxy object containing the state and useHandler.
  * 
  * @example
- * const bindingResult = useBinding<MyStateType>();
- * const stateProxy = asStateProxy(bindingResult);
+ * const bindingResult = useBinding<MyStateType>()
+ * const stateProxy = asStateProxy(bindingResult)
  * 
  * // Access the state object
- * console.log(stateProxy.state);
+ * console.log(stateProxy.state)
  * 
  * // Access the useHandler function
- * console.log(stateProxy.useHandler);
+ * console.log(stateProxy.useHandler)
  */
 export function asStateProxy<T extends object>(result: ReturnType<typeof useBinding<T>>): StateProxy<T> {
     const [state, useHandler] = result

@@ -2,9 +2,9 @@ import {
     getForwarder,
     type ChannelType,
     type ForwardData,
-    type ForwardResponse} from '~background/forwards';
+    type ForwardResponse} from '~background/forwards'
 
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 /**
  * `useForwarder` is a React hook that creates a forwarder for sending and receiving messages between different parts of a Chrome extension.
@@ -17,15 +17,15 @@ import { useEffect } from 'react';
  * - `sendForward`: A function that sends a message with the specified command to the specified channel. The message body is passed as an argument to this function.
  *
  * @example
- * const { addHandler, sendForward } = useForwarder('myCommand', 'background');
+ * const { addHandler, sendForward } = useForwarder('myCommand', 'background')
  *
  * // Add a handler for 'myCommand' messages on the 'background' channel
  * addHandler((data) => {
- *   console.log('Received data:', data);
- * });
+ *   console.log('Received data:', data)
+ * })
  *
  * // Send a 'myCommand' message to the 'background' channel
- * sendForward('background', { myData: 'Hello, world!' });
+ * sendForward('background', { myData: 'Hello, world!' })
  */
 export function useForwarder<K extends keyof ForwardData>(key: K, target: ChannelType) {
 

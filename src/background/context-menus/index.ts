@@ -1,4 +1,4 @@
-import * as blacklist from './add-black-list';
+import * as blacklist from './add-black-list'
 
 const { contextMenus } = chrome
 

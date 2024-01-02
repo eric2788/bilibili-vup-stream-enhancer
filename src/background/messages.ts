@@ -1,20 +1,20 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging";
-import { isBackgroundScript } from '~utils/file';
-import { sendMessager } from '~utils/messaging';
+import type { PlasmoMessaging } from "@plasmohq/messaging"
+import { isBackgroundScript } from '~utils/file'
+import { sendMessager } from '~utils/messaging'
 
-import * as addBlackList from './messages/add-black-list';
+import * as addBlackList from './messages/add-black-list'
 // follow from ./messages/*.ts
-import * as checkUpdate from './messages/check-update';
-import * as clearTable from './messages/clear-table';
-import * as fetchDeveloper from './messages/fetch-developer';
-import * as getStreamUrls from './messages/get-stream-urls';
-import * as hookAdapter from './messages/hook-adapter';
-import * as injectFunc from './messages/inject-func';
-import * as injectScript from './messages/inject-script';
-import * as notify from './messages/notify';
-import * as openTab from './messages/open-tab';
-import * as openWindow from './messages/open-window';
-import * as request from './messages/request';
+import * as checkUpdate from './messages/check-update'
+import * as clearTable from './messages/clear-table'
+import * as fetchDeveloper from './messages/fetch-developer'
+import * as getStreamUrls from './messages/get-stream-urls'
+import * as hookAdapter from './messages/hook-adapter'
+import * as injectFunc from './messages/inject-func'
+import * as injectScript from './messages/inject-script'
+import * as notify from './messages/notify'
+import * as openTab from './messages/open-tab'
+import * as openWindow from './messages/open-window'
+import * as request from './messages/request'
 
 export type MessagingData = typeof messagers
 
@@ -24,7 +24,7 @@ interface MessageData<T extends object, R = any> {
 
 export type Payload<T> = T extends MessageData<infer U> ? U : never
 
-export type Response<T> = T extends MessageData<any, infer U> ? U : void;
+export type Response<T> = T extends MessageData<any, infer U> ? U : void
 
 // only use this function in background script
 // or not it will generate adapter files twice!
@@ -41,7 +41,7 @@ export async function sendInternal<K extends keyof MessagingData, R = Response<M
             send: (responseBody) => {
                 resolve(responseBody)
             }
-        };
+        }
         try {
             const o = handler({ name, body, sender }, response)
             if (o instanceof Promise) {

@@ -1,6 +1,6 @@
-import fragments, { type Schema, type SettingFragments, type Settings } from '~settings';
+import fragments, { type Schema, type SettingFragments, type Settings } from '~settings'
 
-import { Storage } from '@plasmohq/storage';
+import { Storage } from '@plasmohq/storage'
 
 export const storage = new Storage({ area: 'sync' })
 export const localStorage = new Storage({ area: 'local' })

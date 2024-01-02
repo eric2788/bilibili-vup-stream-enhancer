@@ -6,14 +6,14 @@
  * @example
  * type MyObject = {
  *   foo: {
- *     bar: string;
- *   };
- * };
- * type MyPaths = Paths<MyObject>; // "foo" | "foo.bar"
+ *     bar: string
+ *   }
+ * }
+ * type MyPaths = Paths<MyObject> // "foo" | "foo.bar"
  */
 export type Paths<T> = T extends object ? { [K in keyof T]:
     `${Exclude<K, symbol>}${"" | `.${Paths<T[K]>}`}`
-}[keyof T] : never;
+}[keyof T] : never
 
 /**
  * Represents the leaf properties of an object.
@@ -21,15 +21,15 @@ export type Paths<T> = T extends object ? { [K in keyof T]:
  * @example
  * type MyObject = {
  *   foo: {
- *     bar: string;
- *   };
- *   baz: number;
- * };
- * type MyLeaves = Leaves<MyObject>; // "foo.bar" | "baz"
+ *     bar: string
+ *   }
+ *   baz: number
+ * }
+ * type MyLeaves = Leaves<MyObject> // "foo.bar" | "baz"
  */
 export type Leaves<T> = T extends object ? { [K in keyof T]:
     `${Exclude<K, symbol>}${Leaves<T[K]> extends never ? "" : `.${Leaves<T[K]>}`}`
-}[keyof T] : never;
+}[keyof T] : never
 
 /**
  * Represents the type of a leaf property in an object given its path.
@@ -38,11 +38,11 @@ export type Leaves<T> = T extends object ? { [K in keyof T]:
  * @example
  * type MyObject = {
  *   foo: {
- *     bar: string;
- *   };
- *   baz: number;
- * };
- * type LeafType = PathLeafType<MyObject, "foo.bar">; // string
+ *     bar: string
+ *   }
+ *   baz: number
+ * }
+ * type LeafType = PathLeafType<MyObject, "foo.bar"> // string
  */
 export type PathLeafType<T, P extends Leaves<T> | Paths<T>> =
     P extends `${infer Key}.${infer Rest}`
@@ -53,7 +53,7 @@ export type PathLeafType<T, P extends Leaves<T> | Paths<T>> =
     : never
     : P extends keyof T
     ? T[P]
-    : never;
+    : never
 
 /**
  * Picks the leaf properties of an object that have a specific value type.
@@ -62,18 +62,18 @@ export type PathLeafType<T, P extends Leaves<T> | Paths<T>> =
  * @example
  * type MyObject = {
  *   foo: {
- *     bar: string;
- *   };
- *   baz: number;
+ *     bar: string
+ *   }
+ *   baz: number
  *   qux: {
- *     quux: boolean;
- *   };
- * };
- * type MyPickedLeaves = PickLeaves<MyObject, string>; // "foo.bar"
+ *     quux: boolean
+ *   }
+ * }
+ * type MyPickedLeaves = PickLeaves<MyObject, string> // "foo.bar"
  */
 export type PickLeaves<T, V> = {
     [K in Leaves<T>]: PathLeafType<T, K> extends V ? K : never
-}[Leaves<T>];
+}[Leaves<T>]
 
 
 /**
@@ -87,12 +87,12 @@ export type PickLeaves<T, V> = {
  * @example
  * // Example 1
  * type Person = {
- *   name: string;
- *   age: number;
- *   address: string;
- * };
+ *   name: string
+ *   age: number
+ *   address: string
+ * }
  *
- * type StringKeys = PickKeys<Person, string>;
+ * type StringKeys = PickKeys<Person, string>
  * // StringKeys is "name" | "address"
  *
  * // Example 2
@@ -100,11 +100,11 @@ export type PickLeaves<T, V> = {
  *   a: 1,
  *   b: 'hello',
  *   c: true,
- * };
+ * }
  *
- * type NumberKeys = PickKeys<typeof obj, number>;
+ * type NumberKeys = PickKeys<typeof obj, number>
  * // NumberKeys is "a"
  */
 export type PickKeys<T extends object, V> = {
     [K in keyof T]: T[K] extends V ? K : never
-}[keyof T];
+}[keyof T]

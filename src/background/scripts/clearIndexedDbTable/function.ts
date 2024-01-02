@@ -1,6 +1,6 @@
-import type { Table } from "dexie";
-import db,  { type CommonSchema, type TableType } from '~database';
-import { getAllTables } from '~utils/database';
+import type { Table } from "dexie"
+import db,  { type CommonSchema, type TableType } from '~database'
+import { getAllTables } from '~utils/database'
 
 async function clearIndexedDbTable(table: TableType | 'all', room?: string) {
     try {

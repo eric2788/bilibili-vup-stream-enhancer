@@ -1,7 +1,7 @@
 // 描述來源: https://github.com/xfgryujk/blivedm/blob/dev/blivedm/models/web.py
 
 export interface DanmuMsg {
-    cmd: string;
+    cmd: string
     info: [
         [
             number,
@@ -95,6 +95,6 @@ export interface DanmuMsg {
         number,
         number[],
         null
-    ];
-    dm_v2: string;
+    ]
+    dm_v2: string
 }

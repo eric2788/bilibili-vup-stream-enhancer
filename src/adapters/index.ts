@@ -1,5 +1,5 @@
-import dom from 'url:~adapters/capture-element.ts';
-import websocket from 'url:~adapters/websocket-hook.js';
+import dom from 'url:~adapters/capture-element.ts'
+import websocket from 'url:~adapters/websocket-hook.js'
 
 export type Adapters = typeof adapters
 export type AdapterType = keyof Adapters

@@ -1,6 +1,6 @@
-import Dexie, { type Table } from 'dexie';
+import Dexie, { type Table } from 'dexie'
 
-import migrate from './migrations';
+import migrate from './migrations'
 
 export interface CommonSchema {
     id?: number
@@ -8,7 +8,7 @@ export interface CommonSchema {
     room: string
 }
 
-export const commonSchema = "++id, date, room, ";
+export const commonSchema = "++id, date, room, "
 
 export type TableType = { [K in keyof IndexedDatabase]: IndexedDatabase[K] extends Table ? K : never }[keyof IndexedDatabase]
 

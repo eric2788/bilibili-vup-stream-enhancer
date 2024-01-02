@@ -1,5 +1,3 @@
-import 'react-contexify/dist/ReactContexify.css';
-
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Rnd } from 'react-rnd';
 import ConditionalWrapper from '~components/ConditionalWrapper';

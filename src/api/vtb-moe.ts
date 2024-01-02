@@ -1,12 +1,12 @@
-import type { VtbMoeDetailResponse, VtbMoeListResponse } from "~types/bilibili";
-import { sendMessager } from '~utils/messaging';
+import type { VtbMoeDetailResponse, VtbMoeListResponse } from "~types/bilibili"
+import { sendMessager } from '~utils/messaging'
 
 export async function getVupDetail(uid: string): Promise<VtbMoeDetailResponse | undefined> {
     try {
         return await sendMessager('request', {
             url: `https://api.vtbs.moe/v1/detail/${uid}`,
             timeout: 5000
-        });
+        })
     } catch (err: Error | any) {
         console.warn(err)
         return undefined

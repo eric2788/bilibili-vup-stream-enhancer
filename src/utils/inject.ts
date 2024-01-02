@@ -1,7 +1,7 @@
-import type { InjectableFunction, InjectableFunctionParameters, InjectableFunctionReturnType, InjectableFunctionType } from "~background/functions";
-import type { RequestBody } from "~background/messages/hook-adapter";
-import type { InjectableScript, InjectableScriptParameters, InjectableScriptReturnType, InjectableScriptType } from "~background/scripts";
-import { sendMessager } from './messaging';
+import type { InjectableFunction, InjectableFunctionParameters, InjectableFunctionReturnType, InjectableFunctionType } from "~background/functions"
+import type { RequestBody } from "~background/messages/hook-adapter"
+import type { InjectableScript, InjectableScriptParameters, InjectableScriptReturnType, InjectableScriptType } from "~background/scripts"
+import { sendMessager } from './messaging'
 
 export class InjectScript<T extends InjectableScriptType> implements InjectableScript<T> {
 

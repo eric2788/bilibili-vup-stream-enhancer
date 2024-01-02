@@ -1,5 +1,5 @@
-import type Dexie from "dexie";
-import { commonSchema } from '~database';
+import type Dexie from "dexie"
+import { commonSchema } from '~database'
 
 export default function (db: Dexie) {
     // version 1

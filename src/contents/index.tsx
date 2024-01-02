@@ -119,13 +119,12 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
         )
       },
       unmount: async () => {
+        if (root === null) {
+          return
+        }
         if (dispose) {
           // for extra dispose
           await dispose()
-        }
-        if (root === null) {
-          console.warn('root is null, maybe not mounted yet')
-          return
         }
         root.unmount()
       }
@@ -152,6 +151,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
     async start(): Promise<void> {
 
       const settings = await getFullSettingStroage()
+      const enabled = settings['settings.features'].enabledFeatures
 
       // 如果沒有取得直播資訊，就嘗試使用 DOM 取得
       if (!info) {
@@ -221,7 +221,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
       // 渲染功能元素
       console.info('開始渲染元素....')
-      await Promise.all(mounters.map(m => m.mount(settings)))
+      await Promise.all(mounters.filter(m => enabled.includes(m.feature)).map(m => m.mount(settings)))
       console.info('渲染元素完成')
 
     },

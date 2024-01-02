@@ -12,7 +12,7 @@ export type HundredNumber = NumRange<0, 100>
 
 export type ArrElement<ArrType> = ArrType extends readonly (infer ElementType)[]
   ? ElementType
-  : never;
+  : never
 
 
 export type Primitive = string | number | boolean | bigint | symbol | null | undefined
@@ -26,6 +26,6 @@ type ConvertToPrimitive<T extends PrimitiveType> = T extends 'string' ? string :
   T extends 'symbol' ? symbol :
   T extends 'null' ? null :
   T extends 'undefined' ? undefined :
-  never;
+  never
 
 

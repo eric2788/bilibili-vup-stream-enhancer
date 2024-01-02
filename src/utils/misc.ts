@@ -31,7 +31,7 @@ export function deepCopy<T extends object>(obj: T): T {
 }
 
 
-export const setEqual = <T>(xs: Set<T>, ys: Set<T>) => xs.size === ys.size && [...xs].every((x) => ys.has(x));
+export const setEqual = <T>(xs: Set<T>, ys: Set<T>) => xs.size === ys.size && [...xs].every((x) => ys.has(x))
 
 export function arrayEqual<T>(arr1: T[], arr2: T[]): boolean {
     if (arr1.length !== arr2.length) return false
@@ -41,13 +41,13 @@ export function arrayEqual<T>(arr1: T[], arr2: T[]): boolean {
 }
 
 export function removeInvalidKeys<T>(obj: Record<string, any>, sample: T): T {
-    const validKeys = Object.keys(sample) as (keyof T)[];
+    const validKeys = Object.keys(sample) as (keyof T)[]
     Object.keys(obj).forEach((key) => {
         if (!validKeys.includes(key as keyof T)) {
-            delete obj[key];
+            delete obj[key]
         }
-    });
-    return obj as T;
+    })
+    return obj as T
 }
 
 export function getTimeStamp(): string {
@@ -63,7 +63,7 @@ export function toStreamingTime(live_time?: number): string {
 }
 
 export function rgba(hex: string, opacity: number): string {
-    let c: any;
+    let c: any
     if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
         c = hex.substring(1).split('')
         if (c.length == 3) {

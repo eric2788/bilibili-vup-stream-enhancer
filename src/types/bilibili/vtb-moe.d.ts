@@ -30,26 +30,26 @@ export interface VtbMoeVtbResponse {
 }
 
 export interface VtbMoeDetailResponse {
-    mid: number;
-    uuid: string;
-    uname: string;
-    video: number;
-    roomid: number;
-    sign: string;
-    notice: string;
-    face: string;
-    rise: number;
-    topPhoto: string;
-    archiveView: number;
-    follower: number;
-    liveStatus: number;
-    recordNum: number;
-    guardNum: number;
-    lastLive: any;
-    guardChange: number;
-    guardType: number[];
-    online: number;
-    title: string;
-    time: number;
-    liveStartTime: number;
+    mid: number
+    uuid: string
+    uname: string
+    video: number
+    roomid: number
+    sign: string
+    notice: string
+    face: string
+    rise: number
+    topPhoto: string
+    archiveView: number
+    follower: number
+    liveStatus: number
+    recordNum: number
+    guardNum: number
+    lastLive: any
+    guardChange: number
+    guardType: number[]
+    online: number
+    title: string
+    time: number
+    liveStartTime: number
 }
