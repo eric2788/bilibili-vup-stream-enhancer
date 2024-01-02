@@ -30,7 +30,7 @@ function startDanmakuMonitor(settings: Settings): MutationObserver {
     const { attr: attribute, elements } = settings['settings.developer']
     const chatList = document.querySelector(elements.chatItems)
     const observer = new MutationObserver(async (mutationsList: MutationRecord[]) => {
-        for (const node of mutationsList.flatMap(mu => mu.addedNodes)) {
+        for (const node of mutationsList.flatMap(mu => mu.addedNodes).flatMap(n => [...n.values()])) {
             if (!(node instanceof HTMLElement)) continue
             const danmaku = node.getAttribute(attribute.chatDanmaku)?.trim()
             const userId = node.getAttribute(attribute.chatUserId)?.trim()
@@ -108,7 +108,7 @@ function startDanmakuStyleMonitor(settings: Settings): MutationObserver {
     const { elements: { danmakuArea } } = settings['settings.developer']
     const danmakuContainer = document.querySelector(danmakuArea)
     const danmakuObserver = new MutationObserver(async (mutationsList: MutationRecord[]) => {
-        for (const node of mutationsList.flatMap(mu => mu.addedNodes)) {
+        for (const node of mutationsList.flatMap(mu => mu.addedNodes).flatMap(n => [...n.values()])) {
             let danmaku: string = undefined
             let danmakuNode: HTMLElement = undefined
             if (node instanceof Text) {
