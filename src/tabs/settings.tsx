@@ -161,8 +161,8 @@ function SettingPage(): JSX.Element {
         <Fragment>
             <section className="bg-gray-700">
                 <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 text-white">
-                    <h1 className="mb-4 text-4xl tracking-tight leading-none md:text-5xl lg:text-6xl ">字幕过滤设定</h1>
-                    <p className="mb-8 text-lg font-light lg:text-xl text-black-400">设定页面: 按下储存后可即时生效。</p>
+                    <h1 className="mb-4 text-4xl tracking-tight leading-none md:text-5xl lg:text-6xl ">设定页面</h1>
+                    <p className="mb-8 text-lg font-light lg:text-xl text-black-400">按下储存后可即时生效。</p>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3">
                         <Button onClick={loader.checkingUpdate} disabled={loading.checkingUpdate} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 group-disabled:animate-spin">
