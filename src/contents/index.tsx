@@ -364,7 +364,7 @@ function App(props: AppProps): JSX.Element {
   const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: location.href } })
   const addBlackList = () => confirm(`确定添加房间 ${roomId} 到黑名单?`) && sendMessager('add-black-list', { roomId })
   const openSettings = () => sendMessager('open-tab', { tab: 'settings' })
-  const openMonitor = () => sendMessager('open-window', { url: chrome.runtime.getURL(`/tabs/stream.html?roomId=${roomId}&title=${props.info.title}`) })
+  const openMonitor = () => sendMessager('open-window', { width: 700, height: 500, url: chrome.runtime.getURL(`/tabs/stream.html?roomId=${roomId}&title=${props.info.title}`) })
 
   const url = (url: string) => () => sendMessager('open-tab', { url })
 
