@@ -1,8 +1,4 @@
-import '~toaster';
-
-import styleText from 'data-text:~style.css';
-import extIcon from 'raw:~assets/icon.png';
-import { Fragment, useEffect } from 'react';
+import { Fragment } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { toast } from 'sonner/dist';
 import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
@@ -14,14 +10,16 @@ import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectAdapter, injectFunction } from '~utils/inject';
 import { sendMessager } from '~utils/messaging';
 import { getFullSettingStroage, getSettingStorage, transactions } from '~utils/storage';
-
 import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
 import { useToggle } from '@react-hooks-library/core';
-
-import features, { type FeatureType } from '../features';
-import { shouldInit, type Settings } from '../settings';
-
+import features, { type FeatureType } from '~features';
+import { shouldInit, type Settings } from '~settings';
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
+
+import styleText from 'data-text:~style.css';
+import extIcon from 'raw:~assets/icon.png';
+
+import '~toaster';
 
 
 export const config: PlasmoCSConfig = {
@@ -299,7 +297,7 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
     }
 
-    
+
 
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
 
@@ -364,7 +362,7 @@ function App(props: AppProps): JSX.Element {
   const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: location.href } })
   const addBlackList = () => confirm(`确定添加房间 ${roomId} 到黑名单?`) && sendMessager('add-black-list', { roomId })
   const openSettings = () => sendMessager('open-tab', { tab: 'settings' })
-  const openMonitor = () => sendMessager('open-window', { url: chrome.runtime.getURL(`/tabs/stream.html?roomId=${roomId}&title=${props.info.title}`) })
+  const openMonitor = () => sendMessager('open-window', { width: 700, height: 500, url: chrome.runtime.getURL(`/tabs/stream.html?roomId=${roomId}&title=${props.info.title}`) })
 
   const url = (url: string) => () => sendMessager('open-tab', { url })
 

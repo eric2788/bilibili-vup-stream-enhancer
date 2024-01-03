@@ -17,7 +17,7 @@ import "~toaster"
 import { Button } from '@material-tailwind/react';
 import { useStorageWatch } from '~hooks/storage';
 
-document.title = '字幕过滤设定'
+document.title = '设定页面'
 
 const toggleMap = Object.fromEntries(Object.keys(fragments).map(key => [key, false])) as Record<keyof typeof fragments, boolean>
 

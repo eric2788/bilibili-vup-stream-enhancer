@@ -66,7 +66,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 </div>
                 <List className="pl-6">
                     <SwitchListItem label="仅限虚拟主播" value={state.onlyVtuber} onChange={checker('onlyVtuber')} />
-                    <SwitchListItem label="过滤国内虚拟主播" hint="需要先开启仅限虚拟主播才能生效" value={state.noNativeVtuber} onChange={checker('noNativeVtuber')} />
+                    <SwitchListItem label="过滤国内虚拟主播" hint="需要先开启仅限虚拟主播才能生效, 且无法完全过滤" value={state.noNativeVtuber} onChange={checker('noNativeVtuber')} />
                     <SwitchListItem label="启用监控视窗" hint="如要传入字幕，必须开着直播间" value={state.monitorWindow} onChange={checker('monitorWindow')} />
                     <SwitchListItem label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.useStreamingTime} onChange={checker('useStreamingTime')} />
                 </List>

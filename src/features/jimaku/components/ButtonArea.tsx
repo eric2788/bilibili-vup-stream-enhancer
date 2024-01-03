@@ -19,7 +19,7 @@ function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): 
     const btnStyle = settings['settings.button']
     const features = settings["settings.features"]
 
-    const popupJimakuWindow = () => sendMessager('open-window', { url: chrome.runtime.getURL(`tabs/jimaku.html?roomId=${info.room}&title=${info.title}`) })
+    const popupJimakuWindow = () => sendMessager('open-window', { width: 500, url: chrome.runtime.getURL(`tabs/jimaku.html?roomId=${info.room}&title=${info.title}`) })
 
     const deleteRecords = () => {
         const deleting = async () => {
