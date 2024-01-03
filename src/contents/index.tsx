@@ -26,7 +26,8 @@ import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } f
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
-  all_frames: true
+  all_frames: true,
+  run_at: 'document_end'
 }
 
 export const getStyle: PlasmoGetStyle = () => {

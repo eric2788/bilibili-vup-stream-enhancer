@@ -14,6 +14,7 @@ export type SwitchListItemProps = {
     label: string | ((b: boolean) => string)
     hint?: string
     color?: colors
+    disabled?: boolean
 }
 
 
@@ -21,7 +22,7 @@ export type SwitchListItemProps = {
 
 function SwitchListItem(props: SwitchListItemProps): JSX.Element {
     return (
-        <ListItem className="p-0 dark:hover:bg-gray-800 dark:focus:bg-gray-800">
+        <ListItem className="p-0 dark:hover:bg-gray-800 dark:focus:bg-gray-800" disabled={props.disabled}>
             <label className="flex w-full cursor-pointer items-center px-3 py-2">
                 {props.prefix && (
                     <ListItemPrefix>
@@ -29,6 +30,7 @@ function SwitchListItem(props: SwitchListItemProps): JSX.Element {
                     </ListItemPrefix>
                 )}
                 <Switch
+                    disabled={props.disabled}
                     onChange={props.onChange}
                     crossOrigin={'annoymous'}
                     checked={props.value}
