@@ -56,7 +56,7 @@ function CaptureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                     label="提高WebSocket挂接速度"
                     value={state.boostWebSocketHook}
                     onChange={boolHandler('boostWebSocketHook')}
-                    hint="启用后, 将在页面加载前执行WebSocket挂接以大幅提高速度。若发现未知问题请关闭此选项。"
+                    hint="启用后将大幅提高挂接速度, 但需要刷新页面方可生效。若发现未知问题请关闭此选项。"
                 />
             </List>
         </Fragment>

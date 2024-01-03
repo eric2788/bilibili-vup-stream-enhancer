@@ -38,10 +38,10 @@ function SwitchListItem(props: SwitchListItemProps): JSX.Element {
                     color={props.color}
                     label={
                         <div>
-                            <Typography className="font-medium">
+                            <Typography className="font-medium ml-3">
                                 {props.label instanceof Function ? props.label(props.value) : props.label}
                             </Typography>
-                            {props.hint && <Typography variant="small" className="font-normal">
+                            {props.hint && <Typography variant="small" className="font-normal ml-3">
                                 {props.hint}
                             </Typography>}
                         </div>

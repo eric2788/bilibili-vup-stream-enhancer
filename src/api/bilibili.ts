@@ -20,7 +20,7 @@ export type StreamInfo = {
 export async function getStreamInfo(room: string): Promise<StreamInfo> {
     const data = await fetchSameCredentialV1<GetInfoByRoomResponse>(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${room}`)
     return {
-        room: room.toString(),
+        room: data.room_info.room_id.toString(),
         title: data.room_info.title,
         uid: data.room_info.uid.toString(),
         username: data.anchor_info.base_info.uname,

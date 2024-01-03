@@ -26,11 +26,12 @@ function SuperChatItem(props: SuperChatItemProps): JSX.Element {
         uid,
         uname,
         price,
-        message
+        message,
+        timestamp
     } = props;
 
     return (
-        <div className="mb-[10px] border-solid border-[1px] w-full" style={{
+        <div title={new Date(timestamp * 1000).toLocaleString()} className="mb-[10px] border-solid border-[1px] w-full" style={{
             backgroundColor: backgroundColor,
             borderColor: backgroundColor,
             animation: 'slide-y .5s ease-out',

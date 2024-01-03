@@ -43,7 +43,7 @@ const handler: FeatureHookRender = async (settings, info) => {
             sortBy="timestamp"
             reverse={true}
             loading={
-                <button
+                <div
                     style={{
                         left: 48,
                         top: 96,
@@ -53,7 +53,7 @@ const handler: FeatureHookRender = async (settings, info) => {
                     className="absolute rounded-full bg-white p-3 drop-shadow-lg flex flex-col justify-center items-center gap-3 text-black">
                     <Spinner />
                     <div>醒目留言</div>
-                </button>
+                </div>
             }
             error={(err) => <></>}
         >
