@@ -1,8 +1,4 @@
-import '~toaster';
-
-import styleText from 'data-text:~style.css';
-import extIcon from 'raw:~assets/icon.png';
-import { Fragment, useEffect } from 'react';
+import { Fragment } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { toast } from 'sonner/dist';
 import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
@@ -14,14 +10,16 @@ import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectAdapter, injectFunction } from '~utils/inject';
 import { sendMessager } from '~utils/messaging';
 import { getFullSettingStroage, getSettingStorage, transactions } from '~utils/storage';
-
 import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
 import { useToggle } from '@react-hooks-library/core';
-
-import features, { type FeatureType } from '../features';
-import { shouldInit, type Settings } from '../settings';
-
+import features, { type FeatureType } from '~features';
+import { shouldInit, type Settings } from '~settings';
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
+
+import styleText from 'data-text:~style.css';
+import extIcon from 'raw:~assets/icon.png';
+
+import '~toaster';
 
 
 export const config: PlasmoCSConfig = {
@@ -299,7 +297,7 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
     }
 
-    
+
 
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
 
