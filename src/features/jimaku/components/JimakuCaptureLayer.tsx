@@ -45,11 +45,12 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
         }
         const isTranslator = tongchuanMans.some(u => u.id === uid.toString())
         if (ul < jimakuStyle.filterUserLevel && !isTranslator) return
-        let jimaku = parseJimaku(text, regex)
-        if (jimaku === undefined && isTranslator) {
-            jimaku = text
-        }
-        if (jimaku === undefined) return
+        // let jimaku = parseJimaku(text, regex)
+        // if (jimaku === undefined && isTranslator) {
+        //     jimaku = text
+        // }
+        // if (jimaku === undefined) return
+        const jimaku = data.info[1]
         console.info(`[BJF] ${uname}: ${jimaku}`)
         //console.info(`[BJF] ${data.info[2][1]} => ${data.info[1]} (${data.info[0][5]})`)
         const datetime = useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp()

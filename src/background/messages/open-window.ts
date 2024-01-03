@@ -10,7 +10,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, any> = async (req, re
     const { url, tab, type } = req.body
     const result = await chrome.windows.create({
         url: tab ? chrome.runtime.getURL(`/tabs/${tab}.html`) : url,
-        type: type ?? 'panel',
+        type: type ?? 'popup',
     })
     res.send(result)
 }

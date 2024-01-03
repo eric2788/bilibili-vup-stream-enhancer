@@ -201,11 +201,11 @@ async function hook() {
         }
         console.log('websocket injected.')
         hooked = true
-        res()
       } else {
         rej('cannot hook websocket, onmessage is not a function.')
       }
       this.send = this._send
+      res()
     }
   })
 }

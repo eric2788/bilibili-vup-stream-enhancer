@@ -44,8 +44,8 @@ export async function injectScript<T extends InjectableScriptType>(name: T, ...a
 
 export async function injectFunction<T extends InjectableFunctionType>(name: T, ...args: InjectableFunctionParameters<T>): Promise<InjectableFunctionReturnType<T>> {
     const res = await sendMessager('inject-func', { function: new InjectFunction(name, ...args) })
-    if (!res) return
-    if (res[0].result.error) {
+    if (!res[0]?.result) return
+    if (res[0].result?.error) {
         throw new Error(res[0].result.error)
     }
     return res[0].result

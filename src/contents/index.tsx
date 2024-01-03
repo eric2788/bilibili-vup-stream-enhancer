@@ -11,9 +11,9 @@ import BLiveThemeProvider from '~components/BLiveThemeProvider';
 import { useWebScreenChange } from '~hooks/bilibili';
 import { getRoomId, getStreamInfoByDom } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
-import { injectAdapter } from '~utils/inject';
+import { injectAdapter, injectFunction } from '~utils/inject';
 import { sendMessager } from '~utils/messaging';
-import { getFullSettingStroage, transactions } from '~utils/storage';
+import { getFullSettingStroage, getSettingStorage, transactions } from '~utils/storage';
 
 import { Button, Drawer, IconButton, Tooltip, Typography } from '@material-tailwind/react';
 import { useToggle } from '@react-hooks-library/core';
@@ -26,7 +26,8 @@ import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } f
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
-  all_frames: true
+  all_frames: true,
+  run_at: 'document_end'
 }
 
 export const getStyle: PlasmoGetStyle = () => {
@@ -277,6 +278,18 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       return
     }
 
+    // put before any await function
+    try {
+      const settings = await getSettingStorage('settings.capture')
+      if (settings.captureMechanism === 'websocket' && settings.boostWebSocketHook) {
+        console.info('boosting websocket hook...')
+        await injectFunction('boostWebSocketHook')
+      }
+    } catch (err: Error | any) {
+      console.error(err)
+      console.warn('failed to boost websocket hook.')
+      toast.error('WebSocket挂接提速失败: ' + err, { position: 'top-left' })
+    }
 
     const login = await ensureLogin()
 
@@ -285,6 +298,8 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
     if (!login) {
       toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
     }
+
+    
 
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
 
@@ -445,4 +460,4 @@ function FooterButton({ children, title, onClick }: { children: React.ReactNode,
       </IconButton>
     </Tooltip>
   )
-}
+};

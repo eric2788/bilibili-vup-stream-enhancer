@@ -1,3 +1,4 @@
+import boostWebSocketHook from './boostWebsocketHook'
 import getBLiveCachedData from './getBLiveCachedData'
 import getWindowVariable from './getWindowVariable'
 
@@ -16,7 +17,8 @@ export type InjectableFunctionReturnType<T extends InjectableFunctionType> = Ret
 
 const functions = {
     getWindowVariable,
-    getBLiveCachedData
+    getBLiveCachedData,
+    boostWebSocketHook
 }
 
 
