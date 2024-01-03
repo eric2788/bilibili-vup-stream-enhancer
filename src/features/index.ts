@@ -1,9 +1,10 @@
-import type { StreamInfo } from '~api/bilibili'
-import type { Settings } from '~settings'
 import * as jimaku from './jimaku'
 import * as superchat from './superchat'
 
-export type FeatureHookRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<(React.ReactPortal | React.ReactNode)[]>
+import type { Settings } from '~settings'
+import type { StreamInfo } from '~api/bilibili'
+
+export type FeatureHookRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<(React.ReactPortal | React.ReactNode)[] | undefined>
 
 export type FeatureAppRender = React.FC<{ settings: Readonly<Settings>, info: StreamInfo }>
 
@@ -12,8 +13,6 @@ export type FeatureType = keyof typeof features
 export interface FeatureHandler {
     default: FeatureHookRender,
     App?: FeatureAppRender
-    init?: () => Promise<void>
-    dispose?: () => Promise<void>
 }
 
 const features = {

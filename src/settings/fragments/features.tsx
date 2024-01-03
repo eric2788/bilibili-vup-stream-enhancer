@@ -1,16 +1,20 @@
 import { type ChangeEvent } from 'react';
-import { type StreamInfo, ensureIsVtuber, isNativeVtuber } from '~api/bilibili';
+import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~settings/components/SwitchListItem';
-import { retryCatcher } from '~utils/fetch';
-import func from '~utils/func';
 import { sendMessager } from '~utils/messaging';
 
-import { Collapse, IconButton, List, Switch, Typography } from '@material-tailwind/react';
+import { Collapse, IconButton, List, ListItem, Switch, Tooltip, Typography } from '@material-tailwind/react';
 
 import type { TableType } from "~database";
 import type { FeatureType } from "~features";
 import type { StateProxy } from "~hooks/binding";
-import { InjectScript, injectScript } from '~utils/inject';
+import type { RoomList } from '~types/common';
+import FeatureRoomTable from '~settings/components/FeatureRoomTable';
+import { toast } from 'sonner/dist';
+
+
+
+
 export type SettingSchema = {
     enabledFeatures: FeatureType[],
     enabledRecording: FeatureType[],
@@ -19,19 +23,32 @@ export type SettingSchema = {
     jimakuPopupWindow: boolean, // only when enabledFeatures.includes('jimaku')
     monitorWindow: boolean,
     useStreamingTime: boolean
+    roomList: Record<FeatureType, RoomList>
 }
 
 
 export const defaultSettings: Readonly<SettingSchema> = {
-    enabledFeatures: ['jimaku', 'superchat'],
+    enabledFeatures: [
+        'jimaku',
+        'superchat'
+    ],
     enabledRecording: [],
     onlyVtuber: false,
     noNativeVtuber: false,
     jimakuPopupWindow: false,
     monitorWindow: false,
-    useStreamingTime: true
+    useStreamingTime: true,
+    roomList: [
+        'jimaku',
+        'superchat'
+    ].reduce((acc: Record<FeatureType, RoomList>, cur: FeatureType) => {
+        acc[cur] = {
+            list: [],
+            asBlackList: false
+        }
+        return acc
+    }, {} as Record<FeatureType, RoomList>)
 }
-
 
 export const title = '功能设定'
 
@@ -66,7 +83,6 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 </div>
                 <List className="pl-6">
                     <SwitchListItem label="仅限虚拟主播" value={state.onlyVtuber} onChange={checker('onlyVtuber')} />
-                    <SwitchListItem label="过滤国内虚拟主播" hint="需要先开启仅限虚拟主播才能生效, 且无法完全过滤" value={state.noNativeVtuber} onChange={checker('noNativeVtuber')} />
                     <SwitchListItem label="启用监控视窗" hint="如要传入字幕，必须开着直播间" value={state.monitorWindow} onChange={checker('monitorWindow')} />
                     <SwitchListItem label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.useStreamingTime} onChange={checker('useStreamingTime')} />
                 </List>
@@ -89,7 +105,26 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                                 <TrashIconButton table={'jimakus'} title="同传弹幕" />
                             }
                         />
+                        <SwitchListItem
+                            label="过滤国内虚拟主播"
+                            hint="需要先开启仅限虚拟主播才能生效, 且无法完全过滤"
+                            value={state.noNativeVtuber}
+                            onChange={checker('noNativeVtuber')}
+                            suffix={
+                                <Tooltip content="测试阶段">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                    </svg>
+                                </Tooltip>
+                            }
+                        />
                         <SwitchListItem label="启用同传弹幕彈出式视窗" hint="使用弹出式视窗时必须开着直播间才能运行" value={state.jimakuPopupWindow} onChange={checker('jimakuPopupWindow')} />
+                        <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
+                            <FeatureRoomTable
+                                feature='jimaku'
+                                roomList={state.roomList}
+                            />
+                        </ListItem>
                     </List>
                 </Collapse>
             </div>
@@ -111,6 +146,12 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                                 <TrashIconButton table={'superchats'} title="醒目留言" />
                             }
                         />
+                        <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
+                            <FeatureRoomTable
+                                feature='superchat'
+                                roomList={state.roomList}
+                            />
+                        </ListItem>
                     </List>
                 </Collapse>
             </div>
@@ -170,8 +211,6 @@ export async function shouldInit(roomId: string, settings: SettingSchema, info: 
         return false
     }
 
-    const isNativeVtuberFunc = func.wrap(isNativeVtuber)
-
     if (settings.onlyVtuber) {
 
         if (info.uid !== '0') {
@@ -184,11 +223,6 @@ export async function shouldInit(roomId: string, settings: SettingSchema, info: 
             return false
         }
 
-        if (settings.noNativeVtuber && (await retryCatcher(isNativeVtuberFunc(info.uid), 5))) {
-            // do log
-            console.info('檢測到為國V, 已略過')
-            return false
-        }
     }
 
     return true

@@ -86,24 +86,37 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
   const { rootContainer, OverlayApp, anchor } = plasmo
 
   return Object.entries(features).map(([key, handler]) => {
-    const { default: hook, App, init, dispose } = handler
+    const { default: hook, App } = handler
 
     const section = document.createElement('section')
     section.id = `bjf-feature-${key}`
     rootContainer.appendChild(section)
 
+    const feature = key as FeatureType
     // this root is feature root
     let root: Root = null
 
     return {
-      feature: key as FeatureType,
+      feature,
       mount: async (settings: Settings) => {
-        if (init) {
-          // for extra init
-          await init()
+
+        // feature whitelist/blacklist
+        const roomList = settings['settings.features'].roomList[feature]
+
+        if (roomList.list.length > 0) {
+          if (roomList.list.some(r => r.room === info.room) === roomList.asBlackList) {
+            console.info(`房間 ${info.room} 已被 ${key} 功能黑名單，已略過`)
+            return
+          }
+        }
+
+        const portals = await hook(settings, info)
+        // 返回禁用狀態的話則直接跳過渲染
+        if (!portals) {
+          console.info(`房間 ${info.room} 已被 ${key} 功能禁用，已略過`)
+          return
         }
         root = createRoot(section)
-        const portals = await hook(settings, info)
         root.render(
           <OverlayApp anchor={anchor}>
             <BLiveThemeProvider element={section}>
@@ -118,10 +131,6 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
       unmount: async () => {
         if (root === null) {
           return
-        }
-        if (dispose) {
-          // for extra dispose
-          await dispose()
         }
         root.unmount()
       }
