@@ -55,7 +55,7 @@ function DataTable<T extends object>(props: DataTableProps<T>): JSX.Element {
     const headers: Pick<TableHeader<T>, 'name' | 'align'>[] = [...props.headers, { name: '', align: 'center' }]
 
     return (
-        <div>
+        <div className='w-full'>
             <div className="mb-3 flex flex-col items-center justify-between gap-4 md:flex-row w-full">
                 <Typography variant="h6">{props.title}</Typography>
                 {props.headerSlot}

@@ -14,12 +14,11 @@ export type ArrElement<ArrType> = ArrType extends readonly (infer ElementType)[]
   ? ElementType
   : never
 
-
 export type Primitive = string | number | boolean | bigint | symbol | null | undefined
 
 export type KeyType = string | number | symbol
 
-type ConvertToPrimitive<T extends PrimitiveType> = T extends 'string' ? string :
+export type ConvertToPrimitive<T extends PrimitiveType> = T extends 'string' ? string :
   T extends 'number' ? number :
   T extends 'boolean' ? boolean :
   T extends 'bigint' ? bigint :
@@ -28,4 +27,7 @@ type ConvertToPrimitive<T extends PrimitiveType> = T extends 'string' ? string :
   T extends 'undefined' ? undefined :
   never
 
-
+export type RoomList = {
+  list: { room: string, date: string }[],
+  asBlackList: boolean
+}

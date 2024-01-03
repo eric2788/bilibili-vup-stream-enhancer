@@ -1,16 +1,15 @@
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { toast } from 'sonner/dist';
+import type { FeatureHookRender } from "..";
+import JimakuCaptureLayer from './components/JimakuCaptureLayer';
 import OfflineRecordsProvider from '~components/OfflineRecordsProvider';
+import type { Settings } from "~settings";
+import { isNativeVtuber, type StreamInfo } from "~api/bilibili";
 import TailwindScope from '~components/TailwindScope';
-
+import { createPortal } from 'react-dom';
+import { retryCatcher } from "~utils/fetch";
+import { toast } from 'sonner/dist';
+import { useEffect } from 'react';
 import { useMutationObserver } from '@react-hooks-library/core';
 
-import JimakuCaptureLayer from './components/JimakuCaptureLayer';
-
-import type { StreamInfo } from "~api/bilibili";
-import type { Settings } from "~settings";
-import type { FeatureHookRender } from "..";
 export function parseJimaku(danmaku: string, regex: string) {
     if (danmaku === undefined) return undefined
     const reg = new RegExp(regex)
@@ -88,11 +87,19 @@ const handler: FeatureHookRender = async (settings, info) => {
     const dev = settings['settings.developer']
     const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size, order } = settings['settings.jimaku']
     const { backgroundListColor } = settings['settings.button']
+    const { noNativeVtuber } = settings['settings.features']
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
     const jimakuArea = document.createElement('div')
     jimakuArea.id = 'jimaku-area'
     playerSection.insertAdjacentElement('afterend', jimakuArea)
+
+    // 自動過濾國V功能僅限在同傳字幕過濾生效
+    if (noNativeVtuber && (await retryCatcher(() => isNativeVtuber(info.uid), 5))) {
+        // do log
+        console.info('檢測到為國V, 已略過')
+        return undefined // 返回 undefined 以禁用此功能
+    }
 
     return [
         createPortal(
