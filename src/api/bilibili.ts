@@ -1,11 +1,11 @@
-import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData"
-import type { GetInfoByRoomResponse, SpecAreaRankResponse, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
-import { w_rid } from '~utils/bilibili'
-import { fetchSameCredentialV1, retryCatcher } from '~utils/fetch'
-import func from '~utils/func'
-import { sendMessager } from '~utils/messaging'
+import type { GetInfoByRoomResponse, SpecAreaRankResponse, SuperChatList, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
+import { fetchSameCredentialBase, fetchSameCredentialV1, retryCatcher } from '~utils/fetch'
 
+import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData"
+import func from '~utils/func'
 import { identifyVup } from './vtb-moe'
+import { sendMessager } from '~utils/messaging'
+import { w_rid } from '~utils/bilibili'
 
 export type StreamInfo = {
     room: string
@@ -30,6 +30,11 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
     }
 }
 
+
+export async function getSuperChatList(room: string): Promise<SuperChatList['list']> {
+    const { list } = await fetchSameCredentialBase<SuperChatList>(`https://api.live.bilibili.com/av/v1/SuperChat/getMessageList?room_id=${room}`)
+    return list
+}
 
 export async function ensureLogin(): Promise<boolean> {
    try {

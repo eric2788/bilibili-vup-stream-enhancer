@@ -9,7 +9,7 @@ import type { BLiveDataWild } from "~types/bilibili"
 import { getPort } from '@plasmohq/messaging/port'
 import { sendToBackground } from '@plasmohq/messaging'
 
-const ID = 'bilibili-jimaku-filter'
+export const ID = 'bilibili-jimaku-filter'
 
 export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]> | void> {
     return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
@@ -36,25 +36,24 @@ export function addWindowMessageListener(command: string, callback: (data: any, 
 }
 
 
-export function addBLiveMessageCommandListener<K extends string>(command: K, callback: (command: BLiveDataWild<K>, event: MessageEvent) => void): VoidFunction {
-    return addBLiveMessageListener<K>((data, event) => {
-        if (data.cmd === command) {
-            callback(data.command, event)
-        }
-    })
-}
-
-export function addBLiveMessageListener<K extends string>(callback: (data: { cmd: K, command: BLiveDataWild<K> }, event: MessageEvent) => void): VoidFunction {
-    return addWindowMessageListener('blive-ws', (data: { cmd: K, command: BLiveDataWild<K>, eventId: string }, event) => {
-        callback(data, event)
-        event.source.postMessage({ source: ID, data: { command: `ws:callback:${data.eventId}`, body: data } }, { targetOrigin: event.origin })
-    })
-}
-
 export function sendWindowMessage(command: string, body: any) {
     window.postMessage({ source: ID, data: { command, body } }, '*')
 }
 
+
+// no callback only listen
+export function addBLiveMessageListener<K extends string>(callback: (data: { cmd: K, command: BLiveDataWild<K> }, event: MessageEvent) => void): VoidFunction {
+    return addWindowMessageListener('blive-ws', callback)
+}
+
+
+export function addBLiveMessageCommandListener<K extends string>(cmd: K, callback: (data: BLiveDataWild<K>, event: MessageEvent) => void): VoidFunction {
+    return addBLiveMessageListener((data, event) => {
+        if (data.cmd === cmd) {
+            callback(data.command, event)
+        }
+    })
+}
 
 export function sendBLiveMessage<K extends string>(cmd: K, command: BLiveDataWild<K>, signal?: AbortSignal): Promise<BLiveDataWild<K>> {
     const eventId = window.crypto.randomUUID()

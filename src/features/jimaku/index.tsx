@@ -9,18 +9,8 @@ import { retryCatcher } from "~utils/fetch";
 import { toast } from 'sonner/dist';
 import { useEffect } from 'react';
 import { useMutationObserver } from '@react-hooks-library/core';
+import { parseJimaku } from "~utils/bilibili";
 
-export function parseJimaku(danmaku: string, regex: string) {
-    if (danmaku === undefined) return undefined
-    const reg = new RegExp(regex)
-    const g = reg.exec(danmaku)?.groups
-    danmaku = g?.cc
-    const name = g?.n
-    if (danmaku === "") {
-        danmaku = undefined
-    }
-    return name && danmaku ? `${name}: ${danmaku}` : danmaku
-}
 
 function warnIfAdaptive() {
     // warn: this will make context menu wrong position

@@ -1,6 +1,4 @@
-
 import clearIndexedDbTable from './clearIndexedDbTable'
-import testOnly from './testOnly'
 
 export interface InjectableScript<T extends InjectableScriptType> {
     name: T
@@ -22,7 +20,6 @@ export function getScriptUrl<T extends InjectableScriptType>(script: InjectableS
 // TODO: make prototype but without getManifest error
 const scripts = {
     clearIndexedDbTable,
-    testOnly
 }
 
 export default scripts

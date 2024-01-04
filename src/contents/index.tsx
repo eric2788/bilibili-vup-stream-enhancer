@@ -16,7 +16,7 @@ import features, { type FeatureType } from '~features';
 import { shouldInit, type Settings } from '~settings';
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
 
-import styleText from 'data-text:~style.css';
+import styleText from '~styles';
 import extIcon from 'raw:~assets/icon.png';
 
 import '~toaster';
@@ -285,18 +285,20 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       return
     }
 
-    // put before any await function
-    try {
-      const settings = await getSettingStorage('settings.capture')
-      if (settings.captureMechanism === 'websocket' && settings.boostWebSocketHook) {
-        console.info('boosting websocket hook...')
-        await injectFunction('boostWebSocketHook')
+    // doing fast websocket boost here (if enabled)
+    (async function () {
+      try {
+        const settings = await getSettingStorage('settings.capture')
+        if (settings.captureMechanism === 'websocket' && settings.boostWebSocketHook) {
+          console.info('boosting websocket hook...')
+          await injectFunction('boostWebSocketHook')
+        }
+      } catch (err: Error | any) {
+        console.error(err)
+        console.warn('failed to boost websocket hook.')
+        toast.error('WebSocket挂接提速失败: ' + err)
       }
-    } catch (err: Error | any) {
-      console.error(err)
-      console.warn('failed to boost websocket hook.')
-      toast.error('WebSocket挂接提速失败: ' + err, { position: 'top-left' })
-    }
+    })();
 
     const login = await ensureLogin()
 

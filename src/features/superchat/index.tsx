@@ -1,19 +1,18 @@
 import type { FeatureHookRender } from "..";
 
 
+import { Spinner } from "@material-tailwind/react";
+import { getSuperChatList } from "~api/bilibili";
 import OfflineRecordsProvider from "~components/OfflineRecordsProvider";
-import type { SuperChatList } from "~types/bilibili";
-import { fetchSameCredentialBase } from "~utils/fetch";
 import { randomString, toStreamingTime, toTimer } from "~utils/misc";
 import SuperChatCaptureLayer from "./components/SuperChatCaptureLayer";
 import { type SuperChatCard } from "./components/SuperChatItem";
-import { Spinner } from "@material-tailwind/react";
 
 const handler: FeatureHookRender = async (settings, info) => {
 
     const { useStreamingTime } = settings['settings.features']
 
-    const { list } = await fetchSameCredentialBase<SuperChatList>(`https://api.live.bilibili.com/av/v1/SuperChat/getMessageList?room_id=${info.room}`)
+    const list = await getSuperChatList(info.room)
     const superchats: SuperChatCard[] = (list ?? [])
         .sort((a, b) => b.start_time - a.start_time)
         .map((item) => ({
@@ -29,7 +28,8 @@ const handler: FeatureHookRender = async (settings, info) => {
             message: item.message,
             timestamp: item.start_time,
             date: useStreamingTime ? toTimer(item.start_time - info.liveTime) : toStreamingTime(item.start_time),
-            hash: `${randomString()}${item.id}`
+            hash: `${randomString()}${item.id}`,
+            persist: false
         }))
 
     return [
@@ -58,7 +58,7 @@ const handler: FeatureHookRender = async (settings, info) => {
             error={(err) => <></>}
         >
             {(records) => {
-                const offlineRecords = [...superchats, ...records.map((r) => ({ ...r, id: r.scId }))]
+                const offlineRecords = [...superchats, ...records.map((r) => ({ ...r, id: r.scId, persist: true }))]
                 return (
                     <SuperChatCaptureLayer offlineRecords={offlineRecords} settings={settings} info={info} />
                 )

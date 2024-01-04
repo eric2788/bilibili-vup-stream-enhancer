@@ -1,30 +1,40 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Rnd } from 'react-rnd';
+
 import ConditionalWrapper from '~components/ConditionalWrapper';
-import { useWebScreenChange } from '~hooks/bilibili';
-import { useTeleport } from '~hooks/teleport';
-import { rgba } from '~utils/misc';
-
-import styled from '@emotion/styled';
-
-import JimakuList from './JimakuList';
-import JimakuVisibleButton from './JimakuVisibleButton';
-
-import type { Settings } from "~settings";
-import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
 import type { Jimaku } from "./JimakuLine";
+import JimakuList from './JimakuList';
+import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
+import JimakuVisibleButton from './JimakuVisibleButton';
+import { Rnd } from 'react-rnd';
+import type { Settings } from "~settings";
+import { rgba } from '~utils/misc';
+import styled from '@emotion/styled';
+import { useTeleport } from '~hooks/teleport';
+import { useWebScreenChange } from '~hooks/bilibili';
+
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
-        .subtitle-normal > ::-webkit-scrollbar {
+
+        ${process.env.PLASMO_BROWSER === 'firefox' ?
+        `
+        .subtitle-normal {
+            scrollbar-width: thin;
+            scrollbar-color: ${jimakuStyle.color} ${jimakuStyle.backgroundColor};
+        }
+        `
+        :
+        `
+        .subtitle-normal::-webkit-scrollbar {
             width: 5px;
         }
 
-        .subtitle-normal > ::-webkit-scrollbar-track {
+        .subtitle-normal::-webkit-scrollbar-track {
             background-color: ${jimakuStyle.backgroundColor};
         }
 
-        .subtitle-normal > ::-webkit-scrollbar-thumb {
+        .subtitle-normal::-webkit-scrollbar-thumb {
             background-color: ${jimakuStyle.color};
         }
+        `}
 
         #subtitle-list p:${jimakuStyle.order === 'top' ? 'first' : 'last'}-of-type {
             animation: ${jimakuStyle.animation} .3s ease-out;
@@ -79,8 +89,6 @@ function JimakuArea({ settings, jimaku }: JimakuAreaProps): JSX.Element {
         color: jimakuStyle.color,
         fontSize: jimakuStyle.size,
         textAlign: jimakuStyle.position,
-        scrollbarWidth: 'thin',
-        scrollbarColor: `${jimakuStyle.color} ${jimakuStyle.backgroundColor}`
     }
 
     const [visible, setVisible] = useState(true)

@@ -5,6 +5,7 @@ import {
 } from '~utils/messaging'
 
 import type { BLiveDataWild } from "~types/bilibili"
+import { addBLiveSubscriber } from '~utils/subscriber'
 import { useEffect } from 'react'
 
 export function useWindowMessage(command: string, handler: (data: any, event: MessageEvent) => void) {
@@ -22,10 +23,16 @@ export function useBLiveMessage<K extends string>(handler: (data: { cmd: K, comm
     }, [])
 }
 
-
-export function useBLiveMessageCommand<K extends string>(command: K, handler: (command: BLiveDataWild<K>, event: MessageEvent) => void) {
+export function useBLiveMessageCommand<K extends string>(cmd: K, handler: (command: BLiveDataWild<K>, event: MessageEvent) => void) {
     useEffect(() => {
-        const removeListener = addBLiveMessageCommandListener(command, handler)
+        const removeListener = addBLiveMessageCommandListener(cmd, handler)
+        return () => removeListener()
+    }, [])
+}
+
+export function useBLiveSubscriber<K extends string>(command: K, handler: (command: BLiveDataWild<K>, event: MessageEvent) => void) {
+    useEffect(() => {
+        const removeListener = addBLiveSubscriber(command, handler)
         return () => removeListener()
     }, [])
 }

@@ -1,11 +1,10 @@
-import { md5 } from 'hash-wasm'
-
-import { sendMessager } from './messaging'
-import { localStorage } from './storage'
-
-import type { StreamInfo } from "~api/bilibili"
-import type { Settings } from "~settings"
 import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili"
+
+import type { Settings } from "~settings"
+import type { StreamInfo } from "~api/bilibili"
+import { localStorage } from './storage'
+import { md5 } from 'hash-wasm'
+import { sendMessager } from './messaging'
 
 export function getRoomId(url: string = location.pathname): string {
     return /^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id
@@ -80,18 +79,31 @@ export function getStreamInfoByDom(room: string, settings: Settings): StreamInfo
     // TODO: move to developer
     const title = document.querySelector<HTMLDivElement>('.text.live-skin-main-text.title-length-limit.small-title')?.innerText ?? ''
     const username = document.querySelector<HTMLAnchorElement>('.room-owner-username')?.innerText ?? ''
-  
+
     const replay = document.querySelector('.web-player-round-title')
     const ending = document.querySelector('.web-player-ending-panel')
-  
+
     return {
-      room: room,
-      title,
-      uid: '0', // 暫時不知道怎麼從dom取得
-      username,
-      isVtuber: true,
-      status: (replay !== null || ending !== null) ? 'offline' : 'online'
+        room: room,
+        title,
+        uid: '0', // 暫時不知道怎麼從dom取得
+        username,
+        isVtuber: true,
+        status: (replay !== null || ending !== null) ? 'offline' : 'online'
     } as StreamInfo
-  }
-  
+}
+
+
+
+export function parseJimaku(danmaku: string, regex: string) {
+    if (danmaku === undefined) return undefined
+    const reg = new RegExp(regex)
+    const g = reg.exec(danmaku)?.groups
+    danmaku = g?.cc
+    const name = g?.n
+    if (danmaku === "") {
+        danmaku = undefined
+    }
+    return name && danmaku ? `${name}: ${danmaku}` : danmaku
+}
 
