@@ -1,4 +1,4 @@
-import { Menu, useContextMenu } from 'react-contexify';
+import { Item, Menu, useContextMenu } from 'react-contexify';
 
 import DraggableFloatingButton from '~components/DraggableFloatingButton';
 import ShadowRoot from '~components/ShadowRoot';
@@ -25,7 +25,8 @@ function SuperChatFloatingButton({ children }: SuperChatFloatingButtonProps): JS
                 </div>
                 <div>醒目留言</div>
             </DraggableFloatingButton>
-            <Menu id="superchat-menu" style={{ backgroundColor: '#f1f1f1', overscrollBehaviorY: 'none' }}>
+            <Menu onKeyDown={e => e.preventDefault()} id="superchat-menu" style={{ backgroundColor: '#f1f1f1', overscrollBehaviorY: 'none' }}>
+                <Item className='hidden'>{''}</Item>
                 {children}
             </Menu>
         </ShadowRoot>

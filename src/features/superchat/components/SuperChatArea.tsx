@@ -4,6 +4,8 @@ import db from "~database"
 import type { Settings } from "~settings"
 import { download } from "~utils/file"
 import SuperChatItem, { type SuperChatCard } from "./SuperChatItem"
+import { useScrollOptimizer } from "~hooks/optimizer"
+import { useRef } from "react"
 
 
 export type SuperChatAreaProps = {
@@ -18,6 +20,10 @@ function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
     const { settings, info, superchats, clearSuperChat } = props
 
     const { enabledRecording } = settings['settings.features']
+
+    const listRef = useRef<HTMLElement>(null)
+
+    const observer = useScrollOptimizer({ root: listRef, rootMargin: '100px', threshold: 0.13 })
 
     const downloadRecords = () => {
         if (superchats.length === 0) {
@@ -55,7 +61,7 @@ function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
     }
 
     return (
-        <div className="p-[5px] inline-block">
+        <div className="p-[5px] pt-[5px] rounded-md inline-block">
             <section className="px-[5px] flex justify-center items-center gap-2">
                 <button onClick={downloadRecords} className="bg-red-600 hover:bg-red-700 dark:bg-gray-700 dark:hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-sm">
                     导出醒目留言记录
@@ -65,10 +71,10 @@ function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
                 </button>
             </section>
             <hr className="mx-[5px] my-3 border-black" />
-            <section className="bjf-scrollbar flex flex-col gap-3 overflow-y-auto py-[5px] overflow-x-hidden w-[300px] h-[300px]">
+            <section ref={listRef} className="bjf-scrollbar flex flex-col gap-3 overflow-y-auto py-[5px] overflow-x-hidden w-[300px] h-[300px]">
                 {superchats.map((item) => (
                     <div key={item.hash} className="px-2" superchat-hash={item.hash}>
-                        <SuperChatItem {...item} />
+                        <SuperChatItem {...item} observer={observer} />
                     </div>
                 ))}
             </section>

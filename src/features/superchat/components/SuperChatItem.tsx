@@ -1,4 +1,5 @@
-
+import type { MutableRefObject } from "react"
+import { useRowOptimizer } from "~hooks/optimizer"
 
 export type SuperChatCard = SuperChatItemProps & { id: number, date: string, hash: string }
 
@@ -15,7 +16,7 @@ export type SuperChatItemProps = {
     timestamp: number
 }
 
-function SuperChatItem(props: SuperChatItemProps): JSX.Element {
+function SuperChatItem(props: SuperChatItemProps & { observer: MutableRefObject<IntersectionObserver>}): JSX.Element {
 
     const {
         backgroundColor,
@@ -27,11 +28,17 @@ function SuperChatItem(props: SuperChatItemProps): JSX.Element {
         uname,
         price,
         message,
-        timestamp
+        timestamp,
+
+        observer
+        
     } = props;
 
+
+    const ref = useRowOptimizer(observer)
+
     return (
-        <div title={new Date(timestamp * 1000).toLocaleString()} className="mb-[10px] border-solid border-[1px] w-full" style={{
+        <div ref={ref} title={new Date(timestamp * 1000).toLocaleString()} className="mb-[10px] border-solid border-[1px] w-full" style={{
             backgroundColor: backgroundColor,
             borderColor: backgroundColor,
             animation: 'slide-y .5s ease-out',
