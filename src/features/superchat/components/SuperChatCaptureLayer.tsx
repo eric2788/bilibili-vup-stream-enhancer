@@ -1,14 +1,14 @@
-import { useInterval } from "@react-hooks-library/core"
-import { useCallback, useMemo, useRef, useState } from "react"
+import { getTimeStamp, randomString, toStreamingTime } from "~utils/misc"
+import { useCallback, useRef, useState } from "react"
+
+import type { Settings } from "~settings"
 import type { StreamInfo } from "~api/bilibili"
-import SuperChatContext from "~contexts/SuperChatContext"
+import SuperChatArea from "./SuperChatArea"
+import type { SuperChatCard } from "./SuperChatItem"
+import SuperChatFloatingButton from "./SuperChatFloatingButton"
 import db from "~database"
 import { useBLiveMessageCommand } from "~hooks/message"
-import type { Settings } from "~settings"
-import { getTimeStamp, randomString, toStreamingTime } from "~utils/misc"
-import SuperChatFloatingButton from "./SuperChatFloatingButton"
-import type { SuperChatCard } from "./SuperChatItem"
-
+import { useInterval } from "@react-hooks-library/core"
 
 export type SuperChatCaptureLayerProps = {
     offlineRecords: SuperChatCard[]
@@ -16,13 +16,13 @@ export type SuperChatCaptureLayerProps = {
     info: StreamInfo
 }
 
-
 function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
 
     const { settings, info, offlineRecords } = props
-
     const { enabledRecording, useStreamingTime } = settings['settings.features']
+
     const [superchat, setSuperChat] = useState<SuperChatCard[]>(offlineRecords)
+    const clearSuperChat = useCallback(() => setSuperChat([]), [])
     const transactions = useRef<SuperChatCard[]>([])
 
     useBLiveMessageCommand('SUPER_CHAT_MESSAGE', ({ data }) => {
@@ -44,7 +44,6 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
         transactions.current.push(superChatProps)
     })
 
-
     useInterval(() => {
         if (transactions.current.length === 0) return
         const superchat = transactions.current.shift()
@@ -61,15 +60,15 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
         }
     }, 500)
 
-
-    const clearSuperChat = useCallback(() => setSuperChat([]), [])
-    const context = useMemo(() => ({ superchats: superchat, clearSuperChat }), [superchat, clearSuperChat])
-
-
     return (
-        <SuperChatContext.Provider value={context}>
-            <SuperChatFloatingButton settings={settings} info={info} />
-        </SuperChatContext.Provider>
+        <SuperChatFloatingButton>
+            <SuperChatArea
+                settings={settings}
+                info={info}
+                superchats={superchat}
+                clearSuperChat={clearSuperChat}
+            />
+        </SuperChatFloatingButton>
     )
 }
 

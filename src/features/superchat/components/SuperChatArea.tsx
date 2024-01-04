@@ -1,22 +1,21 @@
-import type { StreamInfo } from "~api/bilibili"
-import type { Settings } from "~settings"
-import SuperChatItem, { type SuperChatCard } from "./SuperChatItem"
-import { useContext } from "react"
-import SuperChatContext from "~contexts/SuperChatContext"
-import db from "~database"
 import { toast } from "sonner/dist"
+import type { StreamInfo } from "~api/bilibili"
+import db from "~database"
+import type { Settings } from "~settings"
 import { download } from "~utils/file"
+import SuperChatItem, { type SuperChatCard } from "./SuperChatItem"
 
 
 export type SuperChatAreaProps = {
     settings: Settings
     info: StreamInfo
+    superchats: SuperChatCard[],
+    clearSuperChat: VoidFunction
 }
 
 function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
 
-    const { superchats, clearSuperChat } = useContext(SuperChatContext)
-    const { settings, info } = props
+    const { settings, info, superchats, clearSuperChat } = props
 
     const { enabledRecording } = settings['settings.features']
 

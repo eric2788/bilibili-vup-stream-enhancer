@@ -1,19 +1,18 @@
 import type { FeatureHookRender } from "..";
 
 
+import { Spinner } from "@material-tailwind/react";
+import { getSuperChatList } from "~api/bilibili";
 import OfflineRecordsProvider from "~components/OfflineRecordsProvider";
-import type { SuperChatList } from "~types/bilibili";
-import { fetchSameCredentialBase } from "~utils/fetch";
 import { randomString, toStreamingTime, toTimer } from "~utils/misc";
 import SuperChatCaptureLayer from "./components/SuperChatCaptureLayer";
 import { type SuperChatCard } from "./components/SuperChatItem";
-import { Spinner } from "@material-tailwind/react";
 
 const handler: FeatureHookRender = async (settings, info) => {
 
     const { useStreamingTime } = settings['settings.features']
 
-    const { list } = await fetchSameCredentialBase<SuperChatList>(`https://api.live.bilibili.com/av/v1/SuperChat/getMessageList?room_id=${info.room}`)
+    const list = await getSuperChatList(info.room)
     const superchats: SuperChatCard[] = (list ?? [])
         .sort((a, b) => b.start_time - a.start_time)
         .map((item) => ({
