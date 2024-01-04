@@ -7,7 +7,7 @@ import SuperChatArea from "./SuperChatArea"
 import type { SuperChatCard } from "./SuperChatItem"
 import SuperChatFloatingButton from "./SuperChatFloatingButton"
 import db from "~database"
-import { useBLiveMessageCommand } from "~hooks/message"
+import { useBLiveSubscriber } from "~hooks/message"
 import { useInterval } from "@react-hooks-library/core"
 
 export type SuperChatCaptureLayerProps = {
@@ -25,7 +25,7 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
     const clearSuperChat = useCallback(() => setSuperChat([]), [])
     const transactions = useRef<SuperChatCard[]>([])
 
-    useBLiveMessageCommand('SUPER_CHAT_MESSAGE', ({ data }) => {
+    useBLiveSubscriber('SUPER_CHAT_MESSAGE', ({ data }) => {
         const superChatProps: SuperChatCard = {
             id: data.id,
             backgroundColor: data.background_bottom_color,

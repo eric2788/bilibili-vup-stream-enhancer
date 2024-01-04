@@ -49,7 +49,7 @@
 }
 
 .bjf-scrollbar::-webkit-scrollbar-track {
-    background-color: #ffffff;
+    background-color: transparent;
 }
 
 .bjf-scrollbar::-webkit-scrollbar-thumb {

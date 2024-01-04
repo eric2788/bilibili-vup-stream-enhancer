@@ -7,9 +7,9 @@ import JimakuArea from './JimakuArea';
 import type { Settings } from "~settings";
 import type { StreamInfo } from "~api/bilibili";
 import db from '~database';
-import { parseJimaku } from '../';
+import { parseJimaku } from '~utils/bilibili';
 import { sendForward } from '~background/forwards';
-import { useBLiveMessageCommand } from '~hooks/message';
+import { useBLiveSubscriber } from '~hooks/message';
 import { useInterval } from '@react-hooks-library/core';
 
 export type JimakuCaptureLayerProps = {
@@ -31,7 +31,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
     const transactions = useRef<Jimaku[]>([])
 
     // 離線時，由於沒有注入適配器，此處的訊息監聽器不會被觸發
-    useBLiveMessageCommand('DANMU_MSG', (data) => {
+    useBLiveSubscriber('DANMU_MSG', (data) => {
         // 超大型字体
         if (Array.isArray(data.info[1])) return
         const uid = data.info[2][0]
@@ -68,7 +68,6 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
         if (position !== 'unchanged') {
             data.info[0][1] = position === 'top' ? 5 : 4
         }
-        delete data.dm_v2 // delete dm_v2 to affect the modification
     })
 
     // 此處同理
