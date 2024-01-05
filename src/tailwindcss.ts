@@ -1,4 +1,4 @@
-import styleCss from 'data-text-env:~style.css'
+import styleCss from '~styles'
 
 let style = document.getElementById('bjf-tailwindcss')
 if (style == null) {

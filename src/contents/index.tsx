@@ -16,7 +16,7 @@ import features, { type FeatureType } from '~features';
 import { shouldInit, type Settings } from '~settings';
 import type { PlasmoCSConfig, PlasmoCSUIAnchor, PlasmoGetStyle, PlasmoRender } from "plasmo";
 
-import styleText from 'data-text-env:~style.css';
+import styleText from '~styles';
 import extIcon from 'raw:~assets/icon.png';
 
 import '~toaster';
