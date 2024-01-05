@@ -288,7 +288,6 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
     // doing fast websocket boost here (if enabled)
     (async function () {
       try {
-        if (!getRoomId()) return;
         const settings = await getSettingStorage('settings.capture')
         if (settings.captureMechanism === 'websocket' && settings.boostWebSocketHook) {
           console.info('boosting websocket hook...')
@@ -471,20 +470,3 @@ function FooterButton({ children, title, onClick }: { children: React.ReactNode,
     </Tooltip>
   )
 };
-
-
-// // doing fast websocket boost here (if enabled)
-// (async function () {
-//   try {
-//       if (!getRoomId()) return;
-//       const settings = await getSettingStorage('settings.capture')
-//       if (settings.captureMechanism === 'websocket' && settings.boostWebSocketHook) {
-//           console.info('boosting websocket hook...')
-//           await injectFunction('boostWebSocketHook')
-//       }
-//   } catch (err: Error | any) {
-//       console.error(err)
-//       console.warn('failed to boost websocket hook.')
-//       alert('WebSocket挂接提速失败: ' + err)
-//   }
-// })();
