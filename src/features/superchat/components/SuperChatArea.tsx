@@ -6,6 +6,7 @@ import { download } from "~utils/file"
 import SuperChatItem, { type SuperChatCard } from "./SuperChatItem"
 import { useScrollOptimizer } from "~hooks/optimizer"
 import { useRef } from "react"
+import { useRecords } from "~hooks/records"
 
 
 export type SuperChatAreaProps = {
@@ -18,47 +19,20 @@ export type SuperChatAreaProps = {
 function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
 
     const { settings, info, superchats, clearSuperChat } = props
-
     const { enabledRecording } = settings['settings.features']
 
     const listRef = useRef<HTMLElement>(null)
 
     const observer = useScrollOptimizer({ root: listRef, rootMargin: '100px', threshold: 0.13 })
 
-    const downloadRecords = () => {
-        if (superchats.length === 0) {
-            toast.warning(`下载失败`, {
-                description: '醒目留言记录为空。',
-                position: 'bottom-center'
-            })
-            return
-        }
-        const content = superchats.map(superchat => `[${superchat.date}] [￥${superchat.price}] ${superchat.uname}(${superchat.uid}): ${superchat.message}`).join('\n')
-        download(`superchats-${info.room}-${new Date().toISOString().substring(0, 10)}.log`, content)
-        toast.success(`下载成功`, {
-            description: '你的醒目留言记录已保存。',
-            position: 'bottom-center'
-        })
-    }
-
-    const deleteRecords = () => {
-        const deleting = async () => {
-            let count = superchats.length
-            if (enabledRecording.includes('superchat')) {
-                count = await db.superchats
-                    .where({ room: info.room })
-                    .delete()
-            }
-            clearSuperChat()
-            return count
-        }
-        toast.promise(deleting, {
-            loading: `正在删除房间 ${info.room} 的所有醒目留言记录...`,
-            error: (err) => `删除醒目留言记录失败: ${err}`,
-            success: (count) => `已删除房间 ${info.room} 共${count}条醒目留言记录`,
-            position: 'bottom-center'
-        })
-    }
+    const { downloadRecords, deleteRecords } = useRecords(info.room, superchats, {
+        feature: 'superchat',
+        table: enabledRecording.includes('superchat') ? 'superchats' : undefined,
+        description: '醒目留言',
+        format: (superchat) => `[${superchat.date}] [￥${superchat.price}] ${superchat.uname}(${superchat.uid}): ${superchat.message}`,
+        clearRecords: clearSuperChat,
+        reverse: true // superchat always revsered
+    })
 
     return (
         <div className="p-[5px] pt-[5px] rounded-md inline-block">

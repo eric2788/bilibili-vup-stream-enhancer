@@ -6,6 +6,7 @@ import db from '~database';
 import { download } from '~utils/file';
 import { sendMessager } from '~utils/messaging';
 import { toast } from 'sonner/dist';
+import { useRecords } from "~hooks/records";
 
 export type ButtonAreaProps = {
     settings: Settings,
@@ -16,46 +17,20 @@ export type ButtonAreaProps = {
 
 function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
 
+    const { order } = settings['settings.jimaku']
     const btnStyle = settings['settings.button']
     const features = settings["settings.features"]
 
     const popupJimakuWindow = () => sendMessager('open-window', { width: 500, url: chrome.runtime.getURL(`tabs/jimaku.html?roomId=${info.room}&title=${info.title}`) })
 
-    const deleteRecords = () => {
-        const deleting = async () => {
-            let count = jimakus.length
-            if (features.enabledRecording.includes('jimaku')) {
-                count = await db.jimakus
-                    .where({ room: info.room })
-                    .delete()
-            }
-            clearJimaku()
-            return count
-        }
-        toast.promise(deleting, {
-            loading: `正在删除房间 ${info.room} 的所有字幕记录...`,
-            error: (err) => `删除字幕记录失败: ${err}`,
-            success: (count) => `已删除房间 ${info.room} 共${count}条字幕记录`,
-            position: 'bottom-center'
-        })
-    }
-
-    const downloadRecords = () => {
-        if (jimakus.length === 0) {
-            toast.warning(`下载失败`, {
-                description: '字幕记录为空。',
-                position: 'bottom-center'
-            })
-            return
-        }
-        const content = jimakus.map(jimaku => `[${jimaku.date}] ${jimaku.text}`).join('\n')
-        download(`subtitles-${info.room}-${new Date().toISOString().substring(0, 10)}.log`, content)
-        toast.success(`下载成功`, {
-            description: '你的字幕记录已保存。',
-            position: 'bottom-center'
-        })
-    }
-
+    const { deleteRecords, downloadRecords } = useRecords(info.room, jimakus, {
+        feature: 'jimaku',
+        table: features.enabledRecording.includes('jimaku') ? 'jimakus' : undefined,
+        description: '字幕',
+        format: (jimaku) => `[${jimaku.date}] ${jimaku.text}`,
+        clearRecords: clearJimaku,
+        reverse: order === 'top'
+    })
 
     return (
         <div style={{ backgroundColor: btnStyle.backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
