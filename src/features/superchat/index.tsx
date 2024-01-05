@@ -28,7 +28,8 @@ const handler: FeatureHookRender = async (settings, info) => {
             message: item.message,
             timestamp: item.start_time,
             date: useStreamingTime ? toTimer(item.start_time - info.liveTime) : toStreamingTime(item.start_time),
-            hash: `${randomString()}${item.id}`
+            hash: `${randomString()}${item.id}`,
+            persist: false
         }))
 
     return [
@@ -57,7 +58,7 @@ const handler: FeatureHookRender = async (settings, info) => {
             error={(err) => <></>}
         >
             {(records) => {
-                const offlineRecords = [...superchats, ...records.map((r) => ({ ...r, id: r.scId }))]
+                const offlineRecords = [...superchats, ...records.map((r) => ({ ...r, id: r.scId, persist: true }))]
                 return (
                     <SuperChatCaptureLayer offlineRecords={offlineRecords} settings={settings} info={info} />
                 )

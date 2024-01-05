@@ -39,7 +39,8 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
             message: data.message,
             timestamp: data.start_time,
             date: useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp(),
-            hash: `${randomString()}${data.id}`
+            hash: `${randomString()}${data.id}`,
+            persist: true
         }
         transactions.current.push(superChatProps)
     })

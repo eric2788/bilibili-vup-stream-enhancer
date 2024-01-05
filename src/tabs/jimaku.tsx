@@ -1,20 +1,31 @@
-
 import '~tailwindcss';
 
-import { Fragment, memo, useEffect, useRef, useState } from 'react';
-import VirtualScroller from 'virtual-scroller/react';
-import BJFThemeProvider from '~components/BJFThemeProvider';
-import { useForwarder } from '~hooks/forwarder';
-
 import {
-    Checkbox, IconButton, List, ListItem, Menu, MenuHandler, MenuItem, MenuList, Navbar, Typography
+    Checkbox,
+    IconButton,
+    List,
+    ListItem,
+    Menu,
+    MenuHandler,
+    MenuItem,
+    MenuList,
+    Navbar,
+    Typography
 } from '@material-tailwind/react';
+import { Fragment, memo, useEffect, useRef, useState } from 'react';
+
+import BJFThemeProvider from '~components/BJFThemeProvider';
+import VirtualScroller from 'virtual-scroller/react';
+import { useForwarder } from '~hooks/forwarder';
 
 export type Jimaku = {
     text: string
     date: string
     hash: string
 }
+
+
+
 
 const urlParams = new URLSearchParams(window.location.search)
 const roomId = urlParams.get('roomId')
@@ -67,10 +78,8 @@ function JimakuPage(): JSX.Element {
                         open={openNav}
                         handler={setOpenNav}
                         dismiss={{
-                            enabled: true,
-                            escapeKey: true,
                             itemPress: false,
-                            outsidePress: true
+                            isRequired: {}  // I dunno why but adding this eliminated the error from material-tailwind
                         }}
                     >
                         <MenuHandler>
@@ -93,7 +102,7 @@ function JimakuPage(): JSX.Element {
                                 )}
                             </IconButton>
                         </MenuHandler>
-                        <MenuList className="p-0">
+                        <MenuList dismissible={false} className="p-0">
                             <MenuItem className="p-0 overflow-hidden">
                                 <label className="flex w-full cursor-pointer items-center px-3 py-2">
                                     <Checkbox
@@ -109,8 +118,8 @@ function JimakuPage(): JSX.Element {
                     </Menu>
                 </div>
             </Navbar>
-            <div className="container w-full max-w-full">
-                <List className="overflow-y-auto">
+            <div id="popup-jimaku-list-container" className="container w-full max-w-full">
+                <List id='popup-jimaku-list' className="overflow-y-auto">
                     <VirtualScroller
                         items={messages}
                         itemComponent={memo(MessageItem)}

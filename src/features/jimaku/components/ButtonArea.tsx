@@ -42,7 +42,7 @@ function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): 
                     下载字幕记录
                 </JimakuButton>
             }
-            {features.jimakuPopupWindow &&
+            {info.status === 'online' && features.jimakuPopupWindow &&
                 <JimakuButton onClick={popupJimakuWindow} btnStyle={btnStyle}>
                     弹出同传视窗
                 </JimakuButton>

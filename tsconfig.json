@@ -8,7 +8,7 @@
     "./**/*.d.ts",
     "./**/*.ts",
     "./**/*.tsx",
-    "./src/adapters/*.js",
+    "./src/adapters/*.js"
   ],
   "compilerOptions": {
     "jsx": "react-jsx",

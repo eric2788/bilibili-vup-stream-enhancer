@@ -46,6 +46,15 @@ export function addBLiveMessageListener<K extends string>(callback: (data: { cmd
     return addWindowMessageListener('blive-ws', callback)
 }
 
+
+export function addBLiveMessageCommandListener<K extends string>(cmd: K, callback: (data: BLiveDataWild<K>, event: MessageEvent) => void): VoidFunction {
+    return addBLiveMessageListener((data, event) => {
+        if (data.cmd === cmd) {
+            callback(data.command, event)
+        }
+    })
+}
+
 export function sendBLiveMessage<K extends string>(cmd: K, command: BLiveDataWild<K>, signal?: AbortSignal): Promise<BLiveDataWild<K>> {
     const eventId = window.crypto.randomUUID()
     return new Promise((res, rej) => {

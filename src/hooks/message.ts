@@ -1,4 +1,5 @@
 import {
+    addBLiveMessageCommandListener,
     addBLiveMessageListener,
     addWindowMessageListener
 } from '~utils/messaging'
@@ -22,6 +23,12 @@ export function useBLiveMessage<K extends string>(handler: (data: { cmd: K, comm
     }, [])
 }
 
+export function useBLiveMessageCommand<K extends string>(cmd: K, handler: (command: BLiveDataWild<K>, event: MessageEvent) => void) {
+    useEffect(() => {
+        const removeListener = addBLiveMessageCommandListener(cmd, handler)
+        return () => removeListener()
+    }, [])
+}
 
 export function useBLiveSubscriber<K extends string>(command: K, handler: (command: BLiveDataWild<K>, event: MessageEvent) => void) {
     useEffect(() => {

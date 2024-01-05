@@ -296,7 +296,7 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       } catch (err: Error | any) {
         console.error(err)
         console.warn('failed to boost websocket hook.')
-        alert('WebSocket挂接提速失败: ' + err)
+        toast.error('WebSocket挂接提速失败: ' + err)
       }
     })();
 
