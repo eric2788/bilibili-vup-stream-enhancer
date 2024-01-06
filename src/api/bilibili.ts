@@ -1,4 +1,4 @@
-import type { GetInfoByRoomResponse, SpecAreaRankResponse, SuperChatList, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
+import type { GetInfoByRoomResponse, SpecAreaRankResponse, StreamUrlResponse, SuperChatList, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
 import { fetchSameCredentialBase, fetchSameCredentialV1, retryCatcher } from '~utils/fetch'
 
 import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData"
@@ -30,6 +30,10 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
     }
 }
 
+// content-script only, for using in service worker / extension pages, use sendMessager('get-stream-urls', { roomId: roomid }) instead
+export async function getStreamUrls(room: string): Promise<StreamUrlResponse> {
+    return await fetchSameCredentialV1<StreamUrlResponse>(`https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo?room_id=${room}&protocol=0,1&format=0,2&codec=0,1&qn=10000&platform=web&ptype=16`)
+}
 
 export async function getSuperChatList(room: string): Promise<SuperChatList['list']> {
     const { list } = await fetchSameCredentialBase<SuperChatList>(`https://api.live.bilibili.com/av/v1/SuperChat/getMessageList?room_id=${room}`)
@@ -37,19 +41,19 @@ export async function getSuperChatList(room: string): Promise<SuperChatList['lis
 }
 
 export async function ensureLogin(): Promise<boolean> {
-   try {
-    const data = await fetchSameCredentialV1<WebInterfaceNavResponse>('https://api.bilibili.com/x/web-interface/nav')
-    return data.isLogin
-   } catch(err: Error | any) {
-    if (err instanceof Error) {
-        throw err
+    try {
+        const data = await fetchSameCredentialV1<WebInterfaceNavResponse>('https://api.bilibili.com/x/web-interface/nav')
+        return data.isLogin
+    } catch (err: Error | any) {
+        if (err instanceof Error) {
+            throw err
+        }
+        const res = (err as V1Response<WebInterfaceNavResponse>)
+        if (res.data) {
+            return res.data.isLogin
+        }
+        throw res
     }
-    const res = (err as V1Response<WebInterfaceNavResponse>)
-    if (res.data) {
-        return res.data.isLogin
-    }
-    throw res
-   }
 }
 
 export async function ensureIsVtuber(info: StreamInfo): Promise<StreamInfo> {

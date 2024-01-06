@@ -1,8 +1,8 @@
-import { createContext, useContext, useEffect } from 'react';
-import { usePromise } from '~hooks/promise';
-import { findStaticComponent } from '~utils/react-node';
-
 import { Spinner, Typography } from '@material-tailwind/react';
+import { createContext, useContext, useEffect } from 'react';
+
+import { findStaticComponent } from '~utils/react-node';
+import { usePromise } from '~hooks/promise';
 
 const ErrorContext = createContext<Error | any>(null)
 const PromiseHandlerContext = createContext<unknown>(null)
@@ -163,9 +163,9 @@ function CustomError({ children }: { children: (err: Error | any) => React.React
     return children(error)
 }
 
-function EmbedRender({ children }: { children: (data: any) => React.ReactNode }): React.ReactNode {
+function EmbedRender<T = any>({ children }: { children: (data: T) => React.ReactNode }): React.ReactNode {
     const data = useContext(PromiseHandlerContext)
-    return children(data)
+    return children(data as T)
 }
 
 

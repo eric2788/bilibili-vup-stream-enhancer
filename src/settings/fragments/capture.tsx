@@ -34,7 +34,6 @@ function CaptureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                         <li>除了弹幕以外的所有功能</li>
                     </ul>
                 ),
-                position: 'bottom-center'
             })
         }
     }

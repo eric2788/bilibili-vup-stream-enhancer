@@ -1,59 +1,82 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import type { StreamUrlResponse } from "~types/bilibili"
-import { fetchSameCredentialV1 } from '~utils/fetch'
+import { sendInternal } from "~background/messages"
 
 export type RequestBody = {
-    roomid: number | string
+    roomId: number | string,
+    withCredentials?: boolean
+}
+
+export type StreamUrls = {
+    name: string
+    url: string
+    type: 'flv' | 'hls'
+    quality: number
+}[]
+
+export type ResponseBody = {
+    error?: string
+    data: StreamUrls
 }
 
 
-async function getStreamUrl(roomid: number | string) {
+async function getStreamUrl(roomid: number | string): Promise<StreamUrls> {
     const url = `https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo?room_id=${roomid}&protocol=0,1&format=0,2&codec=0,1&qn=10000&platform=web&ptype=16`
-    const data = await fetchSameCredentialV1<StreamUrlResponse>(url)
+    const res = await sendInternal('request', {
+        url,
+        timeout: 10000
+    })
+    if (res.error) throw new Error(res.error)
+    const data = res.data as StreamUrlResponse
 
     if (data.is_hidden) {
-        console.warn('此直播間被隱藏')
-        return []
+        throw new Error('此直播間被隱藏')
     }
 
     if (data.is_locked) {
-        console.warn('此直播間已被封鎖')
-        return []
+        throw new Error('此直播間已被封鎖')
     }
 
     if (data.encrypted && !data.pwd_verified) {
-        console.warn('此直播間已被上鎖')
-        return []
+        throw new Error('此直播間已被上鎖')
     }
 
     const streams = data?.playurl_info?.playurl?.stream ?? []
     if (streams.length == 0) {
-        console.warn('没有可用的直播视频流')
-        return []
+        throw new Error('没有可用的直播视频流')
     }
 
-    return streams.flatMap(st =>
-        st.format.flatMap(format => {
-            if (format.format_name !== 'flv') {
-                console.warn(`线路 ${st.protocol_name} 格式 ${format.format_name} 并不是 flv, 已经略过`)
-                return []
-            }
+    const names = data?.playurl_info?.playurl?.g_qn_desc ?? []
 
-            return format.codec
-                .toSorted((a, b) => b.current_qn - a.current_qn)
-                .flatMap(codec =>
-                    codec.url_info.map(url_info => url_info.host + codec.base_url + url_info.extra)
-                )
-        })
-    )
+    return streams
+        .filter(st => ['http_stream', 'http_hls'].includes(st.protocol_name))
+        .flatMap(st =>
+            st.format
+                .filter(format => st.protocol_name === 'http_hls' || format.format_name === 'flv')
+                .flatMap(format => {
+                    return format.codec
+                        .toSorted((a, b) => b.current_qn - a.current_qn)
+                        .flatMap(codec =>
+                            codec.url_info.map(url_info => ({
+                                name: `${names.find(n => n.qn === codec.current_qn)?.desc ?? codec.current_qn}-${format.format_name}`,
+                                url: url_info.host + codec.base_url + url_info.extra,
+                                type: format.format_name === 'flv' ? 'flv' : 'hls',
+                                quality: codec.current_qn
+                            }))
+                        )
+                })
+        )
 }
 
 
-const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) => {
-
-    const { roomid } = req.body
-    const urls = await getStreamUrl(roomid)
-    res.send(urls)
+const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
+    const { roomId } = req.body
+    try {
+        const urls = await getStreamUrl(roomId)
+        res.send({ data: urls })
+    } catch (err: Error | any) {
+        res.send({ error: err.message, data: [] })
+    }
 }
 
 

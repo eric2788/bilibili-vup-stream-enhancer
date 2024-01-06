@@ -1,7 +1,8 @@
+import type { MouseEventHandler } from 'react';
 import { type SettingSchema as ButtonSchema } from '~settings/fragments/button';
 
 export type JimakuButtonProps = {
-    onClick?: VoidFunction,
+    onClick?: MouseEventHandler<HTMLButtonElement>,
     btnStyle: ButtonSchema,
     children: React.ReactNode
 }

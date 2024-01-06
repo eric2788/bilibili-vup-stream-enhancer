@@ -91,7 +91,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
     return (
         <Fragment>
             {info.status === 'online' && <JimakuArea settings={settings} jimaku={jimaku} />}
-            {(info.status === 'online' || enabledRecording.includes('jimaku')) &&
+            {(info.status === 'online' || (enabledRecording.includes('jimaku') && jimaku.length > 0)) &&
                 <ButtonArea jimakus={jimaku} settings={settings} info={info} clearJimaku={() => setJimaku([])} />
             }
         </Fragment>

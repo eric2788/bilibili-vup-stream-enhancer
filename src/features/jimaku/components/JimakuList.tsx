@@ -45,7 +45,7 @@ function JimakuList(props: JimakuListProps): JSX.Element {
         const settings = await getSettingStorage('settings.listings')
         settings.tongchuanBlackList.push({ id: props.uid, name: props.uname, addedDate: new Date().toLocaleDateString() })
         await setSettingStorage('settings.listings', settings)
-        toast.success(`已成功屏蔽 ${props.uname}(${props.uid}) 的同传弹幕`, { position: 'bottom-center' })
+        toast.success(`已成功屏蔽 ${props.uname}(${props.uid}) 的同传弹幕`)
     }
 
 

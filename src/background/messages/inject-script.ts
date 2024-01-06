@@ -43,6 +43,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
 
     if (funcName) {
         console.info('injecting function: ', funcName)
+        console.info('injecting function args: ', funcArgs)
         results.push(...await chrome.scripting.executeScript({
             target: { tabId },
             injectImmediately: true,
