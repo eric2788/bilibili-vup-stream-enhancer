@@ -50,7 +50,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
             jimaku = text
         }
         if (jimaku === undefined) return
-        console.info(`[BJF] ${uname}: ${jimaku}`)
+        console.debug(`[BJF] ${uname}: ${jimaku}`)
         // const jimaku = data.info[1]
         //console.info(`[BJF] ${data.info[2][1]} => ${data.info[1]} (${data.info[0][5]})`)
         const datetime = useStreamingTime ? toStreamingTime(info.liveTime) : getTimeStamp()

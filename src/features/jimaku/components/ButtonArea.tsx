@@ -44,7 +44,14 @@ function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): 
                 </JimakuButton>
             }
             {info.status === 'online' && features.jimakuPopupWindow &&
-                <JimakuButton onClick={createPopupWindow(`jimaku.html?roomId=${info.room}&title=${info.title}`)} btnStyle={btnStyle}>
+                <JimakuButton
+                    onClick={createPopupWindow(`jimaku.html`, {
+                        roomId: info.room,
+                        title: info.title,
+                        owner: info.username
+                    })}
+                    btnStyle={btnStyle}
+                >
                     弹出同传视窗
                 </JimakuButton>
             }

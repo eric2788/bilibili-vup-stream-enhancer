@@ -5,8 +5,8 @@ export type PopupCreateInfo = Omit<chrome.windows.CreateData, 'url'>
 
 export function usePopupWindow(enabledPip: boolean, options: PopupCreateInfo) {
     const pipSupported = window.documentPictureInPicture !== undefined
-    const createPopupWindow = useCallback((tabUrl: string) => {
-        const url = chrome.runtime.getURL(`/tabs/${tabUrl}`)
+    const createPopupWindow = useCallback((tabUrl: string, params: Record<string, string> = {}) => {
+        const url = chrome.runtime.getURL(`/tabs/${tabUrl}?${new URLSearchParams(params).toString()}`)
         return async function (e: React.MouseEvent<Element>) {
             e.preventDefault()
             if (enabledPip && e.ctrlKey) {
@@ -21,6 +21,10 @@ export function usePopupWindow(enabledPip: boolean, options: PopupCreateInfo) {
                 iframe.style.width = '100%'
                 iframe.style.height = '100%'
                 iframe.allowFullscreen = true
+                iframe.mozallowfullscreen = true
+                iframe.msallowfullscreen = true
+                iframe.oallowfullscreen = true
+                iframe.webkitallowfullscreen = true
                 pip.document.body.style.margin = '0' // I dunno why but default is 8px
                 pip.document.body.style.overflow = 'hidden'
                 pip.document.body.appendChild(iframe)

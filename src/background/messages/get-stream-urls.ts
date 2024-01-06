@@ -1,5 +1,6 @@
+import type { StreamUrlResponse, V1Response } from "~types/bilibili"
+
 import type { PlasmoMessaging } from "@plasmohq/messaging"
-import type { StreamUrlResponse } from "~types/bilibili"
 import { sendInternal } from "~background/messages"
 
 export type RequestBody = {
@@ -27,7 +28,10 @@ async function getStreamUrl(roomid: number | string): Promise<StreamUrls> {
         timeout: 10000
     })
     if (res.error) throw new Error(res.error)
-    const data = res.data as StreamUrlResponse
+
+    const biliData = res.data as V1Response<StreamUrlResponse>
+    if (biliData.code !== 0) throw new Error(biliData.message)
+    const data = biliData.data
 
     if (data.is_hidden) {
         throw new Error('此直播間被隱藏')
@@ -57,12 +61,16 @@ async function getStreamUrl(roomid: number | string): Promise<StreamUrls> {
                     return format.codec
                         .toSorted((a, b) => b.current_qn - a.current_qn)
                         .flatMap(codec =>
-                            codec.url_info.map(url_info => ({
-                                name: `${names.find(n => n.qn === codec.current_qn)?.desc ?? codec.current_qn}-${format.format_name}`,
-                                url: url_info.host + codec.base_url + url_info.extra,
-                                type: format.format_name === 'flv' ? 'flv' : 'hls',
-                                quality: codec.current_qn
-                            }))
+                            codec.url_info.map(url_info => {
+                                const queries = new URLSearchParams(url_info.extra)
+                                const order = queries.get('order')
+                                return ({
+                                    name: `${names.find(n => n.qn === codec.current_qn)?.desc ?? codec.current_qn}-${format.format_name}-${order}`,
+                                    url: url_info.host + codec.base_url + url_info.extra,
+                                    type: format.format_name === 'flv' ? 'flv' : 'hls',
+                                    quality: codec.current_qn
+                                })
+                            })
                         )
                 })
         )

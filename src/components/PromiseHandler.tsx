@@ -23,7 +23,7 @@ function DefaultErrorMessage({ error }: { error: Error | any }): JSX.Element {
     }, [error])
 
     return (
-        <div className="flex justify-center items-center text-center max-w-full max-h-full">
+        <div className="flex justify-center items-center text-center h-full w-full">
             <div className="text-red-500">
                 <Typography variant="h5" color="red" className="semi-bold">加载错误:</Typography>
                 <span className="text-[17px]">{error.message}</span>
@@ -34,7 +34,7 @@ function DefaultErrorMessage({ error }: { error: Error | any }): JSX.Element {
 
 function DefaultLoading(): JSX.Element {
     return (
-        <div className="flex justify-center items-center max-w-full max-h-full">
+        <div className="flex justify-center items-center w-full h-full">
             <Spinner />
         </div>
     )

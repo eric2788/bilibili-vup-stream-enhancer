@@ -20,6 +20,7 @@
     "@plasmohq/messaging": "^0.6.0",
     "@plasmohq/storage": "^1.9.0",
     "@react-hooks-library/core": "^0.5.1",
+    "@types/dplayer": "^1.25.5",
     "autoprefixer": "^10.4.16",
     "brotli-dec-wasm": "^2.1.0",
     "dexie": "^3.2.4",

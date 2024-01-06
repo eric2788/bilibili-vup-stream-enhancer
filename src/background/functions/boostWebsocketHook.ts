@@ -1,9 +1,3 @@
-declare global {
-    interface WebSocket {
-        onInterceptMessage: (msg: MessageEvent, realOnMessage: (msg: MessageEvent) => void) => void
-        _send: (data: any) => void
-    }
-}
 
 async function boostWebSocketHook(): Promise<void> {
     // prevent duplicate injection

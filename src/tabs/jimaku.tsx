@@ -24,12 +24,10 @@ export type Jimaku = {
     hash: string
 }
 
-
-
-
 const urlParams = new URLSearchParams(window.location.search)
 const roomId = urlParams.get('roomId')
 const roomTitle = urlParams.get('title')
+const roomOwner = urlParams.get('owner')
 
 function JimakuPage(): JSX.Element {
 
@@ -68,12 +66,14 @@ function JimakuPage(): JSX.Element {
         <Fragment>
             <Navbar className="sticky top-0 z-10 shadow-md w-full max-w-full px-6 py-3 bg-gray-800 dark:bg-gray-800 rounded-none ring-0 border-0">
                 <div className="flex items-center justify-between">
-                    <Typography
-                        variant="h5"
-                        className="mr-4 py-1.5 text-gray-100"
-                    >
-                        {title}
-                    </Typography>
+                    <div className='flex flex-col justify-normal mr-4 py-1.5 gap-2 text-gray-100'>
+                        <Typography variant="h5">
+                            {title}
+                        </Typography>
+                        <Typography variant='small'>
+                            {`${roomOwner} 的直播间`}
+                        </Typography>
+                    </div>
                     <Menu
                         open={openNav}
                         handler={setOpenNav}
