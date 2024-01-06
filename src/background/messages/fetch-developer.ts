@@ -8,7 +8,14 @@ const developerLink = `https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filt
 export type RequestBody = {}
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
-    const { developer } = await sendInternal('request', { url: developerLink })
+    const { data: developer, error } = await sendInternal('request', { url: developerLink })
+    if (error) {
+        await sendInternal('notify', {
+            title: '获取远端开发设定失败',
+            message: error,
+        })
+        return
+    }
     await setSettingStorage('settings.developer', developer)
 }
 

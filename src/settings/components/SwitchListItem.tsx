@@ -1,15 +1,20 @@
 import {
-    ListItem, ListItemPrefix, ListItemSuffix, Switch, Typography
+    ListItem,
+    ListItemPrefix,
+    ListItemSuffix,
+    Switch,
+    Typography
 } from '@material-tailwind/react';
 
-import type { colors } from "@material-tailwind/react/types/generic";
 import type { ChangeEventHandler } from "react";
-
+import type { colors } from "@material-tailwind/react/types/generic";
 
 export type SwitchListItemProps = {
     onChange?: ChangeEventHandler<HTMLInputElement>
     prefix?: React.ReactNode
+    affix?: React.ReactNode
     suffix?: React.ReactNode
+    marker?: React.ReactNode
     value: boolean
     label: string | ((b: boolean) => string)
     hint?: string
@@ -37,13 +42,21 @@ function SwitchListItem(props: SwitchListItemProps): JSX.Element {
                     ripple={false}
                     color={props.color}
                     label={
-                        <div>
-                            <Typography className="font-medium ml-3">
-                                {props.label instanceof Function ? props.label(props.value) : props.label}
-                            </Typography>
-                            {props.hint && <Typography variant="small" className="font-normal ml-3">
-                                {props.hint}
-                            </Typography>}
+                        <div className='flex justify-between items-center gap-3'>
+                            <div>
+                                <Typography className="font-medium ml-3 flex items-center gap-2">
+                                    {props.label instanceof Function ? props.label(props.value) : props.label}
+                                    {props.marker}
+                                </Typography>
+                                {props.hint && <Typography variant="small" className="font-normal ml-3">
+                                    {props.hint}
+                                </Typography>}
+                            </div>
+                            {props.affix ? (
+                                <div>
+                                    {props.affix}
+                                </div>
+                            ) : <></>}
                         </div>
                     }
                     containerProps={{

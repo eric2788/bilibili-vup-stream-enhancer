@@ -6,22 +6,25 @@ import db from '~database';
 import { download } from '~utils/file';
 import { sendMessager } from '~utils/messaging';
 import { toast } from 'sonner/dist';
+import { usePopupWindow } from "~hooks/window";
 import { useRecords } from "~hooks/records";
+import { useContext } from "react";
+import StreamInfoContext from "~contexts/StreamInfoContexts";
 
 export type ButtonAreaProps = {
-    settings: Settings,
-    info: StreamInfo
     clearJimaku: VoidFunction
     jimakus: Jimaku[]
 }
 
-function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
+function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
+
+    const { settings, info } = useContext(StreamInfoContext)
 
     const { order } = settings['settings.jimaku']
     const btnStyle = settings['settings.button']
     const features = settings["settings.features"]
 
-    const popupJimakuWindow = () => sendMessager('open-window', { width: 500, url: chrome.runtime.getURL(`tabs/jimaku.html?roomId=${info.room}&title=${info.title}`) })
+    const { createPopupWindow } = usePopupWindow(true, { width: 500 })
 
     const { deleteRecords, downloadRecords } = useRecords(info.room, jimakus, {
         feature: 'jimaku',
@@ -43,7 +46,14 @@ function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): 
                 </JimakuButton>
             }
             {info.status === 'online' && features.jimakuPopupWindow &&
-                <JimakuButton onClick={popupJimakuWindow} btnStyle={btnStyle}>
+                <JimakuButton
+                    onClick={createPopupWindow(`jimaku.html`, {
+                        roomId: info.room,
+                        title: info.title,
+                        owner: info.username
+                    })}
+                    btnStyle={btnStyle}
+                >
                     弹出同传视窗
                 </JimakuButton>
             }

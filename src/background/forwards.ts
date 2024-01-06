@@ -1,4 +1,6 @@
+import * as bliveData from './forwards/blive-data'
 import * as command from './forwards/command'
+import * as danmaku from './forwards/danmaku'
 import * as jimaku from './forwards/jimaku'
 import * as redirect from './forwards/redirect'
 
@@ -148,4 +150,6 @@ const forwards = {
     'jimaku': jimaku,
     'command': command,
     'redirect': redirect,
+    'danmaku': danmaku,
+    'blive-data': bliveData
 }

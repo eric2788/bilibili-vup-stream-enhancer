@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react';
 
 import ConditionalWrapper from '~components/ConditionalWrapper';
 import type { Jimaku } from "./JimakuLine";
@@ -11,6 +11,7 @@ import { rgba } from '~utils/misc';
 import styled from '@emotion/styled';
 import { useTeleport } from '~hooks/teleport';
 import { useWebScreenChange } from '~hooks/bilibili';
+import StreamInfoContext from '~contexts/StreamInfoContexts';
 
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
 
@@ -52,10 +53,11 @@ const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
 
 export type JimakuAreaProps = {
     jimaku: Jimaku[]
-    settings: Settings
 }
 
-function JimakuArea({ settings, jimaku }: JimakuAreaProps): JSX.Element {
+function JimakuArea({  jimaku }: JimakuAreaProps): JSX.Element {
+
+    const { settings } = useContext(StreamInfoContext)
 
     const jimakuStyle = settings['settings.jimaku']
     const dev = settings['settings.developer']

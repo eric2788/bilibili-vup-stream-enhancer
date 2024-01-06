@@ -30,7 +30,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     color: '#ffffff',
     animation: 'slide-y',
     order: 'top',
-    backgroundHeight: 100,
+    backgroundHeight: 150,
     backgroundColor: '#808080',
     backgroundOpacity: 40,
     filterUserLevel: 0

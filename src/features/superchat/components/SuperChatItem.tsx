@@ -1,5 +1,4 @@
 import type { MutableRefObject } from "react"
-import { Tooltip } from "@material-tailwind/react"
 import { useRowOptimizer } from "~hooks/optimizer"
 
 export type SuperChatCard = SuperChatItemProps & { id: number, date: string, hash: string }

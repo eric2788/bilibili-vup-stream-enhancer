@@ -1,9 +1,9 @@
 import type { VtbMoeDetailResponse, VtbMoeListResponse } from "~types/bilibili"
-import { sendMessager } from '~utils/messaging'
+import { sendRequest } from "~utils/fetch"
 
 export async function getVupDetail(uid: string): Promise<VtbMoeDetailResponse | undefined> {
     try {
-        return await sendMessager('request', {
+        return await sendRequest<VtbMoeDetailResponse>({
             url: `https://api.vtbs.moe/v1/detail/${uid}`,
             timeout: 5000
         })
@@ -20,11 +20,11 @@ export type VupResponse = {
 }
 
 export async function listAllVupUids(): Promise<VupResponse[]> {
-    const req = await sendMessager('request', {
+    const res = await sendRequest<VtbMoeListResponse>({
         url: 'https://vdb.vtbs.moe/json/list.json',
         timeout: 5000
-    }) as VtbMoeListResponse
-    return req.vtbs.filter(v => v.type === 'vtuber').map(v => {
+    })
+    return res.vtbs.filter(v => v.type === 'vtuber').map(v => {
         const acc = v.accounts.find(acc => acc.platform == 'bilibili')
         return acc ? {
             id: acc.id,

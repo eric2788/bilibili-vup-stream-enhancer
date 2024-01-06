@@ -1,6 +1,6 @@
+import { Toaster } from 'sonner/dist'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Toaster } from 'sonner/dist'
 
 let div = document.getElementById("bjf-toaster")
 if (div == null) {
@@ -9,4 +9,4 @@ if (div == null) {
     document.body.appendChild(div)
 }
 const root = createRoot(div)
-root.render(createElement(Toaster, { richColors: true }))
+root.render(createElement(Toaster, { richColors: true, position: 'bottom-center' }))

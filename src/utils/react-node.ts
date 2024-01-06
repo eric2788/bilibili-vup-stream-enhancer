@@ -22,3 +22,10 @@ export function findStaticComponent(children: React.ReactNode, name: string): Re
     }
     return null
 }
+
+
+export function injectScriptElement(code: string, element: Element = document.body) {
+    const script = document.createElement('script')
+    script.textContent = code
+    element.appendChild(script)
+}

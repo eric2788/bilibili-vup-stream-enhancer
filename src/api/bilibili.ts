@@ -1,5 +1,5 @@
-import type { GetInfoByRoomResponse, SpecAreaRankResponse, SuperChatList, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
-import { fetchSameCredentialBase, fetchSameCredentialV1, retryCatcher } from '~utils/fetch'
+import type { GetInfoByRoomResponse, SpecAreaRankResponse, StreamUrlResponse, SuperChatList, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
+import { fetchSameCredentialBase, fetchSameCredentialV1, retryCatcher, sendRequest } from '~utils/fetch'
 
 import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData"
 import func from '~utils/func'
@@ -9,6 +9,7 @@ import { w_rid } from '~utils/bilibili'
 
 export type StreamInfo = {
     room: string
+    shortRoom: string
     title: string
     uid: string
     username: string
@@ -21,6 +22,7 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
     const data = await fetchSameCredentialV1<GetInfoByRoomResponse>(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${room}`)
     return {
         room: data.room_info.room_id.toString(),
+        shortRoom: data.room_info.short_id.toString(),
         title: data.room_info.title,
         uid: data.room_info.uid.toString(),
         username: data.anchor_info.base_info.uname,
@@ -30,6 +32,10 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
     }
 }
 
+// content-script only, for using in service worker / extension pages, use sendMessager('get-stream-urls', { roomId: roomid }) instead
+export async function getStreamUrls(room: string): Promise<StreamUrlResponse> {
+    return await fetchSameCredentialV1<StreamUrlResponse>(`https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo?room_id=${room}&protocol=0,1&format=0,2&codec=0,1&qn=10000&platform=web&ptype=16`)
+}
 
 export async function getSuperChatList(room: string): Promise<SuperChatList['list']> {
     const { list } = await fetchSameCredentialBase<SuperChatList>(`https://api.live.bilibili.com/av/v1/SuperChat/getMessageList?room_id=${room}`)
@@ -37,24 +43,26 @@ export async function getSuperChatList(room: string): Promise<SuperChatList['lis
 }
 
 export async function ensureLogin(): Promise<boolean> {
-   try {
-    const data = await fetchSameCredentialV1<WebInterfaceNavResponse>('https://api.bilibili.com/x/web-interface/nav')
-    return data.isLogin
-   } catch(err: Error | any) {
-    if (err instanceof Error) {
-        throw err
+    try {
+        const data = await fetchSameCredentialV1<WebInterfaceNavResponse>('https://api.bilibili.com/x/web-interface/nav')
+        return data.isLogin
+    } catch (err: Error | any) {
+        if (err instanceof Error) {
+            throw err
+        }
+        const res = (err as V1Response<WebInterfaceNavResponse>)
+        if (res.data) {
+            return res.data.isLogin
+        }
+        throw res
     }
-    const res = (err as V1Response<WebInterfaceNavResponse>)
-    if (res.data) {
-        return res.data.isLogin
-    }
-    throw res
-   }
 }
 
 export async function ensureIsVtuber(info: StreamInfo): Promise<StreamInfo> {
     // real vtuber identification
-    const vup = await retryCatcher(() => identifyVup(info.uid), 3)
+    const vup = await retryCatcher(() => identifyVup(info.uid), 3,
+        { id: info.uid, name: info.username, locale: 'idk' } // if failed, always return is vtuber = true
+    )
 
     // if not undefined
     if (vup) {
@@ -91,7 +99,7 @@ export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> 
     const wrid = await w_rid(mid, now)
     const url = `https://api.bilibili.com/x/space/wbi/acc/info?platform=web&token=&web_location=1550101&wts=${now}&mid=${mid}&w_rid=${wrid}`
 
-    const res = await sendMessager('request', {
+    const res = await sendRequest<V1Response<WbiAccInfoResponse>>({
         url,
         options: {
             method: "GET",
@@ -101,8 +109,8 @@ export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> 
                 'Origin': 'https://space.bilibili.com'
             },
         }
-    }) as V1Response<WbiAccInfoResponse>
-
+    })
+    
     if (res.code !== 0) throw new Error(`B站API请求错误: ${res.message}`)
     return res.data
 }

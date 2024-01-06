@@ -3,24 +3,18 @@ import type {
     Payload as MsgPayload,
     Response as MsgResponse
 } from '~background/messages'
-import type { Payload as PortPayload, Response as PortResponse, PortingData } from "~background/ports"
 
 import type { BLiveDataWild } from "~types/bilibili"
-import { getPort } from '@plasmohq/messaging/port'
 import { sendToBackground } from '@plasmohq/messaging'
 
 export const ID = 'bilibili-jimaku-filter'
 
-export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]> | void> {
+export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]>> {
     return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
 }
 
-export async function sendMessagerFromMain<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, extensionId: string = 'ooofiabfmndbfglabnjmnmpdmddehido'): Promise<MsgResponse<MessagingData[T]> | void> {
+export async function sendMessagerFromMain<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, extensionId: string = 'ooofiabfmndbfglabnjmnmpdmddehido'): Promise<MsgResponse<MessagingData[T]>> {
     return sendToBackground({ name, body, extensionId }).then(res => res as MsgResponse<MessagingData[T]>)
-}
-
-export async function sendPort<T extends keyof PortingData>(name: T, body: PortPayload<PortingData[T]> = undefined): Promise<PortResponse<PortingData[T]> | void> {
-    return getPort(name).postMessage({ body })
 }
 
 export function addWindowMessageListener(command: string, callback: (data: any, event: MessageEvent) => void, signal?: AbortSignal): VoidFunction {

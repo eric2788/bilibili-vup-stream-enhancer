@@ -16,6 +16,7 @@ import "~toaster"
 
 import { Button } from '@material-tailwind/react';
 import { useStorageWatch } from '~hooks/storage';
+import { toast } from 'sonner/dist';
 
 document.title = '设定页面'
 
@@ -28,34 +29,30 @@ async function exportSettings(): Promise<void> {
         const settings = await getFullSettingStroage()
         const exportContent = JSON.stringify(settings)
         download('settings.json', exportContent, 'application/json')
-        await sendMessager('notify', {
-            title: '导出设定成功',
-            message: '设定已经导出成功。'
+        toast.success('导出设定成功', {
+            description: '设定已经导出成功。'
         })
     } catch (err: Error | any) {
-        await sendMessager('notify', {
-            title: '导出设定失败',
-            message: err.message
+        toast.error('导出设定失败: ', {
+            description: err.message
         })
     }
 }
 
 async function clearRecords(): Promise<void> {
-    try {
+    if (!window.confirm('决定删除所有直播房间的记录?')) return
+    const clearing = (async () => {
         const re = await sendMessager('clear-table', { table: 'all' })
         if (re instanceof Object && re.result !== 'success') {
-            throw re.error
+            throw new Error(re.error)
         }
-        await sendMessager('notify', {
-            title: '清空记录成功',
-            message: '所有记录已经清空。'
-        })
-    } catch (err: Error | any) {
-        await sendMessager('notify', {
-            title: '清空记录失败',
-            message: err.message
-        })
-    }
+    })();
+    toast.promise(clearing, {
+        loading: '正在清空记录...',
+        success: '所有记录已经清空。',
+        error: err => '清空记录失败: ' + err.message
+    })
+    await clearing
 }
 
 async function checkingUpdate(): Promise<void> {
@@ -92,32 +89,35 @@ function SettingPage(): JSX.Element {
                 if (target.files.length === 0) return
                 const file = target.files[0]
                 try {
-                    const settings = (await readAsJson(file)) as Settings
-                    if (!(settings instanceof Object)) {
-                        throw new Error('导入的设定文件格式错误。')
-                    }
-                    if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
-                        throw new Error('导入的设定文件格式错误。')
-                    }
-                    await Promise.all(fragmentRefs.map((ref) => {
-                        const fragmentKey = ref.current.fragmentKey
-                        const { defaultSettings } = fragments[fragmentKey]
-                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
-                        return ref.current.importSettings(importContent)
-                    }))
-                    await sendMessager('notify', {
-                        title: '导入设定成功',
-                        message: '设定已经导入成功。'
+                    const importing = (async () => {
+                        const settings = (await readAsJson(file)) as Settings
+                        if (!(settings instanceof Object)) {
+                            throw new Error('导入的设定文件格式错误。')
+                        }
+                        if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
+                            throw new Error('导入的设定文件格式错误。')
+                        }
+                        await Promise.all(fragmentRefs.map((ref) => {
+                            const fragmentKey = ref.current.fragmentKey
+                            const { defaultSettings } = fragments[fragmentKey]
+                            const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
+                            return ref.current.importSettings(importContent)
+                        }))
+                    })();
+                    toast.promise(importing, {
+                        loading: '正在导入设定...',
+                        success: '设定已经导入成功。',
+                        error: err => '导入设定失败: ' + err.message
                     })
+                    await importing
                     if (!processing) {
                         // 向所有页面发送重启指令
                         forwarder.sendForward('content-script', { command: 'restart' })
                     }
                 } catch (err: Error | any) {
                     console.error(err)
-                    await sendMessager('notify', {
-                        title: '导入设定失败',
-                        message: err.message
+                    toast.error('导入设定失败: ', {
+                        description: err.message
                     })
                 } finally {
                     fileImport.current.files = null
@@ -133,28 +133,23 @@ function SettingPage(): JSX.Element {
                 return
             }
             if (fragmentRefs.every(ref => ref.current.saveSettings === undefined)) {
-                await sendMessager('notify', {
-                    title: '无需保存设定',
-                    message: '没有设定被变更。'
+                toast.warning('无需保存设定', {
+                    description: '没有设定被变更。'
                 })
                 return
             }
-            await Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
-            await sendMessager('notify', {
-                title: '保存设定成功',
-                message: '所有设定已经保存成功。'
+            const saving = Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
+            toast.promise(saving, {
+                loading: '正在保存设定...',
+                success: '所有设定已经保存成功。',
+                error: err => '保存设定失败: ' + err.message
             })
+            await saving
             if (!processing) {
                 // 向所有页面发送重启指令
                 forwarder.sendForward('content-script', { command: 'restart' }, { url: '*://live.bilibili.com/*' })
             }
         }
-    }, (err) => {
-        console.error(err)
-        sendMessager('notify', {
-            title: '保存设定失败',
-            message: err.message
-        })
     })
 
     return (

@@ -1,0 +1,221 @@
+import BLiveThemeProvider from "~components/BLiveThemeProvider"
+import type { FeatureType } from "~features"
+import { Fragment } from "react"
+import type { PlasmoCSUIAnchor } from "plasmo"
+import type { Settings } from "~settings"
+import type { StreamInfo } from "~api/bilibili"
+import { createRoot, type Root } from "react-dom/client"
+import features from "~features"
+import { getFullSettingStroage } from "~utils/storage"
+import { getStreamInfoByDom } from "~utils/bilibili"
+import { injectAdapter } from "~utils/inject"
+import { sendMessager } from "~utils/messaging"
+import { shouldInit } from "~settings"
+import { toast } from "sonner/dist"
+import App from "./App"
+import StreamInfoContext from "~contexts/StreamInfoContexts"
+
+interface RootMountable {
+    feature: FeatureType
+    mount: (settings: Settings) => Promise<void>
+    unmount: () => Promise<void>
+}
+
+interface PlasmoSpec {
+    rootContainer: Element
+    anchor: PlasmoCSUIAnchor
+    OverlayApp?: any
+    InlineApp?: any
+}
+
+
+interface App {
+    start(): Promise<void>
+    stop(): Promise<void>
+}
+
+
+// createMountPoints will not start or the stop the app
+function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[] {
+
+    const { rootContainer, OverlayApp, anchor } = plasmo
+
+    return Object.entries(features).map(([key, handler]) => {
+        const { default: hook, App } = handler
+
+        const section = document.createElement('section')
+        section.id = `bjf-feature-${key}`
+        rootContainer.appendChild(section)
+
+        const feature = key as FeatureType
+        // this root is feature root
+        let root: Root = null
+
+        return {
+            feature,
+            mount: async (settings: Settings) => {
+
+                // feature whitelist/blacklist
+                const roomList = settings['settings.features'].roomList[feature]
+
+                if (roomList.list.length > 0) {
+                    if (roomList.list.some(r => r.room === info.room) === roomList.asBlackList) {
+                        console.info(`房間 ${info.room} 已被 ${key} 功能黑名單，已略過`)
+                        return
+                    }
+                }
+
+                const portals = await hook(settings, info)
+                // 返回禁用狀態的話則直接跳過渲染
+                if (!portals) {
+                    console.info(`房間 ${info.room} 已被 ${key} 功能禁用，已略過`)
+                    return
+                }
+                root = createRoot(section)
+                root.render(
+                    <OverlayApp anchor={anchor}>
+                        <BLiveThemeProvider element={section}>
+                            <StreamInfoContext.Provider value={{ settings, info }}>
+                                {App ? <App settings={settings} info={info} /> : <></>}
+                                {portals}
+                            </StreamInfoContext.Provider>
+                        </BLiveThemeProvider>
+                    </OverlayApp>
+                )
+            },
+            unmount: async () => {
+                if (root === null) {
+                    return
+                }
+                root.unmount()
+            }
+        }
+    })
+
+}
+
+
+
+function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
+
+    const { anchor, OverlayApp, rootContainer } = plasmo
+    const mounters = createMountPoints({ rootContainer, anchor, OverlayApp }, info)
+
+    const section = document.createElement('section')
+    section.id = "bjf-root"
+    rootContainer.appendChild(section)
+
+    // this root is main root
+    let root: Root = null
+
+    return {
+        async start(): Promise<void> {
+
+            const settings = await getFullSettingStroage()
+            const enabled = settings['settings.features'].enabledFeatures
+
+            // 如果沒有取得直播資訊，就嘗試使用 DOM 取得
+            if (!info) {
+                info = getStreamInfoByDom(roomId, settings)
+            }
+
+            // 依然無法取得，就略過
+            if (!info) {
+                console.info('無法取得直播資訊，已略過')
+                toast.warning('無法取得直播資訊，请稍后刷新页面尝试。', { position: 'top-left' })
+                return
+            }
+
+            if (!(await shouldInit(settings, info))) {
+                console.info('不符合初始化條件，已略過')
+                return
+            }
+
+            // hook adapter (only when online)
+            if (info.status === 'online') {
+                console.info('開始注入適配器....')
+                const adapterType = settings["settings.capture"].captureMechanism
+                const hooking = injectAdapter({ command: 'hook', type: adapterType, settings: settings })
+                toast.dismiss()
+                toast.promise(hooking, {
+                    loading: '正在挂接直播监听...',
+                    success: '挂接成功',
+                    position: 'top-left'
+                })
+                try {
+                    await hooking
+                } catch (err: Error | any) {
+                    console.error('hooking error: ', err)
+                    toast.dismiss()
+                    toast.error('挂接失敗: ' + err.message, {
+                        action: {
+                            label: '重試',
+                            onClick: () => this.start()
+                        },
+                        position: 'top-left',
+                        duration: 6000000,
+                        dismissible: false
+                    })
+                    return
+                }
+                console.info('注入適配器完成')
+            } else {
+                console.info('直播尚未開始或已下線，將不會注入適配器')
+                // 但依然會渲染元素
+            }
+
+            // 渲染主元素
+            root = createRoot(section)
+            console.info('開始渲染主元素....')
+            root.render(
+                <OverlayApp anchor={anchor}>
+                    <BLiveThemeProvider element={section}>
+                        <StreamInfoContext.Provider value={{ settings, info }}>
+                            <App />
+                        </StreamInfoContext.Provider>
+                    </BLiveThemeProvider>
+                </OverlayApp>
+            )
+            console.info('渲染主元素完成')
+
+            // 渲染功能元素
+            console.info('開始渲染元素....')
+            await Promise.all(mounters.filter(m => enabled.includes(m.feature)).map(m => m.mount(settings)))
+            console.info('渲染元素完成')
+
+        },
+        stop: async () => {
+            if (root === null) {
+                console.warn('root is null, maybe not mounted yet')
+                return
+            }
+
+            // unhook adapters
+            console.info('開始移除適配器....')
+            const unhooking = sendMessager('hook-adapter', { command: 'unhook' })
+            toast.dismiss()
+            toast.promise(unhooking, {
+                loading: '正在移除直播监听挂接...',
+                success: '移除成功',
+                error: (err) => '移除失敗: ' + err,
+                position: 'top-left'
+            })
+            await unhooking
+            console.info('移除適配器完成')
+
+            // 卸載功能元素
+            console.info('開始卸載元素....')
+            await Promise.all(mounters.map(m => m.unmount()))
+            console.info('卸載元素完成')
+
+            // 卸載主元素
+            console.info('開始卸載主元素....')
+            root.unmount()
+            console.info('卸載主元素完成')
+
+        }
+    }
+}
+
+
+export default createApp

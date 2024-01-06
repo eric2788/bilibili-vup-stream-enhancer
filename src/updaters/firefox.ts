@@ -20,7 +20,14 @@ export const checkUpdate: UpdateChecker = async (version: string): Promise<chrom
             status: 'no_update'
         }
     }
-    const { addons } = await sendInternal('request', { url: update_url })
+    const { error, data: addons } = await sendInternal('request', { url: update_url })
+    if (error) {
+        console.error('Cannot get addons from update_url', error)
+        return {
+            version: '',
+            status: 'throttled'
+        }
+    }
     if (!addons) {
         console.error('Cannot get addons from update_url')
         return {
