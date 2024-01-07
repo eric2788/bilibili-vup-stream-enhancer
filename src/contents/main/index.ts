@@ -63,6 +63,7 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
 
   try {
 
+    // this room id should only use for getStreamInfo
     const roomId = getRoomId()
 
     if (!roomId) {
@@ -93,9 +94,7 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
     }
 
-
-
-    const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(getRoomId())))
+    const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(roomId)))
 
     const rootContainer = await createRootContainer(anchor)
     const forwarder = getForwarder('command', 'content-script')

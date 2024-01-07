@@ -12,7 +12,8 @@ import { injectAdapter } from "~utils/inject"
 import { sendMessager } from "~utils/messaging"
 import { shouldInit } from "~settings"
 import { toast } from "sonner/dist"
-import App from "./components/App"
+import App from "./App"
+import StreamInfoContext from "~contexts/SteamInfoContexts"
 
 interface RootMountable {
     feature: FeatureType
@@ -74,10 +75,10 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
                 root.render(
                     <OverlayApp anchor={anchor}>
                         <BLiveThemeProvider element={section}>
-                            <Fragment>
+                            <StreamInfoContext.Provider value={{ settings, info }}>
                                 {App ? <App settings={settings} info={info} /> : <></>}
                                 {portals}
-                            </Fragment>
+                            </StreamInfoContext.Provider>
                         </BLiveThemeProvider>
                     </OverlayApp>
                 )
@@ -125,7 +126,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
                 return
             }
 
-            if (!(await shouldInit(roomId, settings, info))) {
+            if (!(await shouldInit(settings, info))) {
                 console.info('不符合初始化條件，已略過')
                 return
             }
@@ -169,11 +170,9 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             root.render(
                 <OverlayApp anchor={anchor}>
                     <BLiveThemeProvider element={section}>
-                        <App
-                            roomId={roomId}
-                            settings={settings}
-                            info={info}
-                        />
+                        <StreamInfoContext.Provider value={{ settings, info }}>
+                            <App />
+                        </StreamInfoContext.Provider>
                     </BLiveThemeProvider>
                 </OverlayApp>
             )

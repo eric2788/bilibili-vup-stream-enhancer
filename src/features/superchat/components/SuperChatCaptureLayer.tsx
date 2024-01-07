@@ -1,24 +1,22 @@
+import { useCallback, useContext, useRef, useState } from "react"
 import { getTimeStamp, randomString, toStreamingTime } from "~utils/misc"
-import { useCallback, useRef, useState } from "react"
 
-import type { Settings } from "~settings"
-import type { StreamInfo } from "~api/bilibili"
-import SuperChatArea from "./SuperChatArea"
-import type { SuperChatCard } from "./SuperChatItem"
-import SuperChatFloatingButton from "./SuperChatFloatingButton"
+import { useInterval } from "@react-hooks-library/core"
+import StreamInfoContext from "~contexts/SteamInfoContexts"
 import db from "~database"
 import { useBLiveSubscriber } from "~hooks/message"
-import { useInterval } from "@react-hooks-library/core"
+import SuperChatArea from "./SuperChatArea"
+import SuperChatFloatingButton from "./SuperChatFloatingButton"
+import type { SuperChatCard } from "./SuperChatItem"
 
 export type SuperChatCaptureLayerProps = {
     offlineRecords: SuperChatCard[]
-    settings: Settings
-    info: StreamInfo
 }
 
 function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
 
-    const { settings, info, offlineRecords } = props
+    const { settings, info } = useContext(StreamInfoContext)
+    const { offlineRecords } = props
     const { enabledRecording, useStreamingTime } = settings['settings.features']
 
     const [superchat, setSuperChat] = useState<SuperChatCard[]>(offlineRecords)
@@ -64,8 +62,6 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
     return (
         <SuperChatFloatingButton>
             <SuperChatArea
-                settings={settings}
-                info={info}
                 superchats={superchat}
                 clearSuperChat={clearSuperChat}
             />

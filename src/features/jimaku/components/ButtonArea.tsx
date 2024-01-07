@@ -8,15 +8,17 @@ import { sendMessager } from '~utils/messaging';
 import { toast } from 'sonner/dist';
 import { usePopupWindow } from "~hooks/window";
 import { useRecords } from "~hooks/records";
+import { useContext } from "react";
+import StreamInfoContext from "~contexts/SteamInfoContexts";
 
 export type ButtonAreaProps = {
-    settings: Settings,
-    info: StreamInfo
     clearJimaku: VoidFunction
     jimakus: Jimaku[]
 }
 
-function ButtonArea({ settings, info, clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
+function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
+
+    const { settings, info } = useContext(StreamInfoContext)
 
     const { order } = settings['settings.jimaku']
     const btnStyle = settings['settings.button']

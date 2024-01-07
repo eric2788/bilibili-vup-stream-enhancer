@@ -132,7 +132,7 @@ const handler: FeatureHookRender = async (settings, info) => {
                         </>
                     )}
                 >
-                    {(data) => <JimakuCaptureLayer settings={settings} info={info} offlineRecords={data} />}
+                    {(data) => <JimakuCaptureLayer offlineRecords={data} />}
                 </OfflineRecordsProvider>
             </TailwindScope>
             , jimakuArea)

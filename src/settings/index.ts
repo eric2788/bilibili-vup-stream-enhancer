@@ -11,7 +11,7 @@ import * as listings from './fragments/listings'
 import type { StreamInfo } from '~api/bilibili'
 
 
-type ShouldInit<T extends object> = (roomId: string, settings: Readonly<T>, info: StreamInfo) => Promise<boolean>
+type ShouldInit<T extends object> = (settings: Readonly<T>, info: StreamInfo) => Promise<boolean>
 
 interface SettingFragment<T extends object> {
     defaultSettings: Readonly<T>
@@ -28,11 +28,11 @@ export type Settings = {
 }
 
 
-export async function shouldInit(roomId: string, settings: Settings, info: StreamInfo): Promise<boolean> {
+export async function shouldInit(settings: Settings, info: StreamInfo): Promise<boolean> {
     const shouldInits = Object.entries(fragments).map(([key, fragment]) => {
         const shouldInit = (fragment as any).shouldInit as ShouldInit<Schema<typeof fragment>>
         if (shouldInit) {
-            return shouldInit(roomId, settings[key], info)
+            return shouldInit(settings[key], info)
         }
         return Promise.resolve(true)
     })

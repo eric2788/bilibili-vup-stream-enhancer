@@ -2,6 +2,7 @@ import type { StreamUrlResponse, V1Response } from "~types/bilibili"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { sendInternal } from "~background/messages"
+import type { PlayerType } from "~players"
 
 export type RequestBody = {
     roomId: number | string,
@@ -9,9 +10,11 @@ export type RequestBody = {
 }
 
 export type StreamUrls = {
-    name: string
+    desc: string
     url: string
-    type: 'flv' | 'hls'
+    type: PlayerType
+    codec: string
+    track: string
     quality: number
 }[]
 
@@ -63,11 +66,13 @@ async function getStreamUrl(roomid: number | string): Promise<StreamUrls> {
                         .flatMap(codec =>
                             codec.url_info.map(url_info => {
                                 const queries = new URLSearchParams(url_info.extra)
-                                const order = queries.get('order')
+                                const order = queries.get('order') ?? '0'
                                 return ({
-                                    name: `${names.find(n => n.qn === codec.current_qn)?.desc ?? codec.current_qn}-${format.format_name}-${order}`,
+                                    desc: `${names.find(n => n.qn === codec.current_qn)?.desc ?? codec.current_qn}`,
                                     url: url_info.host + codec.base_url + url_info.extra,
                                     type: format.format_name === 'flv' ? 'flv' : 'hls',
+                                    codec: codec.codec_name,
+                                    track: order,
                                     quality: codec.current_qn
                                 })
                             })

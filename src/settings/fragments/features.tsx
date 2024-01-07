@@ -97,7 +97,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     }
 
     const experienmentFeature = (
-        <Tooltip content="测试阶段">
+        <Tooltip content="测试阶段, 可能会出现BUG或未知问题, 届时请到 github 回报。">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
             </svg>
@@ -114,7 +114,13 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 </div>
                 <List className="pl-6">
                     <SwitchListItem label="仅限虚拟主播" value={state.onlyVtuber} onChange={checker('onlyVtuber')} />
-                    <SwitchListItem label="启用监控视窗" hint="如要传入弹幕，必须开着直播间" value={state.monitorWindow} onChange={checker('monitorWindow')} />
+                    <SwitchListItem
+                        label="启用监控视窗"
+                        hint="如要传入字幕或弹幕，必须开着直播间"
+                        value={state.monitorWindow}
+                        onChange={checker('monitorWindow')}
+                        marker={experienmentFeature}
+                    />
                     <SwitchListItem label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.useStreamingTime} onChange={checker('useStreamingTime')} />
                     <SwitchListItem
                         label="启用画中画弹出视窗"
@@ -226,7 +232,7 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
     );
 }
 
-export async function shouldInit(roomId: string, settings: SettingSchema, info: StreamInfo): Promise<boolean> {
+export async function shouldInit(settings: SettingSchema, info: StreamInfo): Promise<boolean> {
 
     if (!info) {
         // do log

@@ -9,6 +9,7 @@ import { w_rid } from '~utils/bilibili'
 
 export type StreamInfo = {
     room: string
+    shortRoom: string
     title: string
     uid: string
     username: string
@@ -21,6 +22,7 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
     const data = await fetchSameCredentialV1<GetInfoByRoomResponse>(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${room}`)
     return {
         room: data.room_info.room_id.toString(),
+        shortRoom: data.room_info.short_id.toString(),
         title: data.room_info.title,
         uid: data.room_info.uid.toString(),
         username: data.anchor_info.base_info.uname,

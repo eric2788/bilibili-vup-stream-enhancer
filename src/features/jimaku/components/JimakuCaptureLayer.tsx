@@ -1,26 +1,24 @@
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useContext, useRef, useState } from 'react';
 import { getTimeStamp, randomString, toStreamingTime } from '~utils/misc';
 
-import ButtonArea from './ButtonArea';
-import type { Jimaku } from "./JimakuLine";
-import JimakuArea from './JimakuArea';
-import type { Settings } from "~settings";
-import type { StreamInfo } from "~api/bilibili";
-import db from '~database';
-import { parseJimaku } from '~utils/bilibili';
-import { sendForward } from '~background/forwards';
-import { useBLiveSubscriber } from '~hooks/message';
 import { useInterval } from '@react-hooks-library/core';
+import { sendForward } from '~background/forwards';
+import StreamInfoContext from '~contexts/SteamInfoContexts';
+import db from '~database';
+import { useBLiveSubscriber } from '~hooks/message';
+import { parseJimaku } from '~utils/bilibili';
+import ButtonArea from './ButtonArea';
+import JimakuArea from './JimakuArea';
+import type { Jimaku } from "./JimakuLine";
 
 export type JimakuCaptureLayerProps = {
     offlineRecords: Jimaku[]
-    settings: Settings
-    info: StreamInfo
 }
 
 function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
-    const { settings, info, offlineRecords } = props
+    const { settings, info } = useContext(StreamInfoContext)
+    const { offlineRecords } = props
 
     const { jimakuPopupWindow, useStreamingTime, enabledRecording } = settings["settings.features"]
     const { regex, color, position } = settings['settings.danmaku']
@@ -90,9 +88,9 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
     return (
         <Fragment>
-            {info.status === 'online' && <JimakuArea settings={settings} jimaku={jimaku} />}
+            {info.status === 'online' && <JimakuArea jimaku={jimaku} />}
             {(info.status === 'online' || (enabledRecording.includes('jimaku') && jimaku.length > 0)) &&
-                <ButtonArea jimakus={jimaku} settings={settings} info={info} clearJimaku={() => setJimaku([])} />
+                <ButtonArea jimakus={jimaku} clearJimaku={() => setJimaku([])} />
             }
         </Fragment>
     )

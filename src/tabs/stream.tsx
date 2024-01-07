@@ -3,17 +3,11 @@ import '~tailwindcss';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
 import BJFThemeProvider from '~components/BJFThemeProvider';
-import DPlayer from 'dplayer';
 import PromiseHandler from '~components/PromiseHandler';
 import type { StreamUrls } from '~background/messages/get-stream-urls';
-import flvContent from 'https://github.com/bilibili/flv.js/releases/download/v1.6.2/flv.min.js';
-import hlsContent from 'https://cdn.jsdelivr.net/npm/hls.js@1';
 import { sendInternal } from '~background/messages';
 import { useForwarder } from '~hooks/forwarder';
 import { Button, Typography } from '@material-tailwind/react';
-
-console.info(window.flvjs, flvContent)
-console.info(window.Hls, hlsContent)
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = parseInt(urlParams.get('roomId'));
@@ -23,74 +17,26 @@ const owner = urlParams.get('owner')
 document.title = `${owner} 的直播间: ${title}`
 
 
-function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
+function MonitorApp({ urls, refresh }: { urls: StreamUrls, refresh: VoidFunction }): JSX.Element {
 
-    const playerRef = useRef<HTMLDivElement>()
-    const dplayer = useRef<DPlayer>()
+    const playerRef = useRef<HTMLDivElement>(null)
+    const player = useRef(null)
 
     console.info('urls: ', urls)
 
-    useEffect(() => {
-        const player = new DPlayer({
-            container: playerRef.current,
-            autoplay: true,
-            live: true,
-            preload: 'auto',
-            lang: 'zh-cn',
-            screenshot: true,
-            danmaku: {
-                id: 'bjf-player',
-                api: ''
-            },
-            video: {
-                url: urls
-                    .filter(e => e.type === 'flv')
-                    .toSorted((a, b) => b.quality - a.quality)[0].url,
-                type: 'flv',
-                quality: urls
-                    .toSorted((a, b) => b.quality - a.quality)
-                    .map(url => ({
-                        url: url.url,
-                        name: url.name,
-                        type: url.type
-                    })),
-                defaultQuality: 0
-            },
-            pluginOptions: {
-                flv: {
-                    // refer to https://github.com/bilibili/flv.js/blob/master/docs/api.md#flvjscreateplayer
-                    mediaDataSource: {
-                        // mediaDataSource config
-                        type: 'flv',
-                        isLive: true,
-                        withCredentials: true,
-                        cors: true
-                    },
-                    config: {
-                        // config
-                        autoCleanupSourceBuffer: true,
-                        headers: {
-                            'Origin': 'https://live.bilibili.com',
-                            'Referer': `https://live.bilibili.com/${roomId}`
-                        }
-                    },
-                },
-                hls: {
+    const defaultUrl = urls.filter(url => url.type === 'flv').toSorted(((a, b) => b.quality - a.quality))[0]?.url
 
-                }
-            }
-        })
-        player.fullScreen.request('web') // request web fullscreen
-        player.play()
-        dplayer.current = player
+    useEffect(() => {
+        
+
     }, [urls])
 
 
     const forwarder = useForwarder('danmaku', 'pages')
     forwarder.addHandler((data) => {
         console.info('danmaku: ', data)
-        if (dplayer.current) {
-            dplayer.current.danmaku.draw(data)
+        if (player.current) {
+            player.current.danmaku.draw(data)
         } else {
             console.warn('danmaku: dplayer is not ready, skipped')
         }
@@ -107,23 +53,19 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
 
 function App(): JSX.Element {
 
-    const init = useCallback(async () => {
-
-        window.flvjs = flvContent instanceof Promise ? await flvContent : flvContent
-        window.Hls = hlsContent instanceof Promise ? await hlsContent : hlsContent
-
+    const getStreamUrls = useCallback(async () => {
         const res = await sendInternal('get-stream-urls', { roomId })
         if (res.error) throw new Error(res.error)
         return res.data
 
     }, [])
 
-    const [initData, setInitData] = useState<() => Promise<StreamUrls>>(init)
-    const refresh = () => setInitData(init)
+    const [fetchUrls, setFetchUrls] = useState<() => Promise<StreamUrls>>(getStreamUrls)
+    const refresh = () => setFetchUrls(getStreamUrls)
 
     return (
         <BJFThemeProvider>
-            <PromiseHandler promise={initData}>
+            <PromiseHandler promise={fetchUrls}>
                 <PromiseHandler.Error>
                     {error => (
                         <div className="flex justify-center items-center text-center h-full w-full">
@@ -136,7 +78,7 @@ function App(): JSX.Element {
                     )}
                 </PromiseHandler.Error>
                 <PromiseHandler.Response>
-                    {urls => <MonitorApp urls={urls} />}
+                    {urls => <MonitorApp urls={urls} refresh={refresh} />}
                 </PromiseHandler.Response>
             </PromiseHandler>
         </BJFThemeProvider>

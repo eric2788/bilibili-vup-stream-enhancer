@@ -176,8 +176,8 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     )
 }
 
-export async function shouldInit(roomId: number, settings: Readonly<SettingSchema>, info: StreamInfo): Promise<boolean> {
-    if (settings.blackListRooms.some((r) => r.room === roomId.toString()) === !settings.useAsWhiteListRooms) {
+export async function shouldInit(settings: Readonly<SettingSchema>, info: StreamInfo): Promise<boolean> {
+    if (settings.blackListRooms.some((r) => r.room === info.room || r.room === info.shortRoom) === !settings.useAsWhiteListRooms) {
         console.info('房間已被列入黑名單，已略過')
         return false
     }
