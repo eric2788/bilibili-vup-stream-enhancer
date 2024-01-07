@@ -12,15 +12,15 @@ class HlsPlayer implements StreamPlayer {
 
     loadAndPlay(url: string, video: HTMLMediaElement): Promise<void> {
         this.player = new Hls({
-            lowLatencyMode: true
+            lowLatencyMode: true,
         })
         return new Promise((res, rej) => {
-            this.player.on(Hls.Events.MEDIA_ATTACHED, () => {
+            this.player.once(Hls.Events.MEDIA_ATTACHED, () => {
                 console.log('video and hls.js are now bound together !')
                 res()
             })
 
-            this.player.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+            this.player.once(Hls.Events.MANIFEST_PARSED, (event, data) => {
                 console.log('manifest loaded, found ' + data.levels.length + ' quality level', data)
             })
 

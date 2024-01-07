@@ -1,11 +1,11 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 export type RequestBody = chrome.windows.CreateData & {
-    tab?: string
+    tab?: string,
 }
 
 const handler: PlasmoMessaging.MessageHandler<RequestBody, any> = async (req, res) => {
-    const { url, tab, type } = req.body
+    const { url, tab } = req.body
     const result = await chrome.windows.create({
         type: 'popup',
         focused: true,

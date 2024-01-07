@@ -5,6 +5,7 @@ import type { StreamInfo } from "~api/bilibili"
 import { localStorage } from './storage'
 import { md5 } from 'hash-wasm'
 import { sendMessager } from './messaging'
+import { sendRequest } from "./fetch"
 
 export function getRoomId(url: string = location.pathname): string {
     return /^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id
@@ -14,7 +15,7 @@ export function getRoomId(url: string = location.pathname): string {
 export async function generateWbi(): Promise<string> {
     const url = 'https://api.bilibili.com/x/web-interface/nav'
     // get wbi keys
-    const res = await sendMessager('request', {
+    const res = await sendRequest<V1Response<WebInterfaceNavResponse>>({
         url,
         options: {
             method: "GET",
@@ -24,7 +25,7 @@ export async function generateWbi(): Promise<string> {
                 'Origin': 'https://www.bilibili.com'
             },
         }
-    }) as V1Response<WebInterfaceNavResponse>
+    })
 
     // because -101 also can be a valid response
     if (res.code !== 0 && res.code !== -101) throw new Error(`B站API请求错误: ${res.message}`)

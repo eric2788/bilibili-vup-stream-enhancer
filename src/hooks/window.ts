@@ -20,6 +20,10 @@ export function usePopupWindow(enabledPip: boolean, options: PopupCreateInfo) {
                 iframe.src = url
                 iframe.style.width = '100%'
                 iframe.style.height = '100%'
+                iframe.height = options.height?.toString()
+                iframe.width = options.width?.toString()
+                iframe.allow = 'autoplay; fullscreen;'
+                iframe.frameBorder = '0'
                 iframe.allowFullscreen = true
                 iframe.mozallowfullscreen = true
                 iframe.msallowfullscreen = true

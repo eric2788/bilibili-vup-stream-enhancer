@@ -2957,11 +2957,6 @@ csstype@^3.0.2, csstype@^3.1.1:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.2.tgz#1d4bf9d572f11c14031f0436e1c10bc1f571f50b"
   integrity sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==
 
-danmaku@^2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/danmaku/-/danmaku-2.0.6.tgz#0c7f94c51aa17758b4c60e43f44ae3d1898c9758"
-  integrity sha512-yF+nLNp2JkkwTuLVCe/Y3POI6Y1CUZR6zlv1XZ28QYzfNMn4+xVMMKBbDGNeIXQjm70kuMR+iZrG1uYSo0SoDQ==
-
 debug@^3.2.6:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.7.tgz#72580b7e9145fb39b6676f9c5e5fb100b934179a"
@@ -4277,6 +4272,11 @@ mz@^2.7.0:
     any-promise "^1.0.0"
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
+
+n-danmaku@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/n-danmaku/-/n-danmaku-2.2.1.tgz#1fa1d498d1db47b56a46531107b6bd37d514933a"
+  integrity sha512-VO2t/LVcqZl2TRy7K/ZX41dTuiLFi/4iQa5TxsW2cbSViqq/LcLbRIHX6m44VCrzyDbUaiTQDkgKASI11IPKQQ==
 
 nanoid@4.0.2:
   version "4.0.2"

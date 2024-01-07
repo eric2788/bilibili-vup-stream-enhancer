@@ -42,7 +42,7 @@ async function loadStream(roomId: string, urls: StreamUrls, video: HTMLVideoElem
             return player
         } catch (err: Error | any) {
             console.error(`Player failed to load: `, err, ', from: ', url)
-            throw new Error(`Player failed to load: ${err.message}`)
+            continue
         }
     }
     throw new Error('No player is supported')

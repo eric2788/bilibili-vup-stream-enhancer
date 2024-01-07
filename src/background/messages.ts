@@ -15,19 +15,6 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { isBackgroundScript } from '~utils/file'
 import { sendMessager } from '~utils/messaging'
 
-// follow from ./messages/*.ts
-
-
-
-
-
-
-
-
-
-
-
-
 export type MessagingData = typeof messagers
 
 interface MessageData<T extends object, R = any> {

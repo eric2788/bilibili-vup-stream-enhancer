@@ -6,7 +6,7 @@ export type ResponseBody = {
     uname: string
     text: string
     color: string
-    pos: 'ltr' | 'rtl' | 'top' | 'bottom'
+    pos: 'scroll' | 'top' | 'bottom'
 }
 
 
@@ -19,7 +19,7 @@ export type ForwardBody = {
 
 const handler: ForwardHandler<ForwardBody, ResponseBody> = (req) => {
 
-    let pos: 'ltr' | 'rtl' | 'top' | 'bottom' = 'rtl'
+    let pos: 'scroll' | 'top' | 'bottom' = 'scroll'
     switch (req.body.position) {
         case 5:
             pos = 'top'
@@ -34,7 +34,7 @@ const handler: ForwardHandler<ForwardBody, ResponseBody> = (req) => {
         body: {
             uname: req.body.uname,
             text: req.body.text,
-            color: req.body.color.toString(16),
+            color: `#${req.body.color.toString(16)}`,
             pos,
         }
     }

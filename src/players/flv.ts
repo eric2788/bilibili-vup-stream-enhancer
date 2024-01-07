@@ -22,7 +22,8 @@ class FlvPlayer implements StreamPlayer {
             cors: true,
             withCredentials: true
         }, {
-            autoCleanupSourceBuffer: false,
+            stashInitialSize: 1024 * 1024,
+            autoCleanupSourceBuffer: true,
             headers: {
                 'Origin': 'https://live.bilibili.com',
                 'Referer': `https://live.bilibili.com/${this.room}`

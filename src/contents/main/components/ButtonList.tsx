@@ -8,12 +8,19 @@ import { sendMessager } from "~utils/messaging"
 
 function ButtonList(): JSX.Element {
 
-    const { settings, info } = useContext(StreamInfoContext)
+    const streamInfo = useContext(StreamInfoContext)
+
+    if (!streamInfo) {
+        console.warn('BJF App is not ready.')
+        return <></>
+    }
+    
+    const { settings, info } = streamInfo
     const { "settings.display": displaySettings, "settings.features": featureSettings } = settings
 
     const { createPopupWindow } = usePopupWindow(featureSettings.enabledPip, {
         width: 700,
-        height: 450,
+        height: 450
     })
 
     const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: location.href } })

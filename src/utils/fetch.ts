@@ -1,6 +1,8 @@
 import type { BaseResponse, CommonResponse, V1Response } from '~types/bilibili'
 
 import { sleep } from './misc'
+import type { RequestBody } from '~background/messages/request'
+import { sendMessager } from './messaging'
 
 export async function fetchSameCredential<T extends object = any>(url: string): Promise<T> {
   const res = await fetch(url, { credentials: 'include' })
@@ -94,4 +96,13 @@ export async function catcher<T>(job: Promise<T>, defaultValue: (T | undefined) 
 
 export async function retryCatcher<T>(job: () => Promise<T>, maxTimes: number = 3, defaultValue: T | undefined = undefined): Promise<T | undefined> {
   return await catcher(withRetries(job, maxTimes))
+}
+
+
+
+// request from backend
+export async function sendRequest<T = any>(request: RequestBody): Promise<T> {
+  const res = await sendMessager('request', request)
+  if (res.error) throw new Error(res.error)
+  return res.data as T
 }

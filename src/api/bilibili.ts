@@ -1,5 +1,5 @@
 import type { GetInfoByRoomResponse, SpecAreaRankResponse, StreamUrlResponse, SuperChatList, V1Response, WbiAccInfoResponse, WebInterfaceNavResponse } from "~types/bilibili"
-import { fetchSameCredentialBase, fetchSameCredentialV1, retryCatcher } from '~utils/fetch'
+import { fetchSameCredentialBase, fetchSameCredentialV1, retryCatcher, sendRequest } from '~utils/fetch'
 
 import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData"
 import func from '~utils/func'
@@ -60,7 +60,9 @@ export async function ensureLogin(): Promise<boolean> {
 
 export async function ensureIsVtuber(info: StreamInfo): Promise<StreamInfo> {
     // real vtuber identification
-    const vup = await retryCatcher(() => identifyVup(info.uid), 3)
+    const vup = await retryCatcher(() => identifyVup(info.uid), 3,
+        { id: info.uid, name: info.username, locale: 'idk' } // if failed, always return is vtuber = true
+    )
 
     // if not undefined
     if (vup) {
@@ -97,7 +99,7 @@ export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> 
     const wrid = await w_rid(mid, now)
     const url = `https://api.bilibili.com/x/space/wbi/acc/info?platform=web&token=&web_location=1550101&wts=${now}&mid=${mid}&w_rid=${wrid}`
 
-    const res = await sendMessager('request', {
+    const res = await sendRequest<V1Response<WbiAccInfoResponse>>({
         url,
         options: {
             method: "GET",
@@ -107,8 +109,8 @@ export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> 
                 'Origin': 'https://space.bilibili.com'
             },
         }
-    }) as V1Response<WbiAccInfoResponse>
-
+    })
+    
     if (res.code !== 0) throw new Error(`B站API请求错误: ${res.message}`)
     return res.data
 }
