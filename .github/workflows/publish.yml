@@ -23,7 +23,7 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                   name: ${{ matrix.browser }}-mv3.zip
-                  path: dist/
+                  path: build/
     publish:
         runs-on: ubuntu-latest
         needs: build
@@ -32,7 +32,7 @@ jobs:
             - name: Download Artifacts
               uses: actions/download-artifact@v2
               with:
-                  path: dist/
+                  path: build/
             # publish with BPP
             - name: Browser Platform Publish
               uses: PlasmoHQ/bpp@v3
@@ -46,5 +46,5 @@ jobs:
             - name: Download Artifacts
               uses: actions/download-artifact@v2
               with:
-                  path: dist/
+                  path: build/
             # sign and export xpi without publish to store

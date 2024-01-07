@@ -27,4 +27,4 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                   name: ${{ matrix.browser }}-mv3.zip
-                  path: dist/
+                  path: build/
