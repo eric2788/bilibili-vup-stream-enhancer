@@ -1,6 +1,6 @@
 import { Typography, IconButton } from "@material-tailwind/react"
 import { useContext } from "react"
-import StreamInfoContext from "~contexts/SteamInfoContexts"
+import StreamInfoContext from "~contexts/StreamInfoContexts"
 
 
 function Header({ closeDrawer }: { closeDrawer: VoidFunction }): JSX.Element {

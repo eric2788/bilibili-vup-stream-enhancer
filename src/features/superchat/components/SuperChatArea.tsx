@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react"
-import StreamInfoContext from "~contexts/SteamInfoContexts"
+import StreamInfoContext from "~contexts/StreamInfoContexts"
 import { useScrollOptimizer } from "~hooks/optimizer"
 import { useRecords } from "~hooks/records"
 import SuperChatItem, { type SuperChatCard } from "./SuperChatItem"

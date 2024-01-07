@@ -11,7 +11,7 @@ import { rgba } from '~utils/misc';
 import styled from '@emotion/styled';
 import { useTeleport } from '~hooks/teleport';
 import { useWebScreenChange } from '~hooks/bilibili';
-import StreamInfoContext from '~contexts/SteamInfoContexts';
+import StreamInfoContext from '~contexts/StreamInfoContexts';
 
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
 

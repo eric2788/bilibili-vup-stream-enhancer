@@ -2,7 +2,7 @@ import { useCallback, useContext, useRef, useState } from "react"
 import { getTimeStamp, randomString, toStreamingTime } from "~utils/misc"
 
 import { useInterval } from "@react-hooks-library/core"
-import StreamInfoContext from "~contexts/SteamInfoContexts"
+import StreamInfoContext from "~contexts/StreamInfoContexts"
 import db from "~database"
 import { useBLiveSubscriber } from "~hooks/message"
 import SuperChatArea from "./SuperChatArea"

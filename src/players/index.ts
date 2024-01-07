@@ -1,6 +1,6 @@
-import type { StreamInfo } from "~api/bilibili"
-import hls from './hls'
+import type { StreamUrls } from '~background/messages/get-stream-urls'
 import flv from './flv'
+import hls from './hls'
 
 export type EventType = keyof StreamParseEvent
 
@@ -9,19 +9,15 @@ export type StreamParseEvent = {
     'error': Error
 }
 
-export abstract class StreamPlayer {
+export interface StreamPlayer {
 
-    protected info: StreamInfo
+    get isSupported(): boolean
 
-    constructor(info: StreamInfo) {
-        this.info = info
-    }
+    loadAndPlay(url: string, video: HTMLMediaElement): Promise<void>
 
-    abstract get isSupported(): boolean
+    get internalPlayer(): any
 
-    abstract loadAndPlay(url: string, video: HTMLMediaElement): Promise<void>
-
-    abstract get internalPlayer(): any
+    stopAndDestroy(): Promise<void>
 
 }
 
@@ -32,4 +28,24 @@ const players = {
     flv
 }
 
-export default players
+async function loadStream(roomId: string, urls: StreamUrls, video: HTMLVideoElement): Promise<StreamPlayer> {
+    for (const url of urls) {
+        const Player = players[url.type]
+        const player = new Player(roomId)
+        console.info('trying to use: ', url)
+        if (!player.isSupported) {
+            console.warn(`Player ${url.type} is not supported, skipped: `, url)
+            continue
+        }
+        try {
+            await player.loadAndPlay(url.url, video)
+            return player
+        } catch (err: Error | any) {
+            console.error(`Player failed to load: `, err, ', from: ', url)
+            throw new Error(`Player failed to load: ${err.message}`)
+        }
+    }
+    throw new Error('No player is supported')
+}
+
+export default loadStream

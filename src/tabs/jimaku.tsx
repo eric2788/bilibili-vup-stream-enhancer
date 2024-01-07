@@ -66,11 +66,11 @@ function JimakuPage(): JSX.Element {
         <Fragment>
             <Navbar className="sticky top-0 z-10 shadow-md w-full max-w-full px-6 py-3 bg-gray-800 dark:bg-gray-800 rounded-none ring-0 border-0">
                 <div className="flex items-center justify-between">
-                    <div className='flex flex-col justify-normal mr-4 py-1.5 gap-2 text-gray-100'>
-                        <Typography variant="h5">
+                    <div className='flex flex-col justify-normal py-1'>
+                        <Typography variant="h5" className='text-gray-100'>
                             {title}
                         </Typography>
-                        <Typography variant='small'>
+                        <Typography variant='h5' className='text-gray-100 text-md'>
                             {`${roomOwner} 的直播间`}
                         </Typography>
                     </div>

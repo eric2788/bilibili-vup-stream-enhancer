@@ -1,7 +1,7 @@
 import { Button } from "@material-tailwind/react"
 import { useContext } from "react"
 import { sendForward } from "~background/forwards"
-import StreamInfoContext from "~contexts/SteamInfoContexts"
+import StreamInfoContext from "~contexts/StreamInfoContexts"
 import { usePopupWindow } from "~hooks/window"
 import { sendMessager } from "~utils/messaging"
 
@@ -13,7 +13,7 @@ function ButtonList(): JSX.Element {
 
     const { createPopupWindow } = usePopupWindow(featureSettings.enabledPip, {
         width: 700,
-        height: 500,
+        height: 450,
     })
 
     const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: location.href } })

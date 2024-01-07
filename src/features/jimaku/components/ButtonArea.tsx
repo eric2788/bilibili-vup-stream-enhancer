@@ -9,7 +9,7 @@ import { toast } from 'sonner/dist';
 import { usePopupWindow } from "~hooks/window";
 import { useRecords } from "~hooks/records";
 import { useContext } from "react";
-import StreamInfoContext from "~contexts/SteamInfoContexts";
+import StreamInfoContext from "~contexts/StreamInfoContexts";
 
 export type ButtonAreaProps = {
     clearJimaku: VoidFunction

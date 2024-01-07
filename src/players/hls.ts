@@ -1,8 +1,8 @@
-import { StreamPlayer } from "~players";
+import type { StreamPlayer } from "~players";
 import Hls from 'hls.js'
 
 
-class HlsPlayer extends StreamPlayer {
+class HlsPlayer implements StreamPlayer {
 
     private player: Hls
 
@@ -12,15 +12,11 @@ class HlsPlayer extends StreamPlayer {
 
     loadAndPlay(url: string, video: HTMLMediaElement): Promise<void> {
         this.player = new Hls({
-            enableWorker: true,
-            enableWebVTT: true,
             lowLatencyMode: true
         })
         return new Promise((res, rej) => {
-
             this.player.on(Hls.Events.MEDIA_ATTACHED, () => {
                 console.log('video and hls.js are now bound together !')
-                video.play()
                 res()
             })
 
@@ -28,23 +24,19 @@ class HlsPlayer extends StreamPlayer {
                 console.log('manifest loaded, found ' + data.levels.length + ' quality level', data)
             })
 
-            this.player.once(Hls.Events.ERROR, (event, data) => {
-                rej(data)
-            })
-
             this.player.loadSource(url);
             this.player.attachMedia(video);
 
-            this.player.on(Hls.Events.ERROR, (event, data) => {
+            this.player.once(Hls.Events.ERROR, (event, data) => {
+                console.warn('hls error: ', data)
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.MEDIA_ERROR:
                             console.log('fatal media error encountered, try to recover');
                             this.player.recoverMediaError();
-                            return
+                            break;
                         case Hls.ErrorTypes.NETWORK_ERROR:
                             console.error('fatal network error encountered', data);
-                            this.loadAndPlay(url, video)
                             break;
                         default:
                             // cannot recover
@@ -52,8 +44,17 @@ class HlsPlayer extends StreamPlayer {
                             break;
                     }
                     rej(data)
-                    delete this.player
                 }
+            })
+        })
+    }
+
+    stopAndDestroy(): Promise<void> {
+        return new Promise((res,) => {
+            this.player.detachMedia()
+            this.player.on(Hls.Events.MEDIA_DETACHED, () => {
+                this.player.destroy()
+                res()
             })
         })
     }

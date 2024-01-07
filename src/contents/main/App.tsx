@@ -2,7 +2,7 @@ import { Drawer } from "@material-tailwind/react";
 
 import { useToggle } from "@react-hooks-library/core";
 import { Fragment, useContext } from "react";
-import StreamInfoContext from "~contexts/SteamInfoContexts";
+import StreamInfoContext from "~contexts/StreamInfoContexts";
 import { useWebScreenChange } from "~hooks/bilibili";
 import ButtonList from "./components/ButtonList";
 import FloatingMenuButton from "./components/FloatingMenuButtion";

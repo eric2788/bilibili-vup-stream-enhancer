@@ -1,4 +1,4 @@
-import type { DirectionType } from "dplayer"
+
 import { type ForwardHandler } from "../forwards"
 
 
@@ -6,7 +6,7 @@ export type ResponseBody = {
     uname: string
     text: string
     color: string
-    type: DirectionType
+    pos: 'ltr' | 'rtl' | 'top' | 'bottom'
 }
 
 
@@ -19,13 +19,13 @@ export type ForwardBody = {
 
 const handler: ForwardHandler<ForwardBody, ResponseBody> = (req) => {
 
-    let type: DirectionType = 'right'
+    let pos: 'ltr' | 'rtl' | 'top' | 'bottom' = 'rtl'
     switch (req.body.position) {
         case 5:
-            type = 'top'
+            pos = 'top'
             break
         case 4:
-            type = 'bottom'
+            pos = 'bottom'
             break
     }
 
@@ -35,7 +35,7 @@ const handler: ForwardHandler<ForwardBody, ResponseBody> = (req) => {
             uname: req.body.uname,
             text: req.body.text,
             color: req.body.color.toString(16),
-            type,
+            pos,
         }
     }
 }

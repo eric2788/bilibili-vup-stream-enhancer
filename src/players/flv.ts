@@ -1,9 +1,14 @@
 import flvJs from 'mpegts.js';
-import { StreamPlayer } from "~players";
+import type { StreamPlayer } from "~players";
 
-class FlvPlayer extends StreamPlayer {
+class FlvPlayer implements StreamPlayer {
 
     private player: flvJs.Player
+    private room: string
+
+    constructor(room: string) {
+        this.room = room
+    }
 
     get isSupported(): boolean {
         return flvJs.isSupported()
@@ -17,10 +22,10 @@ class FlvPlayer extends StreamPlayer {
             cors: true,
             withCredentials: true
         }, {
-            autoCleanupSourceBuffer: true,
+            autoCleanupSourceBuffer: false,
             headers: {
                 'Origin': 'https://live.bilibili.com',
-                'Referer': `https://live.bilibili.com/${this.info.room}`
+                'Referer': `https://live.bilibili.com/${this.room}`
             }
         })
         this.player.attachMediaElement(container)
@@ -29,11 +34,16 @@ class FlvPlayer extends StreamPlayer {
         return new Promise((res, rej) => {
             this.player.on('media_info', res)
             this.player.on('error', (e) => {
+                console.warn('flv error: ', e)
                 this.player.detachMediaElement()
                 rej(e)
-                delete this.player
             })
         })
+    }
+
+    async stopAndDestroy(): Promise<void> {
+        this.player.detachMediaElement()
+        this.player.destroy()
     }
 
     get internalPlayer(): any {

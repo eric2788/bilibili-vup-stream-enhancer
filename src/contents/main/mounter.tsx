@@ -13,7 +13,7 @@ import { sendMessager } from "~utils/messaging"
 import { shouldInit } from "~settings"
 import { toast } from "sonner/dist"
 import App from "./App"
-import StreamInfoContext from "~contexts/SteamInfoContexts"
+import StreamInfoContext from "~contexts/StreamInfoContexts"
 
 interface RootMountable {
     feature: FeatureType

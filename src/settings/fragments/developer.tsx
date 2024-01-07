@@ -10,7 +10,7 @@ export type SettingSchema = {
         upperButtonArea: string;
         webPlayer: string;
         danmakuArea: string;
-        userId: string;
+        userName: string;
         jimakuArea: string;
         jimakuFullArea: string;
         videoArea: string;
@@ -18,6 +18,8 @@ export type SettingSchema = {
         chatItems: string;
         newMsgButton: string;
         upperInputArea: string;
+        liveReplay: string;
+        liveIdle: string;
     };
     classes: {
         screenWeb: string;
@@ -37,14 +39,16 @@ export const defaultSettings: Readonly<SettingSchema> = {
         upperButtonArea: '.rows-ctnr', // 上方按钮界面元素
         webPlayer: '.web-player-danmaku', // 播放器元素
         danmakuArea: '.danmaku-item-container', // 弹幕容器元素
-        userId: 'a.room-owner-username', // 用户 ID 元素
+        userName: '.room-owner-username', // 用户 ID 元素
         jimakuArea: 'div.player-section', // 字幕区块全屏插入元素
         jimakuFullArea: '.web-player-inject-wrap', // 字幕区块非全屏插入元素
         videoArea: 'div#aside-area-vm', // 直播屏幕区块
         liveTitle: '.live-skin-main-text.small-title', // 直播标题
         chatItems: '#chat-items', // 直播聊天栏列表
         newMsgButton: 'div#danmaku-buffer-prompt', // 新消息按钮
-        upperInputArea: '.control-panel-icon-row .icon-left-part' // 输入框区域的上方
+        upperInputArea: '.control-panel-icon-row .icon-left-part', // 输入框区域的上方
+        liveReplay: '.web-player-round-title', // 直播回放时会出现的元素
+        liveIdle: '.web-player-ending-panel', // 直播空闲时会出现的元素
     },
     classes: {
         screenWeb: 'player-full-win', // 直播网页全屏 class
@@ -88,8 +92,8 @@ const elementDefiners: ElementDefinerList = {
             key: 'elements.webPlayer'
         },
         {
-            label: "用户 ID 元素",
-            key: "elements.userId"
+            label: "用户名元素",
+            key: "elements.userName"
         },
         {
             label: "字幕区块全屏插入元素",
@@ -118,6 +122,14 @@ const elementDefiners: ElementDefinerList = {
         {
             label: "输入框区域的上方",
             key: "elements.upperInputArea"
+        },
+        {
+            label: "直播回放时会出现的元素",
+            key: "elements.liveReplay"
+        },
+        {
+            label: "直播空闲时会出现的元素",
+            key: "elements.liveIdle"
         },
     ],
     "字样捕捉": [
