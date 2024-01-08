@@ -1,6 +1,16 @@
 import { injectFuncAsListener } from "~utils/event"
 import { sendBLiveMessage } from "~utils/messaging"
-import decompress from "brotli/decompress"
+import wasmUrl from "raw:~assets/brotli-dec.wasm"
+import init from 'brotli-dec-wasm/pkg/index'
+
+var decompress = null
+
+const loadWasm = init(wasmUrl).then(output => {
+  decompress = output.decompress
+  console.info('wasm loaded.')
+})
+
+
 
 // @名称  bliveproxy
 // @版本  0.4
@@ -169,6 +179,8 @@ async function hook() {
     console.warn('cannot hook websocket, please unhook first.')
     return
   }
+
+  await loadWasm
 
   console.log('injecting websocket..')
   abortController = new AbortController()
