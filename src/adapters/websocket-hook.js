@@ -1,6 +1,6 @@
 import { injectFuncAsListener } from "~utils/event"
 import { sendBLiveMessage } from "~utils/messaging"
-import brotliPromise from 'brotli-dec-wasm'
+import decompress from "brotli/decompress"
 
 // @名称  bliveproxy
 // @版本  0.4
@@ -23,7 +23,6 @@ const OP_AUTH_REPLY = 8 // WS_OP_CONNECT_SUCCESS
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
 
-let brotli = null
 let hooked = false
 let abortController = {}
 
@@ -98,7 +97,7 @@ async function handleMessage(data, callRealOnMessageByPacket) {
             }
             case WS_BODY_PROTOCOL_VERSION_BROTLI: {
               // body是压缩过的多个消息
-              body = brotli.decompress(body)
+              body = decompress(body)
               await handleMessage(body, callRealOnMessageByPacket)
               break
             }
@@ -165,10 +164,6 @@ async function handleCommand(command, callRealOnMessageByPacket) {
 
 //修改掛接方式，將不再採用Proxy
 async function hook() {
-  // singleton
-  if (brotli === null) {
-    brotli = await brotliPromise
-  }
 
   if (hooked) {
     console.warn('cannot hook websocket, please unhook first.')
