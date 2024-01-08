@@ -1,3 +1,4 @@
+import { useInterval } from '@react-hooks-library/core'
 import { useCallback, useEffect, useRef } from 'react'
 
 type ScrollOptimizeOptions<E extends Element> = {
@@ -63,5 +64,24 @@ export function useRowOptimizer<E extends HTMLElement>(observerRef: React.Mutabl
     }, [])
 
     return refCallback
+
+}
+
+
+export function useTransaction<T>(interval: number, callback: (data: T) => void) {
+
+    const dataRef = useRef<T[]>([])
+
+    const push = useCallback((data: T) => {
+        dataRef.current.push(data)
+    }, [dataRef])
+
+    useInterval(() => {
+        if (dataRef.current.length === 0) return
+        const data = dataRef.current.shift()
+        callback(data)
+    }, interval)
+
+    return push
 
 }

@@ -111,6 +111,7 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
         track.mode = "showing"
 
         danmakuForwarder.addHandler((data) => {
+            if (data.room !== roomId) return // return if not current room
             console.info('danmaku: ', data)
             danmakus.current.push(data)
         })
@@ -131,6 +132,8 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
                 alert('player not found')
                 return
             }
+            // 無論如何，先清除一下彈幕
+            danmaku.current?.clear()
             if (player.style.display === 'none') {
                 player.style.display = 'block'
                 setHidedDanmaku(false)
