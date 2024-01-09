@@ -58,7 +58,7 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
             const parts = (k as string).split('.') as string[]
             if (parts.length === 1) {
                 const v = Reflect.get(this, k)
-                return typeof v !== 'object' ? v : stateWrapper({ ...v, ...proxyHandler })
+                return typeof v !== 'object' ? v : stateWrapper(Object.assign(v, proxyHandler))
             }
             const [part, ...remain] = parts
             const fragment = this.get(part)
@@ -66,10 +66,7 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
         }
     }
 
-    const state = stateWrapper<T>({
-        ...initialState,
-        ...proxyHandler
-    })
+    const state = stateWrapper<T>(Object.assign(initialState, proxyHandler))
 
     const proxy = stateProxy<T>(state)
     const useHandler: StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => {

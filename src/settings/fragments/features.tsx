@@ -1,55 +1,56 @@
-import { type ChangeEvent } from 'react';
+import { type ChangeEvent, type SyntheticEvent } from 'react';
 import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~settings/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
 
-import { Collapse, IconButton, List, ListItem, Switch, Tooltip, Typography } from '@material-tailwind/react';
+import { Collapse, IconButton, List, ListItem, Switch, Typography } from '@material-tailwind/react';
 
+import { toast } from 'sonner/dist';
 import type { TableType } from "~database";
 import type { FeatureType } from "~features";
-import type { StateProxy } from "~hooks/binding";
-import type { RoomList } from '~types/common';
+import { asStateProxy, useBinding, type StateProxy, type StateHandler, type ExposeHandler } from "~hooks/binding";
+import ExperienmentFeatureIcon from '~settings/components/ExperientmentFeatureIcon';
 import FeatureRoomTable from '~settings/components/FeatureRoomTable';
-import { toast } from 'sonner/dist';
-
-
+import settings, { featureTypes, type FeatureFragment, type FeatureSettings, type FeatureSettingSchema } from '~settings/features';
+import type { Leaves, PickLeaves, RoomList } from '~types/common';
 
 
 export type SettingSchema = {
     enabledFeatures: FeatureType[],
     enabledRecording: FeatureType[],
-    enabledPip: boolean,
-    onlyVtuber: boolean,
-    noNativeVtuber: boolean,
-    jimakuPopupWindow: boolean, // only when enabledFeatures.includes('jimaku')
-    monitorWindow: boolean,
-    useStreamingTime: boolean
-    roomList: Record<FeatureType, RoomList>
-}
+    roomList: Record<FeatureType, RoomList>,
+    common: {
+        enabledPip: boolean,
+        onlyVtuber: boolean,
+        monitorWindow: boolean,
+        useStreamingTime: boolean
+    }
+} & { [K in FeatureType]: FeatureSettingSchema<FeatureSettings[K]> }
 
 
 export const defaultSettings: Readonly<SettingSchema> = {
-    enabledFeatures: [
-        'jimaku',
-        'superchat'
-    ],
+    enabledFeatures: featureTypes,
     enabledRecording: [],
-    enabledPip: false,
-    onlyVtuber: false,
-    noNativeVtuber: false,
-    jimakuPopupWindow: false,
-    monitorWindow: false,
-    useStreamingTime: true,
-    roomList: [
-        'jimaku',
-        'superchat'
-    ].reduce((acc: Record<FeatureType, RoomList>, cur: FeatureType) => {
+    common: {
+        enabledPip: false,
+        onlyVtuber: false,
+        monitorWindow: false,
+        useStreamingTime: true
+    },
+    roomList: featureTypes.reduce((acc: Record<FeatureType, RoomList>, cur: FeatureType) => {
         acc[cur] = {
             list: [],
             asBlackList: false
+        };
+        return acc;
+    }, {} as Record<FeatureType, RoomList>),
+
+    ...featureTypes.reduce((acc, f: FeatureType) => {
+        return {
+            ...acc,
+            [f as FeatureType]: settings[f].defaultSettings as FeatureSettingSchema<FeatureSettings[typeof f]>
         }
-        return acc
-    }, {} as Record<FeatureType, RoomList>)
+    }, {} as { [K in FeatureType]: FeatureSettingSchema<FeatureSettings[K]> }),
 }
 
 export const title = '功能设定'
@@ -93,19 +94,13 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 position: 'top-center'
             })
         }
-        state.enabledPip = checked
+        console.info(state.common)
+        state.common.enabledPip = checked
     }
-
-    const experienmentFeature = (
-        <Tooltip content="测试阶段, 可能会出现BUG或未知问题, 届时请到 github 回报。">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-            </svg>
-        </Tooltip>
-    )
 
     return (
         <div className="col-span-2">
+            {JSON.stringify(state)}
             <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
                 <div>
                     <Typography className="font-semibold">
@@ -113,86 +108,77 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                     </Typography>
                 </div>
                 <List className="pl-6">
-                    <SwitchListItem label="仅限虚拟主播" value={state.onlyVtuber} onChange={checker('onlyVtuber')} />
+                    <SwitchListItem label="仅限虚拟主播" value={state.common.onlyVtuber} onChange={checker('common.onlyVtuber')} />
                     <SwitchListItem
                         label="启用监控视窗"
                         hint="如要传入字幕或弹幕，必须开着直播间"
-                        value={state.monitorWindow}
-                        onChange={checker('monitorWindow')}
-                        marker={experienmentFeature}
+                        value={state.common.monitorWindow}
+                        onChange={checker('common.monitorWindow')}
+                        marker={<ExperienmentFeatureIcon />}
                     />
-                    <SwitchListItem label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.useStreamingTime} onChange={checker('useStreamingTime')} />
+                    <SwitchListItem label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.common.useStreamingTime} onChange={checker('common.useStreamingTime')} />
                     <SwitchListItem
                         label="启用画中画弹出视窗"
                         hint='目前只支援 chromium 浏览器, 且视窗数量上限为一个。开启第二个画中画视窗将会导致前一个画中画视窗关闭。'
-                        value={state.enabledPip}
+                        value={state.common.enabledPip}
                         onChange={onChangePip}
-                        marker={experienmentFeature}
+                        marker={<ExperienmentFeatureIcon />}
                     />
                 </List>
             </div>
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
-                <Switch label={
-                    <div>
-                        <Typography className="font-semibold">
-                            启用同传弹幕过滤
-                        </Typography>
+            {...featureTypes.map((f: FeatureType) => {
+
+                // mechanism same as src/settings/components/SettingFragment.tsx
+                type F = typeof f
+                const setting = settings[f] as FeatureSettings[F]
+                const Component = setting.default as React.FC<StateProxy<FeatureSettingSchema<FeatureSettings[F]>>>
+
+                const handler = state as ExposeHandler<SettingSchema>
+                const deepHandler: StateHandler<FeatureSettingSchema<FeatureSettings[F]>> = (getter) => {
+                    return (key) => {
+                        return (e) => {
+                            const value = getter(e)
+                            handler.set(`${f}.${key}` as any, value)
+                        }
+                    }
+                }
+                const deepState = state[f]
+
+                return (
+                    <div key={f} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
+                        <Switch label={
+                            <div>
+                                <Typography className="font-semibold">
+                                    启用{setting.title}
+                                </Typography>
+                            </div>
+                        } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes(f)} onChange={e => toggle(f)} />
+                        <Collapse open={state.enabledFeatures.includes(f)}>
+                            <List className="pl-6">
+                                {setting.define.offlineTable !== false && (
+                                    <SwitchListItem
+                                        label="启用离线记录"
+                                        value={state.enabledRecording.includes(f)}
+                                        onChange={e => toggleRecord(f)}
+                                        suffix={
+                                            <TrashIconButton table={setting.define.offlineTable} title={setting.title} />
+                                        }
+                                    />
+                                )}
+                                {Component && <Component state={deepState} useHandler={deepHandler} />}
+                                {setting.define.enabledRoomList && (
+                                    <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
+                                        <FeatureRoomTable
+                                            feature={f}
+                                            roomList={state.roomList}
+                                        />
+                                    </ListItem>
+                                )}
+                            </List>
+                        </Collapse>
                     </div>
-                } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes('jimaku')} onChange={e => toggle('jimaku')} />
-                <Collapse open={state.enabledFeatures.includes('jimaku')}>
-                    <List className="pl-6">
-                        <SwitchListItem
-                            label="启用离线记录"
-                            value={state.enabledRecording.includes('jimaku')}
-                            onChange={e => toggleRecord('jimaku')}
-                            suffix={
-                                <TrashIconButton table={'jimakus'} title="同传弹幕" />
-                            }
-                        />
-                        <SwitchListItem
-                            label="过滤国内虚拟主播"
-                            hint="此功能目前处于测试阶段, 因此无法过滤所有的国V"
-                            value={state.noNativeVtuber}
-                            onChange={checker('noNativeVtuber')}
-                            marker={experienmentFeature}
-                        />
-                        <SwitchListItem label="启用同传弹幕彈出式视窗" hint="使用弹出式视窗时必须开着直播间才能运行" value={state.jimakuPopupWindow} onChange={checker('jimakuPopupWindow')} />
-                        <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
-                            <FeatureRoomTable
-                                feature='jimaku'
-                                roomList={state.roomList}
-                            />
-                        </ListItem>
-                    </List>
-                </Collapse>
-            </div>
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
-                <Switch label={
-                    <div>
-                        <Typography className="font-semibold">
-                            启用醒目留言记录
-                        </Typography>
-                    </div>
-                } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes('superchat')} onChange={e => toggle('superchat')} />
-                <Collapse open={state.enabledFeatures.includes('superchat')}>
-                    <List className="pl-6">
-                        <SwitchListItem
-                            label="启用离线记录"
-                            value={state.enabledRecording.includes('superchat')}
-                            onChange={e => toggleRecord('superchat')}
-                            suffix={
-                                <TrashIconButton table={'superchats'} title="醒目留言" />
-                            }
-                        />
-                        <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
-                            <FeatureRoomTable
-                                feature='superchat'
-                                roomList={state.roomList}
-                            />
-                        </ListItem>
-                    </List>
-                </Collapse>
-            </div>
+                )
+            })}
         </div>
     )
 }
@@ -245,7 +231,7 @@ export async function shouldInit(settings: SettingSchema, info: StreamInfo): Pro
         return false
     }
 
-    if (settings.onlyVtuber) {
+    if (settings.common.onlyVtuber) {
 
         if (info.uid !== '0') {
             await ensureIsVtuber(info)

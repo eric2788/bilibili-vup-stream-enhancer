@@ -21,7 +21,12 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
     const { settings, info } = useContext(StreamInfoContext)
     const { offlineRecords } = props
 
-    const { jimakuPopupWindow, useStreamingTime, enabledRecording } = settings["settings.features"]
+    const {
+        jimaku: { jimakuPopupWindow },
+        common: { useStreamingTime },
+        enabledRecording
+    } = settings["settings.features"]
+    
     const { regex, color, position } = settings['settings.danmaku']
     const jimakuStyle = settings['settings.jimaku']
     const { tongchuanBlackList, tongchuanMans } = settings['settings.listings']

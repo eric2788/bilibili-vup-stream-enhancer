@@ -1,8 +1,8 @@
 import * as jimaku from './jimaku'
 import * as superchat from './superchat'
 
-import type { Settings } from '~settings'
 import type { StreamInfo } from '~api/bilibili'
+import type { Settings } from '~settings'
 
 export type FeatureHookRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<(React.ReactPortal | React.ReactNode)[] | undefined>
 
@@ -16,8 +16,8 @@ export interface FeatureHandler {
 }
 
 const features = {
-    'jimaku': jimaku,
-    'superchat': superchat
+    jimaku, 
+    superchat
 }
 
 
