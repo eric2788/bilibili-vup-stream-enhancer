@@ -77,7 +77,7 @@ const handler: FeatureHookRender = async (settings, info) => {
     const dev = settings['settings.developer']
     const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size, order } = settings['settings.jimaku']
     const { backgroundListColor } = settings['settings.button']
-    const { noNativeVtuber } = settings['settings.features']
+    const { noNativeVtuber } = settings['settings.features'].jimaku
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
     const jimakuArea = document.createElement('div')

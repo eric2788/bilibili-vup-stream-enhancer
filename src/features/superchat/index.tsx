@@ -10,7 +10,7 @@ import { type SuperChatCard } from "./components/SuperChatItem";
 
 const handler: FeatureHookRender = async (settings, info) => {
 
-    const { useStreamingTime } = settings['settings.features']
+    const { useStreamingTime } = settings['settings.features'].common
 
     const list = await getSuperChatList(info.room)
     const superchats: SuperChatCard[] = (list ?? [])

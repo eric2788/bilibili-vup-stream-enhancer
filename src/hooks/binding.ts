@@ -1,4 +1,4 @@
-import { type SyntheticEvent } from 'react'
+import { useCallback, type SyntheticEvent, useMemo } from 'react'
 import { stateProxy, stateWrapper } from 'react-state-proxy'
 
 import type { Leaves, PathLeafType, Paths, PickLeaves } from '~types/common'
@@ -40,9 +40,9 @@ export type ExposeHandler<T extends object> = T & {
  * // The state is updated when the input changes
  * console.log(state.text) // Output: (new value of the input)
  */
-export function useBinding<T extends object>(initialState: T): [T, StateHandler<T>] {
+export function useBinding<T extends object>(initialState: T, noCopy: boolean = false): [T, StateHandler<T>] {
 
-    const proxyHandler = {
+    const proxyHandler = useMemo(() => ({
         set<K extends Leaves<T>>(k: K, v: PathLeafType<T, K>, useThis: boolean = false): boolean {
             const target = useThis ? this : proxy
             const parts = (k as string).split('.') as string[]
@@ -58,21 +58,21 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
             const parts = (k as string).split('.') as string[]
             if (parts.length === 1) {
                 const v = Reflect.get(this, k)
-                return typeof v !== 'object' ? v : stateWrapper({ ...v, ...proxyHandler })
+                return typeof v !== 'object' ? v : stateWrapper(Object.assign(v, proxyHandler))
             }
             const [part, ...remain] = parts
             const fragment = this.get(part)
             return fragment.get(remain.join('.'))
         }
-    }
+    }), [])
 
-    const state = stateWrapper<T>({
+    const state = stateWrapper<T>(noCopy ? Object.assign(initialState, proxyHandler) : {
         ...initialState,
         ...proxyHandler
     })
 
     const proxy = stateProxy<T>(state)
-    const useHandler: StateHandler<T> = <E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => {
+    const useHandler: StateHandler<T> = useCallback(<E extends SyntheticEvent<Element>, W = any>(getter: (e: E) => W) => {
         type H = ReturnType<typeof getter>
         return function <R extends PickLeaves<T, H>>(k: R) {
             return (e: E) => {
@@ -80,7 +80,7 @@ export function useBinding<T extends object>(initialState: T): [T, StateHandler<
                 (state as ExposeHandler<T>).set<R>(k, value)
             }
         }
-    }
+    }, [])
 
     return [proxy, useHandler] as const
 }
