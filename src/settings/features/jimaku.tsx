@@ -8,7 +8,6 @@ import SwitchListItem from "~settings/components/SwitchListItem"
 export const title: string = '同传弹幕过滤'
 
 export const define: FeatureSettingsDefinition= {
-    enabledRoomList: true,
     offlineTable: 'jimakus'
 }
 

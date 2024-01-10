@@ -8,7 +8,6 @@ import type { StateProxy } from "~hooks/binding"
 
 export type FeatureSettingsDefinition = {
     offlineTable: TableType | false
-    enabledRoomList: boolean
 }
 
 export type FeatureSettingSchema<T> = T extends FeatureFragment<infer U> ? U : never

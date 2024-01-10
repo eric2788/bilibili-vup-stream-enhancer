@@ -3,7 +3,6 @@ import type { FeatureSettingsDefinition } from "."
 export const title: string = '醒目留言'
 
 export const define: FeatureSettingsDefinition = {
-    enabledRoomList: false,
     offlineTable: 'superchats'
 }
 

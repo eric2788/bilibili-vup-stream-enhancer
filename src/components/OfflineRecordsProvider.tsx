@@ -3,7 +3,6 @@ import PromiseHandler from '~components/PromiseHandler';
 import db, { type RecordType, type TableType } from '~database';
 import type { FeatureType } from "~features";
 import type { Settings } from "~settings";
-import { sleep } from '~utils/misc';
 
 
 export type OfflineRecordsProviderProps<T extends TableType> = {

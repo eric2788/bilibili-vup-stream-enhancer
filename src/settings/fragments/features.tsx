@@ -155,14 +155,12 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                                     />
                                 )}
                                 {Component && <Component {...props} />}
-                                {setting.define.enabledRoomList && (
-                                    <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
-                                        <FeatureRoomTable
-                                            feature={f}
-                                            roomList={state.roomList}
-                                        />
-                                    </ListItem>
-                                )}
+                                <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
+                                    <FeatureRoomTable
+                                        feature={f}
+                                        roomList={state.roomList}
+                                    />
+                                </ListItem>
                             </List>
                         </Collapse>
                     </div>
