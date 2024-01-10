@@ -6,7 +6,7 @@ export const browser = process.env.PLASMO_BROWSER || 'chrome'
 
 export async function notifyUpdate(version: string): Promise<void> {
     await sendInternal('notify', {
-        title: 'bilibili-jimaku-filter 有可用的更新',
+        title: 'bilibili-vup-stream-enhancer 有可用的更新',
         message: `新版本 v${version || 'SNAPSHOT'}`,
         buttons: [
             {
@@ -17,7 +17,7 @@ export async function notifyUpdate(version: string): Promise<void> {
                 title: '查看更新日誌',
                 clicked: () => {
                     chrome.tabs.create({
-                        url: `https://github.com/eric2788/bilibili-jimaku-filter/releases/tag/${version}`
+                        url: `https://github.com/eric2788/bilibili-vup-stream-enhancer/releases/tag/${version}`
                     })
                 }
             }
@@ -53,7 +53,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req, res) =>
         await notifyUpdate(version)
     } else if (status === 'no_update') {
         await sendInternal('notify', {
-            title: 'bilibili-jimaku-filter 已是最新版本',
+            title: 'bilibili-vup-stream-enhancer 已是最新版本',
             message: `當前版本 v${version || 'SNAPSHOT'}`
         })
     } else {

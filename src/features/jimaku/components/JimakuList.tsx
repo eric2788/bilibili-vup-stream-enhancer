@@ -3,17 +3,17 @@ import { Item, type ItemParams, Menu, useContextMenu } from 'react-contexify';
 import { toast } from 'sonner/dist';
 import { useKeepBottom } from '~hooks/keep-bottom';
 import { useScrollOptimizer } from '~hooks/optimizer';
-import { type SettingSchema as JimakuSchema } from '~settings/fragments/jimaku';
 import { getSettingStorage, setSettingStorage } from '~utils/storage';
 
 import JimakuLine from './JimakuLine';
 import type { Jimaku } from "./JimakuLine";
 
 import 'react-contexify/dist/ReactContexify.css';
+import { useContext } from "react";
+import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
 
 
 export type JimakuListProps = {
-    schema: JimakuSchema
     jimaku: Jimaku[]
     style?: React.CSSProperties
 }
@@ -22,7 +22,8 @@ export type JimakuListProps = {
 
 function JimakuList(props: JimakuListProps): JSX.Element {
 
-    const { jimaku, style, schema: jimakuStyle } = props
+    const { jimakuZone: jimakuStyle } = useContext(JimakuFeatureContext)
+    const { jimaku, style } = props
 
 
     const { ref, element } = useKeepBottom<HTMLDivElement>(
@@ -30,7 +31,6 @@ function JimakuList(props: JimakuListProps): JSX.Element {
         (el) => el.scrollHeight - jimakuStyle.backgroundHeight,
         [jimaku]
     )
-
 
     const { show } = useContextMenu({
         id: 'jimaku-context-menu'

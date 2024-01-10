@@ -16,7 +16,7 @@ export type RecordType<T extends TableType> = IndexedDatabase[T] extends Table<i
 
 export class IndexedDatabase extends Dexie {
     public constructor() {
-        super("bilibili-jimaku-filter")
+        super("bilibili-vup-stream-enhancer")
         migrate(this)
     }
 }

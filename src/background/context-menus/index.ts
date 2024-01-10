@@ -10,11 +10,13 @@ const rClickMap: {
     [index: string]: (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => Promise<void>
 } = {}
 
-for (const menu of menus) {
+
+chrome.runtime.onInstalled.addListener(() => {
+    for (const menu of menus) {
     const { properties, default: consume } = menu
     rClickMap[properties.id] = consume
     contextMenus.create(properties)
-}
+}})
 
 contextMenus.onClicked.addListener((info, tab) => {
     const consume = rClickMap[info.menuItemId]

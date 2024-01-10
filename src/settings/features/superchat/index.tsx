@@ -1,0 +1,37 @@
+import type { HexColor } from "~types/common"
+import type { FeatureSettingsDefinition } from ".."
+import { Fragment, type ChangeEvent } from "react"
+import ColorInput from "~settings/components/ColorInput"
+import type { StateProxy } from "~hooks/binding"
+
+export const title: string = '醒目留言'
+
+export const define: FeatureSettingsDefinition = {
+    offlineTable: 'superchats'
+}
+
+export type FeatureSettingSchema = {
+    floatingButtonColor: HexColor,
+    buttonColor: HexColor,
+}
+
+export const defaultSettings: Readonly<FeatureSettingSchema> = {
+    floatingButtonColor: '#ff0000',
+    buttonColor: '#ff0000',
+}
+
+
+function SuperchatFeatureSettings({state, useHandler}: StateProxy<FeatureSettingSchema>): JSX.Element {
+
+    const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value)
+
+    return (
+        <Fragment>
+            <ColorInput label="浮动按钮颜色" value={state.floatingButtonColor} onChange={handler('floatingButtonColor')}  />
+            <ColorInput label="操作按钮颜色" value={state.buttonColor} onChange={handler('buttonColor')}  />
+        </Fragment>
+    )
+}
+
+
+export default SuperchatFeatureSettings

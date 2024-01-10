@@ -4,7 +4,7 @@
 
 ## ➵ 下载
 
-[火狐及更新记录](https://github.com/eric2788/bilibili-jimaku-filter/releases)
+[火狐及更新记录](https://github.com/eric2788/bilibili-vup-stream-enhancer/releases)
 
 [Edge](https://microsoftedge.microsoft.com/addons/detail/ehdhihncinoejihhmhpdoeloadihnfio)
 
@@ -24,4 +24,4 @@
 
 [NGA帖文](https://ngabbs.com/read.php?tid=24434809)
 
-[问题回报和功能请求帖](https://github.com/eric2788/bilibili-jimaku-filter/issues)
+[问题回报和功能请求帖](https://github.com/eric2788/bilibili-vup-stream-enhancer/issues)

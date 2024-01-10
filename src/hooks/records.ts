@@ -8,7 +8,7 @@ import { useCallback } from "react";
 
 export type RecordInfo<T> = {
     feature: FeatureType
-    table: Optional<TableType>
+    table?: TableType
     description: string
     format: (record: T) => string
     clearRecords: VoidFunction

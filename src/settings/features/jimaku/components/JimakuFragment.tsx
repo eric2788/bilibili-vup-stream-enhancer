@@ -1,13 +1,12 @@
-import { type ChangeEvent, Fragment } from 'react';
-import AffixInput from '~settings/components/AffixInput';
-import ColorInput from '~settings/components/ColorInput';
-import Hints from '~settings/components/Hints';
-import Selector from '~settings/components/Selector';
+import { type ChangeEvent, Fragment } from "react"
+import type { StateProxy } from "~hooks/binding"
+import AffixInput from "~settings/components/AffixInput"
+import ColorInput from "~settings/components/ColorInput"
+import Hints from "~settings/components/Hints"
+import Selector from "~settings/components/Selector"
+import type { HundredNumber, HexColor, NumRange } from "~types/common"
 
-import type { StateProxy } from "~hooks/binding";
-import type { HexColor, HundredNumber, NumRange } from "~types/common";
-
-export type SettingSchema = {
+export type JimakuSchema = {
     size: HundredNumber
     firstLineSize: HundredNumber
     position: 'left' | 'right' | 'center'
@@ -22,7 +21,7 @@ export type SettingSchema = {
 }
 
 
-export const defaultSettings: Readonly<SettingSchema> = {
+export const jimakuDefaultSettings: Readonly<JimakuSchema> = {
     size: 16,
     firstLineSize: 18,
     position: 'center',
@@ -36,9 +35,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     filterUserLevel: 0
 }
 
-export const title = '字幕设定'
-
-function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
+function JimakuFragment({ state, useHandler }: StateProxy<JimakuSchema>): JSX.Element {
 
     const stringHandler = useHandler<ChangeEvent<HTMLInputElement>>((e) => e.target.value)
     const numberHandler = useHandler<ChangeEvent<HTMLInputElement>, number>((e) => e.target.valueAsNumber)
@@ -105,4 +102,4 @@ function JimakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
 
 
 
-export default JimakuSettings
+export default JimakuFragment

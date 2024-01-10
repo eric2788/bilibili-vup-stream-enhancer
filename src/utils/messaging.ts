@@ -7,7 +7,7 @@ import type {
 import type { BLiveDataWild } from "~types/bilibili"
 import { sendToBackground } from '@plasmohq/messaging'
 
-export const ID = 'bilibili-jimaku-filter'
+export const ID = 'bilibili-vup-stream-enhancer'
 
 export async function sendMessager<T extends keyof MessagingData>(name: T, body: MsgPayload<MessagingData[T]> = undefined, sender: chrome.runtime.MessageSender = undefined): Promise<MsgResponse<MessagingData[T]>> {
     return sendToBackground({ name, body }).then(res => res as MsgResponse<MessagingData[T]>)
