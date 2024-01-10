@@ -9,7 +9,8 @@ import { Input, Switch, Typography } from '@material-tailwind/react';
 
 import type { StateProxy } from "~hooks/binding";
 import type { HexColor, HundredNumber, Optional } from "~types/common";
-export type SettingSchema = {
+
+export type DanmakuSchema = {
     regex: string
     hide: boolean,
     opacity: Optional<HundredNumber>
@@ -18,7 +19,7 @@ export type SettingSchema = {
 }
 
 
-export const defaultSettings: Readonly<SettingSchema> = {
+export const danmakuDefaultSettings: Readonly<DanmakuSchema> = {
     regex: '^(?<n>[^【】]+?)?\\:?\\s*【(?<cc>[^【】]+?)(】.?)?$',
     hide: false,
     opacity: undefined,
@@ -28,7 +29,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
 
 export const title = '同传弹幕设定'
 
-function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
+function DanmakuFragment({ state, useHandler }: StateProxy<DanmakuSchema>): JSX.Element {
 
     const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value)
     const checker = useHandler<ChangeEvent<HTMLInputElement>, boolean>((e) => e.target.checked)
@@ -38,7 +39,7 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     }
 
 
-    const changeOpacity = (v: number) => state.opacity = (v < 0 || v > 100) ? undefined : v as HundredNumber
+    const changeOpacity = (v: number) => state.opacity = (v < 0 || v > 100) ? null : v as HundredNumber
 
     return (
         <Fragment>
@@ -92,4 +93,4 @@ function DanmakuSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
 
 
 
-export default DanmakuSettings
+export default DanmakuFragment

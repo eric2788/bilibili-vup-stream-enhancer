@@ -16,9 +16,9 @@ function ButtonList(): JSX.Element {
     }
     
     const { settings, info } = streamInfo
-    const { "settings.display": displaySettings, "settings.features": featureSettings } = settings
+    const { "settings.display": displaySettings, "settings.features": { common: { enabledPip, monitorWindow }} } = settings
 
-    const { createPopupWindow } = usePopupWindow(featureSettings.enabledPip, {
+    const { createPopupWindow } = usePopupWindow(enabledPip, {
         width: 700,
         height: 450
     })
@@ -40,7 +40,7 @@ function ButtonList(): JSX.Element {
                 <Button variant="outlined" size="lg" className="text-lg" onClick={openSettings}>进入设置</Button>}
             {displaySettings.restartButton &&
                 <Button variant="outlined" size="lg" className="text-lg" onClick={restart}>重新启动</Button>}
-            {featureSettings.monitorWindow &&
+            {monitorWindow &&
                 <Button variant="outlined" size="lg" className="text-lg" onClick={openMonitor}>打开监控式视窗</Button>}
         </div>
     )

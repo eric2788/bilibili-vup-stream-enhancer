@@ -3,7 +3,6 @@ import { Fragment, useContext, useEffect, useMemo, useState } from 'react';
 import ConditionalWrapper from '~components/ConditionalWrapper';
 import type { Jimaku } from "./JimakuLine";
 import JimakuList from './JimakuList';
-import type { SettingSchema as JimakuSchema } from "~settings/fragments/jimaku";
 import JimakuVisibleButton from './JimakuVisibleButton';
 import { Rnd } from 'react-rnd';
 import type { Settings } from "~settings";
@@ -12,6 +11,8 @@ import styled from '@emotion/styled';
 import { useTeleport } from '~hooks/teleport';
 import { useWebScreenChange } from '~hooks/bilibili';
 import StreamInfoContext from '~contexts/StreamInfoContexts';
+import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
+import type { JimakuSchema } from '~settings/features/jimaku/components/JimakuFragment';
 
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
 
@@ -55,11 +56,11 @@ export type JimakuAreaProps = {
     jimaku: Jimaku[]
 }
 
-function JimakuArea({  jimaku }: JimakuAreaProps): JSX.Element {
+function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
     const { settings } = useContext(StreamInfoContext)
+    const { jimakuZone: jimakuStyle } = useContext(JimakuFeatureContext)
 
-    const jimakuStyle = settings['settings.jimaku']
     const dev = settings['settings.developer']
 
     const Area = useMemo(() => createJimakuScope(jimakuStyle), [jimakuStyle])
@@ -123,7 +124,6 @@ function JimakuArea({  jimaku }: JimakuAreaProps): JSX.Element {
                         }}
                     >
                         <JimakuList
-                            schema={jimakuStyle}
                             jimaku={jimaku}
                             style={subTitleStyle}
                         />

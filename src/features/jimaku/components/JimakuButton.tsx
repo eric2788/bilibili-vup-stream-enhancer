@@ -1,13 +1,15 @@
-import type { MouseEventHandler } from 'react';
-import { type SettingSchema as ButtonSchema } from '~settings/fragments/button';
+import { useContext, type MouseEventHandler } from 'react';
+import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 
 export type JimakuButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>,
-    btnStyle: ButtonSchema,
     children: React.ReactNode
 }
 
-function JimakuButton({ onClick, btnStyle, children }: JimakuButtonProps): JSX.Element {
+function JimakuButton({ onClick, children }: JimakuButtonProps): JSX.Element {
+
+    const { buttonZone: btnStyle } = useContext(JimakuFeatureContext)
+
     return (
         <button
             onClick={onClick}

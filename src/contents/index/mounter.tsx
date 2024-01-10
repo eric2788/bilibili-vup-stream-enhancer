@@ -1,19 +1,20 @@
-import BLiveThemeProvider from "~components/BLiveThemeProvider"
-import type { FeatureType } from "~features"
-import { Fragment } from "react"
 import type { PlasmoCSUIAnchor } from "plasmo"
-import type { Settings } from "~settings"
-import type { StreamInfo } from "~api/bilibili"
 import { createRoot, type Root } from "react-dom/client"
+import { toast } from "sonner/dist"
+import type { StreamInfo } from "~api/bilibili"
+import { sendForward } from "~background/forwards"
+import BLiveThemeProvider from "~components/BLiveThemeProvider"
+import StreamInfoContext from "~contexts/StreamInfoContexts"
+import type { FeatureType } from "~features"
 import features from "~features"
-import { getFullSettingStroage } from "~utils/storage"
+import type { Settings } from "~settings"
+import { shouldInit } from "~settings"
 import { getStreamInfoByDom } from "~utils/bilibili"
 import { injectAdapter } from "~utils/inject"
-import { sendMessager } from "~utils/messaging"
-import { shouldInit } from "~settings"
-import { toast } from "sonner/dist"
+import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
+import { getFullSettingStroage } from "~utils/storage"
 import App from "./App"
-import StreamInfoContext from "~contexts/StreamInfoContexts"
+import { memo } from "react"
 
 interface RootMountable {
     feature: FeatureType
@@ -34,14 +35,13 @@ interface App {
     stop(): Promise<void>
 }
 
-
 // createMountPoints will not start or the stop the app
 function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[] {
 
     const { rootContainer, OverlayApp, anchor } = plasmo
 
     return Object.entries(features).map(([key, handler]) => {
-        const { default: hook, App } = handler
+        const { default: hook, App, FeatureContext: Context } = handler
 
         const section = document.createElement('section')
         section.id = `bjf-feature-${key}`
@@ -71,13 +71,26 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
                     console.info(`房間 ${info.room} 已被 ${key} 功能禁用，已略過`)
                     return
                 }
+
+                const FeatureContextProvider: React.FC<{ children: React.ReactNode, context?: React.Context<any>, value: any }> = memo((props) => {
+                    const { children, context: Context, value } = props
+                    if (!Context) return children
+                    return (
+                        <Context.Provider value={value}>
+                            {children}
+                        </Context.Provider>
+                    )
+                })
+
                 root = createRoot(section)
                 root.render(
                     <OverlayApp anchor={anchor}>
                         <BLiveThemeProvider element={section}>
                             <StreamInfoContext.Provider value={{ settings, info }}>
-                                {App ? <App settings={settings} info={info} /> : <></>}
-                                {portals}
+                                <FeatureContextProvider context={Context} value={settings['settings.features'][feature]}>
+                                    {App && <App />}
+                                    {portals}
+                                </FeatureContextProvider>
                             </StreamInfoContext.Provider>
                         </BLiveThemeProvider>
                     </OverlayApp>
@@ -107,7 +120,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
     // this root is main root
     let root: Root = null
-
+    let removeListener: VoidFunction = null
     return {
         async start(): Promise<void> {
 
@@ -183,11 +196,25 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             await Promise.all(mounters.filter(m => enabled.includes(m.feature)).map(m => m.mount(settings)))
             console.info('渲染元素完成')
 
+            // TODO: change to use global data
+            removeListener = addBLiveMessageCommandListener('DANMU_MSG', (data) => {
+                const uname = data.info[2][1]
+                const text = data.info[1]
+                if (Array.isArray(text)) return
+                const color = data.info[0][3]
+                const position = data.info[0][1]
+                sendForward('pages', 'danmaku', { uname, text, color, position, room: info.room })
+            })
+
         },
         stop: async () => {
             if (root === null) {
                 console.warn('root is null, maybe not mounted yet')
                 return
+            }
+
+            if (removeListener) {
+                removeListener()
             }
 
             // unhook adapters

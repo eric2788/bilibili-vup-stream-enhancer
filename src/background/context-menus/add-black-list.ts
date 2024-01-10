@@ -16,7 +16,7 @@ export default async function (info: chrome.contextMenus.OnClickData, tab?: chro
 
     if (!roomId) {
         console.warn(`unknown room id (${url.pathname})`)
-        await sendInternal('notify', {
+        return await sendInternal('notify', {
             title: '添加失败',
             message: `未知的直播间: ${url.pathname}`
         })
