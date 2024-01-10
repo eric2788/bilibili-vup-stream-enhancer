@@ -19,12 +19,12 @@ import {
 } from 'media-chrome/dist/react';
 import NDanmaku from 'n-danmaku';
 import type { ResponseBody as DanmakuBody } from '~background/forwards/danmaku';
-import { sendInternal } from '~background/messages';
 import type { StreamUrls } from '~background/messages/get-stream-urls';
 import BJFThemeProvider from '~components/BJFThemeProvider';
 import PromiseHandler from '~components/PromiseHandler';
 import { useForwarder } from '~hooks/forwarder';
 import loadStream, { type StreamPlayer } from '~players';
+import { sendMessager } from '~utils/messaging';
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('roomId');
@@ -111,6 +111,7 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
         track.mode = "showing"
 
         danmakuForwarder.addHandler((data) => {
+            if (data.room !== roomId) return // return if not current room
             console.info('danmaku: ', data)
             danmakus.current.push(data)
         })
@@ -131,6 +132,8 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
                 alert('player not found')
                 return
             }
+            // 無論如何，先清除一下彈幕
+            danmaku.current?.clear()
             if (player.style.display === 'none') {
                 player.style.display = 'block'
                 setHidedDanmaku(false)
@@ -203,7 +206,7 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
 function App(): JSX.Element {
 
     const getStreamUrls = useCallback(async () => {
-        const res = await sendInternal('get-stream-urls', { roomId })
+        const res = await sendMessager('get-stream-urls', { roomId })
         if (res.error) throw new Error(res.error)
         return res.data.toSorted((a, b) => b.quality - a.quality)
     }, [])

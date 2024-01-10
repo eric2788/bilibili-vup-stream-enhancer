@@ -7,6 +7,7 @@ export type ResponseBody = {
     text: string
     color: string
     pos: 'scroll' | 'top' | 'bottom'
+    room: string
 }
 
 
@@ -15,6 +16,7 @@ export type ForwardBody = {
     text: string
     color: number
     position: number
+    room: string
 }
 
 const handler: ForwardHandler<ForwardBody, ResponseBody> = (req) => {
@@ -32,6 +34,7 @@ const handler: ForwardHandler<ForwardBody, ResponseBody> = (req) => {
     return {
         ...req,
         body: {
+            room: req.body.room,
             uname: req.body.uname,
             text: req.body.text,
             color: `#${req.body.color.toString(16)}`,

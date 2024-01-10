@@ -1,4 +1,4 @@
-import { Fragment, useContext, useRef, useState } from 'react';
+import { Fragment, useCallback, useContext, useRef, useState } from 'react';
 import { getTimeStamp, randomString, toStreamingTime } from '~utils/misc';
 
 import { useInterval } from '@react-hooks-library/core';
@@ -10,6 +10,8 @@ import { parseJimaku } from '~utils/bilibili';
 import ButtonArea from './ButtonArea';
 import JimakuArea from './JimakuArea';
 import type { Jimaku } from "./JimakuLine";
+import { useTransaction } from '~hooks/optimizer';
+import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 
 export type JimakuCaptureLayerProps = {
     offlineRecords: Jimaku[]
@@ -18,17 +20,33 @@ export type JimakuCaptureLayerProps = {
 function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
     const { settings, info } = useContext(StreamInfoContext)
+    const { jimakuZone: jimakuStyle, danmakuZone, jimakuPopupWindow } = useContext(JimakuFeatureContext)
     const { offlineRecords } = props
 
-    const { jimakuPopupWindow, useStreamingTime, enabledRecording } = settings["settings.features"]
-    const { regex, color, position } = settings['settings.danmaku']
-    const jimakuStyle = settings['settings.jimaku']
+    const {
+        common: { useStreamingTime },
+        enabledRecording
+    } = settings["settings.features"]
+
+    const { regex, color, position } = danmakuZone
     const { tongchuanBlackList, tongchuanMans } = settings['settings.listings']
 
     const [jimaku, setJimaku] = useState<Jimaku[]>(offlineRecords)
-    const transactions = useRef<Jimaku[]>([])
+    const clearJimaku = useCallback(() => setJimaku([]), [])
 
-    // 離線時，由於沒有注入適配器，此處的訊息監聽器不會被觸發
+    // 離線時，setJimaku 將在離線時永不觸發，因此 ButtonArea 可以透過 props.jimaku 進行下載字幕
+    const push = useTransaction<Jimaku>(500, (jimaku) => {
+        setJimaku((prev) => jimakuStyle.order === 'top' ? [jimaku, ...prev] : [...prev, jimaku])
+        if (enabledRecording.includes('jimaku')) {
+            db.jimakus
+                .add({ ...jimaku, room: info.room })
+                .then(() => console.debug(`[BJF] ${jimaku.uname}(${jimaku.uid}) 的同传弹幕已记录`))
+                .catch((err) => console.error(`[BJF] ${jimaku.uname}(${jimaku.uid}) 的同传弹幕记录失败`, err))
+        }
+    })
+
+    // 此處同理
+    // 由於沒有注入適配器，此處的訊息監聽器不會被觸發
     useBLiveSubscriber('DANMU_MSG', (data) => {
         // 超大型字体
         if (Array.isArray(data.info[1])) return
@@ -59,7 +77,10 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
             uname: data.info[2][1],
             hash: randomString() + Date.now() + data.info[0][5],
         }
-        transactions.current.push(jimakuBlock)
+        push(jimakuBlock)
+        if (jimakuPopupWindow) {
+            sendForward('pages', 'jimaku', { date: datetime, text: jimaku, room: info.room })
+        }
         // change color and position
         if (color) {
             data.info[0][3] = parseInt(color.substring(1), 16)
@@ -67,30 +88,14 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
         if (position !== 'unchanged') {
             data.info[0][1] = position === 'top' ? 5 : 4
         }
-    })
 
-    // 此處同理
-    // setJimaku 將在離線時永不觸發，因此 ButtonArea 可以透過 props.jimaku 進行下載字幕
-    useInterval(() => {
-        if (transactions.current.length === 0) return
-        const jimaku = transactions.current.shift()
-        setJimaku((prev) => jimakuStyle.order === 'top' ? [jimaku, ...prev] : [...prev, jimaku])
-        if (jimakuPopupWindow) {
-            sendForward('pages', 'jimaku', { date: jimaku.date, text: jimaku.text, room: info.room })
-        }
-        if (enabledRecording.includes('jimaku')) {
-            db.jimakus
-                .add({ ...jimaku, room: info.room })
-                .then(() => console.debug(`[BJF] ${jimaku.uname}(${jimaku.uid}) 的同传弹幕已记录`))
-                .catch((err) => console.error(`[BJF] ${jimaku.uname}(${jimaku.uid}) 的同传弹幕记录失败`, err))
-        }
-    }, 500)
+    })
 
     return (
         <Fragment>
             {info.status === 'online' && <JimakuArea jimaku={jimaku} />}
             {(info.status === 'online' || (enabledRecording.includes('jimaku') && jimaku.length > 0)) &&
-                <ButtonArea jimakus={jimaku} clearJimaku={() => setJimaku([])} />
+                <ButtonArea jimakus={jimaku} clearJimaku={clearJimaku} />
             }
         </Fragment>
     )

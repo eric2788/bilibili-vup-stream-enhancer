@@ -1,15 +1,16 @@
+import { useMutationObserver } from '@react-hooks-library/core';
+import { useContext, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { toast } from 'sonner/dist';
+import { isNativeVtuber } from "~api/bilibili";
+import OfflineRecordsProvider from '~components/OfflineRecordsProvider';
+import TailwindScope from '~components/TailwindScope';
+import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
+import StreamInfoContext from "~contexts/StreamInfoContexts";
+import { parseJimaku } from "~utils/bilibili";
+import { retryCatcher } from "~utils/fetch";
 import type { FeatureHookRender } from "..";
 import JimakuCaptureLayer from './components/JimakuCaptureLayer';
-import OfflineRecordsProvider from '~components/OfflineRecordsProvider';
-import type { Settings } from "~settings";
-import { isNativeVtuber, type StreamInfo } from "~api/bilibili";
-import TailwindScope from '~components/TailwindScope';
-import { createPortal } from 'react-dom';
-import { retryCatcher } from "~utils/fetch";
-import { toast } from 'sonner/dist';
-import { useEffect } from 'react';
-import { useMutationObserver } from '@react-hooks-library/core';
-import { parseJimaku } from "~utils/bilibili";
 
 
 function warnIfAdaptive() {
@@ -21,10 +22,14 @@ function warnIfAdaptive() {
     })
 }
 
-export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX.Element {
+export const FeatureContext = JimakuFeatureContext
+
+export function App(): JSX.Element {
+
+    const { settings } = useContext(StreamInfoContext)
+    const { danmakuZone: { regex, opacity, hide } } = useContext(FeatureContext)
 
     const dev = settings['settings.developer']
-    const { regex, opacity, hide } = settings['settings.danmaku']
 
     const danmakuArea = document.querySelector(dev.elements.danmakuArea)
     if (!danmakuArea) {
@@ -75,9 +80,9 @@ export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX
 const handler: FeatureHookRender = async (settings, info) => {
 
     const dev = settings['settings.developer']
-    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size, order } = settings['settings.jimaku']
-    const { backgroundListColor } = settings['settings.button']
-    const { noNativeVtuber } = settings['settings.features']
+    const { noNativeVtuber, jimakuZone: jimakuSettings, buttonZone: buttonSettings } = settings['settings.features']['jimaku']
+    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size, order } = jimakuSettings
+    const { backgroundListColor } = buttonSettings
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
     const jimakuArea = document.createElement('div')

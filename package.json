@@ -1,6 +1,6 @@
 {
-  "name": "bilibili-jimaku-filter",
-  "displayName": "Bilibili jimaku filter",
+  "name": "bilibili-vup-stream-enhancer",
+  "displayName": "Bilibili Vup Stream Enhancer",
   "version": "2.0",
   "description": "管人观众专用直播增强扩展",
   "author": "Eric Lam <tsukiko852@gmail.com>",
@@ -82,7 +82,6 @@
     "browser_specific_settings": {
       "gecko": {
         "id": "{041b8202-e9d4-4a78-a9da-465c749ed26c}",
-        "update_url": "https://eric2788.github.io/bilibili-jimaku-filter/updates.json",
         "strict_min_version": "78.0"
       }
     },

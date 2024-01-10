@@ -70,7 +70,7 @@ function DataTable<T extends object>(props: DataTableProps<T>): JSX.Element {
                             {headers.map(({ name, align = 'left' }) => (
                                 <th
                                     key={name}
-                                    className={`border-b border-blue-gray-100 dark:border-gray-800 bg-blue-gray-50 dark:bg-gray-800 p-4 ${align ? `text-${align}` : ''}`}
+                                    className={`border-b border-blue-gray-100 dark:border-gray-800 bg-blue-gray-50 dark:bg-gray-700 p-4 ${align ? `text-${align}` : ''}`}
                                 >
                                     <Typography
                                         variant="small"

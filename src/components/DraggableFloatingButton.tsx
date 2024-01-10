@@ -4,12 +4,13 @@ import { Rnd } from "react-rnd"
 export type DraggableFloatingButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>
     children: React.ReactNode
-    className?: string
+    className?: string,
+    style?: React.CSSProperties
 }
 
 function DraggableFloatingButton(props: DraggableFloatingButtonProps): JSX.Element {
 
-    const { onClick, children, className } = props
+    const { onClick, children, className, style } = props
 
     const colorClass = className ?? 'bg-red-600 duration-150 hover:bg-red-700 dark:bg-gray-700 dark:hover:bg-gray-800 text-white'
 
@@ -21,6 +22,7 @@ function DraggableFloatingButton(props: DraggableFloatingButtonProps): JSX.Eleme
             <button
                 onClick={onClick}
                 style={{
+                    ...style,
                     left: pos.x,
                     top: pos.y,
                     width: 85,
