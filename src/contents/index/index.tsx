@@ -11,6 +11,7 @@ import styleText from '~styles';
 import createApp from './mounter';
 
 import '~toaster';
+import '~logger';
 
 
 export const config: PlasmoCSConfig = {
