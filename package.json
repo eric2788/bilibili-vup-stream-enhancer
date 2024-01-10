@@ -82,7 +82,7 @@
     "browser_specific_settings": {
       "gecko": {
         "id": "{041b8202-e9d4-4a78-a9da-465c749ed26c}",
-        "update_url": "https://eric2788.github.io/bilibili-jimaku-filter/updates.json",
+        "update_url": "https://eric2788.github.io/bilibili-vup-stream-enhancer/updates.json",
         "strict_min_version": "78.0"
       }
     },

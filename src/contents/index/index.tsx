@@ -116,7 +116,7 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
     await transactions(app.start)
 
   } catch (err: Error | any) {
-    console.error(`渲染 bilibili-jimaku-filter 元素時出現錯誤: `, err)
+    console.error(`渲染 bilibili-vup-stream-enhancer 元素時出現錯誤: `, err)
     return
   }
 
