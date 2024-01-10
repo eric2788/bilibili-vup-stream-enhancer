@@ -45,7 +45,7 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
                     下载字幕记录
                 </JimakuButton>
             }
-            {info.status === 'online' && features.jimakuPopupWindow &&
+            {info.status === 'online' && features.jimaku.jimakuPopupWindow &&
                 <JimakuButton
                     onClick={createPopupWindow(`jimaku.html`, {
                         roomId: info.room,

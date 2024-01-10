@@ -14,10 +14,7 @@ function App(): JSX.Element {
 
   const { info, settings } = useContext(StreamInfoContext)
 
-  const {
-    "settings.display": displaySettings,
-    "settings.features": featureSettings,
-  } = settings
+  const { "settings.display": displaySettings } = settings
 
   // 狀態為離綫時，此處不需要顯示按鈕
   // 離綫下載按鈕交給 feature UI 處理

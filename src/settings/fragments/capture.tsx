@@ -7,6 +7,7 @@ import Selector from '~settings/components/Selector';
 import type { AdapterType } from '~adapters';
 import SwitchListItem from '~settings/components/SwitchListItem';
 import { List } from '@material-tailwind/react';
+
 export type SettingSchema = {
     captureMechanism: AdapterType
     boostWebSocketHook: boolean

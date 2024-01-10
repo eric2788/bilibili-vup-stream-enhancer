@@ -18,7 +18,10 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
 
     const { settings, info } = useContext(StreamInfoContext)
     const { offlineRecords } = props
-    const { enabledRecording, useStreamingTime } = settings['settings.features']
+    const { 
+        enabledRecording, 
+        common: { useStreamingTime } 
+    } = settings['settings.features']
 
     const [superchat, setSuperChat] = useState<SuperChatCard[]>(offlineRecords)
     const clearSuperChat = useCallback(() => setSuperChat([]), [])
