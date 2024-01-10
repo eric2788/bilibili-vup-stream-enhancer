@@ -1,4 +1,5 @@
 import { Tooltip } from "@material-tailwind/react";
+import { memo } from "react";
 
 
 function ExperienmentFeatureIcon(): JSX.Element {
@@ -12,4 +13,4 @@ function ExperienmentFeatureIcon(): JSX.Element {
 }
 
 
-export default ExperienmentFeatureIcon
+export default memo(ExperienmentFeatureIcon)

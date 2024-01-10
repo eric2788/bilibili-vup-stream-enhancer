@@ -1,4 +1,4 @@
-import { type ChangeEvent, type SyntheticEvent } from 'react';
+import { useCallback, type ChangeEvent, type SyntheticEvent } from 'react';
 import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~settings/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
@@ -76,7 +76,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     }
 
 
-    const onChangePip = (e: ChangeEvent<HTMLInputElement>) => {
+    const onChangePip = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         const checked = e.target.checked
         if (checked && !window.PictureInPictureWindow) {
             toast.error('当前浏览器不支持自定义元素的画中画视窗。', {
@@ -96,11 +96,10 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
         }
         console.info(state.common)
         state.common.enabledPip = checked
-    }
+    }, [])
 
     return (
         <div className="col-span-2">
-            {JSON.stringify(state)}
             <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
                 <div>
                     <Typography className="font-semibold">
@@ -132,17 +131,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 type F = typeof f
                 const setting = settings[f] as FeatureSettings[F]
                 const Component = setting.default as React.FC<StateProxy<FeatureSettingSchema<FeatureSettings[F]>>>
-
-                const handler = state as ExposeHandler<SettingSchema>
-                const deepHandler: StateHandler<FeatureSettingSchema<FeatureSettings[F]>> = (getter) => {
-                    return (key) => {
-                        return (e) => {
-                            const value = getter(e)
-                            handler.set(`${f}.${key}` as any, value)
-                        }
-                    }
-                }
-                const deepState = state[f]
+                const props = asStateProxy(useBinding(state[f], true))
 
                 return (
                     <div key={f} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
@@ -165,7 +154,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                                         }
                                     />
                                 )}
-                                {Component && <Component state={deepState} useHandler={deepHandler} />}
+                                {Component && <Component {...props} />}
                                 {setting.define.enabledRoomList && (
                                     <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
                                         <FeatureRoomTable
