@@ -1,12 +1,11 @@
 import { injectFuncAsListener } from "~utils/event"
 import { sendBLiveMessage } from "~utils/messaging"
 import wasmUrl from "raw:~assets/brotli-dec.wasm"
-import init from 'brotli-dec-wasm/pkg/index'
+import init, { decompress as wasmDecompress } from 'brotli-dec-wasm/pkg/index'
 
 var decompress = null
-
-const loadWasm = init(wasmUrl).then(output => {
-  decompress = output.decompress
+const loadWasm = init(wasmUrl).then(_ => {
+  decompress = wasmDecompress
   console.info('wasm loaded.')
 })
 
