@@ -7,9 +7,10 @@ import TailwindScope from '~components/TailwindScope';
 import { createPortal } from 'react-dom';
 import { retryCatcher } from "~utils/fetch";
 import { toast } from 'sonner/dist';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useMutationObserver } from '@react-hooks-library/core';
 import { parseJimaku } from "~utils/bilibili";
+import StreamInfoContext from "~contexts/StreamInfoContexts";
 
 
 function warnIfAdaptive() {
@@ -21,7 +22,9 @@ function warnIfAdaptive() {
     })
 }
 
-export function App({ settings }: { settings: Settings, info: StreamInfo }): JSX.Element {
+export function App(): JSX.Element {
+
+    const { settings } = useContext(StreamInfoContext)
 
     const dev = settings['settings.developer']
     const { regex, opacity, hide } = settings['settings.danmaku']

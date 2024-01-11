@@ -76,7 +76,7 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
                     <OverlayApp anchor={anchor}>
                         <BLiveThemeProvider element={section}>
                             <StreamInfoContext.Provider value={{ settings, info }}>
-                                {App ? <App settings={settings} info={info} /> : <></>}
+                                {App ? <App /> : <></>}
                                 {portals}
                             </StreamInfoContext.Provider>
                         </BLiveThemeProvider>

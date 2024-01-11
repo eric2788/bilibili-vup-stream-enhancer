@@ -5,7 +5,7 @@ import { getForwarder } from '~background/forwards';
 import { getRoomId } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectFunction } from '~utils/inject';
-import { getSettingStorage, transactions } from '~utils/storage';
+import { getSettingStorage, processing, withProcessingFlag } from '~utils/storage';
 
 import styleText from '~styles';
 import createApp from './mounter';
@@ -102,19 +102,20 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
 
     const app = createApp(roomId, { rootContainer, anchor, OverlayApp }, info)
 
+    const start = withProcessingFlag(app.start)
+    const stop = withProcessingFlag(app.stop)
+
     removeHandler = forwarder.addHandler(async data => {
       if (data.command === 'stop') {
-        await transactions(app.stop)
+        await stop()
       } else if (data.command === 'restart') {
-        await transactions(async () => {
-          await app.stop()
-          await app.start()
-        })
+        await stop()
+        await start()
       }
     })
 
     // start the app
-    await transactions(app.start)
+    await start()
 
   } catch (err: Error | any) {
     console.error(`渲染 bilibili-vup-stream-enhancer 元素時出現錯誤: `, err)

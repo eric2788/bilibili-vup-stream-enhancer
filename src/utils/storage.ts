@@ -24,9 +24,17 @@ export async function getFullSettingStroage(): Promise<Settings> {
     return Object.assign({}, ...settings)
 }
 
-export async function transactions<T = void>(callback: () => Promise<T>): Promise<T> {
+export async function processing<T = void>(callback: () => Promise<T>): Promise<T> {
     await sessionStorage.set('processing', true)
     return callback().finally(() => sessionStorage.set('processing', false))
+}
+
+// create decirator version of transactions
+export function withProcessingFlag<T extends (...args: any[]) => Promise<any>>(callback: T): T {
+    return async function(...args: any[]) {
+        await sessionStorage.set('processing', true)
+        return callback(...args).finally(() => sessionStorage.set('processing', false))
+    } as T
 }
 
 export default storage
