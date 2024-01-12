@@ -1,19 +1,18 @@
-import { useCallback, type ChangeEvent, type SyntheticEvent } from 'react';
+import { useCallback, type ChangeEvent } from 'react';
 import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~settings/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
 
-import { Collapse, IconButton, List, ListItem, Switch, Typography } from '@material-tailwind/react';
+import { Collapse, IconButton, List, Switch, Typography } from '@material-tailwind/react';
 
 import { toast } from 'sonner/dist';
 import type { TableType } from "~database";
 import type { FeatureType } from "~features";
-import { asStateProxy, useBinding, type StateProxy, type StateHandler, type ExposeHandler } from "~hooks/binding";
+import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding";
 import ExperienmentFeatureIcon from '~settings/components/ExperientmentFeatureIcon';
 import FeatureRoomTable from '~settings/components/FeatureRoomTable';
-import settings, { featureTypes, type FeatureFragment, type FeatureSettings, type FeatureSettingSchema } from '~settings/features';
-import type { Leaves, PickLeaves, RoomList } from '~types/common';
-import { assignDefaults } from '~utils/misc';
+import settings, { featureTypes, type FeatureSettingSchema, type FeatureSettings } from '~settings/features';
+import type { RoomList } from '~types/common';
 
 
 export type SettingSchema = {
@@ -132,7 +131,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 type F = typeof f
                 const setting = settings[f] as FeatureSettings[F]
                 const Component = setting.default as React.FC<StateProxy<FeatureSettingSchema<FeatureSettings[F]>>>
-                const props = asStateProxy(useBinding(assignDefaults(state[f], setting.defaultSettings), true))
+                const props = asStateProxy(useBinding(state[f], true))
 
                 return (
                     <div key={f} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
