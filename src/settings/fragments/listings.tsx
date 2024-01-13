@@ -30,12 +30,7 @@ export type SettingSchema = {
 export const defaultSettings: Readonly<SettingSchema> = {
     tongchuanMans: [],
     tongchuanBlackList: [],
-    blackListRooms: [
-        {
-            room: '1',
-            addedDate: '2021/1/1'
-        }
-    ],
+    blackListRooms: [],
     useAsWhiteListRooms: false
 }
 

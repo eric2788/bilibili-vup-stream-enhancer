@@ -34,10 +34,10 @@ function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
     return (
         <div className="p-[5px] pt-[5px] rounded-md inline-block">
             <section className="px-[5px] flex justify-center items-center gap-2">
-                <button style={{backgroundColor: buttonColor}} onClick={downloadRecords} className="hover:brightness-95 dark:bg-gray-700 dark:hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-sm">
+                <button style={{backgroundColor: buttonColor}} onClick={downloadRecords} className="hover:brightness-90 dark:bg-gray-700 dark:hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-sm">
                     导出醒目留言记录
                 </button>
-                <button style={{backgroundColor: buttonColor}} onClick={deleteRecords} className="hover:brightness-95 dark:bg-gray-700 dark:hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-sm">
+                <button style={{backgroundColor: buttonColor}} onClick={deleteRecords} className="hover:brightness-90 dark:bg-gray-700 dark:hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-sm">
                     刪除所有醒目留言记录
                 </button>
             </section>

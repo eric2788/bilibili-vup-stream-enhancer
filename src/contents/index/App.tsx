@@ -12,7 +12,15 @@ import Header from "./components/Header";
 
 function App(): JSX.Element {
 
-  const { info, settings } = useContext(StreamInfoContext)
+  const streamInfo = useContext(StreamInfoContext)
+
+  // i don't know why the hell this got rendered at the top level during HMR, should be the bug for plasmo
+  if (!streamInfo) {
+    console.warn('plasmo framework bug: streamInfo is undefined')
+    return <></>
+  }
+
+  const { info, settings } = streamInfo
 
   const { "settings.display": displaySettings } = settings
 
@@ -23,12 +31,11 @@ function App(): JSX.Element {
   }
 
   const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
+  const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
 
   if (screenStatus !== 'normal' && !displaySettings.supportWebFullScreen) {
     return <></>
   }
-
-  const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
 
   return (
     <Fragment>
