@@ -10,7 +10,7 @@ function Footer(): JSX.Element {
     return (
         <footer>
             <Typography variant="small">
-                Bilibili Jimaku Filter - vup观众直播增强扩展
+                Bilibili Vup Stream Enhancer - vup观众直播增强扩展
             </Typography>
             <hr className="py-3 border-black dark:border-gray-700" />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 justify-items-center">

@@ -63,9 +63,9 @@ const handler: FeatureHookRender = async (settings, info) => {
         >
             {(records) => {
                 const offlineRecords = [...superchats, ...records.map((r) => ({ ...r, id: r.scId, persist: true }))]
-                return (
+                return offlineRecords.length ? (
                     <SuperChatCaptureLayer offlineRecords={offlineRecords} />
-                )
+                ) : null
             }}
         </OfflineRecordsProvider>
     ]

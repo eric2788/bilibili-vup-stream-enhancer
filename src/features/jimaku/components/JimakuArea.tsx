@@ -1,18 +1,17 @@
 import { Fragment, useContext, useEffect, useMemo, useState } from 'react';
 
+import styled from '@emotion/styled';
+import { Rnd } from 'react-rnd';
 import ConditionalWrapper from '~components/ConditionalWrapper';
+import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
+import StreamInfoContext from '~contexts/StreamInfoContexts';
+import { useWebScreenChange } from '~hooks/bilibili';
+import { useTeleport } from '~hooks/teleport';
+import type { JimakuSchema } from '~settings/features/jimaku/components/JimakuFragment';
+import { rgba } from '~utils/misc';
 import type { Jimaku } from "./JimakuLine";
 import JimakuList from './JimakuList';
 import JimakuVisibleButton from './JimakuVisibleButton';
-import { Rnd } from 'react-rnd';
-import type { Settings } from "~settings";
-import { rgba } from '~utils/misc';
-import styled from '@emotion/styled';
-import { useTeleport } from '~hooks/teleport';
-import { useWebScreenChange } from '~hooks/bilibili';
-import StreamInfoContext from '~contexts/StreamInfoContexts';
-import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
-import type { JimakuSchema } from '~settings/features/jimaku/components/JimakuFragment';
 
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
 
@@ -58,7 +57,7 @@ export type JimakuAreaProps = {
 
 function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
-    const { settings } = useContext(StreamInfoContext)
+    const { settings, info: { isTheme } } = useContext(StreamInfoContext)
     const { jimakuZone: jimakuStyle } = useContext(JimakuFeatureContext)
 
     const dev = settings['settings.developer']
@@ -68,7 +67,9 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
     useEffect(() => {
         // make danmaku chat list peer with video 
         const chatListArea = document.querySelector('div#aside-area-vm') as HTMLDivElement
-        chatListArea.style.marginBottom = `${jimakuStyle.backgroundHeight + 30}px`
+        if (!isTheme) {
+            chatListArea.style.marginBottom = `${jimakuStyle.backgroundHeight + 30}px`
+        }
         return () => {
             document.querySelector('div#jimaku-full-area')?.remove()
             delete chatListArea.style.marginBottom
@@ -83,7 +84,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
         placement: (parent, child) => {
             parent.insertAdjacentElement('afterend', child)
         },
-        shouldPlace: (status) => status !== 'normal'
+        shouldPlace: (status) => status !== 'normal' || isTheme
     })
 
     const subTitleStyle: React.CSSProperties = {
@@ -96,7 +97,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
     const [visible, setVisible] = useState(true)
 
-    if (screenStatus !== 'normal') {
+    if (screenStatus !== 'normal' || isTheme) {
         subTitleStyle.position = 'absolute'
         subTitleStyle.cursor = 'move'
         subTitleStyle.width = '100%'
@@ -110,7 +111,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
                 <Area>
                     <ConditionalWrapper
                         as={Rnd}
-                        condition={screenStatus !== 'normal'}
+                        condition={screenStatus !== 'normal' || isTheme}
                         bounds={dev.elements.webPlayer}
                         style={{ zIndex: 9999, display: visible ? 'block' : 'none' }}
                         minHeight={100}

@@ -36,7 +36,7 @@ export type SettingSchema = {
 
 export const defaultSettings: Readonly<SettingSchema> = {
     elements: {
-        upperButtonArea: '.rows-ctnr', // 上方按钮界面元素
+        upperButtonArea: '.lower-row .left-ctnr', // 上方按钮界面元素
         webPlayer: '.web-player-danmaku', // 播放器元素
         danmakuArea: '.danmaku-item-container', // 弹幕容器元素
         userName: '.room-owner-username', // 用户 ID 元素
