@@ -1,6 +1,6 @@
 export type HexColor = `#${string}`
 
-export type Optional<T> = T | undefined
+export type Optional<T> = T | null
 
 export type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N
   ? Acc[number]

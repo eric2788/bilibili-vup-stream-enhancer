@@ -39,7 +39,7 @@ function DanmakuFragment({ state, useHandler }: StateProxy<DanmakuSchema>): JSX.
     }
 
 
-    const changeOpacity = (v: number) => state.opacity = (v < 0 || v > 100) ? undefined : v as HundredNumber
+    const changeOpacity = (v: number) => state.opacity = (v < 0 || v > 100) ? null : v as HundredNumber
 
     return (
         <Fragment>

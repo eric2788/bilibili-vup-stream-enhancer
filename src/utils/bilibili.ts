@@ -109,3 +109,7 @@ export function parseJimaku(danmaku: string, regex: string) {
     return name && danmaku ? `${name}: ${danmaku}` : danmaku
 }
 
+export function isThemePage(): boolean {
+    return location.pathname.indexOf('blanc') > -1 && location.search.indexOf('liteVersion') > -1
+}
+

@@ -11,7 +11,7 @@ export async function getSettingStorage<K extends keyof SettingFragments, V exte
     const { defaultSettings } = fragments[key]
     const result = await storage.get<V>(key)
     if (withDefault) {
-        assignDefaults(result, defaultSettings)
+        return assignDefaults<V>(result, defaultSettings as V)
     }
     return result
 }
