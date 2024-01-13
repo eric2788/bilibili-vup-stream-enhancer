@@ -91,6 +91,7 @@ export function randomNumber(length: number = 20): number {
 // assign default value without coping the object
 // also works with nested object
 export function assignDefaults<T extends object>(data: T, defaults: T): T {
+    if (Array.isArray(data)) return data
     const newData = { ...data }
     Object.keys(defaults).forEach((key) => {
         if (newData[key] === undefined) {

@@ -218,17 +218,21 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             }
 
             // unhook adapters
-            console.info('開始移除適配器....')
-            const unhooking = sendMessager('hook-adapter', { command: 'unhook' })
-            toast.dismiss()
-            toast.promise(unhooking, {
-                loading: '正在移除直播监听挂接...',
-                success: '移除成功',
-                error: (err) => '移除失敗: ' + err,
-                position: 'top-left'
-            })
-            await unhooking
-            console.info('移除適配器完成')
+            if (info.status === 'online') {
+                console.info('開始移除適配器....')
+                const unhooking = sendMessager('hook-adapter', { command: 'unhook' })
+                toast.dismiss()
+                toast.promise(unhooking, {
+                    loading: '正在移除直播监听挂接...',
+                    success: '移除成功',
+                    error: (err) => '移除失敗: ' + err,
+                    position: 'top-left'
+                })
+                await unhooking
+                console.info('移除適配器完成')
+            } else {
+                console.info('直播尚未開始或已下線，無需移除適配器')
+            }
 
             // 卸載功能元素
             console.info('開始卸載元素....')

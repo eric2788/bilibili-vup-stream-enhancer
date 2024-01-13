@@ -5,7 +5,7 @@ import type { NeptuneIsMyWaifu } from "~background/functions/getBLiveCachedData"
 import func from '~utils/func'
 import { identifyVup } from './vtb-moe'
 import { sendMessager } from '~utils/messaging'
-import { w_rid } from '~utils/bilibili'
+import { isThemePage, w_rid } from '~utils/bilibili'
 
 export type StreamInfo = {
     room: string
@@ -15,7 +15,8 @@ export type StreamInfo = {
     username: string
     isVtuber: boolean
     status: 'online' | 'offline'
-    liveTime: number
+    liveTime: number,
+    isTheme: boolean 
 }
 
 export async function getStreamInfo(room: string): Promise<StreamInfo> {
@@ -28,7 +29,8 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
         username: data.anchor_info.base_info.uname,
         isVtuber: data.room_info.parent_area_id !== 9, // 分區辨識
         status: data.room_info.live_status === 1 ? 'online' : 'offline',
-        liveTime: data.room_info.live_start_time
+        liveTime: data.room_info.live_start_time,
+        isTheme: isThemePage() // 目前尚未知道如何在 API 中取得
     }
 }
 

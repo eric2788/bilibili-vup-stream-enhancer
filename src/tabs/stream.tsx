@@ -216,17 +216,19 @@ function App(): JSX.Element {
             <PromiseHandler promise={getStreamUrls}>
                 <PromiseHandler.Error>
                     {error => (
-                        <div className="flex justify-center items-center text-center h-full w-full">
-                            <div className="text-red-500">
+                        <div className="flex flex-col justify-center items-center text-center h-screen w-full gap-5 text-red-500">
+                            <div>
                                 <Typography variant="h5" color="red" className="semi-bold">加载错误:</Typography>
-                                <span className="text-[17px]">{error.message}</span>
-                                <Button color="red" onClick={() => location.reload()}>重试</Button>
                             </div>
+                            <div>
+                                <span className="text-[17px]">{error.message}</span><br />
+                            </div>
+                            <Button color="red" size='sm' className='text-lg' onClick={() => location.reload()}>重试</Button>
                         </div>
                     )}
                 </PromiseHandler.Error>
                 <PromiseHandler.Loading>
-                    <div className="flex justify-center items-center text-center h-full w-full">
+                    <div className="flex justify-center items-center text-center h-screen w-full">
                         <div className="text-gray-500">
                             <Typography variant="h5" color="gray" className="semi-bold animate-pulse">加载中...</Typography>
                         </div>
