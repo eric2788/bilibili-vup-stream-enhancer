@@ -87,3 +87,16 @@ export function randomRange(min: number, max: number): number {
 export function randomNumber(length: number = 20): number {
     return Math.round(Math.random() * (10 ** length))
 }
+
+// assign default value without coping the object
+// also works with nested object
+export function assignDefaults<T extends object>(data: T, defaults: T): T {
+    Object.keys(defaults).forEach((key) => {
+        if (data[key] === undefined) {
+            data[key] = defaults[key]
+        } else if (data[key] instanceof Object) {
+            assignDefaults(data[key], defaults[key])
+        }
+    })
+    return data
+}

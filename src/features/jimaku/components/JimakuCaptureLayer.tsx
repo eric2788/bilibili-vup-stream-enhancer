@@ -11,6 +11,7 @@ import ButtonArea from './ButtonArea';
 import JimakuArea from './JimakuArea';
 import type { Jimaku } from "./JimakuLine";
 import { useTransaction } from '~hooks/optimizer';
+import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 
 export type JimakuCaptureLayerProps = {
     offlineRecords: Jimaku[]
@@ -19,16 +20,15 @@ export type JimakuCaptureLayerProps = {
 function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
     const { settings, info } = useContext(StreamInfoContext)
+    const { jimakuZone: jimakuStyle, danmakuZone, jimakuPopupWindow } = useContext(JimakuFeatureContext)
     const { offlineRecords } = props
 
     const {
-        jimaku: { jimakuPopupWindow },
         common: { useStreamingTime },
         enabledRecording
     } = settings["settings.features"]
-    
-    const { regex, color, position } = settings['settings.danmaku']
-    const jimakuStyle = settings['settings.jimaku']
+
+    const { regex, color, position } = danmakuZone
     const { tongchuanBlackList, tongchuanMans } = settings['settings.listings']
 
     const [jimaku, setJimaku] = useState<Jimaku[]>(offlineRecords)

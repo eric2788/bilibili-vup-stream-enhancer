@@ -14,6 +14,7 @@ import { injectAdapter } from "~utils/inject"
 import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
 import { getFullSettingStroage } from "~utils/storage"
 import App from "./App"
+import { memo } from "react"
 
 interface RootMountable {
     feature: FeatureType
@@ -34,14 +35,13 @@ interface App {
     stop(): Promise<void>
 }
 
-
 // createMountPoints will not start or the stop the app
 function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[] {
 
     const { rootContainer, OverlayApp, anchor } = plasmo
 
     return Object.entries(features).map(([key, handler]) => {
-        const { default: hook, App } = handler
+        const { default: hook, App, FeatureContext: Context } = handler
 
         const section = document.createElement('section')
         section.id = `bjf-feature-${key}`
@@ -71,13 +71,26 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
                     console.info(`房間 ${info.room} 已被 ${key} 功能禁用，已略過`)
                     return
                 }
+
+                const FeatureContextProvider: React.FC<{ children: React.ReactNode, context?: React.Context<any>, value: any }> = memo((props) => {
+                    const { children, context: Context, value } = props
+                    if (!Context) return children
+                    return (
+                        <Context.Provider value={value}>
+                            {children}
+                        </Context.Provider>
+                    )
+                })
+
                 root = createRoot(section)
                 root.render(
                     <OverlayApp anchor={anchor}>
                         <BLiveThemeProvider element={section}>
                             <StreamInfoContext.Provider value={{ settings, info }}>
-                                {App ? <App /> : <></>}
-                                {portals}
+                                <FeatureContextProvider context={Context} value={settings['settings.features'][feature]}>
+                                    {App && <App />}
+                                    {portals}
+                                </FeatureContextProvider>
                             </StreamInfoContext.Provider>
                         </BLiveThemeProvider>
                     </OverlayApp>

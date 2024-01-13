@@ -7,6 +7,10 @@ import OfflineRecordsProvider from "~components/OfflineRecordsProvider";
 import { randomString, toStreamingTime, toTimer } from "~utils/misc";
 import SuperChatCaptureLayer from "./components/SuperChatCaptureLayer";
 import { type SuperChatCard } from "./components/SuperChatItem";
+import SuperChatFeatureContext from "~contexts/SuperChatFeatureContext";
+
+
+export const FeatureContext = SuperChatFeatureContext
 
 const handler: FeatureHookRender = async (settings, info) => {
 

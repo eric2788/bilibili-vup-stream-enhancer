@@ -1,18 +1,18 @@
-import { useCallback, type ChangeEvent, type SyntheticEvent } from 'react';
+import { useCallback, type ChangeEvent } from 'react';
 import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~settings/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
 
-import { Collapse, IconButton, List, ListItem, Switch, Typography } from '@material-tailwind/react';
+import { Collapse, IconButton, List, Switch, Typography } from '@material-tailwind/react';
 
 import { toast } from 'sonner/dist';
 import type { TableType } from "~database";
 import type { FeatureType } from "~features";
-import { asStateProxy, useBinding, type StateProxy, type StateHandler, type ExposeHandler } from "~hooks/binding";
+import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding";
 import ExperienmentFeatureIcon from '~settings/components/ExperientmentFeatureIcon';
 import FeatureRoomTable from '~settings/components/FeatureRoomTable';
-import settings, { featureTypes, type FeatureFragment, type FeatureSettings, type FeatureSettingSchema } from '~settings/features';
-import type { Leaves, PickLeaves, RoomList } from '~types/common';
+import settings, { featureTypes, type FeatureSettingSchema, type FeatureSettings } from '~settings/features';
+import type { RoomList } from '~types/common';
 
 
 export type SettingSchema = {
@@ -143,25 +143,27 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                             </div>
                         } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes(f)} onChange={e => toggle(f)} />
                         <Collapse open={state.enabledFeatures.includes(f)}>
-                            <List className="pl-6">
-                                {setting.define.offlineTable !== false && (
-                                    <SwitchListItem
-                                        label="启用离线记录"
-                                        value={state.enabledRecording.includes(f)}
-                                        onChange={e => toggleRecord(f)}
-                                        suffix={
-                                            <TrashIconButton table={setting.define.offlineTable} title={setting.title} />
-                                        }
-                                    />
-                                )}
+                            <div className="px-5 py-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
+                                <List className='col-span-2 border border-[#808080] rounded-md'>
+                                    {setting.define.offlineTable !== false && (
+                                        <SwitchListItem
+                                            label="启用离线记录"
+                                            value={state.enabledRecording.includes(f)}
+                                            onChange={e => toggleRecord(f)}
+                                            suffix={
+                                                <TrashIconButton table={setting.define.offlineTable} title={setting.title} />
+                                            }
+                                        />
+                                    )}
+                                </List>
                                 {Component && <Component {...props} />}
-                                <ListItem ripple={false} className='w-full bg-transparent hover:bg-transparent dark:hover:bg-transparent focus:bg-transparent dark:focus:bg-transparent cursor-default'>
+                                <div className='col-span-2'>
                                     <FeatureRoomTable
                                         feature={f}
                                         roomList={state.roomList}
                                     />
-                                </ListItem>
-                            </List>
+                                </div>
+                            </div>
                         </Collapse>
                     </div>
                 )

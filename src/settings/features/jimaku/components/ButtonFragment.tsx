@@ -5,21 +5,19 @@ import ColorInput from '~settings/components/ColorInput';
 import type { StateProxy } from "~hooks/binding";
 import type { HexColor } from "~types/common";
 
-export type SettingSchema = {
+export type ButtonSchema = {
     textColor: HexColor
     backgroundColor: HexColor
     backgroundListColor: HexColor
 }
 
-export const defaultSettings: Readonly<SettingSchema> = {
+export const buttonDefaultSettings: Readonly<ButtonSchema> = {
     textColor: '#ffffff',
     backgroundColor: '#000000',
     backgroundListColor: '#ffffff'
 }
 
-export const title = '字幕按钮样式设定'
-
-function ButtonSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
+function ButtonFragment({ state, useHandler }: StateProxy<ButtonSchema>): JSX.Element {
 
     const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value)
 
@@ -32,4 +30,4 @@ function ButtonSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.E
     )
 }
 
-export default ButtonSettings
+export default ButtonFragment

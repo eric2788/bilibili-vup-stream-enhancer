@@ -12,7 +12,8 @@ export type FeatureType = keyof typeof features
 
 export interface FeatureHandler {
     default: FeatureHookRender,
-    App?: FeatureAppRender
+    App?: FeatureAppRender,
+    FeatureContext?: React.Context<any>
 }
 
 const features = {
