@@ -9,11 +9,6 @@ import { sendMessager } from "~utils/messaging"
 function ButtonList(): JSX.Element {
 
     const streamInfo = useContext(StreamInfoContext)
-
-    if (!streamInfo) {
-        console.warn('BJF App is not ready.')
-        return <></>
-    }
     
     const { settings, info } = streamInfo
     const { "settings.display": displaySettings, "settings.features": { common: { enabledPip, monitorWindow }} } = settings
@@ -42,6 +37,9 @@ function ButtonList(): JSX.Element {
                 <Button variant="outlined" size="lg" className="text-lg" onClick={restart}>重新启动</Button>}
             {monitorWindow &&
                 <Button variant="outlined" size="lg" className="text-lg" onClick={openMonitor}>打开监控式视窗</Button>}
+            {(info.isTheme && displaySettings.themeToNormalButton) && 
+                <Button variant="outlined" size="lg" className="text-lg" onClick={() => window.open(`https://live.bilibili.com/blanc/${info.room}`)}>返回非海报界面</Button>    
+            }
         </div>
     )
 }

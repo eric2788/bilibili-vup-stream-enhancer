@@ -1,7 +1,6 @@
 import { Fragment, useCallback, useContext, useRef, useState } from 'react';
 import { getTimeStamp, randomString, toStreamingTime } from '~utils/misc';
 
-import { useInterval } from '@react-hooks-library/core';
 import { sendForward } from '~background/forwards';
 import StreamInfoContext from '~contexts/StreamInfoContexts';
 import db from '~database';
