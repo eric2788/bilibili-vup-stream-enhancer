@@ -98,6 +98,11 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(roomId)))
 
     const rootContainer = await createRootContainer(anchor)
+    if (!rootContainer) {
+      console.warn('root container is null, maybe the app is already running')
+      return
+    }
+    
     const forwarder = getForwarder('command', 'content-script')
 
     const app = createApp(roomId, { rootContainer, anchor, OverlayApp }, info)

@@ -15,6 +15,15 @@ import JimakuVisibleButton from './JimakuVisibleButton';
 
 const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
 
+        ${process.env.PLASMO_BROWSER === 'firefox' ?
+        `
+        .subtitle-normal {
+            scrollbar-width: thin;
+            scrollbar-color: ${jimakuStyle.color} ${jimakuStyle.backgroundColor};
+        }
+        `
+        :
+        `
         .subtitle-normal::-webkit-scrollbar {
             width: 5px;
         }
@@ -26,6 +35,7 @@ const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
         .subtitle-normal::-webkit-scrollbar-thumb {
             background-color: ${jimakuStyle.color};
         }
+        `}
 
         #subtitle-list p:${jimakuStyle.order === 'top' ? 'first' : 'last'}-of-type {
             animation: ${jimakuStyle.animation} .3s ease-out;

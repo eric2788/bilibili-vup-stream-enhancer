@@ -43,9 +43,14 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
     return Object.entries(features).map(([key, handler]) => {
         const { default: hook, App, FeatureContext: Context } = handler
 
-        const section = document.createElement('section')
-        section.id = `bjf-feature-${key}`
-        rootContainer.appendChild(section)
+        let section: HTMLElement = document.getElementById(`bjf-feature-${key}`)
+        if (section === null) {
+            const section = document.createElement('section')
+            section.id = `bjf-feature-${key}`
+            rootContainer.appendChild(section)
+        } else {
+            console.warn(`feature element ${key} already exists, maybe the app is already running`)
+        }
 
         const feature = key as FeatureType
         // this root is feature root
@@ -114,9 +119,14 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
     const { anchor, OverlayApp, rootContainer } = plasmo
     const mounters = createMountPoints({ rootContainer, anchor, OverlayApp }, info)
 
-    const section = document.createElement('section')
-    section.id = "bjf-root"
-    rootContainer.appendChild(section)
+    let section: HTMLElement = document.getElementById('bjf-root')
+    if (section === null) {
+        section = document.createElement('section')
+        section.id = "bjf-root"
+        rootContainer.appendChild(section)
+    } else {
+        console.warn('root element already exists, maybe the app is already running')
+    }
 
     // this root is main root
     let root: Root = null
@@ -198,6 +208,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
             // TODO: change to use global data
             removeListener = addBLiveMessageCommandListener('DANMU_MSG', (data) => {
+                console.info(data)
                 const uname = data.info[2][1]
                 const text = data.info[1]
                 if (Array.isArray(text)) return

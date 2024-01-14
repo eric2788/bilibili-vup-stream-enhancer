@@ -36,7 +36,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         results.push(...await chrome.scripting.executeScript({
             target: { tabId },
             injectImmediately: true,
-            world: 'MAIN',
+            world: process.env.PLASMO_BROWSER === 'firefox' ? 'ISOLATED' : 'MAIN',
             files: [file],
         }))
     }
@@ -47,7 +47,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         results.push(...await chrome.scripting.executeScript({
             target: { tabId },
             injectImmediately: true,
-            world: 'MAIN',
+            world: process.env.PLASMO_BROWSER === 'firefox' ? 'ISOLATED' : 'MAIN',
             func: dispatchFuncEvent,
             args: [funcName, ...(funcArgs ?? [])],
         }))

@@ -3,7 +3,7 @@ import { Storage } from '@plasmohq/storage'
 import { assignDefaults } from './misc'
 
 export const storage = new Storage({ area: 'sync' })
-export const sessionStorage = new Storage({ area: 'session' })
+export const sessionStorage = new Storage({ area: process.env.PLASMO_BROWSER === 'firefox' ? 'local' : 'session' })
 export const localStorage = new Storage({ area: 'local' })
 
 

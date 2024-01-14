@@ -22,6 +22,9 @@ export const useStorage = <T extends object>(key: string, onInit?: Setter<T>) =>
  * const watchedValue = useStorageWatch<number>("myKey", "sync", 0);
  */
 export function useStorageWatch<T = any>(key: string, area: "sync" | "local" | "managed" | "session", defaultValue?: T): T {
+    if (process.env.PLASMO_BROWSER === 'firefox') {
+        area = 'local' // firefox doesn't support session storage
+    }
     const storage = new Storage({ area })
     const [watchedValue, setWatchedValue] = useState(defaultValue)
     const watchCallback: StorageCallbackMap = {

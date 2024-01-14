@@ -16,7 +16,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         ...{
             target: { tabId: req.sender.tab.id },
             injectImmediately: true,
-            world: 'MAIN',
+            world: process.env.PLASMO_BROWSER === 'firefox' ? 'ISOLATED' : 'MAIN',
         },
         ...rest,
         func: functions[name],
