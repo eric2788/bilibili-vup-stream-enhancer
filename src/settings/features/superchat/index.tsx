@@ -16,8 +16,8 @@ export type FeatureSettingSchema = {
 }
 
 export const defaultSettings: Readonly<FeatureSettingSchema> = {
-    floatingButtonColor: '#ff0000',
-    buttonColor: '#ff0000',
+    floatingButtonColor: '#db7d1f',
+    buttonColor: '#db7d1f',
 }
 
 
