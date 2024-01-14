@@ -5,5 +5,5 @@ export const getAllTables = () => Object.entries(db).filter(([, value]) => isTab
 
 //create a type guard for the tables
 function isTable<T extends Table<CommonSchema, number>>(table: Table<CommonSchema, number>): table is T {
-    return table.where !== undefined
+    return table?.where !== undefined
 }

@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { isDarkThemeBilbili } from '~utils/bilibili';
 import { isDarkTheme } from '~utils/misc';
 
 import { useMutationObserver } from '@react-hooks-library/core';
 
 import BJFThemeProvider from './BJFThemeProvider';
+import BJFThemeDarkContext from '~contexts/BLiveThemeDarkContext';
 
 const fetchDarkMode = () => /*isDarkTheme() &&*/ isDarkThemeBilbili()
 
 function BLiveThemeProvider({ children, element }: { children: React.ReactNode, element?: Element | Element[] }): JSX.Element {
+
+  const themeContext = useState<boolean>(fetchDarkMode)
 
   const [dark, setDark] = useState(fetchDarkMode)
 
@@ -28,10 +31,16 @@ function BLiveThemeProvider({ children, element }: { children: React.ReactNode, 
     setDark(fetchDarkMode)
   }, [])
 
+  useEffect(() => {
+    themeContext[1](dark)
+  }, [dark])
+
   return (
-    <BJFThemeProvider dark={dark} controller={controller}>
-      {children}
-    </BJFThemeProvider>
+    <BJFThemeDarkContext.Provider value={themeContext}>
+      <BJFThemeProvider dark={dark} controller={controller}>
+        {children}
+      </BJFThemeProvider>
+    </BJFThemeDarkContext.Provider>
   )
 }
 
