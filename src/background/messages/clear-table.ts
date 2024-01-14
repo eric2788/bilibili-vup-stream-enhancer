@@ -1,7 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { sendInternal } from '~background/messages'
 import { type TableType } from '~database'
-import { InjectScript, injectScript } from '~utils/inject'
+import { InjectScript } from '~utils/inject'
 
 export type RequestBody = {
     table: TableType | 'all'
