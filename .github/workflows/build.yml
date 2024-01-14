@@ -3,8 +3,12 @@ name: Build Extensions
 on:
     push:
         branches: 
+          - 'develop'
           - 'hotfix/**'
           - 'feature/**'
+        paths:
+          - 'src/**'
+          - 'package.json'
     pull_request:
         branches: [develop]
 
