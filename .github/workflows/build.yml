@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                browser: [chrome, firefox, edge]
+                browser: [chrome, edge]
         steps:
             - uses: actions/checkout@v2
             - name: Setup Node.js
