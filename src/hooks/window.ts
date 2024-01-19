@@ -3,6 +3,15 @@ import { useCallback } from "react"
 
 export type PopupCreateInfo = Omit<chrome.windows.CreateData, 'url'>
 
+/**
+ * Custom hook for creating a popup window or opening a new tab/window.
+ * @param enabledPip - Flag indicating whether picture-in-picture mode is enabled.
+ * @param options - chrome window create configuration options.
+ * @returns An object containing the createPopupWindow function and the pipSupported flag.
+ * @example
+ * const { createPopupWindow, pipSupported } = usePopupWindow(true, { width: 800, height: 600 });
+ * createPopupWindow('https://example.com', { param1: 'value1', param2: 'value2' });
+ */
 export function usePopupWindow(enabledPip: boolean, options: PopupCreateInfo) {
     const pipSupported = window.documentPictureInPicture !== undefined
     const createPopupWindow = useCallback((tabUrl: string, params: Record<string, string> = {}) => {

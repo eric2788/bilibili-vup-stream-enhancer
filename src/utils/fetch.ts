@@ -4,6 +4,12 @@ import { sleep } from './misc'
 import type { RequestBody } from '~background/messages/request'
 import { sendMessager } from './messaging'
 
+/**
+ * Fetches data from the specified URL with the same credentials.
+ * @param url - The URL to fetch data from.
+ * @returns A promise that resolves to the fetched data.
+ * @throws An error if the response is not successful.
+ */
 export async function fetchSameCredential<T extends object = any>(url: string): Promise<T> {
   const res = await fetch(url, { credentials: 'include' })
   if (!res.ok) {
@@ -19,6 +25,12 @@ const defaultHandle = <R extends CommonResponse<any>>(data: R) => {
   }
 }
 
+/**
+ * Returns a function that fetches data from the specified URL with the same credentials and validates the response.
+ * @template R - The type of the response object.
+ * @param validate - Optional. A function that validates the response object.
+ * @returns A function that fetches data from the specified URL and returns a Promise of the response data.
+ */
 export function fetchSameCredentialWith<R extends CommonResponse<any>>(validate: (b: R, url: string) => void = defaultHandle): <T = any>(url: string) => Promise<T> {
   return async <T = any>(url: string) => {
     const data = await fetchSameCredential<R>(url)
@@ -68,6 +80,15 @@ export async function withRetries<T>(
 }
 
 
+/**
+ * Executes a series of asynchronous jobs with fallbacks.
+ * If any job fails, it will wait for 5 seconds and then try the next job.
+ * If all jobs fail, it will return the default value.
+ *
+ * @param jobs - An array of functions that return a Promise.
+ * @param defaultValue - The default value to return if all jobs fail. Default is undefined.
+ * @returns A Promise that resolves to the result of the successful job or the default value.
+ */
 export async function withFallbacks<T>(jobs: (() => Promise<T>)[], defaultValue: T | undefined = undefined): Promise<T | undefined> {
   for (const job of jobs) {
     try {
@@ -81,6 +102,15 @@ export async function withFallbacks<T>(jobs: (() => Promise<T>)[], defaultValue:
   return defaultValue
 }
 
+/**
+ * Executes a promise and catches any errors that occur.
+ * If an error occurs, it returns a default value provided by the user.
+ * 
+ * @template T - The type of the promise result.
+ * @param {Promise<T>} job - The promise to execute.
+ * @param {(T | undefined) | ((err: Error | any) => (T | undefined))} [defaultValue=undefined] - The default value to return if an error occurs.
+ * @returns {Promise<T | undefined>} - The result of the promise or the default value.
+ */
 export async function catcher<T>(job: Promise<T>, defaultValue: (T | undefined) | ((err: Error | any) => (T | undefined)) = undefined): Promise<T | undefined> {
   try {
     return await job
@@ -94,13 +124,25 @@ export async function catcher<T>(job: Promise<T>, defaultValue: (T | undefined) 
   }
 }
 
+/**
+ * Retries the given job function a specified number of times and catches any errors.
+ * @param job The job function to be executed.
+ * @param maxTimes The maximum number of times to retry the job function. Default is 3.
+ * @param defaultValue The default value to return if all retries fail. Default is undefined.
+ * @returns A promise that resolves to the result of the job function, or the default value if all retries fail.
+ */
 export async function retryCatcher<T>(job: () => Promise<T>, maxTimes: number = 3, defaultValue: T | undefined = undefined): Promise<T | undefined> {
   return await catcher(withRetries(job, maxTimes))
 }
 
-
-
-// request from backend
+/**
+ * Sends a request via service worker.
+ * This function should only be used in content scripts.
+ * @param request - The request body.
+ * @returns A promise that resolves to the response data.
+ * @throws An error if the response contains an error.
+ * @template T - The type of the response data.
+ */
 export async function sendRequest<T = any>(request: RequestBody): Promise<T> {
   const res = await sendMessager('request', request)
   if (res.error) throw new Error(res.error)
