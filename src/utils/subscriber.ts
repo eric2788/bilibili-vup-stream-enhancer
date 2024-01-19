@@ -26,6 +26,14 @@ removeListener = addWindowMessageListener('blive-ws', (data: { cmd: string, comm
 })
 
 
+/**
+ * Adds a BLive subscriber for a specific command.
+ * 
+ * @template K - The type of the command.
+ * @param {K} command - The command to subscribe to.
+ * @param {BLiveListener<K>} callback - The callback function to be executed when the command is triggered.
+ * @returns {VoidFunction} - A function that can be called to unsubscribe the callback from the command.
+ */
 export function addBLiveSubscriber<K extends string>(command: K, callback: BLiveListener<K>): VoidFunction {
     listenerMap.set(command, [...(listenerMap.get(command) ?? []), callback])
     return () => {

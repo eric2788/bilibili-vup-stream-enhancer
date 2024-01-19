@@ -9,6 +9,21 @@ type ScrollOptimizeOptions<E extends Element> = {
 
 
 
+/**
+ * Custom hook for optimizing scroll behavior by controlling the visibility of elements based on their intersection with the viewport.
+ * @template E The type of the element being observed.
+ * @param {ScrollOptimizeOptions<E>} options - The options for scroll optimization.
+ * @returns {React.MutableRefObject<IntersectionObserver | null>} - A mutable ref object containing the IntersectionObserver instance.
+ *
+ * @example
+ * const options = {
+ *   root: document.querySelector('#scrollContainer'),
+ *   rootMargin: '0px',
+ *   threshold: 0.5
+ * };
+ * const observerRef = useScrollOptimizer(options);
+ * // Use observerRef.current to access the IntersectionObserver instance.
+ */
 export function useScrollOptimizer<E extends Element = Element>(options: ScrollOptimizeOptions<E>) {
 
     const { root, rootMargin, threshold } = options
@@ -39,6 +54,18 @@ export function useScrollOptimizer<E extends Element = Element>(options: ScrollO
 }
 
 
+/**
+ * Custom hook that optimizes rendering of a row element using an IntersectionObserver.
+ * @template E The type of the row element.
+ * @param {React.MutableRefObject<IntersectionObserver | null>} observerRef A mutable ref object that holds the IntersectionObserver instance.
+ * @returns {React.RefCallback<E>} A callback function that should be assigned to the ref prop of the row element.
+ * @example
+ * const observer = useScrollOptimizer(...);
+ * const rowRef = useRowOptimizer(observer);
+ * 
+ * return (
+ *   <div ref={rowRef}>
+ *     {/* Row content */
 export function useRowOptimizer<E extends HTMLElement>(observerRef: React.MutableRefObject<IntersectionObserver | null>) {
 
     const observer = observerRef.current

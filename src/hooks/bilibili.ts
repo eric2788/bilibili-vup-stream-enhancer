@@ -3,6 +3,19 @@ import { useState } from 'react'
 
 export type WebScreenStatus = 'normal' | 'web-fullscreen' | 'fullscreen'
 
+/**
+ * Custom hook that tracks the screen status of a web page.
+ * @param classes - The CSS classes used to identify different screen statuses.
+ * @returns The current screen status.
+ * @example
+ * // Usage
+ * const classes = {
+ *   screenWeb: 'web-screen',
+ *   screenFull: 'full-screen'
+ * };
+ * const screenStatus = useWebScreenChange(classes);
+ * console.log(screenStatus); // 'web-fullscreen', 'fullscreen', or 'normal'
+ */
 export function useWebScreenChange(classes: { screenWeb: string, screenFull: string }): WebScreenStatus {
 
     const fetchScreenStatus = (bodyElement: HTMLElement) =>

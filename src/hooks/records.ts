@@ -15,6 +15,29 @@ export type RecordInfo<T> = {
     reverse?: boolean
 }
 
+/**
+ * Custom hook for managing records.
+ * @template T - The type of records.
+ * @param {string} room - The room identifier.
+ * @param {T[]} records - The array of records.
+ * @param {RecordInfo<T>} info - The information about the records.
+ * @returns {Object} - An object containing the downloadRecords and deleteRecords functions.
+ * @example
+ * const records = [
+ *   { id: 1, message: 'Hello' },
+ *   { id: 2, message: 'World' }
+ * ];
+ * const info = {
+ *   description: 'chat',
+ *   reverse: false,
+ *   format: (record) => `${record.id}: ${record.message}`,
+ *   feature: 'chat-logs',
+ *   clearRecords: () => { /* clear records logic *\/ }
+ * };
+ * const { downloadRecords, deleteRecords } = useRecords('room1', records, info);
+ * downloadRecords(); // Downloads the chat records for room1
+ * deleteRecords(); // Deletes all chat records for room1
+ */
 export function useRecords<T>(room: string, records: T[], info: RecordInfo<T>) {
 
     const downloadRecords = useCallback(() => {

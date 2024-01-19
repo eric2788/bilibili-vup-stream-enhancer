@@ -24,6 +24,13 @@ export function findStaticComponent(children: React.ReactNode, name: string): Re
 }
 
 
+/**
+ * Injects a script element with the specified code into the given element.
+ * If no element is provided, the script element will be appended to the document body.
+ * 
+ * @param code The code to be injected as the content of the script element.
+ * @param element The element to which the script element should be appended. Defaults to document.body.
+ */
 export function injectScriptElement(code: string, element: Element = document.body) {
     const script = document.createElement('script')
     script.textContent = code
