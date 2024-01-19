@@ -22,6 +22,7 @@ export type ExposeHandler<T extends object> = T & {
  * 
  * @template T - The type of the state object.
  * @param initialState - The initial state object.
+ * @param noCopy - Whether to use the initial state object directly.
  * @returns An array containing the state object and its handler functions.
  *
  * @example

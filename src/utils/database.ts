@@ -1,6 +1,10 @@
 import type { Table } from "dexie"
 import db, { type CommonSchema } from '~database'
 
+/**
+ * Retrieves all tables from the database.
+ * @returns An array of tables.
+ */
 export const getAllTables = () => Object.entries(db).filter(([, value]) => isTable(value)).map(([, v]) => v) as Table<CommonSchema, number>[]
 
 //create a type guard for the tables

@@ -1,17 +1,26 @@
 import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili"
 
-import type { Settings } from "~settings"
-import type { StreamInfo } from "~api/bilibili"
-import { localStorage } from './storage'
 import { md5 } from 'hash-wasm'
-import { sendMessager } from './messaging'
+import type { StreamInfo } from "~api/bilibili"
+import type { Settings } from "~settings"
 import { sendRequest } from "./fetch"
+import { localStorage } from './storage'
 
+/**
+ * Retrieves the room ID from the given URL or the current location pathname.
+ * @param url - The URL to extract the room ID from. If not provided, the current location pathname will be used.
+ * @returns The room ID extracted from the URL.
+ */
 export function getRoomId(url: string = location.pathname): string {
     return /^\/(blanc\/)?(?<id>\d+)/g.exec(url)?.groups?.id
 }
 
 
+/**
+ * Generates a wbi key by sending a request to the Bilibili API.
+ * @returns A promise that resolves to the wbi key.
+ * @throws An error if the Bilibili API request fails.
+ */
 export async function generateWbi(): Promise<string> {
     const url = 'https://api.bilibili.com/x/web-interface/nav'
     // get wbi keys
@@ -52,6 +61,14 @@ export async function generateWbi(): Promise<string> {
     return temp.slice(0, 32)
 }
 
+/**
+ * Generates a unique identifier for a user based on their UID and a timestamp.
+ * If the salt value is not found or expired, it generates a new one and saves it to local storage.
+ * The generated identifier is calculated using the salt, UID, platform, token, web location, and timestamp.
+ * @param uid The user's UID.
+ * @param wts The timestamp value.
+ * @returns A Promise that resolves to the generated identifier.
+ */
 export async function w_rid(uid: string, wts: number): Promise<string> {
     let salt = await localStorage.get<string>('wbi_salt')
     const lastUpdate = await localStorage.get<number>('wbi_salt_last_update')
@@ -70,11 +87,20 @@ export async function w_rid(uid: string, wts: number): Promise<string> {
 }
 
 
+/**
+ * Checks if the current Bilibili theme is dark.
+ * @returns {boolean} True if the theme is dark, false otherwise.
+ */
 export function isDarkThemeBilbili(): boolean {
     return document.documentElement.getAttribute('lab-style')?.includes('dark')
 }
 
-// 使用 DOM query
+/**
+ * Retrieves the stream information from the DOM based on the provided room and settings.
+ * @param room - The room identifier.
+ * @param settings - The settings object.
+ * @returns The stream information.
+ */
 export function getStreamInfoByDom(room: string, settings: Settings): StreamInfo {
     const developer = settings["settings.developer"]
 
@@ -95,8 +121,13 @@ export function getStreamInfoByDom(room: string, settings: Settings): StreamInfo
     } as StreamInfo
 }
 
-
-
+/**
+ * Parses the given danmaku string using the provided regex pattern.
+ * 
+ * @param danmaku - The danmaku string to parse.
+ * @param regex - The regex pattern to use for parsing.
+ * @returns The parsed danmaku string, or undefined if the input danmaku is undefined or empty.
+ */
 export function parseJimaku(danmaku: string, regex: string) {
     if (danmaku === undefined) return undefined
     const reg = new RegExp(regex)
@@ -110,6 +141,10 @@ export function parseJimaku(danmaku: string, regex: string) {
 }
 
 // TODO: this become secondary function, primary function use fetch room info instead
+/**
+ * Checks if the current page is a theme page.
+ * @returns {boolean} True if the current page is a theme page, false otherwise.
+ */
 export function isThemePage(): boolean {
     return location.pathname.indexOf('blanc') > -1 && location.search.indexOf('liteVersion') > -1
 }
