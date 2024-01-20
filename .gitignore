@@ -39,3 +39,7 @@ keys.json
 .pnpm
 .pnp.cjs
 .store
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

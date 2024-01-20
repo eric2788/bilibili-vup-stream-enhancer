@@ -10,7 +10,8 @@
     "dev:opera": "pnpm dev --target=opera-mv3",
     "build": "plasmo build --no-minify",
     "package": "plasmo package",
-    "clean": "rm -rf build && rm -rf .plasmo"
+    "clean": "rm -rf build && rm -rf .plasmo",
+    "test": "playwright test"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@playwright/test": "^1.41.1",
     "@types/brotli": "^1.3.4",
     "@types/chrome": "^0.0.254",
     "@types/glob": "^8.1.0",
