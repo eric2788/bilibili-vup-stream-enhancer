@@ -1,5 +1,6 @@
+import type { Page } from "@playwright/test";
 
-export type LiveRoomInfo = {
+export interface LiveRoomInfo {
     roomid: number;
     uid: number;
     title: string;
@@ -26,13 +27,16 @@ export async function getLiveRooms(page: number = 1): Promise<LiveRoomInfo[]> {
     return data.data.list as LiveRoomInfo[]
 }
 
-export function sendFakeBLiveMessage(cmd: string, command: object) {
-    const eventId = window.crypto.randomUUID()
-    window.postMessage({
-        source: 'bilibili-jimaku-filter',
-        data: {
-            command: 'blive-ws',
-            body: { cmd, command, eventId }
-        }
-    }, '*')
+export function sendFakeBLiveMessage(page: Page, cmd: string, command: object) {
+    return page.evaluate(([cmd, command]) => {
+        const eventId = window.crypto.randomUUID()
+        console.info(`[bilibili-vup-stream-enhancer-test] send fake blive message: ${cmd}`, command)
+        window.postMessage({
+            source: 'bilibili-vup-stream-enhancer',
+            data: {
+                command: 'blive-ws',
+                body: { cmd, command, eventId }
+            }
+        }, '*')
+    }, [cmd, command])
 }

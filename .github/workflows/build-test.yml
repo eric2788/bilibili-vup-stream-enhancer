@@ -1,4 +1,4 @@
-name: Build Extensions
+name: Build And Test Extensions
 
 on:
     push:
@@ -16,7 +16,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-              browser: [chrome, edge]
+              browser: [chrome, edge, chromium]
         steps:
             - uses: actions/checkout@v4
             - uses: pnpm/action-setup@v2
@@ -42,7 +42,7 @@ jobs:
       needs: build
       strategy:
           matrix:
-              browser: [chrome, edge]
+              browser: [chrome, edge, chromium]
       steps:
           - uses: actions/checkout@v4
           - name: Download artifacts

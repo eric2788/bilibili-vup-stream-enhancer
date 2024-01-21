@@ -1,11 +1,12 @@
 import { test as base, chromium, type BrowserContext, type Locator, type Page } from '@playwright/test'
 import path from 'path'
-import { getLiveRooms, type LiveRoomInfo } from './utils/bilibili'
+import { getLiveRooms } from './utils/bilibili'
+import BilibiliPage from './helpers/bilibili-page'
 
 export type ExtensionFixture = {
     context: BrowserContext
     extensionId: string
-    room: LiveRoomInfo
+    room: BilibiliPage
 }
 
 export const test = base.extend<ExtensionFixture>({
@@ -28,6 +29,7 @@ export const test = base.extend<ExtensionFixture>({
             background = await context.waitForEvent('serviceworker')
 
         const extensionId = background.url().split('/')[2]
+        console.info(`using extension id: ${extensionId}`)
         await use(extensionId);
     },
     room: async ({ page }, use) => {
@@ -39,8 +41,8 @@ export const test = base.extend<ExtensionFixture>({
         await page.goto("https://live.bilibili.com/" + selected.roomid)
         await page.waitForTimeout(1000)
         const csui = page.locator('plasmo-csui')
-        await csui.waitFor({ state: 'attached', timeout: 5000 })
-        await use(selected)
+        await csui.waitFor({ state: 'attached', timeout: 10000 })
+        await use(new BilibiliPage(page, selected))
     }
 })
 

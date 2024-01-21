@@ -1,4 +1,5 @@
-import { glob, type IOptions } from 'glob'
+import { glob, type GlobOptions as IOptions } from 'glob'
+import type { Readable } from 'stream'
 
 
 export type IModule = {
@@ -9,7 +10,7 @@ export type IModule = {
 
 // Imporntant!!! Only Node.js can use this function.
 export function getTSFiles(dirPath: string, options?: IOptions): string[] {
-    return glob.sync(`${dirPath}/**/*.{ts,tsx}`, options)
+    return glob.sync(`${dirPath}/**/*.{ts,tsx}`, options) as string[]
 }
 
 
@@ -29,4 +30,14 @@ export function* getModuleStreamSync(dirPath: string, options: IOptions = { igno
         const name = file.split('/').pop().split('.')[0]
         yield { name, file, module: require(file) }
     }
+}
+
+
+export async function readText(readable: Readable): Promise<string> {
+    return new Promise((res, rej) => {
+        let data = ''
+        readable.on('data', chunk => data += chunk)
+        readable.on('end', () => res(data))
+        readable.on('error', rej)
+    })
 }
