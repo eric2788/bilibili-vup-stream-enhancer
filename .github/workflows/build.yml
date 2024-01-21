@@ -6,9 +6,6 @@ on:
           - 'develop'
           - 'hotfix/**'
           - 'feature/**'
-        paths:
-          - 'src/**'
-          - 'package.json'
     pull_request:
         branches: [develop]
     workflow_dispatch:
@@ -17,8 +14,9 @@ jobs:
     build:
         runs-on: ubuntu-latest
         strategy:
+            fail-fast: false
             matrix:
-                browser: [chrome, edge]
+              browser: [chrome, edge]
         steps:
             - uses: actions/checkout@v4
             - uses: pnpm/action-setup@v2
@@ -37,7 +35,7 @@ jobs:
             - name: Upload to GitHub Artifacts
               uses: actions/upload-artifact@v4
               with:
-                  name: ${{ matrix.browser }}-mv3.zip
+                  name: ${{ matrix.browser }}-mv3
                   path: build/
     test:
       runs-on: ubuntu-latest
@@ -48,11 +46,13 @@ jobs:
       steps:
           - uses: actions/checkout@v4
           - name: Download artifacts
-            uses: actions/download-artifact@v2
+            uses: actions/download-artifact@v4
+            id: download
             with:
-                name: ${{ matrix.browser }}-mv3.zip
+                name: ${{ matrix.browser }}-mv3
+                path: build/
           - name: Unzip artifacts
-            run: unzip ${{ matrix.browser }}-mv3.zip -d build/extension
+            run: unzip build/${{ matrix.browser }}-mv3-prod.zip -d build/extension
           - uses: pnpm/action-setup@v2
             with:
                 version: 8
