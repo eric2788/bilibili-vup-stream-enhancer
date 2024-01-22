@@ -1,12 +1,15 @@
-import { test as base, chromium, type BrowserContext, type Locator, type Page } from '@playwright/test'
+import { test as base, chromium, type BrowserContext } from '@playwright/test'
 import path from 'path'
 import { getLiveRooms } from './utils/bilibili'
 import BilibiliPage from './helpers/bilibili-page'
+import type { Logger } from './helpers/logger'
+import LoggerImpl from './helpers/logger'
 
 export type ExtensionFixture = {
     context: BrowserContext
     extensionId: string
     room: BilibiliPage
+    logger: Logger
 }
 
 export const test = base.extend<ExtensionFixture>({
@@ -23,13 +26,13 @@ export const test = base.extend<ExtensionFixture>({
         await use(context);
         await context.close();
     },
-    extensionId: async ({ context }, use) => {
+    extensionId: async ({ context, logger }, use) => {
         let [background] = context.serviceWorkers()
         if (!background)
             background = await context.waitForEvent('serviceworker')
 
         const extensionId = background.url().split('/')[2]
-        console.info(`using extension id: ${extensionId}`)
+        logger.info(`using extension id: ${extensionId}`)
         await use(extensionId);
     },
     room: async ({ page }, use) => {
@@ -43,6 +46,10 @@ export const test = base.extend<ExtensionFixture>({
         const csui = page.locator('plasmo-csui')
         await csui.waitFor({ state: 'attached', timeout: 10000 })
         await use(new BilibiliPage(page, selected))
+    },
+    logger: async({}, use) => {
+        const logger = new LoggerImpl(!!process.env.CI)
+        await use(logger)
     }
 })
 

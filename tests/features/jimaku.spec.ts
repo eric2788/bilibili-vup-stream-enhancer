@@ -23,14 +23,14 @@ test('測試字幕區塊是否存在', async ({ room, page }) => {
 })
 
 
-test('測試字幕按鈕 (刪除/下載)', async ({ room, page }) => {
+test('測試字幕按鈕 (刪除/下載)', async ({ room, page, logger }) => {
     const deleteButton = page.getByText('删除所有字幕记录')
     const downloadButton = page.getByText('下载字幕记录')
     await expect(deleteButton).toBeVisible()
     await expect(downloadButton).toBeVisible()
 
     // Test Insert
-    console.info('正在測試寫入彈幕...')
+    logger.info('正在測試寫入彈幕...')
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
@@ -39,18 +39,18 @@ test('測試字幕按鈕 (刪除/下載)', async ({ room, page }) => {
     expect(subtitleList.length).toBe(2)
 
     // Test Download
-    console.info('正在測試下載字幕...')
+    logger.info('正在測試下載字幕...')
     const downloading = page.waitForEvent('download')
     await downloadButton.click()
     const downloaded = await downloading
     const readable = await downloaded.createReadStream()
     const text = await readText(readable)
     expect(text).toContain(testJimaku)
-    expect(text.split('\n').length).toBeGreaterThanOrEqual(2)
+    expect(text.split('\n').filter(t => t.includes(testJimaku)).length).toBe(2)
     expect(text.split(testJimaku).length).toBe(3)
 
     // Test Delete
-    console.info('正在測試刪除字幕...')
+    logger.info('正在測試刪除字幕...')
     await deleteButton.click()
     await expect(page.getByText(/已删除房间 \d+ 共\d+条字幕记录/)).toBeVisible()
     // after delete, subtitle list should be empty
@@ -59,9 +59,9 @@ test('測試字幕按鈕 (刪除/下載)', async ({ room, page }) => {
 })
 
 
-test('測試彈出同傳視窗', async ({ room, page, context, extensionId }) => {
+test('測試彈出同傳視窗', async ({ room, page, context, extensionId, logger }) => {
     // modify settings
-    console.info('正在修改設定...')
+    logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
     await settingsPage.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
@@ -72,7 +72,7 @@ test('測試彈出同傳視窗', async ({ room, page, context, extensionId }) =>
     await settingsPage.getByText('保存设定').click()
     await settingsPage.waitForTimeout(2000)
 
-    console.info('正在測試彈出視窗...')
+    logger.info('正在測試彈出視窗...')
     await page.bringToFront()
     
     const buttonList = await  page.locator('#jimaku-area').locator('div > div > div:nth-child(3) > button').all()
@@ -85,7 +85,7 @@ test('測試彈出同傳視窗', async ({ room, page, context, extensionId }) =>
     await popup.bringToFront()
     await expect(popup.getByText(room.title)).toBeVisible()
 
-    console.info('正在測試寫入彈幕...')
+    logger.info('正在測試寫入彈幕...')
     const testJimaku = '由 playwright 工具發送'
     let subtitleList = await popup.locator('nav#popup-jimaku-list > div > div').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(0)
@@ -97,7 +97,7 @@ test('測試彈出同傳視窗', async ({ room, page, context, extensionId }) =>
     subtitleList = await popup.locator('nav#popup-jimaku-list > div > div').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(2)
 
-    console.info('正在測試切換置頂置底...')
+    logger.info('正在測試切換置頂置底...')
     const keepBottom = popup.locator('div#__plasmo > nav > div > button > span')
     const checkbox = popup.getByRole('menuitem').locator('label > div > label:nth-child(1) > input[type=checkbox]')
     const checkboxText = popup.getByText('自動置底')
@@ -112,9 +112,9 @@ test('測試彈出同傳視窗', async ({ room, page, context, extensionId }) =>
 })
 
 
-test('測試離線記錄彈幕', async ({ room, page, context, extensionId }) => {
+test('測試離線記錄彈幕', async ({ room, page, context, extensionId, logger }) => {
 
-    console.info('正在修改設定...')
+    logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
     await settingsPage.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
@@ -125,7 +125,7 @@ test('測試離線記錄彈幕', async ({ room, page, context, extensionId }) =>
     await settingsPage.getByText('保存设定').click()
     await settingsPage.waitForTimeout(2000)
 
-    console.info('正在測試離線記錄...')
+    logger.info('正在測試離線記錄...')
     await page.bringToFront()
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
