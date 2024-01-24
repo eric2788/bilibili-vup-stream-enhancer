@@ -1,3 +1,4 @@
+
 import { test, expect } from '../fixture'
 
 test.beforeEach(async ({ page, extensionId }) => {
@@ -12,8 +13,8 @@ test('test fragments collapse', async ({ page }) => {
     const form = page.locator('form.container')
     await form.waitFor({ state: 'attached' })
     expect(form).toBeDefined()
-    const sections = await form.locator('section').all()
-    expect(sections.length).toBeGreaterThan(0)
+    const sections = await form.locator('> section').all()
+    expect(sections.length).toBe(5)
     for (const section of sections) {
         await section.click()
     }
