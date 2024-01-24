@@ -68,8 +68,11 @@ jobs:
           - name: Test
             run: pnpm test -- --project=${{ matrix.browser }}
           - name: Upload Test Results
+            if: always()
             uses: actions/upload-artifact@v4
             with:
-                name: ${{ matrix.browser }}-mv3-test-results
-                path: test-results/
+                name: ${{ matrix.browser }}-test-results
+                path: |
+                  test-results/
+                  playwright-report/
                 if-no-files-found: ignore
