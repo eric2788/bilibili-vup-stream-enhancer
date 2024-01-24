@@ -19,7 +19,7 @@ export type JimakuCaptureLayerProps = {
 function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
     const { settings, info } = useContext(StreamInfoContext)
-    const { jimakuZone: jimakuStyle, danmakuZone, jimakuPopupWindow } = useContext(JimakuFeatureContext)
+    const { jimakuZone: jimakuStyle, danmakuZone, jimakuPopupWindow, listingZone } = useContext(JimakuFeatureContext)
     const { offlineRecords } = props
 
     const {
@@ -28,7 +28,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
     } = settings["settings.features"]
 
     const { regex, color, position } = danmakuZone
-    const { tongchuanBlackList, tongchuanMans } = settings['settings.listings']
+    const { tongchuanBlackList, tongchuanMans } = listingZone
 
     const [jimaku, setJimaku] = useState<Jimaku[]>(offlineRecords)
     const clearJimaku = useCallback(() => setJimaku([]), [])
