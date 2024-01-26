@@ -2,7 +2,7 @@ import type { PlasmoCSConfig, PlasmoGetStyle, PlasmoRender } from "plasmo";
 import { toast } from 'sonner/dist';
 import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
 import { getForwarder } from '~background/forwards';
-import { getRoomId } from '~utils/bilibili';
+import { getRoomId, isOutThemedPage } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectFunction } from '~utils/inject';
 import { getSettingStorage, processing, withProcessingFlag } from '~utils/storage';
@@ -69,6 +69,11 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
 
     if (!roomId) {
       console.info('找不到房間號，已略過: ', location.pathname)
+      return
+    }
+
+    if (isOutThemedPage()) {
+      console.info('檢測到頁面為外圍大海報房間，已略過: ', location.pathname)
       return
     }
 

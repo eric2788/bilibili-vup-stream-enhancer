@@ -149,3 +149,11 @@ export function isThemePage(): boolean {
     return location.pathname.indexOf('blanc') > -1 && location.search.indexOf('liteVersion') > -1
 }
 
+// TODO: this become secondary function, primary function use fetch room info instead
+/**
+ * Checks if the current page is a theme page out of live page.
+ * @returns {boolean} True if the current page is a live page, false otherwise.
+ */
+export function isOutThemedPage(): boolean {
+    return document.body.classList.contains('pcStyle')
+}
