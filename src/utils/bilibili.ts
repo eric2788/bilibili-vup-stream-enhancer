@@ -155,5 +155,5 @@ export function isThemePage(): boolean {
  * @returns {boolean} True if the current page is a live page, false otherwise.
  */
 export function isOutThemedPage(): boolean {
-    return document.body.classList.contains('pcStyle')
+    return document.querySelector('div#app')?.innerHTML === ''
 }

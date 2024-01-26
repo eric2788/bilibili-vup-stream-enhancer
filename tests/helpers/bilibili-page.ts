@@ -1,10 +1,11 @@
-import type { Page } from "@playwright/test";
-import { sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
+import type { Frame, Locator, Page } from "@playwright/test";
+import { getLiveRooms, sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
 
 
 export class BilibiliPage implements LiveRoomInfo {
 
-    private readonly page: Page
+    readonly page: Page
+
     readonly roomid: number;
     readonly uid: number;
     readonly title: string;
@@ -25,6 +26,31 @@ export class BilibiliPage implements LiveRoomInfo {
     constructor(page: Page, info: LiveRoomInfo) {
         Object.assign(this, info)
         this.page = page
+    }
+
+    async enterToRoom() {
+        await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 10000 })
+        await this.page.waitForTimeout(1000)
+        const csui = this.page.locator('plasmo-csui')
+        await csui.waitFor({ state: 'attached', timeout: 10000 })
+    }
+
+    async isThemePage(): Promise<boolean> {
+        return this.page.evaluate(() => window.document.querySelector('div#app')?.innerHTML === '')
+    }
+
+    async getLivePage(): Promise<Page | Frame> {
+        const isTheme = await this.isThemePage()
+        if (isTheme) return this.getLiveRoomIframe()
+        return this.page
+    }
+
+    async getLiveRoomIframe(): Promise<Frame | null> {
+        if (!(await this.isThemePage())) {
+            console.warn(`此頁面 ${this.page.url()} 不是主題頁面，無法取得 iframe, 返回主 Locator`)
+            return null
+        }
+        return this.page.frame({ url: /\/\/live\.bilibili\.com\/blanc\/.+/})
     }
     
     async sendDanmaku(danmaku: string): Promise<void> {

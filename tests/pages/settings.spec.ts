@@ -1,15 +1,17 @@
 
-import { test, expect } from '../fixture'
+import { test, expect } from '@tests/fixtures/background'
+import BilibiliPage from '@tests/helpers/bilibili-page'
+import { random } from '@tests/utils/misc'
 
 test.beforeEach(async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
 })
 
-test('測試頁面是否成功加載', async ({ page }) => {
+test('測試頁面是否成功加載', async ({ settings: page }) => {
     await expect(page.getByText('设定页面')).toBeVisible()
 })
 
-test('測試所有設定區塊能否展開', async ({ page }) => {
+test('測試所有設定區塊能否展開', async ({ settings: page }) => {
     const form = page.locator('form.container')
     await form.waitFor({ state: 'attached' })
     expect(form).toBeDefined()
@@ -20,7 +22,7 @@ test('測試所有設定區塊能否展開', async ({ page }) => {
     }
 })
 
-test('測試能否保存設定', async ({ page, logger }) => {
+test('測試能否保存設定', async ({ settings: page, logger }) => {
     logger.info('正在修改功能設定....')
     await page.getByText('功能设定').click()
     const chexkboxVtbOnly = page.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[1]/nav/div[1]/label/div/div/input')
@@ -60,7 +62,7 @@ test('測試能否保存設定', async ({ page, logger }) => {
     await expect(liveFullScreenClass).toHaveValue('liveFullScreenClass changed')
 })
 
-test('測試導出導入設定', async ({ page, logger }) => {
+test('測試導出導入設定', async ({ settings: page, logger }) => {
     logger.info('正在導出設定....')
     const downloading = page.waitForEvent('download')
     await page.getByText('导出设定').click()
@@ -97,4 +99,29 @@ test('測試導出導入設定', async ({ page, logger }) => {
     logger.info('正在验证功能設定....')
     await expect(chexkboxVtbOnly).not.toBeChecked()
     await expect(checkboxMonitor).not.toBeChecked()
+})
+
+
+test('測試清空數據庫', async ({ settings: page, logger, front: room }) => {
+    logger.info('正在測試寫入彈幕...')
+    const testJimaku = '由 playwright 工具發送'
+    await room.sendDanmaku(`【${testJimaku}】`)
+    await room.sendDanmaku(`【${testJimaku}】`)
+    await page.waitForTimeout(3000)
+    let subtitleList = await room.page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
+    expect(subtitleList.length).toBe(2)
+    await room.page.close()
+
+    logger.info('正在清空數據庫....')
+    await page.bringToFront()
+    page.once('dialog', dialog => dialog.accept())
+    await page.getByText('清空所有记录储存库').click()
+
+    await page.getByText('所有记录已经清空。').waitFor({ state: 'visible' })
+
+    logger.info('正在檢查彈幕是否被清空...')
+    await page.goto(`https://live.bilibili.com/${room.roomid}`)
+    subtitleList = await page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
+    expect(subtitleList.length).toBe(0)
+
 })

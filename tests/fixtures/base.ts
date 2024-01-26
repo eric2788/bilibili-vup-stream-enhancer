@@ -1,20 +1,20 @@
-import { test as base, chromium, type BrowserContext } from '@playwright/test'
+import { test as base, chromium, type BrowserContext, expect } from '@playwright/test'
+import type { Logger } from '@tests/helpers/logger'
+import LoggerImpl from '@tests/helpers/logger'
+import { getLiveRooms, type LiveRoomInfo } from '@tests/utils/bilibili'
 import path from 'path'
-import { getLiveRooms } from './utils/bilibili'
-import BilibiliPage from './helpers/bilibili-page'
-import type { Logger } from './helpers/logger'
-import LoggerImpl from './helpers/logger'
 
 export type ExtensionFixture = {
     context: BrowserContext
     extensionId: string
-    room: BilibiliPage
     logger: Logger
+    rooms: LiveRoomInfo[]
+    tabUrl: (tab: string) => string
 }
 
-export const test = base.extend<ExtensionFixture>({
+export const extensionBase = base.extend<ExtensionFixture>({
     context: async ({ }, use) => {
-        const pathToExtension = path.join(__dirname, '../build/extension')
+        const pathToExtension = path.join(__dirname, '../../build/extension')
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             args: [
@@ -35,24 +35,17 @@ export const test = base.extend<ExtensionFixture>({
         logger.info(`using extension id: ${extensionId}`)
         await use(extensionId);
     },
-    room: async ({ page }, use) => {
-        const rooms = await getLiveRooms()
-        expect(rooms, 'rooms is not undefined').toBeDefined()
-        expect(rooms.length, 'live rooms more than 1').toBeGreaterThan(0)
-        const random = Math.floor(Math.random() * rooms.length)
-        const selected = rooms[random]
-        await page.goto("https://live.bilibili.com/" + selected.roomid)
-        await page.waitForTimeout(1000)
-        const csui = page.locator('plasmo-csui')
-        await csui.waitFor({ state: 'attached', timeout: 10000 })
-        await use(new BilibiliPage(page, selected))
-    },
     logger: async({}, use) => {
         const logger = new LoggerImpl(!!process.env.CI)
         await use(logger)
+    },
+    rooms: async ({ }, use) => {
+        const rooms = await getLiveRooms()
+        expect(rooms, 'rooms is not undefined').toBeDefined()
+        expect(rooms.length, 'live rooms more than 1').toBeGreaterThan(0)
+        await use(rooms)
+    },
+    tabUrl: async ({ extensionId }, use) => {
+        await use((tab: string) => `chrome-extension://${extensionId}/tabs/${tab}`)
     }
 })
-
-export const expect = test.expect
-
-

@@ -28,6 +28,7 @@ export async function getLiveRooms(page: number = 1): Promise<LiveRoomInfo[]> {
 }
 
 export function sendFakeBLiveMessage(page: Page, cmd: string, command: object) {
+    console.debug('sending blive fake message at', page.url())
     return page.evaluate(([cmd, command]) => {
         const eventId = window.crypto.randomUUID()
         console.info(`[bilibili-vup-stream-enhancer-test] send fake blive message: ${cmd}`, command)

@@ -1,17 +1,26 @@
 import { readText } from 'tests/utils/file'
-import { expect, test } from '../fixture'
+import { expect, test } from '@tests/fixtures/content'
 
-test('測試功能元素是否存在', async ({ room, page }) => {
-    expect(page.locator('plasmo-csui').locator('section#bjf-feature-jimaku')).toBeDefined()
+
+test.beforeEach(async ({ room, p }) => {
+    if (await room.isThemePage()) {
+        await p.getByText('切換按鈕列表').click()
+    }
 })
 
-test('測試字幕區塊是否存在', async ({ room, page }) => {
+test('測試功能元素是否存在', async ({ p }) => {
+    expect(p.locator('plasmo-csui').locator('section#bjf-feature-jimaku')).toBeDefined()
+})
 
-    const area = page.locator('#jimaku-area')
+test('測試字幕區塊是否存在', async ({ p, room }) => {
+
+    test.skip(await room.isThemePage(), '此測試不適用於大海報房間')
+
+    const area = p.locator('#jimaku-area')
     await expect(area).toBeAttached()
     await expect(area).toBeVisible()
 
-    const subtitleList = page.locator('#subtitle-list')
+    const subtitleList = p.locator('#subtitle-list')
     await expect(subtitleList).toBeAttached()
     await expect(subtitleList).toBeVisible()
 
@@ -22,10 +31,28 @@ test('測試字幕區塊是否存在', async ({ room, page }) => {
     await expect(buttonList[1]).toHaveText('下载字幕记录')
 })
 
+test('測試大海報房間下字幕區塊是否存在', async ({ p, themeRoom }) => {
 
-test('測試字幕按鈕 (刪除/下載)', async ({ room, page, logger }) => {
-    const deleteButton = page.getByText('删除所有字幕记录')
-    const downloadButton = page.getByText('下载字幕记录')
+    const area = p.locator('#jimaku-full-area')
+    await expect(area).toBeAttached()
+    await expect(area).toBeVisible()
+
+    const subtitleList = p.locator('#subtitle-list')
+    await expect(subtitleList).toBeAttached()
+    await expect(subtitleList).toBeVisible()
+
+    const buttonList = await area.locator('#jimaku-area div > div > div:nth-child(3) > button').all()
+    expect(buttonList.length).toBe(2)
+
+    await expect(buttonList[0]).toHaveText('删除所有字幕记录')
+    await expect(buttonList[1]).toHaveText('下载字幕记录')
+
+})
+
+
+test('測試字幕按鈕 (刪除/下載)', async ({ room, p, logger }) => {
+    const deleteButton = p.getByText('删除所有字幕记录')
+    const downloadButton = p.getByText('下载字幕记录')
     await expect(deleteButton).toBeVisible()
     await expect(downloadButton).toBeVisible()
 
@@ -34,13 +61,13 @@ test('測試字幕按鈕 (刪除/下載)', async ({ room, page, logger }) => {
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
-    await page.waitForTimeout(3000)
-    let subtitleList = await page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
+    await p.waitForTimeout(3000)
+    let subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(2)
 
     // Test Download
     logger.info('正在測試下載字幕...')
-    const downloading = page.waitForEvent('download')
+    const downloading = p.waitForEvent('download')
     await downloadButton.click()
     const downloaded = await downloading
     const readable = await downloaded.createReadStream()
@@ -52,19 +79,19 @@ test('測試字幕按鈕 (刪除/下載)', async ({ room, page, logger }) => {
     // Test Delete
     logger.info('正在測試刪除字幕...')
     await deleteButton.click()
-    await expect(page.getByText(/已删除房间 \d+ 共\d+条字幕记录/)).toBeVisible()
+    await expect(p.getByText(/已删除房间 \d+ 共\d+条字幕记录/)).toBeVisible()
     // after delete, subtitle list should be empty
-    subtitleList = await page.locator('#subtitle-list > p').all()
+    subtitleList = await p.locator('#subtitle-list > p').all()
     expect(subtitleList.length).toBe(0)
 })
 
 
-test('測試彈出同傳視窗', async ({ room, page, context, extensionId, logger }) => {
+test('測試彈出同傳視窗', async ({ room, p, context, logger, tabUrl }) => {
     // modify settings
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()
@@ -73,9 +100,9 @@ test('測試彈出同傳視窗', async ({ room, page, context, extensionId, logg
     await settingsPage.waitForTimeout(2000)
 
     logger.info('正在測試彈出視窗...')
-    await page.bringToFront()
-    
-    const buttonList = await  page.locator('#jimaku-area').locator('div > div > div:nth-child(3) > button').all()
+    await p.bringToFront()
+
+    const buttonList = await p.locator('#jimaku-area').locator('div > div > div:nth-child(3) > button').all()
     expect(buttonList.length).toBe(3)
     await expect(buttonList[2]).toHaveText('弹出同传视窗')
 
@@ -89,7 +116,7 @@ test('測試彈出同傳視窗', async ({ room, page, context, extensionId, logg
     const testJimaku = '由 playwright 工具發送'
     let subtitleList = await popup.locator('nav#popup-jimaku-list > div > div').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(0)
-    
+
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
     await popup.waitForTimeout(3000)
@@ -112,34 +139,67 @@ test('測試彈出同傳視窗', async ({ room, page, context, extensionId, logg
 })
 
 
-test('測試離線記錄彈幕', async ({ room, page, context, extensionId, logger }) => {
+test('測試離線記錄彈幕', async ({ room, p, context, tabUrl, logger }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()
-    await settingsPage.locator('div#features\\.jimaku', { hasText: '同传弹幕过滤'}).getByText('启用离线记录').click()
+    await settingsPage.locator('div#features\\.jimaku', { hasText: '同传弹幕过滤' }).getByText('启用离线记录').click()
     await settingsPage.getByText('保存设定').click()
     await settingsPage.waitForTimeout(2000)
 
     logger.info('正在測試離線記錄...')
-    await page.bringToFront()
+    await p.bringToFront()
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
-    await page.waitForTimeout(3000)
+    await p.waitForTimeout(3000)
 
-    let subtitleList = await page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
+    let subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(4)
 
-    await page.reload()
-    await page.locator('#subtitle-list').waitFor({ state: 'attached' })
+    await p.reload()
+    await p.locator('#subtitle-list').waitFor({ state: 'attached' })
 
-    subtitleList = await page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
+    subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(4)
+})
+
+test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ p, logger, room }) => {
+
+    test.skip(await room.isThemePage(), '此測試不適用於大海報房間')
+
+    const area = p.locator('#jimaku-area div#subtitle-list')
+    await expect(area).toBeAttached()
+    await expect(area).toBeVisible()
+
+    const fullArea = p.locator('#live-player > div#jimaku-full-area div#subtitle-list')
+    await expect(fullArea).not.toBeAttached()
+    await expect(fullArea).not.toBeVisible()
+
+    logger.info('正在測試切換網頁全屏...')
+    await p.locator('#live-player').dblclick()
+    await expect(fullArea).toBeAttached()
+    await expect(fullArea).toBeVisible()
+    await expect(area).not.toBeVisible()
+
+    logger.info('正在測試顯示切換...')
+    const switcher = p.getByTitle('字幕切换显示')
+    await switcher.click()
+    await expect(fullArea).not.toBeVisible()
+    await switcher.click()
+    await expect(fullArea).toBeVisible()
+
+    logger.info('正在測試切回非全屏...')
+    await p.locator('#live-player').dblclick()
+    await expect(fullArea).not.toBeAttached()
+    await expect(fullArea).not.toBeVisible()
+    await expect(area).toBeVisible()
+
 })
