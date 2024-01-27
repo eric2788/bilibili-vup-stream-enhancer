@@ -1,8 +1,13 @@
 import { test as base, chromium, type BrowserContext, expect } from '@playwright/test'
 import type { Logger } from '@tests/helpers/logger'
 import LoggerImpl from '@tests/helpers/logger'
-import { getLiveRooms, type LiveRoomInfo } from '@tests/utils/bilibili'
+import { findLiveRoom, getLiveRooms, getLiveRoomsRange, type LiveRoomInfo } from '@tests/utils/bilibili'
 import path from 'path'
+
+export type ExtensionOptions = {
+    maxPage: number
+    roomId: number,
+}
 
 export type ExtensionFixture = {
     context: BrowserContext
@@ -12,7 +17,11 @@ export type ExtensionFixture = {
     tabUrl: (tab: string) => string
 }
 
-export const extensionBase = base.extend<ExtensionFixture>({
+export const extensionBase = base.extend<ExtensionFixture & ExtensionOptions>({
+
+    maxPage: [5, { option: true }],
+    roomId: [-1, { option: true }],
+
     context: async ({ }, use) => {
         const pathToExtension = path.join(__dirname, '../../build/extension')
         const context = await chromium.launchPersistentContext('', {
@@ -35,14 +44,15 @@ export const extensionBase = base.extend<ExtensionFixture>({
         logger.info(`using extension id: ${extensionId}`)
         await use(extensionId);
     },
-    logger: async({}, use) => {
+    logger: async ({ }, use) => {
         const logger = new LoggerImpl(!!process.env.CI)
         await use(logger)
     },
-    rooms: async ({ }, use) => {
-        const rooms = await getLiveRooms()
+    rooms: async ({ maxPage, roomId }, use) => {
+        const rooms = roomId > 0 ? [await findLiveRoom(roomId)] : await getLiveRoomsRange(maxPage)
         expect(rooms, 'rooms is not undefined').toBeDefined()
         expect(rooms.length, 'live rooms more than 1').toBeGreaterThan(0)
+        extensionBase.skip(rooms[0] === null, 'failed to fetch bilibili live room')
         await use(rooms)
     },
     tabUrl: async ({ extensionId }, use) => {

@@ -31,30 +31,24 @@ export class BilibiliPage implements LiveRoomInfo {
     async enterToRoom() {
         await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 10000 })
         await this.page.waitForTimeout(1000)
-        const csui = this.page.locator('plasmo-csui')
-        await csui.waitFor({ state: 'attached', timeout: 10000 })
     }
 
     async isThemePage(): Promise<boolean> {
-        return this.page.evaluate(() => window.document.querySelector('div#app')?.innerHTML === '')
+        return this.page.evaluate(() => !window.document.documentElement.hasAttribute('lab-style'))
     }
 
-    async getLivePage(): Promise<Page | Frame> {
+    async getContentLocator(): Promise<Page | Frame> {
         const isTheme = await this.isThemePage()
-        if (isTheme) return this.getLiveRoomIframe()
+        if (isTheme) {
+            await this.page.waitForTimeout(2000)
+            return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.roomid}?liteVersion=true` })
+        }
         return this.page
     }
 
-    async getLiveRoomIframe(): Promise<Frame | null> {
-        if (!(await this.isThemePage())) {
-            console.warn(`此頁面 ${this.page.url()} 不是主題頁面，無法取得 iframe, 返回主 Locator`)
-            return null
-        }
-        return this.page.frame({ url: /\/\/live\.bilibili\.com\/blanc\/.+/})
-    }
-    
     async sendDanmaku(danmaku: string): Promise<void> {
-        return sendFakeBLiveMessage(this.page, 'DANMU_MSG', {
+        const f = await this.getContentLocator()
+        return sendFakeBLiveMessage(f, 'DANMU_MSG', {
             cmd: 'DANMU_MSG',
             info: [
                 [
@@ -88,7 +82,7 @@ export class BilibiliPage implements LiveRoomInfo {
                     undefined
                 ],
                 undefined,
-                [ 99, 99, 99, '', 99 ],
+                [99, 99, 99, '', 99],
                 undefined,
                 undefined,
                 undefined,

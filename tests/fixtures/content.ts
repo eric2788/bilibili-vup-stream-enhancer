@@ -1,28 +1,31 @@
 import BilibiliPage from "@tests/helpers/bilibili-page";
 import { extensionBase } from "./base";
-import { getLiveRooms } from "@tests/utils/bilibili";
+import { findLiveRoom, getLiveRooms } from "@tests/utils/bilibili";
 import { Strategy } from "@tests/utils/misc";
 import type { Frame, Page } from "@playwright/test";
 
 export type ContentOptions = {
     isThemeRoom: boolean
+    roomId: number
     maxRoomRetries: number
 }
 
 export type ContentFixtures = {
     room: BilibiliPage
     themeRoom: BilibiliPage
-    p: Page // page for live room (can be iframe)
+    content: Page | Frame // page for live room (can be iframe)
 }
 
 export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
 
-    isThemeRoom: [false, { option: true }],
+    isThemeRoom: [ false, { option: true }],
     maxRoomRetries: [-1, { option: true }],
 
-    p: async ({ room, page }, use) => {
-        const maybeFrame = await room.getLivePage()
-        await use(Object.assign(page, maybeFrame))
+    content: async ({ room, logger, page }, use) => {
+        page.frames().map(f => logger.debug(f.url()))
+        const maybeFrame = await room.getContentLocator()
+        test.skip(maybeFrame === null, `此頁面 ${room.page.url()} 不是主題頁面，無法取得 iframe`)
+        await use(maybeFrame ?? page)
     },
 
     room: [

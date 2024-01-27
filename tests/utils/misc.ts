@@ -24,3 +24,18 @@ export class Strategy {
     }
 
 }
+
+
+export function env<T>(name: string, convert: (s: string) => T): T {
+    const value = process.env[name]
+    if (value === undefined) return undefined
+    return convert(value)
+}
+
+export function envInt(name: string): number {
+    return env(name, Number)
+}
+
+export function envBool(name: string): boolean {
+    return env(name, Boolean)
+}

@@ -1,4 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import type { GlobalOptions } from '@tests/options';
+import { envBool, envInt } from '@tests/utils/misc';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' })
 
 /**
  * Read environment variables from file.
@@ -9,7 +14,7 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig({
+export default defineConfig<GlobalOptions>({
   timeout: 60000,
   testDir: './tests',
   /* Run tests in files in parallel */
@@ -53,6 +58,15 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'local',
+      use: {
+        ...devices['Desktop Chrome'], channel: 'chrome',
+        roomId: envInt('ROOM_ID'),
+        isThemeRoom: envBool('IS_THEME_ROOM'),
+        maxPage: envInt('MAX_PAGE'),
+      }
+    }
   ],
 
   /* Run your local dev server before starting the tests */
