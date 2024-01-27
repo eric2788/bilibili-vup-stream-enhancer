@@ -2,6 +2,7 @@ import { readText } from 'tests/utils/file'
 import { expect, test } from '@tests/fixtures/content'
 import type BilibiliPage from '@tests/helpers/bilibili-page'
 import type { Frame, Locator, Page } from '@playwright/test'
+import { dismissLoginDialog } from '@tests/utils/playwright'
 
 test.beforeEach(async ({ room, content: p }) => {
     test.skip(await p.getByText('您使用的浏览器版本偏低，为保障您的直播观看体验').isVisible(), '瀏覽器版本過低')
@@ -38,7 +39,7 @@ test('測試字幕區塊是否存在', async ({ content: p, isThemeRoom }) => {
 
 test('測試大海報房間下字幕區塊是否存在', async ({ content: p, themeRoom }) => {
 
-    const subtitleList = p.locator('#subtitle-list')
+    const subtitleList = p.locator('#jimaku-full-area #subtitle-list')
     await expect(subtitleList).toBeVisible()
 
     const buttonList = await getButtonList(p)
@@ -166,6 +167,7 @@ test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, log
 
     await page.reload()
     p = await room.getContentLocator() // reloaded, so need to re get content locator
+    await dismissLoginDialog(p)
     await p.locator('#subtitle-list').waitFor({ state: 'visible' })
 
     subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()

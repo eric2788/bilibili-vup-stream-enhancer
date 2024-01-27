@@ -1,5 +1,6 @@
 import type { Frame, Locator, Page } from "@playwright/test";
 import { getLiveRooms, sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
+import { dismissLoginDialog } from "@tests/utils/playwright";
 
 
 export class BilibiliPage implements LiveRoomInfo {
@@ -30,11 +31,15 @@ export class BilibiliPage implements LiveRoomInfo {
 
     async enterToRoom() {
         await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 10000 })
-        await this.page.waitForTimeout(1000)
+        await this.page.waitForTimeout(3000)
+        const p = await this.getContentLocator()
+        if (p !== null) {
+            await dismissLoginDialog(p)
+        }
     }
 
     async isThemePage(): Promise<boolean> {
-        return this.page.evaluate(() => !window.document.documentElement.hasAttribute('lab-style'))
+        return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.roomid}?liteVersion=true` }) !== null
     }
 
     async getContentLocator(): Promise<Page | Frame> {

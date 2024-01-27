@@ -1,8 +1,7 @@
-import BilibiliPage from "@tests/helpers/bilibili-page";
-import { extensionBase } from "./base";
-import { findLiveRoom, getLiveRooms } from "@tests/utils/bilibili";
-import { Strategy } from "@tests/utils/misc";
 import type { Frame, Page } from "@playwright/test";
+import BilibiliPage from "@tests/helpers/bilibili-page";
+import { Strategy } from "@tests/utils/misc";
+import { extensionBase } from "./base";
 
 export type ContentOptions = {
     isThemeRoom: boolean
@@ -19,7 +18,7 @@ export type ContentFixtures = {
 export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
 
     isThemeRoom: [ false, { option: true }],
-    maxRoomRetries: [-1, { option: true }],
+    maxRoomRetries: [30, { option: true }],
 
     content: async ({ room, logger, page }, use) => {
         page.frames().map(f => logger.debug(f.url()))
@@ -30,7 +29,7 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
 
     room: [
         async ({ page, isThemeRoom, rooms, maxRoomRetries: maxRoomRetry }, use) => {
-            const iterator = Strategy.random(rooms, maxRoomRetry === -1 ? rooms.length : maxRoomRetry)
+            const iterator = Strategy.random(rooms, maxRoomRetry || rooms.length)
             let next = iterator.next()
             let bilibiliPage = new BilibiliPage(page, next.value)
             while (isThemeRoom !== (await checkThemePage(bilibiliPage))) {
@@ -38,36 +37,36 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
                 next = iterator.next()
                 test.skip(next.done, `找不到${isThemeRoom ? '' : '不是'}大海報的房間。`)
                 bilibiliPage = new BilibiliPage(page, next.value)
-            }
-            page.waitForTimeout(2000)
-            // 防止登录弹窗
-            if (await page.locator('bili-mini-close-icon').isVisible()) {
-                await page.locator('bili-mini-close-icon').click()
+                await page.waitForTimeout(500)
             }
             await use(bilibiliPage)
         },
-        { auto: true }
+        { auto: true, timeout: 0 }
     ],
 
     // force to theme room
-    themeRoom: async ({ page, room, rooms, maxRoomRetries: maxRoomRetry }, use) => {
-        // already theme page
-        if (await room.isThemePage()) {
-            await use(room)
-            return
-        }
-        // go to blank page first then go to theme page
-        await page.goto('about:blank')
-        const iterator = Strategy.serial(rooms, maxRoomRetry === -1 ? 10 : maxRoomRetry)
-        let next = iterator.next()
-        let bilibiliPage = new BilibiliPage(page, next.value)
-        while (!await checkThemePage(bilibiliPage)) {
-            next = iterator.next()
-            test.skip(next.done, '找不到大海報的房間。')
-            bilibiliPage = new BilibiliPage(page, next.value)
-        }
-        await use(bilibiliPage)
-    }
+    themeRoom: [
+        async ({ page, room, rooms, maxRoomRetries: maxRoomRetry }, use) => {
+            // already theme page
+            if (await room.isThemePage()) {
+                await use(room)
+                return
+            }
+            // go to blank page first then go to theme page
+            await page.goto('about:blank')
+            const iterator = Strategy.random(rooms, maxRoomRetry || rooms.length)
+            let next = iterator.next()
+            let bilibiliPage = new BilibiliPage(page, next.value)
+            while (!await checkThemePage(bilibiliPage)) {
+                next = iterator.next()
+                test.skip(next.done, '找不到大海報的房間。')
+                bilibiliPage = new BilibiliPage(page, next.value)
+                await page.waitForTimeout(500)
+            }
+            await use(bilibiliPage)
+        },
+        { timeout: 0}
+    ]
 
 })
 
