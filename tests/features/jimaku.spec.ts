@@ -39,7 +39,6 @@ test('測試字幕區塊是否存在', async ({ content: p, isThemeRoom }) => {
 test('測試大海報房間下字幕區塊是否存在', async ({ content: p, themeRoom }) => {
 
     const subtitleList = p.locator('#subtitle-list')
-    await expect(subtitleList).toBeAttached()
     await expect(subtitleList).toBeVisible()
 
     const buttonList = await getButtonList(p)

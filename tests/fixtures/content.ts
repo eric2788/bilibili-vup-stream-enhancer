@@ -39,6 +39,11 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
                 test.skip(next.done, `找不到${isThemeRoom ? '' : '不是'}大海報的房間。`)
                 bilibiliPage = new BilibiliPage(page, next.value)
             }
+            page.waitForTimeout(2000)
+            // 防止登录弹窗
+            if (await page.locator('bili-mini-close-icon').isVisible()) {
+                await page.locator('bili-mini-close-icon').click()
+            }
             await use(bilibiliPage)
         },
         { auto: true }
