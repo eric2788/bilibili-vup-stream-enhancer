@@ -6,6 +6,7 @@ import { dismissLoginDialog } from '@tests/utils/playwright'
 
 test.beforeEach(async ({ room, content: p }) => {
     test.skip(await p.getByText('您使用的浏览器版本偏低，为保障您的直播观看体验').isVisible(), '瀏覽器版本過低')
+    await dismissLoginDialog(p)
     await ensureButtonListVisible(room, p)
 })
 
@@ -39,7 +40,10 @@ test('測試字幕區塊是否存在', async ({ content: p, isThemeRoom }) => {
 
 test('測試大海報房間下字幕區塊是否存在', async ({ content: p, themeRoom }) => {
 
-    const subtitleList = p.locator('#jimaku-full-area #subtitle-list')
+    const area = p.locator('#jimaku-full-area')
+    await expect(area).toBeAttached()
+
+    const subtitleList = area.locator('#subtitle-list')
     await expect(subtitleList).toBeVisible()
 
     const buttonList = await getButtonList(p)
