@@ -25,7 +25,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
             url: 'https://live.bilibili.com'
         })
         const result = await sendInternal('inject-script', { 
-            tabId: tab.id,
+            target: { tabId: tab.id },
             script: new InjectScript('clearIndexedDbTable', req.body.table, req.body.room ?? '')
         })
         await chrome.tabs.remove(tab.id)

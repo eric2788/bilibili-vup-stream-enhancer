@@ -76,6 +76,9 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       return
     }
 
+    // inject the toaster
+    injectToaster();
+
     // doing fast websocket boost here (if enabled)
     (async function () {
       try {
@@ -117,10 +120,6 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
         await start()
       }
     })
-
-    // inject the toaster
-    injectToaster()
-
     // start the app
     await start()
 
