@@ -27,6 +27,7 @@ export const extensionBase = base.extend<ExtensionFixture & ExtensionOptions>({
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             args: [
+                '--mute-audio',
                 `--disable-extensions-except=${pathToExtension}`,
                 `--load-extension=${pathToExtension}`,
                 ...(process.env.CI ? ['--headless=new'] : [])

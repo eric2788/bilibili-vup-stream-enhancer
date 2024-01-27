@@ -207,6 +207,51 @@ test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content:
 })
 
 
+test('測試保存設定後 css 能否生效', async ({ logger, context, content, tabUrl, page, room }) => {
+
+    logger.info('正在修改設定...')
+    const settingsPage = await context.newPage()
+    await settingsPage.bringToFront()
+    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.waitForTimeout(1000)
+
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('字幕设定').click()
+
+    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[1]/div/div[1]/input').fill('30')
+    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[2]/div/div[1]/input').fill('30')
+    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[8]/div/div[1]/input').fill('500')
+    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/section[1]/div/div[1]').click()
+    await settingsPage.getByText('置左').click()
+    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[7]/div/div/div/input').fill('#123456')
+
+
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.waitForTimeout(2000)
+
+    logger.info('正在測試字幕css...')
+    await page.bringToFront()
+
+    const testJimaku = '由 playwright 工具發送'
+    await room.sendDanmaku(`【${testJimaku}】`)
+    await room.sendDanmaku(`【${testJimaku}】`)
+
+    await content.locator('#subtitle-list > p')
+        .all()
+        .then((p) =>
+            Promise.all(p.flatMap(e => 
+                [
+                    expect(e).toHaveCSS('font-size', '30px'),
+                    expect(e).toHaveCSS('color', 'rgb(18, 52, 86)'), // #123456
+                ]
+            ))
+        )
+    await expect(content.locator('#subtitle-list')).toHaveCSS('text-align', 'left')
+    await expect(content.locator('#subtitle-list')).toHaveCSS('height', '500px')
+
+})
+
+
 async function ensureButtonListVisible(room: BilibiliPage, p: Page | Frame) {
     if (await room.isThemePage()) {
         await p.getByText('切换字幕按钮列表').click()
