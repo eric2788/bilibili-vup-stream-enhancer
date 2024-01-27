@@ -50,7 +50,7 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
         }
         // go to blank page first then go to theme page
         await page.goto('about:blank')
-        const iterator = Strategy.serial(rooms, maxRoomRetry === -1 ? rooms.length : maxRoomRetry)
+        const iterator = Strategy.serial(rooms, maxRoomRetry === -1 ? 10 : maxRoomRetry)
         let next = iterator.next()
         let bilibiliPage = new BilibiliPage(page, next.value)
         while (!await checkThemePage(bilibiliPage)) {

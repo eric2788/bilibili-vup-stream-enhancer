@@ -12,11 +12,12 @@ import { sendMessager } from '~utils/messaging';
 import { arrayEqual, removeInvalidKeys } from '~utils/misc';
 import { getFullSettingStroage } from '~utils/storage';
 
-import "~toaster"
-
 import { Button } from '@material-tailwind/react';
 import { useStorageWatch } from '~hooks/storage';
 import { toast } from 'sonner/dist';
+import injectToaster from '~toaster';
+
+injectToaster()
 
 document.title = '设定页面'
 

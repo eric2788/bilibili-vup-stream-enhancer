@@ -10,9 +10,8 @@ import { getSettingStorage, processing, withProcessingFlag } from '~utils/storag
 import styleText from '~styles';
 import createApp from './mounter';
 
-import '~toaster';
 import '~logger';
-
+import injectToaster from "~toaster";
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -118,6 +117,9 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
         await start()
       }
     })
+
+    // inject the toaster
+    injectToaster()
 
     // start the app
     await start()
