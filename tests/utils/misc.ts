@@ -39,3 +39,7 @@ export function envInt(name: string): number {
 export function envBool(name: string): boolean {
     return env(name, Boolean)
 }
+
+export function randomNumber(length: number = 20): number {
+    return Math.round(Math.random() * (10 ** length))
+}

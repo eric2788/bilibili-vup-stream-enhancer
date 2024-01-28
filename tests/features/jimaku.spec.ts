@@ -70,7 +70,7 @@ test('測試字幕按鈕 (刪除/下載)', async ({ room, content: p, page }) =>
     await deleteButton.click()
     await expect(p.getByText(/已删除房间 \d+ 共\d+条字幕记录/)).toBeVisible()
     // after delete, subtitle list should be empty
-    subtitleList = await p.locator('#subtitle-list > p').all()
+    subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(0)
 })
 

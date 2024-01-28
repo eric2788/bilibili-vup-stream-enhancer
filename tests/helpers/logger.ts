@@ -8,7 +8,7 @@ export interface Logger {
     trace: (...args: any[]) => void
 }
 
-export class LoggerImpl implements Logger {
+class LoggerImpl implements Logger {
 
     private static void = () => { }
 
@@ -30,6 +30,10 @@ export class LoggerImpl implements Logger {
 
 }
 
-const logger = new LoggerImpl('bilibili-vup-stream-enhancer', !!process.env.CI)
+export function createLogger(name: string, ci: boolean = false): Logger {
+    return new LoggerImpl(name, ci)
+}
+
+const logger = createLogger('bilibili-vup-stream-enhancer', !!process.env.CI || !!process.env.RUNNER_DEBUG)
 
 export default logger

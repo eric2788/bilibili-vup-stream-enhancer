@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
 import logger from "./logger";
 import { isClosed, type PageFrame } from "./page-frame";
+import { randomNumber } from "@tests/utils/misc";
 
 
 export class BilibiliPage implements LiveRoomInfo, Disposable {
@@ -60,7 +61,7 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
                     undefined, // 字体尺寸
                     undefined, // 颜色
                     Date.now(), // 时间戳（毫秒）
-                    1313131313, // 随机数，前端叫作弹幕ID，可能是去重用的
+                    randomNumber(), // 随机数，前端叫作弹幕ID，可能是去重用的
                     undefined,
                     undefined, // 用户ID文本的CRC32
                     undefined,
@@ -75,7 +76,7 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
                 ],
                 danmaku,
                 [
-                    4545454545,
+                    randomNumber(),
                     "username",
                     undefined,
                     undefined,
@@ -103,6 +104,28 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
             dm_v2: ""
         })
         await this.page.waitForTimeout(1000)
+    }
+
+    async sendSuperChat(user: string, price: number, message: string): Promise<void> {
+        const f = await this.getContentLocator()
+        await sendFakeBLiveMessage(f, 'SUPER_CHAT_MESSAGE', {
+            cmd: 'SUPER_CHAT_MESSAGE',
+            data: {
+                id: randomNumber(),
+                background_bottom_color: '#123456',
+                background_image: '',
+                background_color: '#787878',
+                user_info: {
+                    face: '',
+                    name_color: '#444444',
+                    uname: user
+                },
+                uid: randomNumber(),
+                price: price,
+                message: message,
+                start_time: Date.now()
+            }
+        })
     }
 
     async reloadAndGetLocator(): Promise<PageFrame> {
