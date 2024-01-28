@@ -8,9 +8,9 @@ export interface Logger {
     trace: (...args: any[]) => void
 }
 
-export default class LoggerImpl implements Logger {
+export class LoggerImpl implements Logger {
 
-    private static void = () => {}
+    private static void = () => { }
 
     readonly info: (...args: any[]) => void
     readonly log: (...args: any[]) => void
@@ -19,13 +19,17 @@ export default class LoggerImpl implements Logger {
     readonly debug: (...args: any[]) => void
     readonly trace: (...args: any[]) => void
 
-    constructor(ci: boolean = false) {
-        this.info = !ci ? console.info : LoggerImpl.void
-        this.log = !ci ? console.log : LoggerImpl.void
-        this.warn = !ci ? console.warn : LoggerImpl.void
-        this.error = !ci ? console.error : LoggerImpl.void
-        this.debug = !ci ? console.debug : LoggerImpl.void
-        this.trace = !ci ? console.trace : LoggerImpl.void
+    constructor(name: string, ci: boolean = false) {
+        this.info = !ci ? console.info.bind(console, `[${name}]`) : LoggerImpl.void
+        this.log = !ci ? console.log.bind(console, `[${name}]`) : LoggerImpl.void
+        this.warn = !ci ? console.warn.bind(console, `[${name}]`) : LoggerImpl.void
+        this.error = !ci ? console.error.bind(console, `[${name}]`) : LoggerImpl.void
+        this.debug = !ci ? console.debug.bind(console, `[${name}]`) : LoggerImpl.void
+        this.trace = !ci ? console.trace.bind(console, `[${name}]`) : LoggerImpl.void
     }
 
 }
+
+const logger = new LoggerImpl('bilibili-vup-stream-enhancer', !!process.env.CI)
+
+export default logger

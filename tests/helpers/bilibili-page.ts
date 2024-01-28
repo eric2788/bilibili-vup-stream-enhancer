@@ -1,48 +1,44 @@
-import type { Frame, Locator, Page } from "@playwright/test";
-import { getLiveRooms, sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
-import { dismissLoginDialog } from "@tests/utils/playwright";
+import type { Page } from "@playwright/test";
+import { sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
+import logger from "./logger";
+import { isClosed, type PageFrame } from "./page-frame";
 
 
-export class BilibiliPage implements LiveRoomInfo {
+export class BilibiliPage implements LiveRoomInfo, Disposable {
 
+    private listener: NodeJS.Timeout | null
+    
     readonly page: Page
 
-    readonly roomid: number;
-    readonly uid: number;
-    readonly title: string;
-    readonly uname: string;
-    readonly online: number;
-    readonly user_cover: string;
-    readonly user_cover_flag: number;
-    readonly system_cover: string;
-    readonly cover: string;
-    readonly show_cover: string;
-    readonly link: string;
-    readonly face: string;
-    readonly parent_id: number;
-    readonly parent_name: string;
-    readonly area_id: number;
-    readonly area_name: string;
+    roomid: number;
+    uid: number;
+    title: string;
+    uname: string;
+    online: number;
+    cover: string;
+    face: string;
+    parent_id: number;
+    parent_name: string;
+    area_id: number;
+    area_name: string;
 
-    constructor(page: Page, info: LiveRoomInfo) {
-        Object.assign(this, info)
+    constructor(page: Page, info?: LiveRoomInfo) {
+        if (info) Object.assign(this, info)
         this.page = page
     }
 
-    async enterToRoom() {
+    async enterToRoom(info?: LiveRoomInfo): Promise<void> {
+        if (info) Object.assign(this, info)
         await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 10000 })
         await this.page.waitForTimeout(3000)
-        const p = await this.getContentLocator()
-        if (p !== null) {
-            await dismissLoginDialog(p)
-        }
+        await this.startDismissLoginDialogListener()
     }
 
     async isThemePage(): Promise<boolean> {
         return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.roomid}?liteVersion=true` }) !== null
     }
 
-    async getContentLocator(): Promise<Page | Frame> {
+    async getContentLocator(): Promise<PageFrame> {
         const isTheme = await this.isThemePage()
         if (isTheme) {
             await this.page.waitForTimeout(2000)
@@ -104,6 +100,46 @@ export class BilibiliPage implements LiveRoomInfo {
             ],
             dm_v2: ""
         })
+    }
+
+    async reloadAndGetLocator(): Promise<PageFrame> {
+        await this.page.reload({ waitUntil: 'domcontentloaded' })
+        await this.startDismissLoginDialogListener()
+        return this.getContentLocator()
+    }
+
+    async startDismissLoginDialogListener(): Promise<void> {
+        if (this.listener) {
+            logger.info('cleared last interval')
+            clearInterval(this.listener)
+        }
+        const page = await this.getContentLocator()
+        if (page === null) {
+            logger.warn('page is null, cannot start dismiss login dialog listener')
+            return
+        }
+        // 防止登录弹窗
+        const timeout = setInterval(async () => {
+            if (isClosed(page)) {
+                logger.info('frame/page is closed, dismiss login dialog listener aborted')
+                clearInterval(timeout)
+                return
+            }
+            if (await page.locator('body > div.bili-mini-mask > div').isVisible({ timeout: 500 })) {
+                logger.debug('dismissed login dialog')
+                await page.locator('body > div.bili-mini-mask > div > div.bili-mini-close-icon').click({ noWaitAfter: true })
+            } else {
+                logger.debug('login dialog not found')
+            }
+        }, 1000)
+        this.listener = timeout
+    }
+
+    [Symbol.dispose](): void;
+    [Symbol.dispose](): void;
+    [Symbol.dispose](): void {
+        logger.debug('disposing bilibili page')
+        this.listener && clearInterval(this.listener)
     }
 }
 

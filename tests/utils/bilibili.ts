@@ -1,4 +1,6 @@
 import type { Frame, Page } from "@playwright/test";
+import logger from "@tests/helpers/logger";
+import type { PageFrame } from "@tests/helpers/page-frame";
 
 export interface LiveRoomInfo {
     roomid: number;
@@ -52,7 +54,8 @@ export async function getLiveRooms(page: number = 1): Promise<LiveRoomInfo[]> {
     return data.data.list as LiveRoomInfo[]
 }
 
-export function sendFakeBLiveMessage(content: Page | Frame, cmd: string, command: object) {
+export function sendFakeBLiveMessage(content: PageFrame, cmd: string, command: object) {
+    logger.debug('sending blive fake message into: ', cmd, content.url())
     return content.evaluate(([cmd, command]) => {
         const eventId = window.crypto.randomUUID()
         console.info(`[bilibili-vup-stream-enhancer-test] send fake blive message: ${cmd}`, command)

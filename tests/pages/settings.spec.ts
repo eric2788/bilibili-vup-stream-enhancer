@@ -1,7 +1,6 @@
 
-import { test, expect } from '@tests/fixtures/background'
-import BilibiliPage from '@tests/helpers/bilibili-page'
-import { random } from '@tests/utils/misc'
+import { expect, test } from '@tests/fixtures/background'
+import logger from '@tests/helpers/logger'
 
 test.beforeEach(async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
@@ -22,7 +21,7 @@ test('測試所有設定區塊能否展開', async ({ settings: page }) => {
     }
 })
 
-test('測試能否保存設定', async ({ settings: page, logger }) => {
+test('測試能否保存設定', async ({ settings: page }) => {
     logger.info('正在修改功能設定....')
     await page.getByText('功能设定').click()
     const chexkboxVtbOnly = page.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[1]/nav/div[1]/label/div/div/input')
@@ -62,7 +61,7 @@ test('測試能否保存設定', async ({ settings: page, logger }) => {
     await expect(liveFullScreenClass).toHaveValue('liveFullScreenClass changed')
 })
 
-test('測試導出導入設定', async ({ settings: page, logger }) => {
+test('測試導出導入設定', async ({ settings: page }) => {
     logger.info('正在導出設定....')
     const downloading = page.waitForEvent('download')
     await page.getByText('导出设定').click()
@@ -102,7 +101,7 @@ test('測試導出導入設定', async ({ settings: page, logger }) => {
 })
 
 
-test('測試清空數據庫', async ({ settings: page, logger, front: room }) => {
+test('測試清空數據庫', async ({ settings: page, front: room }) => {
     logger.info('正在測試寫入彈幕...')
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)

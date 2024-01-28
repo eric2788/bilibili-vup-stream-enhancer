@@ -1,6 +1,6 @@
 import { test as base, chromium, type BrowserContext, expect } from '@playwright/test'
 import type { Logger } from '@tests/helpers/logger'
-import LoggerImpl from '@tests/helpers/logger'
+import logger from '@tests/helpers/logger'
 import { findLiveRoom, getLiveRooms, getLiveRoomsRange, type LiveRoomInfo } from '@tests/utils/bilibili'
 import path from 'path'
 
@@ -12,7 +12,6 @@ export type ExtensionOptions = {
 export type ExtensionFixture = {
     context: BrowserContext
     extensionId: string
-    logger: Logger
     rooms: LiveRoomInfo[]
     tabUrl: (tab: string) => string
 }
@@ -36,7 +35,7 @@ export const extensionBase = base.extend<ExtensionFixture & ExtensionOptions>({
         await use(context);
         await context.close();
     },
-    extensionId: async ({ context, logger }, use) => {
+    extensionId: async ({ context }, use) => {
         let [background] = context.serviceWorkers()
         if (!background)
             background = await context.waitForEvent('serviceworker')
@@ -44,10 +43,6 @@ export const extensionBase = base.extend<ExtensionFixture & ExtensionOptions>({
         const extensionId = background.url().split('/')[2]
         logger.info(`using extension id: ${extensionId}`)
         await use(extensionId);
-    },
-    logger: async ({ }, use) => {
-        const logger = new LoggerImpl(!!process.env.CI)
-        await use(logger)
     },
     rooms: async ({ maxPage, roomId }, use) => {
         const rooms = roomId > 0 ? [await findLiveRoom(roomId)] : await getLiveRoomsRange(maxPage)

@@ -2,11 +2,11 @@ import { readText } from 'tests/utils/file'
 import { expect, test } from '@tests/fixtures/content'
 import type BilibiliPage from '@tests/helpers/bilibili-page'
 import type { Frame, Locator, Page } from '@playwright/test'
-import { dismissLoginDialog } from '@tests/utils/playwright'
+import type { PageFrame } from '@tests/helpers/page-frame'
+import logger from '@tests/helpers/logger'
 
 test.beforeEach(async ({ room, content: p }) => {
     test.skip(await p.getByText('您使用的浏览器版本偏低，为保障您的直播观看体验').isVisible(), '瀏覽器版本過低')
-    await dismissLoginDialog(p)
     await ensureButtonListVisible(room, p)
 })
 
@@ -38,24 +38,8 @@ test('測試字幕區塊是否存在', async ({ content: p, isThemeRoom }) => {
     await expect(buttonList[1]).toHaveText('下载字幕记录')
 })
 
-test('測試大海報房間下字幕區塊是否存在', async ({ content: p, themeRoom }) => {
 
-    const area = p.locator('#jimaku-full-area')
-    await expect(area).toBeAttached()
-
-    const subtitleList = area.locator('#subtitle-list')
-    await expect(subtitleList).toBeVisible()
-
-    const buttonList = await getButtonList(p)
-    expect(buttonList.length).toBe(2)
-
-    await expect(buttonList[0]).toHaveText('删除所有字幕记录')
-    await expect(buttonList[1]).toHaveText('下载字幕记录')
-
-})
-
-
-test('測試字幕按鈕 (刪除/下載)', async ({ room, content: p, logger, page }) => {
+test('測試字幕按鈕 (刪除/下載)', async ({ room, content: p, page }) => {
     const deleteButton = p.getByText('删除所有字幕记录')
     const downloadButton = p.getByText('下载字幕记录')
     await expect(deleteButton).toBeVisible()
@@ -91,7 +75,7 @@ test('測試字幕按鈕 (刪除/下載)', async ({ room, content: p, logger, pa
 })
 
 
-test('測試彈出同傳視窗', async ({ room, context, logger, tabUrl, page, content }) => {
+test('測試彈出同傳視窗', async ({ room, context, tabUrl, page, content }) => {
     // modify settings
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -144,7 +128,7 @@ test('測試彈出同傳視窗', async ({ room, context, logger, tabUrl, page, c
 })
 
 
-test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, logger, page }) => {
+test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, page }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -169,16 +153,15 @@ test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, log
     let subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(4)
 
-    await page.reload()
-    p = await room.getContentLocator() // reloaded, so need to re get content locator
-    await dismissLoginDialog(p)
+    p = await room.reloadAndGetLocator() // reloaded, so need to re get content locator
+    await room.startDismissLoginDialogListener()
     await p.locator('#subtitle-list').waitFor({ state: 'visible' })
 
     subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(4)
 })
 
-test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content: p, logger, room }) => {
+test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content: p, room }) => {
 
     test.skip(await room.isThemePage(), '此測試不適用於大海報房間')
 
@@ -212,7 +195,7 @@ test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content:
 })
 
 
-test('測試保存設定後 css 能否生效', async ({ logger, context, content, tabUrl, page, room }) => {
+test('測試保存設定後 css 能否生效', async ({ context, content, tabUrl, page, room }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -256,15 +239,31 @@ test('測試保存設定後 css 能否生效', async ({ logger, context, content
 
 })
 
+test('測試大海報房間下字幕區塊是否存在', async ({ content: p, themeRoom }) => {
 
-async function ensureButtonListVisible(room: BilibiliPage, p: Page | Frame) {
+    const area = p.locator('#jimaku-full-area')
+    // await expect(area).toBeAttached()
+
+    const subtitleList = area.locator('#subtitle-list')
+    await expect(subtitleList).toBeVisible()
+
+    const buttonList = await getButtonList(p)
+    expect(buttonList.length).toBe(2)
+
+    await expect(buttonList[0]).toHaveText('删除所有字幕记录')
+    await expect(buttonList[1]).toHaveText('下载字幕记录')
+
+})
+
+
+async function ensureButtonListVisible(room: BilibiliPage, p: PageFrame) {
     if (await room.isThemePage()) {
         await p.getByText('切换字幕按钮列表').click()
         await p.waitForTimeout(2000)
     }
 }
 
-async function getButtonList(content: Page | Frame): Promise<Locator[]> {
+async function getButtonList(content: PageFrame): Promise<Locator[]> {
     const main = await content.locator('#jimaku-area div > div > div:nth-child(3) > button').all()
     const theme = content.locator('#jimaku-area > div > div > div > button').all()
     return main.length ? main : await theme
