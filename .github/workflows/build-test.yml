@@ -43,6 +43,7 @@ jobs:
       strategy:
           matrix:
               browser: [chrome, edge, chromium]
+              theme: ['', '-theme']
       steps:
           - uses: actions/checkout@v4
           - name: Download artifacts
@@ -65,17 +66,20 @@ jobs:
             run: pnpm install --frozen-lockfile
           - name: Install Playwright Browsers
             run: pnpm exec playwright install --with-deps
+          - name: Setup Project
+            id: project
+            run: |
+              # set output variable
+              echo "::set-output name=project::${{ matrix.browser }}${{ matrix.theme}}"
           - name: Test
             run: |
-              if [ $ACTIONS_STEP_DEBUG == "true" ]; then
-                export DEBUG="pw:browser"
-              fi
-              pnpm test -- --project=${{ matrix.browser }}
+              [ $RUNNER_DEBUG -eq 1 ] && export DEBUG="pw:browser"
+              pnpm test -- --project=${{ steps.project.outputs.project }}
           - name: Upload Test Results
             if: always()
             uses: actions/upload-artifact@v4
             with:
-                name: ${{ matrix.browser }}-test-results
+                name: ${{ steps.project.outputs.project }}-test-results
                 path: |
                   test-results/
                   playwright-report/

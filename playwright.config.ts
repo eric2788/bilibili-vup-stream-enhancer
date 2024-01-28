@@ -59,6 +59,18 @@ export default defineConfig<GlobalOptions>({
       use: { ...devices['Desktop Chrome'] },
     },
     {
+      name: 'edge-theme',
+      use: { ...devices['Desktop Edge'], channel: 'msedge', isThemeRoom: true },
+    },
+    {
+      name: 'chrome-theme',
+      use: { ...devices['Desktop Chrome'], channel: 'chrome', isThemeRoom: true },
+    },
+    {
+      name: 'chromium-theme',
+      use: { ...devices['Desktop Chrome'], isThemeRoom: true },
+    },
+    {
       name: 'local',
       use: {
         ...devices['Desktop Chrome'], channel: 'chrome',
