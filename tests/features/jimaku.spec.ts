@@ -223,6 +223,7 @@ test('測試保存設定後 css 能否生效', async ({ context, content, tabUrl
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
+    await page.waitForTimeout(3000)
 
     await content.locator('#subtitle-list > p')
         .all()

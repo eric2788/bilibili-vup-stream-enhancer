@@ -19,7 +19,7 @@ jobs:
               browser: [chrome, edge, chromium]
         steps:
             - uses: actions/checkout@v4
-            - uses: pnpm/action-setup@master
+            - uses: pnpm/action-setup@v2
               with:
                 version: 8
             - name: Setup Node.js
@@ -53,7 +53,7 @@ jobs:
                 path: build/
           - name: Unzip artifacts
             run: unzip build/${{ matrix.browser }}-mv3-prod.zip -d build/extension
-          - uses: pnpm/action-setup@master
+          - uses: pnpm/action-setup@v2
             with:
                 version: 8
           - name: Setup Node.js

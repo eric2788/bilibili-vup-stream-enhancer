@@ -49,7 +49,7 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
 
     async sendDanmaku(danmaku: string): Promise<void> {
         const f = await this.getContentLocator()
-        return sendFakeBLiveMessage(f, 'DANMU_MSG', {
+        await sendFakeBLiveMessage(f, 'DANMU_MSG', {
             cmd: 'DANMU_MSG',
             info: [
                 [
@@ -100,6 +100,7 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
             ],
             dm_v2: ""
         })
+        await this.page.waitForTimeout(1000)
     }
 
     async reloadAndGetLocator(): Promise<PageFrame> {
@@ -126,7 +127,12 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
                 return
             }
             if (await page.locator('body > div.bili-mini-mask > div').isVisible({ timeout: 500 })) {
-                logger.debug('dismissed login dialog')
+                if (isClosed(page)) {
+                    logger.info('frame/page is closed, dismiss login dialog listener aborted')
+                    clearInterval(timeout)
+                    return
+                }   
+                logger.debug('dismissed login dialog') 
                 await page.locator('body > div.bili-mini-mask > div > div.bili-mini-close-icon').click({ noWaitAfter: true })
             } else {
                 logger.debug('login dialog not found')
