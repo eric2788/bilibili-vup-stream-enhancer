@@ -103,15 +103,16 @@ test('測試導出導入設定', async ({ settings: page }) => {
 
 
 test('測試清空數據庫', async ({ settings: page, front: room }) => {
-    
-    test.skip(await room.isThemePage(), '此測試不適用於大海報房間')
+
+    let p = await room.getContentLocator()
+    await p.locator('body').scrollIntoViewIfNeeded()
 
     logger.info('正在測試寫入彈幕...')
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)
     await page.waitForTimeout(3000)
-    let subtitleList = await room.page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
+    let subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(2)
     await room.close()
 
@@ -119,13 +120,14 @@ test('測試清空數據庫', async ({ settings: page, front: room }) => {
     await page.bringToFront()
     page.once('dialog', dialog => dialog.accept())
     await page.getByText('清空所有记录储存库').click()
-
     await page.getByText('所有记录已经清空。').waitFor({ state: 'visible' })
 
     logger.info('正在檢查彈幕是否被清空...')
     room = new BilibiliPage(page, room)
     await room.enterToRoom()
-    const jimakuList = page.locator('#subtitle-list')
+    p = await room.getContentLocator()
+    await p.locator('body').scrollIntoViewIfNeeded()
+    const jimakuList = p.locator('#subtitle-list')
     await jimakuList.waitFor({ state: 'visible' })
     subtitleList = await jimakuList.locator('> p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(0)
