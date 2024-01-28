@@ -15,7 +15,7 @@ test('測試功能元素是否存在', async ({ content: p }) => {
     const csui = p.locator('plasmo-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
-    expect(csui.locator('section#bjf-feature-jimaku')).toBeDefined()
+    await expect(csui.locator('section#bjf-feature-jimaku')).toBeAttached()
 
 })
 

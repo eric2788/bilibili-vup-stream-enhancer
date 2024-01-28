@@ -94,14 +94,6 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       }
     })();
 
-    const login = await ensureLogin()
-
-    console.info('login: ', login)
-
-    if (!login) {
-      toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
-    }
-
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(roomId)))
 
     const rootContainer = await createRootContainer(anchor)
