@@ -154,7 +154,6 @@ test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, pag
     expect(subtitleList.length).toBe(4)
 
     p = await room.reloadAndGetLocator() // reloaded, so need to re get content locator
-    await room.startDismissLoginDialogListener()
     await p.locator('#subtitle-list').waitFor({ state: 'visible' })
 
     subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
@@ -240,10 +239,12 @@ test('測試保存設定後 css 能否生效', async ({ context, content, tabUrl
 
 })
 
-test('測試大海報房間下字幕區塊是否存在', async ({ content: p, themeRoom }) => {
+test('測試大海報房間下字幕區塊是否存在', async ({ themeRoom }) => {
 
+    // if force using themeRoom, do not use content argument
+    const p = await themeRoom.getContentLocator()
     const area = p.locator('#jimaku-full-area')
-    // await expect(area).toBeAttached()
+    await expect(area).toBeAttached()
 
     const subtitleList = area.locator('#subtitle-list')
     await expect(subtitleList).toBeVisible()
@@ -259,7 +260,8 @@ test('測試大海報房間下字幕區塊是否存在', async ({ content: p, th
 
 async function ensureButtonListVisible(room: BilibiliPage, p: PageFrame) {
     if (await room.isThemePage()) {
-        await p.getByText('切换字幕按钮列表').click()
+        await p.locator('body').click({ force: true }) // 防止 toaster 遲遲不消失
+        await p.getByText('切换字幕按钮列表').click({ timeout: 120000 })
         await p.waitForTimeout(2000)
     }
 }

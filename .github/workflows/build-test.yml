@@ -70,10 +70,10 @@ jobs:
             id: project
             run: |
               # set output variable
-              echo "::set-output name=project::${{ matrix.browser }}${{ matrix.theme}}"
+              echo "project=${{ matrix.browser }}${{ matrix.theme}}" >> $GITHUB_OUTPUT
           - name: Test
             run: |
-              [ $RUNNER_DEBUG -eq 1 ] && export DEBUG="pw:browser"
+              [ "$RUNNER_DEBUG" == "1" ] && export DEBUG="pw:browser"
               pnpm test -- --project=${{ steps.project.outputs.project }}
           - name: Upload Test Results
             if: always()

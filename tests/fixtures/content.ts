@@ -27,16 +27,17 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
         page.frames().map(f => logger.debug(f.url()))
         const maybeFrame = await room.getContentLocator()
         test.skip(maybeFrame === null, `此頁面 ${room.page.url()} 不是主題頁面，無法取得 iframe`)
-        await use(maybeFrame ?? page)
+        await maybeFrame.locator('body').scrollIntoViewIfNeeded()
+        await use(maybeFrame)
     },
 
     room: [
-        async ({ page, isThemeRoom, rooms, maxRoomRetries: maxRoomRetry }, use) => {
-            const iterator = Strategy.random(rooms, maxRoomRetry || rooms.length)
+        async ({ page, isThemeRoom, rooms, maxRoomRetries }, use) => {
+            const iterator = Strategy.random(rooms, maxRoomRetries || rooms.length)
             let next = iterator.next()
             using bilibiliPage = new BilibiliPage(page, next.value)
             while (isThemeRoom !== (await checkThemePage(bilibiliPage, next.value))) {
-                console.info(`房間 ${bilibiliPage.roomid} 不是${isThemeRoom ? '' : '不是'}大海報的房間, 正在尋找下一房間...`)
+                logger.info(`房間 ${bilibiliPage.roomid} ${isThemeRoom ? '是' : '不是'}大海報的房間, 正在尋找下一房間...`)
                 next = iterator.next()
                 test.skip(next.done, `找不到${isThemeRoom ? '' : '不是'}大海報的房間。`)
                 await page.waitForTimeout(500)
@@ -48,7 +49,7 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
 
     // force to theme room
     themeRoom: [
-        async ({ page, room, rooms, maxRoomRetries: maxRoomRetry }, use) => {
+        async ({ page, room, rooms, maxRoomRetries }, use) => {
             // already theme page
             if (await room.isThemePage()) {
                 await use(room)
@@ -56,9 +57,10 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
             }
             // go to blank page first then go to theme page
             await page.goto('about:blank')
-            const iterator = Strategy.random(rooms, maxRoomRetry || rooms.length)
+            const iterator = Strategy.random(rooms, maxRoomRetries || rooms.length)
             let next = iterator.next()
             while (!await checkThemePage(room, next.value)) {
+                logger.info(`房間 ${room.roomid} 不是大海報的房間, 正在尋找下一房間...`)
                 next = iterator.next()
                 test.skip(next.done, '找不到大海報的房間。')
                 await page.waitForTimeout(500)

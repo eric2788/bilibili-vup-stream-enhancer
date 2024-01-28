@@ -42,8 +42,10 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
         const isTheme = await this.isThemePage()
         if (isTheme) {
             await this.page.waitForTimeout(2000)
+            logger.info('returned frame for content locator')
             return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.roomid}?liteVersion=true` })
         }
+        logger.info('returned page for content locator')
         return this.page
     }
 
@@ -105,6 +107,7 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
 
     async reloadAndGetLocator(): Promise<PageFrame> {
         await this.page.reload({ waitUntil: 'domcontentloaded' })
+        await this.page.waitForTimeout(3000)
         await this.startDismissLoginDialogListener()
         return this.getContentLocator()
     }
@@ -126,16 +129,15 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
                 clearInterval(timeout)
                 return
             }
-            if (await page.locator('body > div.bili-mini-mask > div').isVisible({ timeout: 500 })) {
+            const loginDialogDismissButton = page.locator('body > div.bili-mini-mask > div > div.bili-mini-close-icon')
+            if (await loginDialogDismissButton.isVisible({ timeout: 500 })) {
                 if (isClosed(page)) {
                     logger.info('frame/page is closed, dismiss login dialog listener aborted')
                     clearInterval(timeout)
                     return
                 }   
+                await loginDialogDismissButton.click({ force: true })
                 logger.debug('dismissed login dialog') 
-                await page.locator('body > div.bili-mini-mask > div > div.bili-mini-close-icon').click({ noWaitAfter: true })
-            } else {
-                logger.debug('login dialog not found')
             }
         }, 1000)
         this.listener = timeout
