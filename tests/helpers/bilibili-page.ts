@@ -147,21 +147,24 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
         }
         // 防止登录弹窗
         const timeout = setInterval(async () => {
-            if (isClosed(page)) {
-                logger.info('frame/page is closed, dismiss login dialog listener aborted')
-                clearInterval(timeout)
-                return
-            }
-            const loginDialogDismissButton = page.locator('body > div.bili-mini-mask > div > div.bili-mini-close-icon')
-            if (await loginDialogDismissButton.isVisible({ timeout: 500 })) {
+            try {
                 if (isClosed(page)) {
                     logger.info('frame/page is closed, dismiss login dialog listener aborted')
                     clearInterval(timeout)
                     return
                 }
-                loginDialogDismissButton.click({ timeout: 500, force: true })
-                    .then(() => logger.debug('dismissed login dialog'))
-                    .catch(err => logger.warn(err.message))
+                const loginDialogDismissButton = page.locator('body > div.bili-mini-mask > div > div.bili-mini-close-icon')
+                if (await loginDialogDismissButton.isVisible({ timeout: 500 })) {
+                    if (isClosed(page)) {
+                        logger.info('frame/page is closed, dismiss login dialog listener aborted')
+                        clearInterval(timeout)
+                        return
+                    }
+                    await loginDialogDismissButton.click({ timeout: 500, force: true })
+                    logger.debug('dismissed login dialog')
+                }
+            } catch (err) {
+                logger.warn('dismiss login dialog listener error', err)
             }
         }, 1000)
         this.listener = timeout

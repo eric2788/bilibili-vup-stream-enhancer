@@ -41,6 +41,7 @@ jobs:
       runs-on: ubuntu-latest
       needs: build
       strategy:
+          fail-fast: false
           matrix:
               browser: [chrome, edge, chromium]
               theme: ['', '-theme']
