@@ -7,7 +7,7 @@ import { isClosed, type PageFrame } from "./page-frame";
 export class BilibiliPage implements LiveRoomInfo, Disposable {
 
     private listener: NodeJS.Timeout | null
-    
+
     readonly page: Page
 
     roomid: number;
@@ -135,10 +135,10 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
                     logger.info('frame/page is closed, dismiss login dialog listener aborted')
                     clearInterval(timeout)
                     return
-                }   
-                await loginDialogDismissButton.scrollIntoViewIfNeeded()
-                await loginDialogDismissButton.click({ force: true })
-                logger.debug('dismissed login dialog') 
+                }
+                loginDialogDismissButton.click({ timeout: 500, force: true })
+                    .then(() => logger.debug('dismissed login dialog'))
+                    .catch(err => logger.warn(err.message))
             }
         }, 1000)
         this.listener = timeout
