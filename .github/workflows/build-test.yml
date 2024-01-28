@@ -19,7 +19,7 @@ jobs:
               browser: [chrome, edge, chromium]
         steps:
             - uses: actions/checkout@v4
-            - uses: pnpm/action-setup@v2
+            - uses: pnpm/action-setup@master
               with:
                 version: 8
             - name: Setup Node.js
@@ -53,7 +53,7 @@ jobs:
                 path: build/
           - name: Unzip artifacts
             run: unzip build/${{ matrix.browser }}-mv3-prod.zip -d build/extension
-          - uses: pnpm/action-setup@v2
+          - uses: pnpm/action-setup@master
             with:
                 version: 8
           - name: Setup Node.js
@@ -66,7 +66,11 @@ jobs:
           - name: Install Playwright Browsers
             run: pnpm exec playwright install --with-deps
           - name: Test
-            run: pnpm test -- --project=${{ matrix.browser }}
+            run: |
+              if [ $ACTIONS_STEP_DEBUG == "true" ]; then
+                export DEBUG="pw:browser"
+              fi
+              pnpm test -- --project=${{ matrix.browser }}
           - name: Upload Test Results
             if: always()
             uses: actions/upload-artifact@v4
