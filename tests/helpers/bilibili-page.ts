@@ -136,6 +136,7 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
                     clearInterval(timeout)
                     return
                 }   
+                await loginDialogDismissButton.scrollIntoViewIfNeeded()
                 await loginDialogDismissButton.click({ force: true })
                 logger.debug('dismissed login dialog') 
             }
@@ -143,11 +144,14 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
         this.listener = timeout
     }
 
-    [Symbol.dispose](): void;
-    [Symbol.dispose](): void;
-    [Symbol.dispose](): void {
+    async close() {
+        await this[Symbol.dispose]()
+    }
+
+    async [Symbol.dispose](): Promise<void> {
         logger.debug('disposing bilibili page')
         this.listener && clearInterval(this.listener)
+        await this.page.close()
     }
 }
 

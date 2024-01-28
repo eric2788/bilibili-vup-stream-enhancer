@@ -1,5 +1,6 @@
 
 import { expect, test } from '@tests/fixtures/background'
+import BilibiliPage from '@tests/helpers/bilibili-page'
 import logger from '@tests/helpers/logger'
 
 test.beforeEach(async ({ page, extensionId }) => {
@@ -102,6 +103,9 @@ test('測試導出導入設定', async ({ settings: page }) => {
 
 
 test('測試清空數據庫', async ({ settings: page, front: room }) => {
+    
+    test.skip(await room.isThemePage(), '此測試不適用於大海報房間')
+
     logger.info('正在測試寫入彈幕...')
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
@@ -109,7 +113,7 @@ test('測試清空數據庫', async ({ settings: page, front: room }) => {
     await page.waitForTimeout(3000)
     let subtitleList = await room.page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(2)
-    await room.page.close()
+    await room.close()
 
     logger.info('正在清空數據庫....')
     await page.bringToFront()
@@ -119,8 +123,11 @@ test('測試清空數據庫', async ({ settings: page, front: room }) => {
     await page.getByText('所有记录已经清空。').waitFor({ state: 'visible' })
 
     logger.info('正在檢查彈幕是否被清空...')
-    await page.goto(`https://live.bilibili.com/${room.roomid}`)
-    subtitleList = await page.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
+    room = new BilibiliPage(page, room)
+    await room.enterToRoom()
+    const jimakuList = page.locator('#subtitle-list')
+    await jimakuList.waitFor({ state: 'visible' })
+    subtitleList = await jimakuList.locator('> p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(0)
 
 })
