@@ -1,9 +1,9 @@
-import { readText } from 'tests/utils/file'
+import type { Locator } from '@playwright/test'
 import { expect, test } from '@tests/fixtures/content'
 import type BilibiliPage from '@tests/helpers/bilibili-page'
-import type { Frame, Locator, Page } from '@playwright/test'
-import type { PageFrame } from '@tests/helpers/page-frame'
 import logger from '@tests/helpers/logger'
+import type { PageFrame } from '@tests/helpers/page-frame'
+import { readText } from 'tests/utils/file'
 
 test.beforeEach(async ({ room, content: p }) => {
     test.skip(await p.getByText('您使用的浏览器版本偏低，为保障您的直播观看体验').isVisible(), '瀏覽器版本過低')
@@ -243,6 +243,8 @@ test('測試大海報房間下字幕區塊是否存在', async ({ themeRoom }) =
 
     // if force using themeRoom, do not use content argument
     const p = await themeRoom.getContentLocator()
+    await ensureButtonListVisible(themeRoom, p)
+    
     const area = p.locator('#jimaku-full-area')
     await expect(area).toBeAttached()
 

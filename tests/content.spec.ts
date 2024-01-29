@@ -106,7 +106,9 @@ test.skip('測試打开监控式视窗按鈕', async ({}) => {
 })
 
 
-test('測試大海報房間下返回非海报界面按鈕', async ({ content, context, themeRoom: room }) => {
+test('測試大海報房間下返回非海报界面按鈕', async ({ context, themeRoom: room }) => {
+
+    const content = await room.getContentLocator()
 
     await content.getByText('功能菜单').click()
     const popup = context.waitForEvent('page')

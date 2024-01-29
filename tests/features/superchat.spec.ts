@@ -85,11 +85,16 @@ test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', asy
 test('測試拖拽按鈕', async ({ content }) => {
 
     const dragPoint = content.locator('section#bjf-feature-superchat > div > div > div')
+    const p1 = content.locator('#rank-list-ctnr-box')
+    const p2 = content.locator('#head-info-vm')
+
+    await p1.waitFor({ state: 'visible' })
+    await p2.waitFor({ state: 'visible' })
 
     await dragPoint.waitFor({ state: 'visible' })
     
-    await dragPoint.dragTo(content.locator('#rank-list-ctnr-box'), { timeout: 2000 })
-    await dragPoint.dragTo(content.locator('#head-info-vm'), { timeout: 2000 })
+    await dragPoint.dragTo(p1, { timeout: 2000 })
+    await dragPoint.dragTo(p2, { timeout: 2000 })
 
     await content.waitForTimeout(1000)
 
