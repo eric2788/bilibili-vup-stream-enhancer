@@ -1,3 +1,4 @@
+import type { Locator } from '@playwright/test'
 import { test, expect } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { readText } from '@tests/utils/file'
@@ -58,6 +59,8 @@ test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', asy
     await room.sendSuperChat('用戶1', 1234, testMessage)
     await room.sendSuperChat('用戶2', 5678, testMessage)
     await p.waitForTimeout(3000)
+
+    await ensureSuperChatListOpened(section)
     let superchatList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
     expect(superchatList.length).toBe(2)
 
@@ -77,6 +80,8 @@ test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', asy
     await button.click()
     await deleteButton.click()
     await expect(p.getByText(/已删除房间 \d+ 共\d+条醒目留言记录/)).toBeVisible()
+
+    await ensureSuperChatListOpened(section)
     // after delete, subtitle list should be empty
     superchatList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
     expect(superchatList.length).toBe(0)
@@ -126,6 +131,7 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     await room.sendSuperChat('用戶4', 3456, testMessage)
     await p.waitForTimeout(3000)
 
+    await ensureSuperChatListOpened(section)
     let subtitleList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
     expect(subtitleList.length).toBe(4)
 
@@ -134,6 +140,7 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     await section.locator('button', { hasText: /^醒目留言$/ }).click()
     await p.locator('#subtitle-list').waitFor({ state: 'visible' })
 
+    await ensureSuperChatListOpened(section)
     subtitleList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
     expect(subtitleList.length).toBe(4)
 })
@@ -169,3 +176,10 @@ test('測試保存設定後 css 能否生效', async ({ content, page, room, tab
     await expect(deleteButton).toHaveCSS('background-color', 'rgb(18, 52, 86)')
     await expect(downloadButton).toHaveCSS('background-color', 'rgb(18, 52, 86)')
 })
+
+
+async function ensureSuperChatListOpened(section: Locator): Promise<void> {
+    if (!await section.getByRole('menu').isVisible({ timeout: 100 })) {
+        await section.locator('button', { hasText: /^醒目留言$/ }).click()
+    }
+}
