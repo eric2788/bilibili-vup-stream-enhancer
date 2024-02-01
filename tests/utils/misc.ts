@@ -1,4 +1,4 @@
-
+import axios, { type AxiosRequestConfig } from 'axios'
 
 export function random<T>(items: T[]): T {
     return items[Math.floor(Math.random() * items.length)]
@@ -58,11 +58,11 @@ export function deferAsync(run: () => Promise<void>): { [Symbol.asyncDispose]: (
 }
 
 
-export async function biliFetch(init: RequestInfo, options?: RequestInit): Promise<any> {
+export async function biliFetch<T = any, C = any>(url: string, options?: AxiosRequestConfig<C>): Promise<T> {
     try {
-        const res = await fetch(init, options)
-        if (!res.ok) throw new Error(`failed to fetch bilibili live room: ${res.statusText}`)
-        return await res.json()
+        const res = await axios.get<T>(url, options)
+        if (res.status !== 200) throw new Error(`failed to fetch bilibili live room: ${res.statusText}`)
+        return res.data
     } catch (err) {
         // log the error and throw it again
         // due to https://github.com/microsoft/playwright/issues/27577
