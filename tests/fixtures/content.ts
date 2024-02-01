@@ -68,7 +68,7 @@ export const test = extensionBase.extend<ContentFixtures, ContentWorkerFixtures 
     // force to theme room
     themeRoom: [
         async ({ room, rooms, maxRoomRetries, cacher }, use) => {
-            if (room.isThemePage()) {
+            if (await room.isThemePage()) {
                 return use(room)
             }
             const iterator = Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length))
