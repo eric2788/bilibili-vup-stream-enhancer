@@ -33,7 +33,7 @@ export class BilibiliPage implements LiveRoomInfo, AsyncDisposable {
             if (info.roomid === this.roomid) return
             Object.assign(this, info)
         }
-        await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 10000 })
+        await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 30000 })
         await this.page.waitForTimeout(3000)
         await this.startDismissLoginDialogListener()
     }
