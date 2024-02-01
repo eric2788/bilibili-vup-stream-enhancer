@@ -21,7 +21,7 @@ export const test = extensionBase.extend<BackgroundFixtures>({
     },
     front: async ({ context, rooms }, use) => {
         const frontPage = await context.newPage()
-        using room = new BilibiliPage(frontPage, random(rooms))
+        await using room = new BilibiliPage(frontPage, random(rooms))
         await room.enterToRoom()
         await use(room)
     },

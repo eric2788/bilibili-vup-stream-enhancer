@@ -8,9 +8,9 @@ export function random<T>(items: T[]): T {
 export class Strategy {
 
     static *random<T>(items: T[], limit: number = items.length): Generator<T> {
-        const remains = [ ...items ]
+        const remains = [...items]
         let count = 0
-        while(remains.length) {
+        while (remains.length) {
             const random = Math.floor(Math.random() * remains.length)
             yield remains.splice(random, 1)[0]
             if (++count >= limit) break
@@ -42,4 +42,31 @@ export function envBool(name: string): boolean {
 
 export function randomNumber(length: number = 20): number {
     return Math.round(Math.random() * (10 ** length))
+}
+
+
+export function defer(run: () => void): { [Symbol.dispose]: () => void } {
+    return {
+        [Symbol.dispose]: run
+    }
+}
+
+export function deferAsync(run: () => Promise<void>): { [Symbol.asyncDispose]: () => Promise<void> } {
+    return {
+        [Symbol.asyncDispose]: run
+    }
+}
+
+
+export async function biliFetch(init: RequestInfo, options?: RequestInit): Promise<any> {
+    try {
+        const res = await fetch(init, options)
+        if (!res.ok) throw new Error(`failed to fetch bilibili live room: ${res.statusText}`)
+        return await res.json()
+    } catch (err) {
+        // log the error and throw it again
+        // due to https://github.com/microsoft/playwright/issues/27577
+        console.error(err)
+        throw err
+    }
 }

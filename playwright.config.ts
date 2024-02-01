@@ -15,7 +15,7 @@ dotenv.config({ path: '.env.local' })
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig<GlobalOptions>({
-  timeout: 60000,
+  timeout: 120000,
   globalTimeout: 3600 * 3600 * 1,
   testDir: './tests',
   /* Run tests in files in parallel */
@@ -38,11 +38,9 @@ export default defineConfig<GlobalOptions>({
     // baseURL: 'http://127.0.0.1:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    video: {
-      mode: 'on-first-retry',
-      size: { width: 640, height: 480 }
-    }
+    trace: 'on-all-retries',
+    screenshot: 'on',
+    video: 'retain-on-failure'
   },
 
   /* Configure projects for major browsers */

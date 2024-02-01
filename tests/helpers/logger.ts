@@ -34,6 +34,6 @@ export function createLogger(name: string, ci: boolean = false): Logger {
     return new LoggerImpl(name, ci)
 }
 
-const logger = createLogger('bilibili-vup-stream-enhancer', !!process.env.CI || !!process.env.RUNNER_DEBUG)
+const logger = createLogger('bilibili-vup-stream-enhancer', !!process.env.CI && !process.env.DEBUG)
 
 export default logger

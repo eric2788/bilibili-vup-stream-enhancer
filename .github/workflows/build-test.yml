@@ -9,6 +9,11 @@ on:
     pull_request:
         branches: [develop]
     workflow_dispatch:
+        inputs:
+          debug:
+            description: 'Enable debug logging'
+            required: false
+            default: 'false'
 
 jobs:
     build:
@@ -74,7 +79,10 @@ jobs:
               echo "project=${{ matrix.browser }}${{ matrix.theme}}" >> $GITHUB_OUTPUT
           - name: Test
             run: |
-              [ "$RUNNER_DEBUG" == "1" ] && export DEBUG="pw:browser"
+              if [ "${{ inputs.debug }}" == "true" ]; then
+                echo "Enabled Debug Mode"
+                export DEBUG="pw:api"
+              fi
               pnpm test -- --project=${{ steps.project.outputs.project }}
           - name: Upload Test Results
             if: always()

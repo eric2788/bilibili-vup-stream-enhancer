@@ -1,15 +1,12 @@
 import BilibiliPage from "@tests/helpers/bilibili-page";
+import logger from "@tests/helpers/logger";
+import type { PageFrame } from "@tests/helpers/page-frame";
+import RoomTypeFinder from "@tests/helpers/room-finder";
 import { Strategy } from "@tests/utils/misc";
 import { extensionBase } from "./base";
-import type { PageFrame } from "@tests/helpers/page-frame";
-import logger from "@tests/helpers/logger";
-import type { LiveRoomInfo } from "@tests/utils/bilibili";
-import RoomTypeCacher from "@tests/helpers/fixed-room";
 
 export type ContentOptions = {
     isThemeRoom: boolean
-    roomId: number
-    maxRoomRetries: number
 }
 
 export type ContentFixtures = {
@@ -19,21 +16,30 @@ export type ContentFixtures = {
 }
 
 export type ContentWorkerFixtures = {
-    cacher: RoomTypeCacher
+    cacher: RoomTypeFinder
 }
 
-export const test = extensionBase.extend<ContentFixtures & ContentOptions, ContentWorkerFixtures>({
+export const test = extensionBase.extend<ContentFixtures, ContentWorkerFixtures & ContentOptions>({
 
-    isThemeRoom: [ false, { option: true }],
-    maxRoomRetries: [50, { option: true }],
+    isThemeRoom: [false, { option: true, scope: 'worker' }],
 
     cacher: [
-        async ({ browser }, use) => {
-            const cacher = new RoomTypeCacher(browser)
+        async ({ browser, isThemeRoom, rooms, maxRoomRetries }, use, wf) => {
+            const cacher = new RoomTypeFinder(browser)
+            cacher.registerRoomType('404', async page => page.page.url().includes('www.bilibili.com/404'))
+            cacher.registerRoomType('offline', page => page.isStatus('offline'))
             cacher.registerRoomType('theme', page => page.isThemePage())
+
+            // 大海報房間時，先緩存大海報房間
+            console.info('using worker index: ', wf.workerIndex)
+            if (isThemeRoom && wf.workerIndex < 2) {
+                const info = await cacher.findRoomTypeWithCache('theme', Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length)))
+                test.skip(!info, `找不到大海報的房間。`)
+            }
+
             await use(cacher)
         },
-        { scope: 'worker' }
+        { scope: 'worker', timeout: 0 }
     ],
 
     content: async ({ room, page }, use) => {
@@ -46,33 +52,29 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions, Conte
 
     room: [
         async ({ page, isThemeRoom, rooms, maxRoomRetries, cacher }, use) => {
-            const iterator = Strategy.random(rooms, maxRoomRetries || rooms.length)
-            const room = await cacher.findRoomType(isThemeRoom ? 'theme' : 'normal', iterator, isThemeRoom) // only theme room will cache
-            test.skip(room === null, `找不到${isThemeRoom ? '' : '不是'}大海報的房間。`)
-            using bilibiliPage = new BilibiliPage(page, room)
-            await bilibiliPage.enterToRoom()
+            await using bilibiliPage = new BilibiliPage(page)
+            const iterator = Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length))
+            const room = await cacher.findRoomTypeWithCache(isThemeRoom ? 'theme' : 'normal', iterator)
+            test.skip(!room, `找不到${isThemeRoom ? '' : '不是'}大海報的房間。`)
+            await bilibiliPage.enterToRoom(room)
             await use(bilibiliPage)
+            await cacher.validateCache(bilibiliPage, isThemeRoom ? 'theme' : 'normal')
         },
         { auto: true, timeout: 0 }
     ],
 
     // force to theme room
     themeRoom: [
-        async ({ page, room, rooms, maxRoomRetries, cacher }, use) => {
-            // already theme page
-            if (await room.isThemePage()) {
-                await use(room)
-                return
-            }
-            // go to blank page first then go to theme page
-            await page.goto('about:blank')
-            const iterator = Strategy.random(rooms, maxRoomRetries || rooms.length)
-            const info = await cacher.findRoomType('theme', iterator, true)
-            test.skip(info === null, `找不到大海報的房間。`)
-            await room.enterToRoom(info)
-            await use(room)
+        async ({ page, rooms, maxRoomRetries, cacher }, use) => {
+            await using bilibiliPage = new BilibiliPage(page)
+            const iterator = Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length))
+            const room = await cacher.findRoomTypeWithCache('theme', iterator)
+            test.skip(!room, `找不到大海報的房間。`)
+            await bilibiliPage.enterToRoom(room)
+            await use(bilibiliPage)
+            await cacher.validateCache(bilibiliPage, 'theme')
         },
-        { timeout: 0}
+        { timeout: 0 }
     ]
 
 })

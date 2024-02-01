@@ -2,6 +2,7 @@ import type { Locator } from '@playwright/test'
 import { test, expect } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { readText } from '@tests/utils/file'
+import { getSuperChatList } from '@tests/utils/playwright'
 
 test.beforeEach(async ({ page }) => {
     logger.info('正在等待登入彈窗消失...')
@@ -60,8 +61,7 @@ test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', asy
     await room.sendSuperChat('用戶2', 5678, testMessage)
     await p.waitForTimeout(3000)
 
-    await ensureSuperChatListOpened(section)
-    let superchatList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
+    let superchatList = await getSuperChatList(section, { hasText: testMessage })
     expect(superchatList.length).toBe(2)
 
     // Test Download
@@ -81,9 +81,7 @@ test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', asy
     await deleteButton.click()
     await expect(p.getByText(/已删除房间 \d+ 共\d+条醒目留言记录/)).toBeVisible()
 
-    await ensureSuperChatListOpened(section)
-    // after delete, subtitle list should be empty
-    superchatList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
+    superchatList = await getSuperChatList(section, { hasText: testMessage })
     expect(superchatList.length).toBe(0)
 })
 
@@ -131,18 +129,29 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     await room.sendSuperChat('用戶4', 3456, testMessage)
     await p.waitForTimeout(3000)
 
-    await ensureSuperChatListOpened(section)
-    let subtitleList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
-    expect(subtitleList.length).toBe(4)
+    let superchatList = await getSuperChatList(section, { hasText: testMessage })
+    expect(superchatList.length).toBe(4)
 
     p = await room.reloadAndGetLocator() // reloaded, so need to re get content locator
     section = p.locator('section#bjf-feature-superchat')
-    await section.locator('button', { hasText: /^醒目留言$/ }).click()
-    await p.locator('#subtitle-list').waitFor({ state: 'visible' })
+    await section.locator('button', { hasText: /^醒目留言$/ }).waitFor({ state: 'visible' })
 
-    await ensureSuperChatListOpened(section)
-    subtitleList = await section.getByRole('menu').locator('section.bjf-scrollbar > div').filter({ hasText: testMessage }).all()
-    expect(subtitleList.length).toBe(4)
+    superchatList = await getSuperChatList(section, { hasText: testMessage })
+    expect(superchatList.length).toBe(4)
+
+    logger.info('正在測試從設定刪除離線記錄...')
+    await page.goto('about:blank')
+    settingsPage.once('dialog', dialog => dialog.accept())
+    await settingsPage.bringToFront()
+    await settingsPage.locator('//*[@id="features.superchat"]/div[2]/div/nav/div/label/div[2]/button').click()
+    await settingsPage.getByText('所有醒目留言记录已经清空。').waitFor({ state: 'visible' })
+
+    await page.bringToFront()
+    await room.enterToRoom()
+    p = await room.getContentLocator()
+    section = p.locator('section#bjf-feature-superchat')
+    superchatList = await getSuperChatList(section, { hasText: testMessage })
+    expect(superchatList.length).toBe(0)
 })
 
 
@@ -178,8 +187,3 @@ test('測試保存設定後 css 能否生效', async ({ content, page, room, tab
 })
 
 
-async function ensureSuperChatListOpened(section: Locator): Promise<void> {
-    if (!await section.getByRole('menu').isVisible({ timeout: 100 })) {
-        await section.locator('button', { hasText: /^醒目留言$/ }).click()
-    }
-}

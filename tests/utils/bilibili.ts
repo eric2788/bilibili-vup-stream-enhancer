@@ -1,5 +1,5 @@
-import type { Frame, Page } from "@playwright/test";
 import logger from "@tests/helpers/logger";
+import { biliFetch as fetch } from "./misc";
 import type { PageFrame } from "@tests/helpers/page-frame";
 
 export interface LiveRoomInfo {
@@ -16,10 +16,14 @@ export interface LiveRoomInfo {
     area_name: string;
 }
 
+export async function getRoomStatus(room: number): Promise<'online' | 'offline'> {
+    const data = await fetch('https://api.live.bilibili.com/room/v1/Room/room_init?id='+room)
+    if (data.code !== 0) throw new Error(`bili error: ${data.message}`)
+    return data.data.live_status === 1 ? 'online' : 'offline'
+}
+
 export async function findLiveRoom(room: number): Promise<LiveRoomInfo | null> {
-    const res = await fetch('https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id='+room)
-    if (!res.ok) throw new Error(`failed to fetch bilibili live room: ${res.statusText}`)
-    const data = await res.json()
+    const data = await fetch('https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id='+room)
     if (data.code !== 0) return null
     return {
         roomid: data.data.room_info.room_id,
@@ -47,9 +51,7 @@ export async function getLiveRoomsRange(pages: number): Promise<LiveRoomInfo[]> 
 }
 
 export async function getLiveRooms(page: number = 1): Promise<LiveRoomInfo[]> {
-    const res = await fetch(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=9&area_id=0&sort_type=online&page=${page}`)
-    if (!res.ok) throw new Error(`failed to fetch bilibili live room list: ${res.statusText}`)
-    const data = await res.json()
+    const data = await fetch(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=9&area_id=0&sort_type=online&page=${page}`)
     if (data.code !== 0) throw new Error(`failed to fetch bilibili live room list: ${data.message}`)
     return data.data.list as LiveRoomInfo[]
 }

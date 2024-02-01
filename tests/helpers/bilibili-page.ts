@@ -1,11 +1,11 @@
 import type { Page } from "@playwright/test";
-import { sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
+import { getRoomStatus, sendFakeBLiveMessage, type LiveRoomInfo } from "../utils/bilibili";
 import logger from "./logger";
 import { isClosed, type PageFrame } from "./page-frame";
 import { randomNumber } from "@tests/utils/misc";
 
 
-export class BilibiliPage implements LiveRoomInfo, Disposable {
+export class BilibiliPage implements LiveRoomInfo, AsyncDisposable {
 
     private listener: NodeJS.Timeout | null
 
@@ -29,10 +29,17 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
     }
 
     async enterToRoom(info?: LiveRoomInfo): Promise<void> {
-        if (info) Object.assign(this, info)
+        if (info) {
+            if (info.roomid === this.roomid) return
+            Object.assign(this, info)
+        }
         await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 10000 })
         await this.page.waitForTimeout(3000)
         await this.startDismissLoginDialogListener()
+    }
+
+    async isStatus(status: 'online' | 'offline'): Promise<boolean> {
+        return await getRoomStatus(this.roomid) === status
     }
 
     async isThemePage(): Promise<boolean> {
@@ -126,6 +133,7 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
                 start_time: Date.now()
             }
         })
+        await this.page.waitForTimeout(1000)
     }
 
     async reloadAndGetLocator(): Promise<PageFrame> {
@@ -171,12 +179,13 @@ export class BilibiliPage implements LiveRoomInfo, Disposable {
     }
 
     async close() {
-        await this[Symbol.dispose]()
+        await this[Symbol.asyncDispose]()
     }
 
-    async [Symbol.dispose](): Promise<void> {
+    async [Symbol.asyncDispose](): Promise<void> {
         logger.debug('disposing bilibili page')
         this.listener && clearInterval(this.listener)
+        if (this.page.isClosed()) return
         await this.page.close()
     }
 }
