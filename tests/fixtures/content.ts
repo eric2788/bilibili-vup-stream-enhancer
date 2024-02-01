@@ -65,7 +65,8 @@ export const test = extensionBase.extend<ContentFixtures, ContentWorkerFixtures 
 
     // force to theme room
     themeRoom: [
-        async ({ page, rooms, maxRoomRetries, cacher }, use) => {
+        async ({ page, rooms, maxRoomRetries, cacher, room: previous }, use) => {
+            await previous.close() // no need to use previous room
             await using bilibiliPage = new BilibiliPage(page)
             const iterator = Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length))
             const room = await cacher.findRoomTypeWithCache('theme', iterator)
