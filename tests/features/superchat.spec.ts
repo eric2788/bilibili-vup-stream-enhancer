@@ -2,7 +2,10 @@ import type { Locator } from '@playwright/test'
 import { test, expect } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { readText } from '@tests/utils/file'
-import { getSuperChatList } from '@tests/utils/playwright'
+import { getSuperChatList, skipIfThemeRoom } from '@tests/utils/playwright'
+
+
+skipIfThemeRoom(test)
 
 test.beforeEach(async ({ page }) => {
     logger.info('正在等待登入彈窗消失...')

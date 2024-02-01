@@ -2,7 +2,11 @@ import type { Locator } from '@playwright/test'
 import { expect, test } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { isFrame, type PageFrame } from '@tests/helpers/page-frame'
+import { skipIfThemeRoom } from '@tests/utils/playwright'
 import { readText } from 'tests/utils/file'
+
+
+skipIfThemeRoom(test)
 
 test.beforeEach(async ({ content: p }) => {
     test.skip(await p.getByText('您使用的浏览器版本偏低，为保障您的直播观看体验').isVisible(), '瀏覽器版本過低')

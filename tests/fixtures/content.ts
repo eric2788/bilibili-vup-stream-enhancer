@@ -34,8 +34,10 @@ export const test = extensionBase.extend<ContentFixtures, ContentWorkerFixtures 
             logger.info('using worker index: ', wf.workerIndex)
             if (isThemeRoom && wf.workerIndex < 2) {
                 const info = await cacher.findRoomTypeWithCache('theme', Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length)))
-                console.warn(`找不到大海報的房間, 跳過所有大海報房間測試...`)
-                test.skip(!info, `找不到大海報的房間。`)
+                if (!info) {
+                    console.warn(`找不到大海報的房間, 跳過所有大海報房間測試...`)
+                    test.skip(true, `找不到大海報的房間`)
+                }
                 console.info(`成功緩存大海報房間: ${info.roomid}`)
             }
 

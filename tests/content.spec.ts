@@ -1,8 +1,9 @@
 import { test, expect } from "./fixtures/content";
 import logger from "./helpers/logger";
 import { receiveOneBLiveMessage } from "./utils/bilibili";
+import { skipIfThemeRoom } from "./utils/playwright";
 
-
+skipIfThemeRoom(test)
 
 test('測試主元素是否存在', async ({ content }) => {
 
