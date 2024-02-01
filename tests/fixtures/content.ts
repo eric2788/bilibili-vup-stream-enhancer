@@ -70,13 +70,12 @@ export const test = extensionBase.extend<ContentFixtures, ContentWorkerFixtures 
 
     // force to theme room
     themeRoom: [
-        async ({ room, rooms, maxRoomRetries, cacher }, use) => {
-            if (await room.isThemePage()) {
-                return use(room)
-            }
+        async ({ room: previous, page, rooms, maxRoomRetries, cacher }, use) => {
+            await previous.close()
             const iterator = Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length))
             const info = await cacher.findRoomTypeWithCache('theme', iterator)
             test.skip(!info, `找不到大海報的房間。`)
+            await using room = new BilibiliPage(page)
             await room.enterToRoom(info)
             await use(room)
             await cacher.validateCache(room, 'theme')
