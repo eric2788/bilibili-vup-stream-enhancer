@@ -24,7 +24,7 @@ export const extensionBase = base.extend<ExtensionFixture, ExtensionOptions & Ex
 
     maxPage: [5, { option: true, scope: 'worker' }],
     roomId: [-1, { option: true, scope: 'worker' }],
-    maxRoomRetries: [70, { option: true, scope: 'worker' }],
+    maxRoomRetries: [50, { option: true, scope: 'worker' }],
 
     context: async ({ }, use) => {
         const pathToExtension = path.join(__dirname, '../../build/extension')

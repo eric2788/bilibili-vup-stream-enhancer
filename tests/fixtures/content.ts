@@ -32,7 +32,7 @@ export const test = extensionBase.extend<ContentFixtures, ContentWorkerFixtures 
 
             // 大海報房間時，先緩存大海報房間
             logger.info('using worker index: ', wf.workerIndex)
-            if (isThemeRoom && wf.workerIndex < 2) {
+            if (isThemeRoom /*&& wf.workerIndex < 2*/) {
                 const info = await cacher.findRoomTypeWithCache('theme', Strategy.random(rooms, Math.min(maxRoomRetries, rooms.length)))
                 if (!info) {
                     console.warn(`找不到大海報的房間, 跳過所有大海報房間測試...`)
@@ -42,6 +42,7 @@ export const test = extensionBase.extend<ContentFixtures, ContentWorkerFixtures 
             }
 
             await use(cacher)
+            await browser.close()
         },
         { scope: 'worker', timeout: 0 }
     ],
