@@ -5,6 +5,7 @@
 /node_modules
 /.pnp
 .pnp.js
+*.cache.json
 
 # testing
 /coverage
@@ -39,3 +40,7 @@ keys.json
 .pnpm
 .pnp.cjs
 .store
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
