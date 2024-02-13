@@ -1,7 +1,7 @@
 import type { PlasmoCSUIAnchor } from "plasmo"
 import { createRoot, type Root } from "react-dom/client"
 import { toast } from "sonner/dist"
-import type { StreamInfo } from "~api/bilibili"
+import { ensureLogin, type StreamInfo } from "~api/bilibili"
 import { sendForward } from "~background/forwards"
 import BLiveThemeProvider from "~components/BLiveThemeProvider"
 import StreamInfoContext from "~contexts/StreamInfoContexts"
@@ -134,14 +134,21 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
             // 依然無法取得，就略過
             if (!info) {
-                console.info('無法取得直播資訊，已略過')
-                toast.warning('無法取得直播資訊，请稍后刷新页面尝试。', { position: 'top-left' })
+                console.warn('無法取得直播資訊，已略過: ', roomId)
                 return
             }
 
             if (!(await shouldInit(settings, info))) {
                 console.info('不符合初始化條件，已略過')
                 return
+            }
+
+            const login = await ensureLogin()
+
+            console.info('login: ', login)
+
+            if (!login) {
+                toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
             }
 
             // hook adapter (only when online)

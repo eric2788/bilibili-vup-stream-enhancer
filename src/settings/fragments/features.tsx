@@ -134,7 +134,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 const props = asStateProxy(useBinding(state[f], true))
 
                 return (
-                    <div key={f} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
+                    <div key={f} id={`features.${f}`} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
                         <Switch label={
                             <div>
                                 <Typography className="font-semibold">

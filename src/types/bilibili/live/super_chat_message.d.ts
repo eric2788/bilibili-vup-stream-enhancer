@@ -16,12 +16,12 @@ export interface SuperChatMessage {
             gift_name: string
             num: number
         }
-        group_medal: null
+        group_medal: object
         id: number
         is_mystery: boolean
         is_ranked: number
         is_send_audit: number
-        medal_info: null
+        medal_info: object
         message: string
         message_font_color: string
         message_trans: string

@@ -10,9 +10,8 @@ import { getSettingStorage, processing, withProcessingFlag } from '~utils/storag
 import styleText from '~styles';
 import createApp from './mounter';
 
-import '~toaster';
 import '~logger';
-
+import injectToaster from "~toaster";
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -77,6 +76,9 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       return
     }
 
+    // inject the toaster
+    injectToaster();
+
     // doing fast websocket boost here (if enabled)
     (async function () {
       try {
@@ -91,14 +93,6 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
         toast.error('WebSocket挂接提速失败: ' + err)
       }
     })();
-
-    const login = await ensureLogin()
-
-    console.info('login: ', login)
-
-    if (!login) {
-      toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
-    }
 
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(roomId)))
 
@@ -118,7 +112,6 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
         await start()
       }
     })
-
     // start the app
     await start()
 

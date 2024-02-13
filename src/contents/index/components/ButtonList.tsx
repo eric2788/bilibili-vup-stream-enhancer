@@ -18,7 +18,7 @@ function ButtonList(): JSX.Element {
         height: 450
     })
 
-    const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: location.href } })
+    const restart = () => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: '*://live.bilibili.com/*' } })
     const addBlackList = () => confirm(`确定添加房间 ${info.room}${info.room === info.shortRoom ? '' : `(${info.shortRoom})`} 到黑名单?`) && sendMessager('add-black-list', { roomId: info.room })
     const openSettings = () => sendMessager('open-tab', { tab: 'settings' })
     const openMonitor = createPopupWindow(`stream.html`, {

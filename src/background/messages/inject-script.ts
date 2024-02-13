@@ -4,7 +4,7 @@ import { dispatchFuncEvent, type FuncEventResult, isFuncEventResult } from '~uti
 import { getResourceName } from '~utils/file'
 
 export type RequestBody = {
-    tabId?: number
+    target?: chrome.scripting.InjectionTarget
     fileUrl?: string
     func?: string
     args?: any[]
@@ -18,7 +18,7 @@ export type ResponseBody = FuncEventResult & { result?: any }
 const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
 
 
-    const tabId = req.body.tabId ?? req.sender.tab.id
+    const target = req.body.target ?? { tabId: req.sender.tab.id }
 
     const fileUrl: string = req.body.script ? getScriptUrl(req.body.script) : req.body.fileUrl
     const funcName: string = req.body.script?.name ?? req.body.func
@@ -34,7 +34,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         const file = getResourceName(fileUrl)
         console.info('injecting file: ', file)
         results.push(...await chrome.scripting.executeScript({
-            target: { tabId },
+            target: target,
             injectImmediately: true,
             world: 'MAIN',
             files: [file],
@@ -45,7 +45,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         console.info('injecting function: ', funcName)
         console.info('injecting function args: ', funcArgs)
         results.push(...await chrome.scripting.executeScript({
-            target: { tabId },
+            target: target,
             injectImmediately: true,
             world: 'MAIN',
             func: dispatchFuncEvent,
