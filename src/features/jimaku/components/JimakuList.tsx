@@ -42,9 +42,9 @@ function JimakuList(props: JimakuListProps): JSX.Element {
 
     const blockUser = async ({ props }: ItemParams<any, any>) => {
         if (!window.confirm(`是否屏蔽 ${props.uname}(${props.uid}) 的同传弹幕？`)) return
-        const settings = await getSettingStorage('settings.listings')
-        settings.tongchuanBlackList.push({ id: props.uid, name: props.uname, addedDate: new Date().toLocaleDateString() })
-        await setSettingStorage('settings.listings', settings)
+        const settings = await getSettingStorage('settings.features')
+        settings.jimaku.listingZone.tongchuanBlackList.push({ id: props.uid, name: props.uname, addedDate: new Date().toLocaleDateString() })
+        await setSettingStorage('settings.features', settings)
         toast.success(`已成功屏蔽 ${props.uname}(${props.uid}) 的同传弹幕`)
     }
 

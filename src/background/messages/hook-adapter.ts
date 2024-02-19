@@ -33,6 +33,10 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         const file = getResourceName(adapters[type])
         console.info('injecting adapter: ', file)
         const res = await sendInternal('inject-script', {
+            target: {
+                tabId: req.sender.tab.id,
+                frameIds: [req.sender.frameId] // for theme room
+            },
             fileUrl: adapters[type],
             func: command,
             args: [settings]
@@ -43,6 +47,10 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
     } else {
         console.info('unhooking adapter')
         const res = await sendInternal('inject-script', {
+            target: {
+                tabId: req.sender.tab.id,
+                frameIds: [req.sender.frameId] // for theme room
+            },
             func: command,
         }, req.sender)
         if (res) {
