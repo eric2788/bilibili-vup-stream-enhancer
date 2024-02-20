@@ -89,7 +89,7 @@ function SettingPage(): JSX.Element {
             const migrating = (async () => {
                 const { data: settings, error } = await sendMessager('migration-mv2')
                 if (error) throw new Error(error)
-                if (!settings) throw new Error('未知错误')
+                if (!settings) throw new Error('找不到舊設定，無法遷移')
                 // do import
                 await Promise.all(fragmentRefs.map((ref) => {
                     const fragmentKey = ref.current.fragmentKey

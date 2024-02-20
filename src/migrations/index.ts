@@ -59,7 +59,7 @@ addMigrationMapping('developer.code.scList', 'settings.developer', 'code.scList'
 async function migrateFromMV2(): Promise<Settings> {
     // reference: https://github.com/eric2788/bilibili-vup-stream-enhancer/blob/3a2cb04b3ddd6473e901c16b64da1fb3f5cdc132/src/utils/misc.js#L11C1-L76C2
     const mv2Settings = await storage.get<MV2Settings>('settings')
-    if (!mv2Settings) return
+    if (!mv2Settings) return undefined
     const migratableKeys = Object.keys(migrations) as (keyof MV2SettingsMapping)[]
     for (const mv2Key of migratableKeys) {
         const { key: settingKey, value: schemaKey, transfer } = migrations[mv2Key]

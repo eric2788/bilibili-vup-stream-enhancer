@@ -3,6 +3,7 @@ import { expect, test } from '@tests/fixtures/background'
 import BilibiliPage from '@tests/helpers/bilibili-page'
 import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
+import type { MV2Settings } from '~migrations/schema'
 
 test.beforeEach(async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
@@ -190,8 +191,10 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
 })
 
 test.skip('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
+
+    logger.info('正在測試寫入 MV2 設定....')
     const settings = await serviceWorker.evaluate(async () => {
-        let mv2Settings = await chrome.storage.sync.get('settings')
+        let mv2Settings: Partial<MV2Settings> = await chrome.storage.sync.get('settings')
         if (!mv2Settings) {
             mv2Settings = {
                 // TODO: add some settings here
@@ -201,9 +204,20 @@ test.skip('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
         return mv2Settings
     })
 
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    logger.info('正在測試遷移 MV2 設定....')
     page.once('dialog', dialog => dialog.accept())
     await page.getByText('从 MV2 迁移设定').click()
     await page.getByText('设定已迁移并导入成功。').waitFor({ state: 'visible' })
     
+    logger.info('正在驗證 MV2 設定....')
     // TODO: validate settings
+
+    logger.info('正在驗證沒有 MV2 設定時遷移按鈕有否不顯示....')
+    await serviceWorker.evaluate(async () => {
+        await chrome.storage.sync.remove('settings')
+    })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByText('从 MV2 迁移设定')).toBeHidden()
 })
