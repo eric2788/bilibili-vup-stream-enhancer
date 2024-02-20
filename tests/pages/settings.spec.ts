@@ -188,3 +188,22 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     }
 
 })
+
+test.skip('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
+    const settings = await serviceWorker.evaluate(async () => {
+        let mv2Settings = await chrome.storage.sync.get('settings')
+        if (!mv2Settings) {
+            mv2Settings = {
+                // TODO: add some settings here
+            }
+            await chrome.storage.sync.set({ settings: mv2Settings })
+        }
+        return mv2Settings
+    })
+
+    page.once('dialog', dialog => dialog.accept())
+    await page.getByText('从 MV2 迁移设定').click()
+    await page.getByText('设定已迁移并导入成功。').waitFor({ state: 'visible' })
+    
+    // TODO: validate settings
+})

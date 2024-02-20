@@ -1,5 +1,5 @@
 import type { Schema, SettingFragments } from "~settings"
-import type { Leaves, Optional, PathLeafType, PickLeaves } from "~types/common";
+import type { Leaves, PathLeafType, PickLeaves } from "~types/common";
 
 export interface MV2Settings {
     regex: string;
@@ -70,26 +70,48 @@ export interface MV2Settings {
 
 export type MV2SettingsKey = Leaves<MV2Settings>
 
-export type SchemaMirror<K extends Leaves<MV2Settings>> = {
+export type SchemaMirror = {
     key: keyof SettingFragments
-    value: Leaves<Schema<SettingFragments[SchemaMirror<K>['key']]>>
+    value: Leaves<Schema<SettingFragments[keyof SettingFragments]>>
+    transfer?: (v: any) => any
 }
 
 
 export type MV2SettingsMapping = {
-    [K in Leaves<MV2Settings>]: SchemaMirror<K>
+    [K in Leaves<MV2Settings>]: SchemaMirror
 }
 
 const mapping: Partial<MV2SettingsMapping> = {}
 
-export function addMigrationMapping<K extends Leaves<MV2Settings>, S extends keyof SettingFragments>(
+export function addMigrationMapping<
+    K extends Leaves<MV2Settings>,
+    S extends keyof SettingFragments,
+    L extends PickLeaves<Schema<SettingFragments[S]>, PathLeafType<MV2Settings, K>>
+>(
     mv2Key: K,
     schemaKey: S,
-    value: PickLeaves<Schema<SettingFragments[S]>, PathLeafType<MV2Settings, K>>
-){
+    value: L
+) {
     mapping[mv2Key] = {
         key: schemaKey,
-        value
+        value: value as Leaves<Schema<SettingFragments[S]>>
+    }
+}
+
+export function addMigrationTransfer<
+    K extends Leaves<MV2Settings>,
+    S extends keyof SettingFragments,
+    L extends Leaves<Schema<SettingFragments[S]>>
+>(
+    mv2Key: K,
+    schemaKey: S,
+    value: L,
+    transfer: (v: PathLeafType<MV2Settings, K>) => PathLeafType<Schema<SettingFragments[S]>, L>
+) {
+    mapping[mv2Key] = {
+        key: schemaKey,
+        value,
+        transfer
     }
 }
 

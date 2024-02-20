@@ -4,9 +4,6 @@ import { setSettingStorage } from '~utils/storage'
 
 const developerLink = `https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/cdn/developer.json`
 
-
-export type RequestBody = {}
-
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
     const { data: developer, error } = await sendInternal('request', { url: developerLink })
     if (error) {

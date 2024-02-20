@@ -10,12 +10,13 @@ import SettingFragment, { type SettingFragmentRef } from '~settings/components/S
 import { download, readAsJson } from '~utils/file';
 import { sendMessager } from '~utils/messaging';
 import { arrayEqual, removeInvalidKeys } from '~utils/misc';
-import { getFullSettingStroage } from '~utils/storage';
+import storage, { getFullSettingStroage } from '~utils/storage';
 
 import { Button } from '@material-tailwind/react';
 import { useStorageWatch } from '~hooks/storage';
 import { toast } from 'sonner/dist';
 import injectToaster from '~toaster';
+import PromiseHandler from '~components/PromiseHandler';
 
 injectToaster()
 
@@ -77,13 +78,37 @@ function SettingPage(): JSX.Element {
     const fragmentRefs = fragmentKeys.map(key => useRef<SettingFragmentRef<typeof key>>())
 
     const processing = useStorageWatch('processing', 'session', false)
-
     const forwarder = useForwarder('command', 'pages')
 
     const [loader, loading] = useLoader({
         checkingUpdate,
         exportSettings,
         clearRecords,
+        migrateSettings: async () => {
+            if (!window.confirm('这将覆盖所有受影响的原有设定，确定继续？')) return
+            const migrating = (async () => {
+                const { data: settings, error } = await sendMessager('migration-mv2')
+                if (error) throw new Error(error)
+                if (!settings) throw new Error('未知错误')
+                // do import
+                await Promise.all(fragmentRefs.map((ref) => {
+                    const fragmentKey = ref.current.fragmentKey
+                    const { defaultSettings } = fragments[fragmentKey]
+                    const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
+                    return ref.current.importSettings(importContent)
+                }))
+            })();
+            toast.promise(migrating, {
+                loading: '正在迁移设定...',
+                success: '设定已迁移并导入成功。',
+                error: err => '迁移设定失败: ' + err.message
+            })
+            await migrating
+            if (!processing) {
+                // 向所有页面发送重启指令
+                forwarder.sendForward('content-script', { command: 'restart' })
+            }
+        },
         importSettings: async () => {
             const listener = async (e: Event) => {
                 const target = e.target as HTMLInputElement
@@ -178,6 +203,21 @@ function SettingPage(): JSX.Element {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
                         </Button>
+                        <PromiseHandler promise={storage.getItem('settings')}>
+                            <PromiseHandler.Response>
+                                {settings => settings && (
+                                    <Button onClick={loader.migrateSettings} disabled={loading.migrateSettings} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">
+                                        从 MV2 迁移设定
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 group-disabled:animate-bounce">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3" />
+                                        </svg>
+                                    </Button>
+                                )}
+                            </PromiseHandler.Response>
+                            <PromiseHandler.Loading>
+                                <>{/* yup, nothing to show while loading. */}</>
+                            </PromiseHandler.Loading>
+                        </PromiseHandler>
                     </div>
                 </div>
             </section>
