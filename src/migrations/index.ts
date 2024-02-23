@@ -30,7 +30,7 @@ addMigrationMapping('buttonSettings.backgroundListColor', 'settings.features', '
 addMigrationMapping('buttonSettings.backgroundColor', 'settings.features', 'jimaku.buttonZone.backgroundColor')
 addMigrationMapping('buttonSettings.textColor', 'settings.features', 'jimaku.buttonZone.textColor')
 addMigrationMapping('filterCNV', 'settings.features', 'jimaku.noNativeVtuber')
-addMigrationTransfer('recordSuperChat', 'settings.features', 'enabledFeatures', (v) => (v ? ['superchat', 'jimaku'] : []) as FeatureType[])
+addMigrationTransfer('recordSuperChat', 'settings.features', 'enabledFeatures', (v) => (v ? ['superchat', 'jimaku'] : ['jimaku']) as FeatureType[])
 addMigrationMapping('enableRestart', 'settings.display', 'restartButton')
 addMigrationMapping('enableJimakuPopup', 'settings.features', 'jimaku.jimakuPopupWindow')
 addMigrationMapping('enableStreamPopup', 'settings.features', 'common.monitorWindow')

@@ -59,7 +59,7 @@ test('測試名單列表(黑名單/白名單)', async ({ context, content, tabUr
     await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('名单列表').click()
     const roomInput = settingsPage.locator('//*[@id="settings.listings"]/div[2]/div/div/div/div/div[1]/div[2]/div/input')
-    await roomInput.fill(room.roomid.toString())
+    await roomInput.fill(room.info.roomid.toString())
     await roomInput.press('Enter')
     await settingsPage.getByText('保存设定').click()
 
@@ -176,7 +176,7 @@ test('測試大海報房間下返回非海报界面按鈕', async ({ context, th
     await content.getByText('返回非海报界面').click()
     const blanc = await popup
 
-    expect(blanc.url()).toBe('https://live.bilibili.com/blanc/'+room.roomid)
+    expect(blanc.url()).toBe('https://live.bilibili.com/blanc/'+room.info.roomid)
 
 })
 
@@ -189,7 +189,6 @@ test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ conte
     await content.locator('#live-player').dblclick()
     await expect(button).toBeVisible()
     await content.locator('#live-player').dblclick()
-    
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()

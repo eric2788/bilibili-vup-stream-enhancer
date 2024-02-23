@@ -24,7 +24,6 @@ async function expectNoError(p: Promise<any>) {
         logger.info('result: ', r)
     } catch (e) {
         logger.error(e)
-        //test.fail(e, 'unexpected error')
         throw e
     }
 }

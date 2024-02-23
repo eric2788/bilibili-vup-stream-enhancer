@@ -37,15 +37,22 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
         const lastVersion = (await storage.get('last_version')) ?? '0.12.4'
         const mv2 = await storage.get<MV2Settings>('settings')
         if (mv2 && semver.lt(lastVersion, '2.0.0')) {
-            await migrateFromMV2()
-            await sendInternal('notify', {
-                title: '已迁移 MV2 设定',
-                message: `已成功迁移 MV2 的旧设定到新的设定格式`,
-            })
+            try {
+                await migrateFromMV2()
+                await sendInternal('notify', {
+                    title: '已迁移 MV2 设定',
+                    message: `已成功迁移 MV2 的旧设定到新的设定格式`,
+                })
+            } catch (err: any) {
+                await sendInternal('notify', {
+                    title: '迁移 MV2 设定失败',
+                    message: `迁移 MV2 的旧设定到新的设定格式失败，你可稍后到设定页面点击按钮迁移。`,
+                })
+            }
         }
-        await storage.set('last_version', version)
-
     }
+
+    await storage.set('last_version', version)
 
 })
 

@@ -20,14 +20,16 @@ export function receiveOneBLiveMessage(content: PageFrame, cmd: string = ''): Pr
     logger.debug('waiting for blive fake message: ', cmd, content.url())
     return content.evaluate(([cmd]) => {
         return new Promise((res, rej) => {
-            window.addEventListener('message', (e) => {
+            const handler = (e: MessageEvent) => {
                 if (e.source !== window) return
                 if (e.data.source === 'bilibili-vup-stream-enhancer' && e.data.data.command === 'blive-ws') {
                     const content = e.data.data.body
                     if (cmd && content.cmd !== cmd) return
+                    window.removeEventListener('message', handler)
                     res(content)
                 }
-            })
+            }
+            window.addEventListener('message', handler)
             setTimeout(() => rej(new Error('timeout')), 60000)
         })
     }, [cmd])

@@ -11,12 +11,11 @@ export default class RoomTypeFinder {
 
     private readonly checkers: { type: string, checker: RoomTypeChecker }[] = []
     private readonly cached: Record<string, LiveRoomInfo> = {}
-    private readonly browser: Browser
-    private readonly api: BilbiliApi
 
-    constructor(broser: Browser, api: BilbiliApi) {
-        this.browser = broser
-        this.api = api
+    constructor(
+        private readonly browser: Browser,
+        private readonly api: BilbiliApi
+    ) {
         this.registerRoomType('404', async page => page.page.url().includes('www.bilibili.com/404'))
         this.registerRoomType('offline', page => page.isStatus('offline'))
         this.registerRoomType('theme', page => page.isThemePage())

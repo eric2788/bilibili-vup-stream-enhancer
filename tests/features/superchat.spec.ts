@@ -1,5 +1,4 @@
-import type { Locator } from '@playwright/test'
-import { test, expect } from '@tests/fixtures/content'
+import { expect, test } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { readText } from '@tests/utils/file'
 import { getSuperChatList } from '@tests/utils/playwright'

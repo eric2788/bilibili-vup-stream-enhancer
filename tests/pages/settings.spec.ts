@@ -168,7 +168,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     await page.getByText('清空所有记录储存库').click()
     await page.getByText('所有记录已经清空。').waitFor({ state: 'visible' })
 
-    room = new BilibiliPage(page, api, room)
+    room = new BilibiliPage(page, api, room.info)
     await room.enterToRoom()
     p = await room.getContentLocator()
     await p.locator('body').scrollIntoViewIfNeeded()

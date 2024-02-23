@@ -7,37 +7,23 @@ import type { LiveRoomInfo } from "./bilibili-api";
 import { sendFakeBLiveMessage } from "@tests/utils/bilibili";
 
 
-export class BilibiliPage implements LiveRoomInfo, AsyncDisposable {
+export class BilibiliPage implements AsyncDisposable {
 
     private listener: NodeJS.Timeout | null
-    private readonly api: BilbiliApi
 
-    readonly page: Page
-
-    roomid: number;
-    uid: number;
-    title: string;
-    uname: string;
-    online: number;
-    cover: string;
-    face: string;
-    parent_id: number;
-    parent_name: string;
-    area_id: number;
-    area_name: string;
-
-    constructor(page: Page, api: BilbiliApi, info?: LiveRoomInfo) {
-        if (info) Object.assign(this, info)
-        this.api = api
-        this.page = page
-    }
+    constructor(
+        public readonly page: Page, 
+        private readonly api: BilbiliApi, 
+        public info?: LiveRoomInfo
+    ) {}
 
     async enterToRoom(info?: LiveRoomInfo): Promise<void> {
+        if (!info && !this.info) throw new Error('no room to enter')
         if (info) {
-            if (info.roomid === this.roomid) return
-            Object.assign(this, info)
+            if (this.info?.roomid === info.roomid) return
+            this.info = info
         }
-        await this.page.goto("https://live.bilibili.com/" + this.roomid, { waitUntil: 'domcontentloaded', timeout: 30000 })
+        await this.page.goto("https://live.bilibili.com/" + this.info.roomid, { waitUntil: 'domcontentloaded', timeout: 30000 })
         await this.page.waitForTimeout(3000)
         await this.startDismissLoginDialogListener()
     }
@@ -48,11 +34,11 @@ export class BilibiliPage implements LiveRoomInfo, AsyncDisposable {
     }
 
     async isStatus(status: 'online' | 'offline'): Promise<boolean> {
-        return await this.api.getRoomStatus(this.roomid) === status
+        return await this.api.getRoomStatus(this.info.roomid) === status
     }
 
     async isThemePage(): Promise<boolean> {
-        return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.roomid}?liteVersion=true` }) !== null
+        return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.info.roomid}?liteVersion=true` }) !== null
     }
 
     async getContentLocator(): Promise<PageFrame> {
@@ -60,7 +46,7 @@ export class BilibiliPage implements LiveRoomInfo, AsyncDisposable {
         if (isTheme) {
             await this.page.waitForTimeout(700)
             logger.info('returned frame for content locator')
-            return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.roomid}?liteVersion=true` })
+            return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.info.roomid}?liteVersion=true` })
         }
         logger.info('returned page for content locator')
         return this.page
