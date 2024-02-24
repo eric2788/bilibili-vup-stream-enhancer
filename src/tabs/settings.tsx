@@ -17,6 +17,7 @@ import { useStorageWatch } from '~hooks/storage';
 import { toast } from 'sonner/dist';
 import injectToaster from '~toaster';
 import PromiseHandler from '~components/PromiseHandler';
+import { getMV2Settings, removeAllMV2Settings } from '~migrations';
 
 injectToaster()
 
@@ -101,7 +102,11 @@ function SettingPage(): JSX.Element {
             toast.promise(migrating, {
                 loading: '正在迁移设定...',
                 success: '设定已迁移并导入成功。',
-                error: err => '迁移设定失败: ' + err.message
+                error: err => '迁移设定失败: ' + err.message,
+                action: {
+                    label: '删除旧设定',
+                    onClick: removeAllMV2Settings
+                }
             })
             await migrating
             if (!processing) {
@@ -203,7 +208,7 @@ function SettingPage(): JSX.Element {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
                         </Button>
-                        <PromiseHandler promise={storage.getItem('settings')}>
+                        <PromiseHandler promise={getMV2Settings()}>
                             <PromiseHandler.Response>
                                 {settings => settings && (
                                     <Button onClick={loader.migrateSettings} disabled={loading.migrateSettings} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">

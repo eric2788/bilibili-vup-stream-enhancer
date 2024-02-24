@@ -3,6 +3,7 @@ import storage, { getFullSettingStroage, getSettingStorage, setSettingStorage } 
 import migrations, { addMigrationMapping, addMigrationTransfer, type MV2Settings, type MV2SettingsMapping } from "./schema";
 import type { FeatureType } from "~features";
 import type { Settings } from "~settings";
+import fragments from "~settings";
 
 
 addMigrationMapping('regex', 'settings.features', 'jimaku.danmakuZone.regex')
@@ -58,12 +59,11 @@ addMigrationMapping('developer.code.scList', 'settings.developer', 'code.scList'
 
 async function migrateFromMV2(): Promise<Settings> {
     // reference: https://github.com/eric2788/bilibili-vup-stream-enhancer/blob/3a2cb04b3ddd6473e901c16b64da1fb3f5cdc132/src/utils/misc.js#L11C1-L76C2
-    const mv2Settings = await storage.get<MV2Settings>('settings')
+    const mv2Settings = await getMV2Settings()
     if (!mv2Settings) return undefined
     const migratableKeys = Object.keys(migrations) as (keyof MV2SettingsMapping)[]
     for (const mv2Key of migratableKeys) {
         const { key: settingKey, value: schemaKey, transfer } = migrations[mv2Key]
-        console.info(`Migrating ${mv2Key} to ${settingKey}.${schemaKey}`)
         const value = getNestedValue(mv2Settings, mv2Key)
         const existedValue = await getSettingStorage(settingKey)
         setNestedValue(existedValue, schemaKey, transfer ? transfer(value) : value)
@@ -73,5 +73,20 @@ async function migrateFromMV2(): Promise<Settings> {
     return await getFullSettingStroage()
 }
 
+export async function getMV2Settings(): Promise<MV2Settings> {
+    const mv2 = await chrome.storage.sync.get()
+    const clone = { ...mv2 }
+    for (const newKey in fragments) {
+        delete clone[newKey]
+    }
+    if (Object.keys(clone).length === 0) return undefined
+    return clone as MV2Settings
+}
+
+export async function removeAllMV2Settings(): Promise<void> {
+    const mv2 = await getMV2Settings()
+    if (!mv2) return
+    await chrome.storage.sync.remove(Object.keys(mv2))
+}
 
 export default migrateFromMV2
