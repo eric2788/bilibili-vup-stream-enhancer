@@ -20,7 +20,6 @@ function ColorInput(props: ColorInputProps): JSX.Element {
         <div className="w-full flex justify-center">
             <div className="relative flex w-full">
                 <Input
-                    id="hs-color-input"
                     variant="static"
                     crossOrigin={'annoymous'}
                     type="text"

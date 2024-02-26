@@ -11,12 +11,11 @@ export default class RoomTypeFinder {
 
     private readonly checkers: { type: string, checker: RoomTypeChecker }[] = []
     private readonly cached: Record<string, LiveRoomInfo> = {}
-    private readonly browser: Browser
-    private readonly api: BilbiliApi
 
-    constructor(broser: Browser, api: BilbiliApi) {
-        this.browser = broser
-        this.api = api
+    constructor(
+        private readonly browser: Browser,
+        private readonly api: BilbiliApi
+    ) {
         this.registerRoomType('404', async page => page.page.url().includes('www.bilibili.com/404'))
         this.registerRoomType('offline', page => page.isStatus('offline'))
         this.registerRoomType('theme', page => page.isThemePage())
@@ -33,11 +32,11 @@ export default class RoomTypeFinder {
     async getRoomType(page: BilibiliPage): Promise<string> {
         for (const { type, checker } of this.checkers) {
             if (await checker(page)) {
-                logger.info(`room ${page.roomid} type is: ${type}`)
+                logger.info(`room ${page.info.roomid} type is: ${type}`)
                 return type
             }
         }
-        logger.info(`room ${page.roomid} type is: normal`)
+        logger.info(`room ${page.info.roomid} type is: normal`)
         return 'normal'
     }
 
@@ -52,7 +51,7 @@ export default class RoomTypeFinder {
         await page.enterToRoom(info)
         const roomType = await this.getRoomType(page)
         if (roomType === check) return
-        console.info(`${page.roomid} 的緩存策略失效，已清除其 ${check} 的緩存。`)
+        console.info(`${page.info.roomid} 的緩存策略失效，已清除其 ${check} 的緩存。`)
         delete this.cached[check]
         await this.deleteToFileCache(check)
     }
@@ -64,7 +63,7 @@ export default class RoomTypeFinder {
             await page.enterToRoom(room)
             const roomType = await this.getRoomType(page)
             if (roomType === check) {
-                logger.info(`成功搜索到屬於 ${check} 類型的直播房間: ${page.roomid}`)
+                logger.info(`成功搜索到屬於 ${check} 類型的直播房間: ${page.info.roomid}`)
                 return room
             }
         }

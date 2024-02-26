@@ -1,6 +1,5 @@
 import { test as base, chromium, expect, type BrowserContext } from '@playwright/test'
 import BilbiliApi, { type LiveRoomInfo } from '@tests/helpers/bilibili-api'
-import BilibiliPage from '@tests/helpers/bilibili-page'
 import logger from '@tests/helpers/logger'
 import RoomTypeFinder from '@tests/helpers/room-finder'
 import path from 'path'

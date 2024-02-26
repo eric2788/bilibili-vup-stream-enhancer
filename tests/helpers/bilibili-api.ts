@@ -1,7 +1,5 @@
 import { request, type APIRequestContext } from "@playwright/test";
 
-
-
 export interface LiveRoomInfo {
     roomid: number;
     uid: number;

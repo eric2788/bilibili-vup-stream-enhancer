@@ -3,6 +3,7 @@ import { expect, test } from '@tests/fixtures/background'
 import BilibiliPage from '@tests/helpers/bilibili-page'
 import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
+import type { MV2Settings } from '~migrations/schema'
 
 test.beforeEach(async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
@@ -167,7 +168,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     await page.getByText('清空所有记录储存库').click()
     await page.getByText('所有记录已经清空。').waitFor({ state: 'visible' })
 
-    room = new BilibiliPage(page, api, room)
+    room = new BilibiliPage(page, api, room.info)
     await room.enterToRoom()
     p = await room.getContentLocator()
     await p.locator('body').scrollIntoViewIfNeeded()
@@ -187,4 +188,115 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
         expect(superchatList.length).toBe(0)
     }
 
+})
+
+test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
+
+    logger.info('正在測試寫入 MV2 設定....')
+    const mv2Settings = await serviceWorker.evaluate(async () => {
+        const settings: MV2Settings = {
+            "regex": "^(?<n>[^【】]+?)?\\:?\\s*【(?<cc>[^【】]+?)(】.?)?$",
+            "opacity": 100,
+            "color": "#59ff00",
+            "hideJimakuDanmaku": false,
+            "vtbOnly": true,
+            "record": false,
+            "backgroundSubtitleOpacity": 40,
+            "backgroundColor": "#111111",
+            "backgroundHeight": 100,
+            "tongchuanMans": [],
+            "tongchuanBlackList": [],
+            "subtitleColor": "#222222",
+            "blacklistRooms": [],
+            "useAsWhitelist": false,
+            "subtitleSize": 26,
+            "firstSubtitleSize": 28,
+            "lineGap": 17,
+            "jimakuAnimation": "top",
+            "jimakuPosition": "left",
+            "webSocketSettings": {
+                "danmakuPosition": "bottom"
+            },
+            "useStreamingTime": false,
+            "buttonSettings": {
+                "backgroundColor": "#333333",
+                "backgroundListColor": "#444444",
+                "textColor": "#555555"
+            },
+            "filterCNV": false,
+            "autoCheckUpdate": false,
+            "recordSuperChat": true,
+            "enableRestart": false,
+            "enableJimakuPopup": true,
+            "enableStreamPopup": true,
+            "filterLevel": 0,
+            "useLegacy": false,
+            "hideBlackList": false,
+            "hideSettingBtn": false,
+            "themeToNormal": false,
+            "useRemoteCDN": false,
+            "developer": {
+                "attr": {
+                    "chatDanmaku": "data-danmaku",
+                    "chatUserId": "data-uid"
+                },
+                "classes": {
+                    "screenFull": "fullscreen-fix",
+                    "screenWeb": "player-full-win"
+                },
+                "code": {
+                    "scList": "window.__NEPTUNE_IS_MY_WAIFU__ ? window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list : []"
+                },
+                "elements": {
+                    "chatItems": "#chat-items",
+                    "danmakuArea": ".web-player-danmaku",
+                    "jimakuArea": "div.player-section",
+                    "jimakuFullArea": ".web-player-inject-wrap",
+                    "liveTitle": ".live-skin-main-text.small-title",
+                    "newMsgButton": "div#danmaku-buffer-prompt",
+                    "upperButtonArea": ".rows-ctnr",
+                    "userId": "a.room-owner-username",
+                    "videoArea": "div#aside-area-vm"
+                }
+            }
+        }
+        await chrome.storage.sync.set(settings) // the old settings way....
+        return settings
+    })
+
+    logger.debug('settings: ', mv2Settings)
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    logger.info('正在測試遷移 MV2 設定....')
+    page.once('dialog', dialog => dialog.accept())
+    await page.getByText('从 MV2 迁移设定').click()
+    await page.getByText('设定已迁移并导入成功。').waitFor({ state: 'visible' })
+
+    logger.info('正在驗證 MV2 設定....')
+    await page.getByText('功能设定').click()
+
+    await page.getByText('字幕设定').click()
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[1]/div[2]/div/div[1]/div/div[1]/input')).toHaveValue(mv2Settings.subtitleSize.toString())
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[1]/div[2]/div/div[2]/div/div[1]/input')).toHaveValue(mv2Settings.firstSubtitleSize.toString())
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[1]/div[2]/div/div[3]/div/div[1]/input')).toHaveValue(mv2Settings.lineGap.toString())
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[1]/div[2]/div/div[4]/div/div/div/input')).toHaveValue(mv2Settings.backgroundColor)
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[1]/div[2]/div/div[7]/div/div/div/input')).toHaveValue(mv2Settings.subtitleColor)
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[1]/div[2]/div/section[1]/div/div[1]')).toHaveText('置左')
+
+    await page.getByText('同传弹幕设定').click()
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[2]/div[2]/div/div[3]/div/div/div/input')).toHaveValue(mv2Settings.color)
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[2]/div[2]/div/div[4]/div/div[1]/input')).toHaveValue(mv2Settings.opacity.toString())
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[2]/div[2]/div/section/div/div[1]')).toHaveText('置底')
+
+    await page.getByText('字幕按钮样式设定').click()
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[3]/div[2]/div/div[1]/div/div/input')).toHaveValue(mv2Settings.buttonSettings.backgroundColor)
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[3]/div[2]/div/div[2]/div/div/input')).toHaveValue(mv2Settings.buttonSettings.backgroundListColor)
+    await expect(page.locator('//*[@id="features.jimaku"]/div[2]/div/div[1]/div[3]/div[2]/div/div[3]/div/div/input')).toHaveValue(mv2Settings.buttonSettings.textColor)
+
+    logger.info('正在驗證沒有 MV2 設定時遷移按鈕有否不顯示....')
+    await serviceWorker.evaluate(async (mv2Settings: MV2Settings) => {
+        await chrome.storage.sync.remove(Object.keys(mv2Settings))
+    }, mv2Settings)
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByText('从 MV2 迁移设定')).toBeHidden()
 })

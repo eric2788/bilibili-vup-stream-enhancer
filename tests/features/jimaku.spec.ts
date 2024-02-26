@@ -96,7 +96,7 @@ test('測試彈出同傳視窗', async ({ room, context, tabUrl, page, content }
     await buttonList[2].click()
     const popup = await newWindow
     await popup.bringToFront()
-    await expect(popup.getByText(room.title)).toBeVisible()
+    await expect(popup.getByText(room.info.title)).toBeVisible()
 
     logger.info('正在測試寫入彈幕...')
     const testJimaku = '由 playwright 工具發送'
