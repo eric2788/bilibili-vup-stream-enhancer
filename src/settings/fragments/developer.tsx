@@ -29,9 +29,6 @@ export type SettingSchema = {
         chatUserId: string;
         chatDanmaku: string;
     };
-    code: {
-        scList: string;
-    };
 };
 
 export const defaultSettings: Readonly<SettingSchema> = {
@@ -57,9 +54,6 @@ export const defaultSettings: Readonly<SettingSchema> = {
     attr: {
         chatUserId: 'data-uid', // 聊天条 用户id 属性
         chatDanmaku: 'data-danmaku' // 聊天条 弹幕 属性
-    },
-    code: {
-        scList: 'window.__NEPTUNE_IS_MY_WAIFU__ ? window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list : []'
     }
 }
 
@@ -149,13 +143,7 @@ const elementDefiners: ElementDefinerList = {
             label: "聊天条 弹幕 属性",
             key: "attr.chatDanmaku"
         },
-    ],
-    "JavaScript 代码": [
-        {
-            label: "获取网页内目前的 SuperChat",
-            key: "code.scList"
-        },
-    ],
+    ]
 }
 
 

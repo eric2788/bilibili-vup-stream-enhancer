@@ -53,7 +53,6 @@ addMigrationMapping('developer.classes.screenWeb', 'settings.developer', 'classe
 addMigrationMapping('developer.classes.screenFull', 'settings.developer', 'classes.screenFull')
 addMigrationMapping('developer.attr.chatDanmaku', 'settings.developer', 'attr.chatDanmaku')
 addMigrationMapping('developer.attr.chatUserId', 'settings.developer', 'attr.chatUserId')
-addMigrationMapping('developer.code.scList', 'settings.developer', 'code.scList')
 
 
 

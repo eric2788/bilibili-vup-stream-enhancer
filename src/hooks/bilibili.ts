@@ -1,5 +1,6 @@
 import { useMutationObserver } from '@react-hooks-library/core'
 import { useState } from 'react'
+import { type SettingSchema as DeveloperSchema } from '~settings/fragments/developer'
 
 export type WebScreenStatus = 'normal' | 'web-fullscreen' | 'fullscreen'
 
@@ -16,7 +17,7 @@ export type WebScreenStatus = 'normal' | 'web-fullscreen' | 'fullscreen'
  * const screenStatus = useWebScreenChange(classes);
  * console.log(screenStatus); // 'web-fullscreen', 'fullscreen', or 'normal'
  */
-export function useWebScreenChange(classes: { screenWeb: string, screenFull: string }): WebScreenStatus {
+export function useWebScreenChange(classes: DeveloperSchema['classes']): WebScreenStatus {
 
     const fetchScreenStatus = (bodyElement: HTMLElement) =>
         bodyElement.classList.contains(classes.screenWeb) ?
