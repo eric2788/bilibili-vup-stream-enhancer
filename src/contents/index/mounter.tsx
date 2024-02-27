@@ -15,6 +15,7 @@ import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
 import { getFullSettingStroage } from "~utils/storage"
 import App from "./App"
 import { memo } from "react"
+import { createOrFindElement } from "~utils/react-node"
 
 interface RootMountable {
     feature: FeatureType
@@ -43,9 +44,7 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
     return Object.entries(features).map(([key, handler]) => {
         const { default: hook, App, FeatureContext: Context } = handler
 
-        const section = document.createElement('section')
-        section.id = `bjf-feature-${key}`
-        rootContainer.appendChild(section)
+        const section = createOrFindElement('section', `bjf-feature-${key}`, rootContainer)
 
         const feature = key as FeatureType
         // this root is feature root
@@ -114,9 +113,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
     const { anchor, OverlayApp, rootContainer } = plasmo
     const mounters = createMountPoints({ rootContainer, anchor, OverlayApp }, info)
 
-    const section = document.createElement('section')
-    section.id = "bjf-root"
-    rootContainer.appendChild(section)
+    const section = createOrFindElement('section', 'bjf-root', rootContainer)
 
     // this root is main root
     let root: Root = null
