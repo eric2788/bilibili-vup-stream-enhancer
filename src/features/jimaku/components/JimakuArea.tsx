@@ -56,7 +56,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
     useEffect(() => {
         // make danmaku chat list peer with video 
-        const chatListArea = document.querySelector('div#aside-area-vm') as HTMLDivElement
+        const chatListArea = document.querySelector(dev.elements.videoArea) as HTMLDivElement
         if (!isTheme) {
             chatListArea.style.marginBottom = `${jimakuStyle.backgroundHeight + 30}px`
         }
