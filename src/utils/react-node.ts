@@ -48,12 +48,12 @@ export function injectScriptElement(code: string, element: Element = document.bo
  * @param parent - The parent element to which the created element will be appended. Defaults to document.body.
  * @returns The created or found HTML element.
  */
-export function createOrFindElement<K extends keyof HTMLElementTagNameMap>(tagName: K, id: string, parent: Element = document.body): HTMLElementTagNameMap[K] {
+export function createOrFindElement<K extends keyof HTMLElementTagNameMap>(tagName: K, id: string, parent: Element = document.documentElement): HTMLElementTagNameMap[K] {
     let element = parent.querySelector(`${tagName}#${id}`) as HTMLElementTagNameMap[K]
     if (!element) {
         element = document.createElement<K>(tagName)
         element.id = id
-        if (parent !== document.body) parent.appendChild(element)
+        if (parent !== document.documentElement) parent.appendChild(element)
     }
     return element
 }
