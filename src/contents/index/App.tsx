@@ -1,7 +1,9 @@
 import { Drawer } from "@material-tailwind/react";
 
 import { useToggle } from "@react-hooks-library/core";
-import { Fragment, useContext } from "react";
+import { Fragment, useContext, useRef } from "react";
+import Tutorial, { type TutorialRefProps, type TutorialStep } from "~components/Tutorial";
+import GenericContext from "~contexts/GenericContext";
 import StreamInfoContext from "~contexts/StreamInfoContexts";
 import { useWebScreenChange } from "~hooks/bilibili";
 import ButtonList from "./components/ButtonList";
@@ -9,6 +11,10 @@ import FloatingMenuButton from "./components/FloatingMenuButtion";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 
+//TODO: add steps
+const steps: Array<TutorialStep> = [
+
+]
 
 function App(): JSX.Element {
 
@@ -37,8 +43,11 @@ function App(): JSX.Element {
     return <></>
   }
 
+  const tutorialRef = useRef<TutorialRefProps>()
+
   return (
     <Fragment>
+      <Tutorial ref={tutorialRef} steps={steps} stateKey="content" />
       <FloatingMenuButton toggle={toggle} />
       <Drawer placement={screenStatus === 'normal' ? 'right' : 'left'} open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
         <main className="flex flex-col justify-between h-full">
@@ -46,7 +55,9 @@ function App(): JSX.Element {
             <Header closeDrawer={closeDrawer} />
             <ButtonList />
           </section>
-          <Footer />
+          <GenericContext.Provider value={tutorialRef}>
+            <Footer />
+          </GenericContext.Provider>
         </main>
       </Drawer>
     </Fragment>

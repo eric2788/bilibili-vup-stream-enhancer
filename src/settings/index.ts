@@ -14,6 +14,7 @@ interface SettingFragment<T extends object> {
     defaultSettings: Readonly<T>
     default: React.FC<StateProxy<T>>
     title: string
+    description: string
 }
 
 export type SettingFragments = typeof fragments

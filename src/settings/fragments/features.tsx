@@ -55,6 +55,12 @@ export const defaultSettings: Readonly<SettingSchema> = {
 
 export const title = '功能设定'
 
+export const description = `
+此设定区块包含了一些功能相关的设定, 你可以在这里控制每个功能的启用/禁用，以及调整每个功能的设定。
+除了功能各自的设定外，还有一些通用的设定，例如启用画中画视窗，仅限虚拟主播等。
+另外每个功能都有一些相同的设定(如启用记录和白名单)，他们都是每个功能必须的东西，且数据并不互通。
+`
+
 function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 
     const checker = useHandler<ChangeEvent<HTMLInputElement>, boolean>((e) => e.target.checked)

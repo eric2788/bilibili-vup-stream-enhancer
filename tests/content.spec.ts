@@ -233,7 +233,7 @@ test('測試底部的按鈕', async ({ content, context }) => {
 
     // TODO: test contribut button
 
-
-    // TODO: test journal button
 })
+
+test.skip('測試导航', async ({ content }) => {})
 

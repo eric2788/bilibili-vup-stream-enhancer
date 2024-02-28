@@ -1,4 +1,4 @@
-import extIcon from 'raw:~assets/icon.png';
+import extIcon from 'raw:assets/icon.png';
 
 
 function FloatingMenuButton({ toggle }: { toggle: VoidFunction }) {
