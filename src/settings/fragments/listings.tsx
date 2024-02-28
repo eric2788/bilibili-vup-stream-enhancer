@@ -36,9 +36,7 @@ const room_headers: TableHeader<{ room: string, addedDate: string }>[] = [
 
 export const title = '名单列表'
 
-export const description = `
-此设定区块包含了一些名单列表相关的设定, 你可以在这里调整各个名单列表。
-`
+export const description = `此设定区块包含了一些名单列表相关的设定, 你可以在这里调整各个名单列表。`
 
 function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 

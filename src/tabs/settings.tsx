@@ -34,15 +34,11 @@ const steps: Array<TutorialStep> = [
         target: '#upper-button-list',
         content: '这里是一些常用的操作按钮。'
     },
-    {
-        target: 'form',
-        content: '以下将逐一详细解释各个设定区块的功能和作用。'
-    },
     ...Object.entries(fragments).map(([key, fragment]) => ({
         target: `section[id='${key}'] > div`,
         title: fragment.title,
-        content: fragment.description
-    })),
+        content: Array.isArray(fragment.description) ? fragment.description.map((desc, i) => <p key={i}>{desc}</p>) : fragment.description
+    }) as TutorialStep),
     {
         target: 'button[type="submit"]',
         content: '当然，别忘了点击此按钮来保存你的设定。'

@@ -5,7 +5,10 @@ import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
 import type { MV2Settings } from '~migrations/schema'
 
-test.beforeEach(async ({ page, extensionId }) => {
+test.beforeEach(async ({ page, extensionId, serviceWorker }) => {
+    await serviceWorker.evaluate(async () => {
+        await chrome.storage.local.set({ 'no_auto_journal.settings': true })
+    })
     await page.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
 })
 

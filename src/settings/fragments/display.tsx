@@ -23,9 +23,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
 
 export const title = '界面按钮显示'
 
-export const description = `
-此设定区块将控制你在主菜单上所显示的按钮，你可以在这里调整各个按钮的显示状态。
-`
+export const description = `此设定区块将控制你在主菜单上所显示的按钮，你可以在这里调整各个按钮的显示状态。`
 
 function DisplaySettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 

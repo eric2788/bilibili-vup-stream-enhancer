@@ -1,53 +1,77 @@
-import { useState, useEffect, forwardRef, useImperativeHandle, type Ref, useRef } from "react"
+import { forwardRef, useEffect, useImperativeHandle, useState, type Ref } from "react"
 import type { Step } from "react-joyride"
+import Joyride, { STATUS, EVENTS } from "react-joyride"
 import { localStorage } from "~utils/storage"
-import Joyride, { type StoreHelpers } from "react-joyride"
 
 export type TutorialStep = Step & {
-    beforeEnter?: () => void
-    beforeLeave?: () => void
+    beforeEnter?: (element: HTMLElement) => void
+    beforeLeave?: (element: HTMLElement) => void
 }
 
 export type TutorialProps = {
     steps: Array<TutorialStep>
-    stateKey: string
+    stateKey?: string
+    zIndex?: number
+    applyGlobalSettings?: (step: TutorialStep) => void
 }
 
 export type TutorialRefProps = {
     start: () => void
     stop: () => void
+    running: boolean
+}
+
+function defaultApplyGlobalSettings(step: TutorialStep) {
+    if (!step.placement) step.placement = 'auto'
 }
 
 function Tutorial(props: TutorialProps, ref: Ref<TutorialRefProps>): JSX.Element {
 
-    const joyRef = useRef<StoreHelpers>()
-    const { steps, stateKey } = props
+    const [run, setRun] = useState(false)
+    const { steps, stateKey, zIndex } = props
 
     useEffect(() => {
+        steps.forEach((step, index) => {
+            if (index === 0) {
+                // auto start
+                step.disableBeacon = true
+            }
+            // apply global settings
+            props.applyGlobalSettings ? props.applyGlobalSettings(step) : defaultApplyGlobalSettings(step)
+        })
+    }, [steps])
+
+    useEffect(() => {
+        if (!stateKey) return
         localStorage.get<boolean>(`no_auto_journal.${stateKey}`)
             .then((noAutoJournal) => {
-                if (noAutoJournal && process.env.NODE_ENV === 'production') return
-                joyRef.current.open()
+                if (noAutoJournal) return
+                setRun(true)
                 return localStorage.set(`no_auto_journal.${stateKey}`, true)
             })
             .catch((err) => console.info(`Error while getting no_auto_journal.${stateKey}`, err))
     }, [])
 
     useImperativeHandle(ref, () => ({
-        start: joyRef.current.open,
-        stop: joyRef.current.close,
-    }))
+        start: () => setRun(true),
+        stop: () => setRun(false),
+        running: run
+    }), [run])
 
     return <Joyride
-        getHelpers={(helpers) => joyRef.current = helpers}
         steps={steps}
-        continuous={true}
-        disableOverlayClose={true}
-        showSkipButton={true}
-        showProgress={true}
+        run={run}
+        continuous
+        scrollToFirstStep
+        hideCloseButton
+        disableCloseOnEsc
+        disableOverlayClose
+        showSkipButton
+        showProgress
         styles={{
             options: {
                 primaryColor: '#a1a1a1',
+                zIndex: zIndex ?? 1000
             },
         }}
         locale={{
@@ -57,13 +81,23 @@ function Tutorial(props: TutorialProps, ref: Ref<TutorialRefProps>): JSX.Element
             next: '下一步',
             skip: '跳过',
         }}
-        callback={({ status, index }) => {
-            if (["skipped", "finished"].includes(status)) {
-                joyRef.current.close()
+        callback={({ status, index, type }) => {
+            const doneStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
+            if (doneStatuses.includes(status)) {
+                setRun(false)
                 return
             }
-            steps[index]?.beforeLeave?.()
-            steps[index + 1]?.beforeEnter?.()
+            if (steps[index]) {
+                const s = steps[index]
+                const element = typeof s.target === 'string' ? document.querySelector(s.target as string) : s.target
+                if (element instanceof HTMLElement) {
+                    if (type === EVENTS.STEP_BEFORE) {
+                        s.beforeEnter?.(element)
+                    } else if (type === EVENTS.STEP_AFTER) {
+                        s.beforeLeave?.(element)
+                    }
+                }
+            }
         }}
     />
 }
