@@ -2,14 +2,14 @@ import { test, expect } from "./fixtures/content";
 import logger from "./helpers/logger";
 import { receiveOneBLiveMessage } from "./utils/bilibili";
 
+
 test('測試主元素是否存在', async ({ content }) => {
 
-    const csui = content.locator('plasmo-csui')
+    const csui = content.locator('bjf-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
     await expect(csui.locator('#bjf-root')).toBeAttached()
 })
-
 
 
 test('測試貼邊浮動按鈕和主菜單區塊是否存在', async ({ content }) => {
@@ -160,7 +160,7 @@ test('測試打开监控式视窗按鈕', async ({ context, tabUrl, content }) =
 
     // media controller
     await expect(monitor.locator('media-controller#bjf-player')).toBeVisible()
-    
+
     await monitor.close()
 })
 
@@ -176,7 +176,7 @@ test('測試大海報房間下返回非海报界面按鈕', async ({ context, th
     await content.getByText('返回非海报界面').click()
     const blanc = await popup
 
-    expect(blanc.url()).toBe('https://live.bilibili.com/blanc/'+room.info.roomid)
+    expect(blanc.url()).toBe('https://live.bilibili.com/blanc/' + room.info.roomid)
 
 })
 
@@ -235,5 +235,5 @@ test('測試底部的按鈕', async ({ content, context }) => {
 
 })
 
-test.skip('測試导航', async ({ content }) => {})
+test.skip('測試导航', async ({ content }) => { })
 

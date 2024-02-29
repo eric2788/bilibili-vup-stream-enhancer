@@ -10,7 +10,7 @@ test.beforeEach(async ({ content: p }) => {
 
 test('測試功能元素是否存在', async ({ content: p }) => {
 
-    const csui = p.locator('plasmo-csui')
+    const csui = p.locator('bjf-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
     await expect(csui.locator('section#bjf-feature-jimaku')).toBeAttached()
@@ -140,6 +140,8 @@ test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, pag
 
     logger.info('正在測試離線記錄...')
     await page.bringToFront()
+    await p.locator('#subtitle-list').waitFor({ state: 'visible' })
+
     const testJimaku = '由 playwright 工具發送'
     await room.sendDanmaku(`【${testJimaku}】`)
     await room.sendDanmaku(`【${testJimaku}】`)

@@ -113,5 +113,5 @@ jobs:
             env:
               NODE_OPTIONS: '--max-old-space-size=6144'
           - name: Print Report URL
-            if: ${{ steps.upload.outcome == 'success' }}
+            if: always() && steps.upload.outcome == 'success'
             run: echo "::notice title=Report URL for ${{ steps.project.outputs.project }}::https://reports.ericlamm.xyz/${{ github.event.repository.name }}/${{ github.run_number }}/${{ steps.project.outputs.project }}/"

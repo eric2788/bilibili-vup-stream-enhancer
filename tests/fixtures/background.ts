@@ -27,12 +27,6 @@ export const test = extensionBase.extend<BackgroundFixtures>({
         await room.enterToRoom(info)
         test.skip(await room.checkIfNotSupport(), '瀏覽器版本過低')
         await use(room)
-    },
-    serviceWorker: async ({ context }, use) => {
-        let [background] = context.serviceWorkers()
-        if (!background)
-            background = await context.waitForEvent('serviceworker')
-        await use(background)
     }
 })
 

@@ -11,7 +11,7 @@ import FloatingMenuButton from "./components/FloatingMenuButtion";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 
-const shadowRoot = () => document.querySelector('bilibili-vup-stream-enhancer').shadowRoot
+const shadowRoot = () => document.querySelector('bjf-csui').shadowRoot
 
 //TODO: add steps
 const steps: Array<TutorialStep> = [
@@ -22,7 +22,7 @@ const steps: Array<TutorialStep> = [
   },
   {
     target: '#bjf-main-menu',
-    content: '此处为主菜单区块，大致分为上方资讯，操作按钮列表以及下方的跳转按钮。',
+    content: '此处为主菜单区块，大致分为上方资讯，全局按钮区块以及底部跳转按钮区块。',
     disableOverlay: true,
     beforeLeave: () => (shadowRoot().querySelector('#bjf-main-menu-button') as HTMLElement).click()
   },
@@ -81,10 +81,6 @@ function App(): JSX.Element {
   const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
   const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
 
-  if (screenStatus !== 'normal' && !displaySettings.supportWebFullScreen) {
-    return <></>
-  }
-
   const tutorialRef = useRef<TutorialRefProps>()
 
   const realSteps = steps.map(step => ({
@@ -92,9 +88,13 @@ function App(): JSX.Element {
     target: typeof step.target === 'string' ? shadowRoot().querySelector(step.target) : step.target
   } as TutorialStep))
 
+  if (screenStatus !== 'normal' && !displaySettings.supportWebFullScreen) {
+    return <></>
+  }
+
   return (
     <Fragment>
-      <Tutorial ref={tutorialRef} steps={realSteps} zIndex={9999} />
+      <Tutorial ref={tutorialRef} stateKey="content" steps={realSteps} noScroll />
       <FloatingMenuButton toggle={toggle} />
       <Drawer id="bjf-main-menu" placement={screenStatus === 'normal' ? 'right' : 'left'} open={open} onClose={closeDrawer} className={`p-4 bg-gray-300 dark:bg-gray-800 shadow-md`}>
         <main className="flex flex-col justify-between h-full">

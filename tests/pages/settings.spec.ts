@@ -5,13 +5,6 @@ import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
 import type { MV2Settings } from '~migrations/schema'
 
-test.beforeEach(async ({ page, extensionId, serviceWorker }) => {
-    await serviceWorker.evaluate(async () => {
-        await chrome.storage.local.set({ 'no_auto_journal.settings': true })
-    })
-    await page.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
-})
-
 test('測試頁面是否成功加載', async ({ settings: page }) => {
     await expect(page.getByText('设定页面')).toBeVisible()
 })
@@ -137,7 +130,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     }
 
     {
-        const superChatSection = p.locator('plasmo-csui section#bjf-feature-superchat')
+        const superChatSection = p.locator('bjf-csui section#bjf-feature-superchat')
         logger.info('正在測試寫入醒目留言...')
         await room.sendSuperChat('用戶1', 1234, testMessage)
         await room.sendSuperChat('用戶2', 5678, testMessage)
@@ -156,7 +149,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     }
 
     {
-        const superChatSection = p.locator('plasmo-csui section#bjf-feature-superchat')
+        const superChatSection = p.locator('bjf-csui section#bjf-feature-superchat')
         logger.info('正在驗證醒目留言有否被離線記錄...')
         await superChatSection.waitFor({ state: 'attached' })
         const superchatList = await getSuperChatList(superChatSection, { hasText: testMessage })
@@ -184,7 +177,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     }
 
     {
-        const superChatSection = p.locator('plasmo-csui section#bjf-feature-superchat')
+        const superChatSection = p.locator('bjf-csui section#bjf-feature-superchat')
         logger.info('正在檢查醒目留言是否被清空...')
         await superChatSection.waitFor({ state: 'attached' })
         const superchatList = await getSuperChatList(superChatSection, { hasText: testMessage })
@@ -193,7 +186,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
 
 })
 
-test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
+test('測試設定數據從MV2遷移', async ({ serviceWorker, settings: page }) => {
 
     logger.info('正在測試寫入 MV2 設定....')
     const mv2Settings = await serviceWorker.evaluate(async () => {
@@ -303,3 +296,6 @@ test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByText('从 MV2 迁移设定')).toBeHidden()
 })
+
+
+test.skip('測試导航', async ({ page }) => {})

@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 
 test('測試功能元素是否存在', async ({ content }) => {
     
-    const csui = content.locator('plasmo-csui')
+    const csui = content.locator('bjf-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
     await expect(csui.locator('section#bjf-feature-superchat')).toBeAttached()
@@ -21,7 +21,7 @@ test('測試功能元素是否存在', async ({ content }) => {
 test('測試浮動按鈕和醒目留言記錄列表是否存在', async ({ content, page }) => {
 
     logger.info('正在測試浮動按鈕是否存在')
-    const section = content.locator('plasmo-csui section#bjf-feature-superchat')
+    const section = content.locator('bjf-csui section#bjf-feature-superchat')
 
     const button = section.locator('button', { hasText: /^醒目留言$/ })
     await expect(button).toBeAttached()
@@ -44,7 +44,7 @@ test('測試浮動按鈕和醒目留言記錄列表是否存在', async ({ conte
 
 test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', async ({ content: p, page, room }) => {
 
-    const section = p.locator('plasmo-csui section#bjf-feature-superchat')
+    const section = p.locator('bjf-csui section#bjf-feature-superchat')
     const button = section.locator('button', { hasText: /^醒目留言$/ })
     await button.click()
 
@@ -86,7 +86,7 @@ test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', asy
 
 test('測試拖拽按鈕', async ({ content }) => {
 
-    const dragPoint = content.locator('plasmo-csui section#bjf-feature-superchat > div > div > div')
+    const dragPoint = content.locator('bjf-csui section#bjf-feature-superchat > div > div')
     const p1 = content.locator('#rank-list-ctnr-box')
     const p2 = content.locator('#head-info-vm')
 
@@ -105,7 +105,7 @@ test('測試拖拽按鈕', async ({ content }) => {
 
 test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUrl, page }) => {
 
-    let section = p.locator('plasmo-csui section#bjf-feature-superchat')
+    let section = p.locator('bjf-csui section#bjf-feature-superchat')
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -132,7 +132,7 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     expect(superchatList.length).toBe(4)
 
     p = await room.reloadAndGetLocator() // reloaded, so need to re get content locator
-    section = p.locator('plasmo-csui section#bjf-feature-superchat')
+    section = p.locator('bjf-csui section#bjf-feature-superchat')
     await section.locator('button', { hasText: /^醒目留言$/ }).waitFor({ state: 'visible' })
 
     superchatList = await getSuperChatList(section, { hasText: testMessage })
@@ -148,7 +148,7 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     await page.bringToFront()
     await room.enterToRoom()
     p = await room.getContentLocator()
-    section = p.locator('plasmo-csui section#bjf-feature-superchat')
+    section = p.locator('bjf-csui section#bjf-feature-superchat')
     superchatList = await getSuperChatList(section, { hasText: testMessage })
     expect(superchatList.length).toBe(0)
 })
@@ -173,7 +173,7 @@ test('測試保存設定後 css 能否生效', async ({ content, page, room, tab
     logger.info('正在測試醒目留言css...')
     await page.bringToFront()
 
-    const button = content.locator('plasmo-csui section#bjf-feature-superchat').locator('button', { hasText: /^醒目留言$/ })
+    const button = content.locator('bjf-csui section#bjf-feature-superchat').locator('button', { hasText: /^醒目留言$/ })
     await expect(button).toHaveCSS('background-color', 'rgb(18, 52, 86)')
     
     await button.click()

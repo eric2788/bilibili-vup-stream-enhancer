@@ -1,15 +1,21 @@
 import type { Page } from "@playwright/test";
-import logger from "./logger";
-import { isClosed, type PageFrame } from "./page-frame";
+import { sendFakeBLiveMessage } from "@tests/utils/bilibili";
 import { randomNumber } from "@tests/utils/misc";
 import type BilbiliApi from "./bilibili-api";
 import type { LiveRoomInfo } from "./bilibili-api";
-import { sendFakeBLiveMessage } from "@tests/utils/bilibili";
+import DismissLoginDialogListener from "./listeners/dismiss-login-dialog-listener";
+import type { PageListener } from "./listeners/type";
+import logger from "./logger";
+import { type PageFrame } from "./page-frame";
+//import DismissUserTutorialListener from "./listeners/dismiss-user-tutorial-listener";
 
 
 export class BilibiliPage implements AsyncDisposable {
 
-    private listener: NodeJS.Timeout | null
+    private readonly listeners: Set<PageListener> = new Set([
+        new DismissLoginDialogListener(),
+        //new DismissUserTutorialListener()
+    ])
 
     constructor(
         public readonly page: Page, 
@@ -25,7 +31,7 @@ export class BilibiliPage implements AsyncDisposable {
         }
         await this.page.goto("https://live.bilibili.com/" + this.info.roomid, { waitUntil: 'domcontentloaded', timeout: 30000 })
         await this.page.waitForTimeout(3000)
-        await this.startDismissLoginDialogListener()
+        await this.startListeners()
     }
 
     async checkIfNotSupport(): Promise<boolean> {
@@ -38,7 +44,7 @@ export class BilibiliPage implements AsyncDisposable {
     }
 
     async isThemePage(): Promise<boolean> {
-        return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.info.roomid}?liteVersion=true` }) !== null
+        return this.page.frame({ url: /^(http)s:\/\/live\.bilibili\.com\/blanc\/(\d+)\?liteVersion=true&live_from=(\d+)/ }) !== null
     }
 
     async getContentLocator(): Promise<PageFrame> {
@@ -46,7 +52,7 @@ export class BilibiliPage implements AsyncDisposable {
         if (isTheme) {
             await this.page.waitForTimeout(700)
             logger.info('returned frame for content locator')
-            return this.page.frame({ url: `https://live.bilibili.com/blanc/${this.info.roomid}?liteVersion=true` })
+            return this.page.frame({ url: /^(http)s:\/\/live\.bilibili\.com\/blanc\/(\d+)\?liteVersion=true&live_from=(\d+)/ })
         }
         logger.info('returned page for content locator')
         return this.page
@@ -134,43 +140,13 @@ export class BilibiliPage implements AsyncDisposable {
     async reloadAndGetLocator(): Promise<PageFrame> {
         await this.page.reload({ waitUntil: 'domcontentloaded' })
         await this.page.waitForTimeout(3000)
-        await this.startDismissLoginDialogListener()
+        await this.startListeners()
         return this.getContentLocator()
     }
 
-    async startDismissLoginDialogListener(): Promise<void> {
-        if (this.listener) {
-            logger.info('cleared last interval')
-            clearInterval(this.listener)
-        }
-        const page = await this.getContentLocator()
-        if (page === null) {
-            logger.warn('page is null, cannot start dismiss login dialog listener')
-            return
-        }
-        // 防止登录弹窗
-        const timeout = setInterval(async () => {
-            try {
-                if (isClosed(page)) {
-                    logger.info('frame/page is closed, dismiss login dialog listener aborted')
-                    clearInterval(timeout)
-                    return
-                }
-                const loginDialogDismissButton = page.locator('body > div.bili-mini-mask > div > div.bili-mini-close-icon')
-                if (await loginDialogDismissButton.isVisible({ timeout: 500 })) {
-                    if (isClosed(page)) {
-                        logger.info('frame/page is closed, dismiss login dialog listener aborted')
-                        clearInterval(timeout)
-                        return
-                    }
-                    await loginDialogDismissButton.click({ timeout: 500, force: true })
-                    logger.debug('dismissed login dialog')
-                }
-            } catch (err) {
-                logger.warn('dismiss login dialog listener error', err)
-            }
-        }, 1000)
-        this.listener = timeout
+    async startListeners(): Promise<void> {
+        const p = await this.getContentLocator()
+        this.listeners.forEach(listener => listener.start(p))
     }
 
     async close() {
@@ -179,7 +155,7 @@ export class BilibiliPage implements AsyncDisposable {
 
     async [Symbol.asyncDispose](): Promise<void> {
         logger.debug('disposing bilibili page')
-        this.listener && clearInterval(this.listener)
+        this.listeners.forEach(listener => listener.stop())
         if (this.page.isClosed()) return
         await this.page.close()
     }

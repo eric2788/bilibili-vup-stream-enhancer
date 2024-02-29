@@ -30,11 +30,11 @@ export const getRootContainer: PlasmoGetRootContainer = async ({ anchor, mountSt
 
   document.querySelectorAll('plasmo-csui').forEach(e => e.remove())
 
-  const shadowHost = findOrCreateElement('bilibili-vup-stream-enhancer')
+  const shadowHost = findOrCreateElement('bjf-csui')
   const shadowRoot = shadowHost.attachShadow({ mode: 'open' })
   const shadowContainer = document.createElement('div')
   shadowContainer.id = 'bjf-container'
-  shadowContainer.style.zIndex = '1000'
+  shadowContainer.style.zIndex = '3000'
   shadowContainer.style.position = 'relative'
   shadowRoot.prepend(await getStyle({ ...anchor, sfcStyleContent: "" }))
   shadowRoot.appendChild(shadowContainer)

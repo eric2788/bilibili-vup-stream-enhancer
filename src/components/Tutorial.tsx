@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useState, type Ref } from "react"
 import type { Step } from "react-joyride"
 import Joyride, { STATUS, EVENTS } from "react-joyride"
+import { isThemePage } from "~utils/bilibili"
 import { localStorage } from "~utils/storage"
 
 export type TutorialStep = Step & {
@@ -12,6 +13,7 @@ export type TutorialProps = {
     steps: Array<TutorialStep>
     stateKey?: string
     zIndex?: number
+    noScroll?: boolean
     applyGlobalSettings?: (step: TutorialStep) => void
 }
 
@@ -28,7 +30,7 @@ function defaultApplyGlobalSettings(step: TutorialStep) {
 function Tutorial(props: TutorialProps, ref: Ref<TutorialRefProps>): JSX.Element {
 
     const [run, setRun] = useState(false)
-    const { steps, stateKey, zIndex } = props
+    const { steps, stateKey, zIndex, noScroll } = props
 
     useEffect(() => {
         steps.forEach((step, index) => {
@@ -45,11 +47,11 @@ function Tutorial(props: TutorialProps, ref: Ref<TutorialRefProps>): JSX.Element
         if (!stateKey) return
         localStorage.get<boolean>(`no_auto_journal.${stateKey}`)
             .then((noAutoJournal) => {
-                if (noAutoJournal) return
+                if (noAutoJournal || isThemePage()) return
                 setRun(true)
                 return localStorage.set(`no_auto_journal.${stateKey}`, true)
             })
-            .catch((err) => console.info(`Error while getting no_auto_journal.${stateKey}`, err))
+            .catch((err) => console.error(`Error while getting no_auto_journal.${stateKey}`, err))
     }, [])
 
     useImperativeHandle(ref, () => ({
@@ -67,11 +69,22 @@ function Tutorial(props: TutorialProps, ref: Ref<TutorialRefProps>): JSX.Element
         disableCloseOnEsc
         disableOverlayClose
         showSkipButton
+        disableScrolling={noScroll ?? false}
         showProgress
+        floaterProps={{
+            styles: {
+                wrapper: {
+                    zIndex: zIndex ?? 5000
+                },
+                options: {
+                    zIndex: zIndex ?? 5000
+                }
+            }
+        }}
         styles={{
             options: {
                 primaryColor: '#a1a1a1',
-                zIndex: zIndex ?? 1000
+                zIndex: zIndex ?? 5000
             },
         }}
         locale={{
