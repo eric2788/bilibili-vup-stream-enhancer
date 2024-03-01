@@ -7,14 +7,11 @@ import DismissLoginDialogListener from "./listeners/dismiss-login-dialog-listene
 import type { PageListener } from "./listeners/type";
 import logger from "./logger";
 import { type PageFrame } from "./page-frame";
-//import DismissUserTutorialListener from "./listeners/dismiss-user-tutorial-listener";
-
 
 export class BilibiliPage implements AsyncDisposable {
 
     private readonly listeners: Set<PageListener> = new Set([
         new DismissLoginDialogListener(),
-        //new DismissUserTutorialListener()
     ])
 
     constructor(

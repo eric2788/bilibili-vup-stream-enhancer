@@ -283,6 +283,7 @@ async function ensureButtonListVisible(p: PageFrame) {
 
 async function getButtonList(content: PageFrame): Promise<Locator[]> {
     await ensureButtonListVisible(content)
+    await content.locator('#jimaku-area').waitFor({ state: 'visible' })
     const main = await content.locator('#jimaku-area div > div > div:nth-child(3) > button').all()
     const theme = content.locator('#jimaku-area > div > div > div > button').all()
     return main.length ? main : await theme

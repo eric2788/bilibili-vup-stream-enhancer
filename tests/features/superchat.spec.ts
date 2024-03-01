@@ -174,6 +174,7 @@ test('測試保存設定後 css 能否生效', async ({ content, page, room, tab
     await page.bringToFront()
 
     const button = content.locator('bjf-csui section#bjf-feature-superchat').locator('button', { hasText: /^醒目留言$/ })
+    await button.waitFor({ state: 'visible' })
     await expect(button).toHaveCSS('background-color', 'rgb(18, 52, 86)')
     
     await button.click()
