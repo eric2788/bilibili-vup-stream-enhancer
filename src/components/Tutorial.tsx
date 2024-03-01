@@ -47,7 +47,7 @@ function Tutorial(props: TutorialProps, ref: Ref<TutorialRefProps>): JSX.Element
         if (!stateKey) return
         localStorage.get<boolean>(`no_auto_journal.${stateKey}`)
             .then((noAutoJournal) => {
-                if (noAutoJournal || isThemePage()) return
+                if (noAutoJournal) return
                 setRun(true)
                 return localStorage.set(`no_auto_journal.${stateKey}`, true)
             })
