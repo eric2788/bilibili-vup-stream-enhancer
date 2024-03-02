@@ -95,8 +95,7 @@ jobs:
                   playwright-report/
                 if-no-files-found: ignore
           - name: Upload Results To R2
-            # if: ${{ failure() && steps.test.conclusion == 'failure' }}
-            if: always() # 暫時 always
+            if: ${{ failure() && steps.test.conclusion == 'failure' }}
             uses: eric2788/r2-upload-action@master
             id: upload
             continue-on-error: true
@@ -113,5 +112,5 @@ jobs:
             env:
               NODE_OPTIONS: '--max-old-space-size=6144'
           - name: Print Report URL
-            if: always() && steps.upload.outcome == 'success'
+            if: failure() && steps.upload.outcome == 'success'
             run: echo "::notice title=Report URL for ${{ steps.project.outputs.project }}::https://reports.ericlamm.xyz/${{ github.event.repository.name }}/${{ github.run_number }}/${{ steps.project.outputs.project }}/"
