@@ -275,7 +275,8 @@ test('測試大海報房間下字幕區塊是否存在', async ({ themeRoom }) =
 
 async function ensureButtonListVisible(p: PageFrame) {
     if (isFrame(p) && !await p.getByText('删除所有字幕记录').isVisible()) {
-        await p.evaluate(() => window.document.querySelector('#bjf-toaster > div')?.remove()) // 防止 toaster 遲遲不消失
+        // 防止 toaster 遲遲不消失
+        await p.evaluate(() => window.document.querySelector('#bjf-toaster li[data-y-position="top"][data-x-position="left"]')?.remove())
         await p.getByText('切换字幕按钮列表').click({ timeout: 120000 })
         await p.waitForTimeout(2000)
     }

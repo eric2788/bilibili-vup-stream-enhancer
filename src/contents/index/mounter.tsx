@@ -152,7 +152,8 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
                 toast.promise(hooking, {
                     loading: '正在挂接直播监听...',
                     success: '挂接成功',
-                    position: 'top-left'
+                    position: 'top-left',
+                    duration: 4000,
                 })
                 try {
                     await hooking

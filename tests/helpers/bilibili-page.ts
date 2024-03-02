@@ -33,7 +33,7 @@ export class BilibiliPage implements AsyncDisposable {
 
     async checkIfNotSupport(): Promise<boolean> {
         const p = await this.getContentLocator()
-        return await p.getByText('您使用的浏览器版本偏低，为保障您的直播观看体验').isVisible()
+        return await p.getByText('您使用的浏览器版本偏低').isVisible()
     }
 
     async isStatus(status: 'online' | 'offline'): Promise<boolean> {

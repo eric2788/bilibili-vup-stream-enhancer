@@ -32,6 +32,10 @@ export function env<T>(name: string, convert: (s: string) => T): T {
     return convert(value)
 }
 
+export function envStr(name: string): string {
+    return env(name, String)
+}
+
 export function envInt(name: string): number {
     return env(name, Number)
 }
