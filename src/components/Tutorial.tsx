@@ -1,7 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useState, type Ref } from "react"
 import type { Step } from "react-joyride"
-import Joyride, { STATUS, EVENTS } from "react-joyride"
-import { isThemePage } from "~utils/bilibili"
+import Joyride, { EVENTS, STATUS } from "react-joyride"
 import { localStorage } from "~utils/storage"
 
 export type TutorialStep = Step & {

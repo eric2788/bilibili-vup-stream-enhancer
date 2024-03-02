@@ -36,7 +36,7 @@ export default defineConfig<GlobalOptions>({
     // baseURL: 'http://127.0.0.1:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on', // 暫時 on, 之後改成 on-all-retries
+    trace: 'on-all-retries',
     screenshot: 'on',
     video: {
       mode: 'retain-on-failure',
