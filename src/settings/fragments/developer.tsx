@@ -59,6 +59,11 @@ export const defaultSettings: Readonly<SettingSchema> = {
 
 export const title = '开发者相关'
 
+export const description = [
+    '此设定区块是控制抓取元素的设定，这里的默认数值都是针对当前版本的B站页面。',
+    '若B站页面发生改版, 本扩展将无法抓取元素致无法运作。除了等待本扩展的修复版本更新外, 有JS开发经验的用户可以自行修改此区块的数值以适应新版面。',
+    '至于没有JS开发经验的用户，则尽量不要碰这里的设定，否则有可能导致扩展无法正常运作。'
+]
 
 type ElementDefiner = {
     label: string

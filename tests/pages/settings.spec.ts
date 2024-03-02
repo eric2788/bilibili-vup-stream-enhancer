@@ -5,10 +5,6 @@ import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
 import type { MV2Settings } from '~migrations/schema'
 
-test.beforeEach(async ({ page, extensionId }) => {
-    await page.goto(`chrome-extension://${extensionId}/tabs/settings.html`, { waitUntil: 'domcontentloaded' })
-})
-
 test('測試頁面是否成功加載', async ({ settings: page }) => {
     await expect(page.getByText('设定页面')).toBeVisible()
 })
@@ -134,7 +130,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     }
 
     {
-        const superChatSection = p.locator('plasmo-csui section#bjf-feature-superchat')
+        const superChatSection = p.locator('bjf-csui section#bjf-feature-superchat')
         logger.info('正在測試寫入醒目留言...')
         await room.sendSuperChat('用戶1', 1234, testMessage)
         await room.sendSuperChat('用戶2', 5678, testMessage)
@@ -153,7 +149,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     }
 
     {
-        const superChatSection = p.locator('plasmo-csui section#bjf-feature-superchat')
+        const superChatSection = p.locator('bjf-csui section#bjf-feature-superchat')
         logger.info('正在驗證醒目留言有否被離線記錄...')
         await superChatSection.waitFor({ state: 'attached' })
         const superchatList = await getSuperChatList(superChatSection, { hasText: testMessage })
@@ -181,7 +177,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
     }
 
     {
-        const superChatSection = p.locator('plasmo-csui section#bjf-feature-superchat')
+        const superChatSection = p.locator('bjf-csui section#bjf-feature-superchat')
         logger.info('正在檢查醒目留言是否被清空...')
         await superChatSection.waitFor({ state: 'attached' })
         const superchatList = await getSuperChatList(superChatSection, { hasText: testMessage })
@@ -190,7 +186,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
 
 })
 
-test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
+test('測試設定數據從MV2遷移', async ({ serviceWorker, settings: page }) => {
 
     logger.info('正在測試寫入 MV2 設定....')
     const mv2Settings = await serviceWorker.evaluate(async () => {
@@ -299,4 +295,57 @@ test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
     }, mv2Settings)
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByText('从 MV2 迁移设定')).toBeHidden()
+})
+
+
+test('測試导航', async ({ settings: page, serviceWorker }) => {
+
+    const overlay = page.locator('.react-joyride__overlay')
+
+    const button = page.getByTitle('使用导航')
+    await expect(button).toBeVisible()
+    await button.click()
+    await page.waitForTimeout(500)
+    await expect(overlay).toBeVisible()
+
+    logger.info('正在測試導航前向...')
+
+    const next = page.getByText('下一步')
+    const previous = page.getByText('上一步')
+    const skip = page.getByText('跳过')
+    const finish = page.getByText('完成')
+
+    while(await next.isVisible()) {
+        await next.click()
+        await page.waitForTimeout(100)
+    }
+
+    await expect(finish).toBeVisible()
+    await finish.click()
+
+    logger.info('正在測試導航返回...')
+    await button.click()
+
+    if (await next.isVisible()) {
+        await next.click()
+        await expect(previous).toBeVisible()
+        await previous.click()
+    }
+
+    logger.info('正在測試導航跳過...')
+
+    await expect(skip).toBeVisible()
+    await skip.click()
+
+    await expect(overlay).toBeHidden()
+
+    logger.info('正在測試默認啓用自動導航...')
+
+    {
+        await serviceWorker.evaluate(async () => {
+            await chrome.storage.local.remove('no_auto_journal.settings')
+        })
+        await page.reload()
+        await expect(overlay).toBeVisible()
+    }
 })
