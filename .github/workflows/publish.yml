@@ -1,6 +1,11 @@
 name: Publish Extensions
 on:
     workflow_dispatch:
+      inputs:
+        dry-run:
+          description: 'dry run mode, will upload to the store but not publish and turn on verbose logging'
+          required: false
+          default: 'true'
 
 jobs:
     build:
@@ -41,4 +46,24 @@ jobs:
             - name: Browser Platform Publish
               uses: PlasmoHQ/bpp@v3
               with:
-                keys: ${{ secrets.SUBMIT_KEYS }}
+                verbose: ${{ inputs.dry-run }}
+                keys: |
+                  {
+                    "$schema": "https://raw.githubusercontent.com/plasmo-corp/bpp/v3/keys.schema.json",
+                    "chrome": {
+                      "zip": "build/chrome-mv3.zip",
+                      "clientId": "${{ secrets.CHROME_CLIENT_ID }}",
+                      "clientSecret": "${{ secrets.CHROME_CLIENT_SECRET }}",
+                      "refreshToken": "${{ secrets.CHROME_REFRESH_TOKEN }}",
+                      "extId": "nhomlepkjglilcahfcfnggebkaabeiog",
+                      "uploadOnly": ${{ inputs.dry-run }}
+                    },
+                    "edge": {
+                      "zip": "build/edge-mv3.zip",
+                      "clientId": "${{ secrets.EDGE_CLIENT_ID }}",
+                      "clientSecret": "${{ secrets.EDGE_CLIENT_SECRET}}",
+                      "productId": "${{ secrets.EDGE_PRODUCT_ID }}",
+                      "accessTokenUrl": "${{ secrets.EDGE_ACCESS_TOKEN_URL }}",
+                      "uploadOnly": ${{ inputs.dry-run }}
+                    }
+                  }
