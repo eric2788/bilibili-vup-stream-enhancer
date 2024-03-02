@@ -2,14 +2,14 @@ import { test, expect } from "./fixtures/content";
 import logger from "./helpers/logger";
 import { receiveOneBLiveMessage } from "./utils/bilibili";
 
+
 test('測試主元素是否存在', async ({ content }) => {
 
-    const csui = content.locator('plasmo-csui')
+    const csui = content.locator('bjf-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
     await expect(csui.locator('#bjf-root')).toBeAttached()
 })
-
 
 
 test('測試貼邊浮動按鈕和主菜單區塊是否存在', async ({ content }) => {
@@ -82,7 +82,7 @@ test('測試名單列表(黑名單/白名單)', async ({ context, content, tabUr
 test('測試进入设置按鈕', async ({ context, content, tabUrl }) => {
 
     await content.getByText('功能菜单').click()
-    await content.waitForTimeout(2000)
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
 
     const popup = context.waitForEvent('page', { predicate: p => p.url().includes('settings.html') })
     await content.getByText('进入设置').click()
@@ -97,7 +97,7 @@ test('測試进入设置按鈕', async ({ context, content, tabUrl }) => {
 test('測試添加到黑名单按鈕', async ({ content, page, room }) => {
 
     await content.getByText('功能菜单').click()
-    await content.waitForTimeout(2000)
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
     page.once('dialog', d => d.accept())
     await content.getByText('添加到黑名单').click()
 
@@ -145,7 +145,7 @@ test('測試打开监控式视窗按鈕', async ({ context, tabUrl, content }) =
     await settingsPage.close()
 
     await content.getByText('功能菜单').click()
-    await content.waitForTimeout(2000)
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
 
     const popup = context.waitForEvent('page', { predicate: p => p.url().includes('stream.html') })
     await content.getByText('打开监控式视窗').click()
@@ -160,7 +160,7 @@ test('測試打开监控式视窗按鈕', async ({ context, tabUrl, content }) =
 
     // media controller
     await expect(monitor.locator('media-controller#bjf-player')).toBeVisible()
-    
+
     await monitor.close()
 })
 
@@ -171,12 +171,12 @@ test('測試大海報房間下返回非海报界面按鈕', async ({ context, th
     await content.locator('body').scrollIntoViewIfNeeded()
 
     await content.getByText('功能菜单').click()
-    await content.waitForTimeout(2000)
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
     const popup = context.waitForEvent('page', { predicate: p => p.url().includes('/blanc') })
     await content.getByText('返回非海报界面').click()
     const blanc = await popup
 
-    expect(blanc.url()).toBe('https://live.bilibili.com/blanc/'+room.info.roomid)
+    expect(blanc.url()).toBe('https://live.bilibili.com/blanc/' + room.info.roomid)
 
 })
 
@@ -213,7 +213,7 @@ test('測試底部的按鈕', async ({ content, context }) => {
     const button = content.getByText('功能菜单')
 
     await button.click()
-    await content.waitForTimeout(1500)
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
     let popup = context.waitForEvent('page', { predicate: p => p.url().includes('github.com') })
     await content.getByTitle('查看源代码').click()
     const p1 = await popup
@@ -233,7 +233,64 @@ test('測試底部的按鈕', async ({ content, context }) => {
 
     // TODO: test contribut button
 
+})
 
-    // TODO: test journal button
+test('測試导航', async ({ room, content, serviceWorker }) => { 
+
+    const overlay = content.locator('.react-joyride__overlay')
+
+    const menuButton = content.getByText('功能菜单')
+    await menuButton.click()
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
+
+    const button = content.getByTitle('使用导航')
+    await expect(button).toBeVisible()
+    await button.click()
+    await content.waitForTimeout(500)
+    await expect(overlay).toBeVisible()
+
+    logger.info('正在測試導航前向...')
+
+    const next = content.getByText('下一步')
+    const previous = content.getByText('上一步')
+    const skip = content.getByText('跳过')
+    const finish = content.getByText('完成')
+
+    while(await next.isVisible()) {
+        await next.click()
+        await content.waitForTimeout(100)
+    }
+
+    await expect(finish).toBeVisible()
+    await finish.click()
+
+    logger.info('正在測試導航返回...')
+    await menuButton.click()
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
+    await button.click()
+
+    if (await next.isVisible()) {
+        await next.click()
+        await expect(previous).toBeVisible()
+        await previous.click()
+    }
+
+    logger.info('正在測試導航跳過...')
+
+    await expect(skip).toBeVisible()
+    await skip.click()
+
+    await expect(overlay).toBeHidden()
+
+    logger.info('正在測試默認啓用自動導航...')
+
+    {
+        await serviceWorker.evaluate(async () => {
+            await chrome.storage.local.remove('no_auto_journal.content')
+        })
+        const content = await room.reloadAndGetLocator()
+        await expect(content.locator('.react-joyride__overlay')).toBeVisible()
+    }
+
 })
 

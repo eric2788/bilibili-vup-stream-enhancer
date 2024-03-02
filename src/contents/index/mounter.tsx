@@ -15,7 +15,7 @@ import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
 import { getFullSettingStroage } from "~utils/storage"
 import App from "./App"
 import { memo } from "react"
-import { createOrFindElement } from "~utils/react-node"
+import { findOrCreateElement } from "~utils/react-node"
 
 interface RootMountable {
     feature: FeatureType
@@ -25,9 +25,6 @@ interface RootMountable {
 
 interface PlasmoSpec {
     rootContainer: Element
-    anchor: PlasmoCSUIAnchor
-    OverlayApp?: any
-    InlineApp?: any
 }
 
 
@@ -39,12 +36,12 @@ interface App {
 // createMountPoints will not start or the stop the app
 function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[] {
 
-    const { rootContainer, OverlayApp, anchor } = plasmo
+    const { rootContainer } = plasmo
 
     return Object.entries(features).map(([key, handler]) => {
         const { default: hook, App, FeatureContext: Context } = handler
 
-        const section = createOrFindElement('section', `bjf-feature-${key}`, rootContainer)
+        const section = findOrCreateElement('section', `bjf-feature-${key}`, rootContainer)
 
         const feature = key as FeatureType
         // this root is feature root
@@ -83,16 +80,14 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
 
                 root = createRoot(section)
                 root.render(
-                    <OverlayApp anchor={anchor}>
-                        <BLiveThemeProvider element={section}>
-                            <StreamInfoContext.Provider value={{ settings, info }}>
-                                <FeatureContextProvider context={Context} value={settings['settings.features'][feature]}>
-                                    {App && <App />}
-                                    {portals}
-                                </FeatureContextProvider>
-                            </StreamInfoContext.Provider>
-                        </BLiveThemeProvider>
-                    </OverlayApp>
+                    <BLiveThemeProvider element={section}>
+                        <StreamInfoContext.Provider value={{ settings, info }}>
+                            <FeatureContextProvider context={Context} value={settings['settings.features'][feature]}>
+                                {App && <App />}
+                                {portals}
+                            </FeatureContextProvider>
+                        </StreamInfoContext.Provider>
+                    </BLiveThemeProvider>
                 )
             },
             unmount: async () => {
@@ -110,10 +105,10 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
 
 function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
-    const { anchor, OverlayApp, rootContainer } = plasmo
-    const mounters = createMountPoints({ rootContainer, anchor, OverlayApp }, info)
+    const { rootContainer } = plasmo
+    const mounters = createMountPoints({ rootContainer }, info)
 
-    const section = createOrFindElement('section', 'bjf-root', rootContainer)
+    const section = findOrCreateElement('section', 'bjf-root', rootContainer)
 
     // this root is main root
     let root: Root = null
@@ -185,13 +180,11 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             root = createRoot(section)
             console.info('開始渲染主元素....')
             root.render(
-                <OverlayApp anchor={anchor}>
-                    <BLiveThemeProvider element={section}>
-                        <StreamInfoContext.Provider value={{ settings, info }}>
-                            <App />
-                        </StreamInfoContext.Provider>
-                    </BLiveThemeProvider>
-                </OverlayApp>
+                <BLiveThemeProvider element={section}>
+                    <StreamInfoContext.Provider value={{ settings, info }}>
+                        <App />
+                    </StreamInfoContext.Provider>
+                </BLiveThemeProvider>
             )
             console.info('渲染主元素完成')
 

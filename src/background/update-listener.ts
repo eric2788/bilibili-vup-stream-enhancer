@@ -1,5 +1,5 @@
 
-import storage from '~utils/storage'
+import storage, { localStorage } from '~utils/storage'
 import { sendInternal } from './messages'
 import { notifyUpdate } from './messages/check-update'
 import { type MV2Settings } from '~migrations/schema'
@@ -34,7 +34,7 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
             message: `已更新到版本 v${version}`,
         })
 
-        const lastVersion = (await storage.get('last_version')) ?? '0.12.4'
+        const lastVersion = (await localStorage.get('last_version')) ?? '0.12.4'
         const mv2 = await storage.get<MV2Settings>('settings')
         if (mv2 && semver.lt(lastVersion, '2.0.0')) {
             try {
@@ -52,7 +52,7 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
         }
     }
 
-    await storage.set('last_version', version)
+    await localStorage.set('last_version', version)
 
 })
 

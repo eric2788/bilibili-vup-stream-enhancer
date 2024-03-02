@@ -1,4 +1,4 @@
-import { test as base, chromium, expect, type BrowserContext } from '@playwright/test'
+import { test as base, chromium, expect, type BrowserContext, type Worker } from '@playwright/test'
 import BilbiliApi, { type LiveRoomInfo } from '@tests/helpers/bilibili-api'
 import logger from '@tests/helpers/logger'
 import RoomTypeFinder from '@tests/helpers/room-finder'
@@ -15,6 +15,7 @@ export type ExtensionFixture = {
     context: BrowserContext
     extensionId: string
     tabUrl: (tab: string) => string
+    serviceWorker: Worker
 }
 
 export type ExtensionWorkerFixture = {
@@ -47,7 +48,7 @@ export const extensionBase = base.extend<ExtensionFixture, ExtensionOptions & Ex
         },
         { scope: 'worker', timeout: 0 }
     ],
-    
+
     context: async ({ }, use) => {
         const pathToExtension = path.join(__dirname, '../../build/extension')
         const context = await chromium.launchPersistentContext('', {
@@ -62,12 +63,8 @@ export const extensionBase = base.extend<ExtensionFixture, ExtensionOptions & Ex
         await use(context);
         await context.close();
     },
-    extensionId: async ({ context }, use) => {
-        let [background] = context.serviceWorkers()
-        if (!background)
-            background = await context.waitForEvent('serviceworker')
-
-        const extensionId = background.url().split('/')[2]
+    extensionId: async ({ serviceWorker }, use) => {
+        const extensionId = serviceWorker.url().split('/')[2]
         logger.info(`using extension id: ${extensionId}`)
         await use(extensionId);
     },
@@ -90,5 +87,33 @@ export const extensionBase = base.extend<ExtensionFixture, ExtensionOptions & Ex
     ],
     tabUrl: async ({ extensionId }, use) => {
         await use((tab: string) => `chrome-extension://${extensionId}/tabs/${tab}`)
-    }
+    },
+    serviceWorker: [
+        async ({ context }, use) => {
+            logger.info('total service workers: ', context.serviceWorkers().length)
+            let [background] = context.serviceWorkers()
+            if (!background) {
+                logger.info('cannot find background, waiting for service worker')
+                background = await context.waitForEvent('serviceworker', {
+                    predicate: sw => sw.url().includes('chrome-extension')
+                })
+                logger.info('found service worker: ', background.url())
+            }
+    
+            // 預先關閉自動用戶導航
+            const page = await context.newPage()
+            await page.goto(background.url())
+            await page.evaluate(async () => {
+                await chrome.storage.local.set({
+                    'no_auto_journal.settings': true,
+                    'no_auto_journal.content': true,
+                })
+            })
+            logger.info('已關閉自動用戶導航')
+            await page.close()
+    
+            await use(background)
+        },
+        { auto: true }
+    ]
 })

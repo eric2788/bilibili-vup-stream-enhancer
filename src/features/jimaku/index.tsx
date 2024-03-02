@@ -11,7 +11,7 @@ import { parseJimaku } from "~utils/bilibili";
 import { retryCatcher } from "~utils/fetch";
 import type { FeatureHookRender } from "..";
 import JimakuCaptureLayer from './components/JimakuCaptureLayer';
-import { createOrFindElement } from '~utils/react-node';
+import { findOrCreateElement } from '~utils/react-node';
 
 
 function warnIfAdaptive() {
@@ -86,7 +86,7 @@ const handler: FeatureHookRender = async (settings, info) => {
     const { backgroundListColor } = buttonSettings
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
-    const jimakuArea = createOrFindElement('div', 'jimaku-area')
+    const jimakuArea = findOrCreateElement('div', 'jimaku-area')
     playerSection.insertAdjacentElement('afterend', jimakuArea)
 
     // 自動過濾國V功能僅限在同傳字幕過濾生效

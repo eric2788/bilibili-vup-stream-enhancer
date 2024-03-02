@@ -20,6 +20,11 @@ export const defaultSettings: Readonly<SettingSchema> = {
 
 export const title = '捕捉机制相关'
 
+export const description = [
+    '此设定区块包含了一些捕捉机制相关的设定, 你可以在这里调整一些捕捉机制的设定。',
+    '在正常情况下请尽量使用 WebSocket 挂接, 捕捉元素仅作为备用方案。'
+]
+
 function CaptureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 
     const boolHandler = useHandler<ChangeEvent<HTMLInputElement>, boolean>(e => e.target.checked)
