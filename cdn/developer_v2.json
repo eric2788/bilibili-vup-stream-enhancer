@@ -1,0 +1,27 @@
+{
+    "developer": {
+        "elements": {
+            "upperButtonArea": ".lower-row .left-ctnr",
+            "webPlayer": ".web-player-danmaku",
+            "danmakuArea": ".danmaku-item-container",
+            "userName": ".room-owner-username",
+            "jimakuArea": "div.player-section",
+            "jimakuFullArea": ".web-player-inject-wrap",
+            "videoArea": "div#aside-area-vm",
+            "liveTitle": ".live-skin-main-text.small-title",
+            "chatItems": "#chat-items",
+            "newMsgButton": "div#danmaku-buffer-prompt",
+            "upperInputArea": ".control-panel-icon-row .icon-left-part",
+            "liveReplay": ".web-player-round-title",
+            "liveIdle": ".web-player-ending-panel"
+        },
+        "classes": {
+            "screenWeb": "player-full-win",
+            "screenFull": "fullscreen-fix"
+        },
+        "attr": {
+            "chatUserId": "data-uid",
+            "chatDanmaku": "data-danmaku"
+        }
+    }
+}
