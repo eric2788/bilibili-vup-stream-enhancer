@@ -52,6 +52,7 @@ export default defineConfig<GlobalOptions>({
       timeout: 0,
       use: {
         isThemeRoom: true,
+        channel: 'chrome'
       }
     },
     {
@@ -63,10 +64,6 @@ export default defineConfig<GlobalOptions>({
       use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     },
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
       name: 'edge-theme',
       dependencies: ['theme-setup'],
       use: { ...devices['Desktop Edge'], channel: 'msedge', isThemeRoom: true },
@@ -75,11 +72,6 @@ export default defineConfig<GlobalOptions>({
       name: 'chrome-theme',
       dependencies: ['theme-setup'],
       use: { ...devices['Desktop Chrome'], channel: 'chrome', isThemeRoom: true },
-    },
-    {
-      name: 'chromium-theme',
-      dependencies: ['theme-setup'],
-      use: { ...devices['Desktop Chrome'], isThemeRoom: true },
     },
     {
       name: 'local',

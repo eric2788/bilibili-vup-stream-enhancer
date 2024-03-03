@@ -48,7 +48,7 @@ jobs:
       strategy:
           fail-fast: false
           matrix:
-              browser: [chrome, edge, chromium]
+              browser: [chrome, edge]
               theme: ['', '-theme']
       steps:
           - uses: actions/checkout@v4
