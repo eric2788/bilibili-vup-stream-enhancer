@@ -6,6 +6,12 @@ on:
           - 'develop'
           - 'hotfix/**'
           - 'feature/**'
+        paths:
+          - 'src/**'
+          - 'test/**'
+          - 'playwright.config.ts'
+          - 'pnpm-lock.yaml'
+          - '.github/workflows/build-test.yml'
     pull_request:
         branches: [develop]
     workflow_dispatch:
