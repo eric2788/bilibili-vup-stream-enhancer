@@ -3,9 +3,10 @@ on:
     workflow_dispatch:
       inputs:
         dry-run:
-          description: 'dry run mode, will upload to the store but not publish and turn on verbose logging'
+          description: 'dry run mode, will upload to the store but not publish'
+          type: boolean
           required: false
-          default: 'true'
+          default: true
 
 jobs:
     build:
@@ -24,46 +25,44 @@ jobs:
                   node-version: 20
                   cache: 'pnpm'
             - name: Install dependencies
-              run: pnpm install
+              run: pnpm install --frozen-lockfile
             - name: Build And Package Extensions
               run: pnpm build --zip --target=${{ matrix.browser }}-mv3
-            # upload to github artifacts for each browser with matrix
             - name: Upload to GitHub Artifacts
               uses: actions/upload-artifact@v4
               with:
                   name: ${{ matrix.browser }}-mv3.zip
                   path: build/
-    publish:
+    publish-chrome:
         runs-on: ubuntu-latest
         needs: build
         steps:
-            # download artifacts
             - name: Download Artifacts
               uses: actions/download-artifact@v4
               with:
                   path: build/
-            # publish with BPP
-            - name: Browser Platform Publish
-              uses: PlasmoHQ/bpp@v3
+            - name: Upload & release
+              uses: mnao305/chrome-extension-upload@v5.0.0
               with:
-                verbose: ${{ inputs.dry-run }}
-                keys: |
-                  {
-                    "$schema": "https://raw.githubusercontent.com/plasmo-corp/bpp/v3/keys.schema.json",
-                    "chrome": {
-                      "zip": "build/chrome-mv3.zip",
-                      "clientId": "${{ secrets.CHROME_CLIENT_ID }}",
-                      "clientSecret": "${{ secrets.CHROME_CLIENT_SECRET }}",
-                      "refreshToken": "${{ secrets.CHROME_REFRESH_TOKEN }}",
-                      "extId": "nhomlepkjglilcahfcfnggebkaabeiog",
-                      "uploadOnly": ${{ inputs.dry-run }}
-                    },
-                    "edge": {
-                      "zip": "build/edge-mv3.zip",
-                      "clientId": "${{ secrets.EDGE_CLIENT_ID }}",
-                      "clientSecret": "${{ secrets.EDGE_CLIENT_SECRET}}",
-                      "productId": "${{ secrets.EDGE_PRODUCT_ID }}",
-                      "accessTokenUrl": "${{ secrets.EDGE_ACCESS_TOKEN_URL }}",
-                      "uploadOnly": ${{ inputs.dry-run }}
-                    }
-                  }
+                file-path: build/chrome-mv3.zip
+                extension-id: nhomlepkjglilcahfcfnggebkaabeiog
+                client-id: ${{ secrets.CHROME_CLIENT_ID }}
+                client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+                refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+                publish: ${{ !inputs.dry-run }}
+    publish-edge:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - name: Download Artifacts
+              uses: actions/download-artifact@v4
+              with:
+                path: build/
+            - uses: wdzeng/edge-addon@v1
+              with:
+                product-id: ${{ secrets.EDGE_PRODUCT_ID }}
+                zip-path: build/edge-mv3.zip
+                client-id: ${{ secrets.EDGE_CLIENT_ID }}
+                client-secret: ${{ secrets.EDGE_CLIENT_SECRET }}
+                access-token-url: ${{ secrets.EDGE_ACCESS_TOKEN_URL }}
+                upload-only: ${{ inputs.dry-run }}

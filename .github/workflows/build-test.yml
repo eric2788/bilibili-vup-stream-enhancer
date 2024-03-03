@@ -33,7 +33,7 @@ jobs:
                   node-version: 20
                   cache: 'pnpm'
             - name: Install dependencies
-              run: pnpm install
+              run: pnpm install --frozen-lockfile
             - name: Build And Package Extensions
               run: pnpm build --zip --target=${{ matrix.browser }}-mv3
             # upload to github artifacts for each browser with matrix
