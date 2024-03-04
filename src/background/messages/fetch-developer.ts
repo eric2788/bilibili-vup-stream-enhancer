@@ -2,7 +2,7 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { sendInternal } from '~background/messages'
 import { setSettingStorage } from '~utils/storage'
 
-const developerLink = `https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/cdn/developer.json`
+const developerLink = `https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/cdn/developer_v2.json`
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
     const { data: developer, error } = await sendInternal('request', { url: developerLink })
