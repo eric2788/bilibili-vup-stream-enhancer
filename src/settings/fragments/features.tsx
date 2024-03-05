@@ -113,16 +113,18 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                     </Typography>
                 </div>
                 <List className="pl-6">
-                    <SwitchListItem label="仅限虚拟主播" value={state.common.onlyVtuber} onChange={checker('common.onlyVtuber')} />
+                    <SwitchListItem data-testid="vtb-only" label="仅限虚拟主播" value={state.common.onlyVtuber} onChange={checker('common.onlyVtuber')} />
                     <SwitchListItem
+                        data-testid="monitor-window"
                         label="启用监控视窗"
                         hint="如要传入字幕或弹幕，必须开着直播间"
                         value={state.common.monitorWindow}
                         onChange={checker('common.monitorWindow')}
                         marker={<ExperienmentFeatureIcon />}
                     />
-                    <SwitchListItem label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.common.useStreamingTime} onChange={checker('common.useStreamingTime')} />
+                    <SwitchListItem data-testid="use-stream-time" label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.common.useStreamingTime} onChange={checker('common.useStreamingTime')} />
                     <SwitchListItem
+                        data-testid="pip-window"
                         label="启用画中画弹出视窗"
                         hint='目前只支援 chromium 浏览器, 且视窗数量上限为一个。开启第二个画中画视窗将会导致前一个画中画视窗关闭。'
                         value={state.common.enabledPip}
@@ -153,6 +155,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                                 <List className='col-span-2 border border-[#808080] rounded-md'>
                                     {setting.define.offlineTable !== false && (
                                         <SwitchListItem
+                                            data-testid={`offline-record-${f}`}
                                             label="启用离线记录"
                                             value={state.enabledRecording.includes(f)}
                                             onChange={e => toggleRecord(f)}

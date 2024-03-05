@@ -79,13 +79,14 @@ function JimakuFeatureSettings({ state, useHandler }: StateProxy<FeatureSettingS
         <Fragment>
             <List className="col-span-2">
                 <SwitchListItem
+                    data-testid="no-native-vtuber"
                     label="过滤国内虚拟主播"
                     hint="此功能目前处于测试阶段, 因此无法过滤所有的国V"
                     value={state.noNativeVtuber}
                     onChange={checker('noNativeVtuber')}
                     marker={<ExperienmentFeatureIcon />}
                 />
-                <SwitchListItem label="启用同传弹幕彈出式视窗" hint="使用弹出式视窗时必须开着直播间才能运行" value={state.jimakuPopupWindow} onChange={checker('jimakuPopupWindow')} />
+                <SwitchListItem data-testid="jimaku-window" label="启用同传弹幕彈出式视窗" hint="使用弹出式视窗时必须开着直播间才能运行" value={state.jimakuPopupWindow} onChange={checker('jimakuPopupWindow')} />
             </List>
             <div className="col-span-2">
                 {zones.map(({ Zone, title, key }) => {

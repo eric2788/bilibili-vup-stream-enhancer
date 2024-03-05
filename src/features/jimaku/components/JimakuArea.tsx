@@ -106,7 +106,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
                         style={{ zIndex: 9999, display: visible ? 'block' : 'none' }}
                         minHeight={100}
                         minWidth={200}
-                        scale={0.93}
+                        size={0.93}
                         default={{
                             x: 100,
                             y: -300,

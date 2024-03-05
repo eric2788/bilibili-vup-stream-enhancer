@@ -16,30 +16,23 @@
     }
 }
 
-@keyframes slide-y {
+@keyframes top {
     from {
         transform: translateY(-30px);
         opacity: 0;
     }
 }
 
-@keyframes slide-x {
+@keyframes left {
     from {
         transform: translatex(-50px);
         opacity: 0;
     }
 }
 
-@keyframes scale {
+@keyframes size {
     from {
         font-size: 5px;
-        opacity: 0;
-    }
-}
-
-@keyframes y-down {
-    from {
-        height: 0px;
         opacity: 0;
     }
 }
