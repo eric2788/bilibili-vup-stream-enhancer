@@ -35,6 +35,7 @@ function SwitchListItem(props: SwitchListItemProps): JSX.Element {
                     </ListItemPrefix>
                 )}
                 <Switch
+                    data-testid={props['data-testid']}
                     disabled={props.disabled}
                     onChange={props.onChange}
                     crossOrigin={'annoymous'}

@@ -26,10 +26,10 @@ function SuperchatFeatureSettings({state, useHandler}: StateProxy<FeatureSetting
     const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value)
 
     return (
-        <Fragment>
+        <div className="grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
             <ColorInput label="浮动按钮颜色" value={state.floatingButtonColor} onChange={handler('floatingButtonColor')}  />
             <ColorInput label="操作按钮颜色" value={state.buttonColor} onChange={handler('buttonColor')}  />
-        </Fragment>
+        </div>
     )
 }
 
