@@ -46,6 +46,7 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
         <Fragment>
             <div className="col-span-2">
                 <DataTable<ArrElement<typeof state.blackListRooms>>
+                    data-testid="black-list-rooms"
                     title="房间黑名单(所有功能将不生效)"
                     headers={room_headers}
                     values={state.blackListRooms}

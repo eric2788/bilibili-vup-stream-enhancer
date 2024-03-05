@@ -17,7 +17,7 @@ test('測試功能元素是否存在', async ({ content: p }) => {
 
 })
 
-test('測試字幕區塊是否存在', async ({ content: p, isThemeRoom, room }) => {
+test('測試字幕區塊是否存在', async ({ content: p, isThemeRoom }) => {
 
     test.skip(isThemeRoom, '此測試不適用於大海報房間')
 
@@ -162,7 +162,7 @@ test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, pag
     await page.goto('about:blank')
     settingsPage.once('dialog', dialog => dialog.accept())
     await settingsPage.bringToFront()
-    await settingsPage.locator('//*[@id="features.jimaku"]/div[2]/div/nav/div/label/div[2]/button').click()
+    await settingsPage.locator('#features\\.jimaku [role=button] button').click()
     await settingsPage.getByText('所有同传弹幕过滤记录已经清空。').waitFor({ state: 'visible' })
 
     await page.bringToFront()
@@ -170,6 +170,38 @@ test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, pag
     p = await room.getContentLocator()
     subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: testJimaku }).all()
     expect(subtitleList.length).toBe(0)
+})
+
+test('測試房間名單列表(黑名單/白名單)', async ({ room, content, context, tabUrl }) => {
+
+    const subtitleList = content.locator('#subtitle-list')
+    await expect(subtitleList).toBeVisible()
+
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    const roomInput = settingsPage.getByTestId('jimaku-whitelist-rooms-input')
+    const switcher = settingsPage.getByTestId('jimaku-whitelist-rooms').getByText('使用为黑名单')
+    await roomInput.fill(room.info.roomid.toString())
+    await switcher.click()
+    await roomInput.press('Enter')
+
+    await settingsPage.getByText('保存设定').click()
+
+    await room.page.bringToFront()
+    await content.waitForTimeout(1000)
+
+    await expect(subtitleList).toBeHidden()
+
+    await settingsPage.bringToFront()
+    await switcher.click()
+    await settingsPage.getByText('保存设定').click()
+
+    await room.page.bringToFront()
+    await content.waitForTimeout(1000)
+
+    await expect(subtitleList).toBeVisible()
+
 })
 
 test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content: p, room }) => {
@@ -217,12 +249,12 @@ test('測試保存設定後 css 能否生效', async ({ context, content, tabUrl
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('字幕设定').click()
 
-    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[1]/div/div[1]/input').fill('30')
-    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[2]/div/div[1]/input').fill('30')
-    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[8]/div/div[1]/input').fill('500')
-    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/section[1]/div/div[1]').click()
+    await settingsPage.getByTestId('jimaku-size').fill('30')
+    await settingsPage.getByTestId('jimaku-first-size').fill('30')
+    await settingsPage.getByTestId('jimaku-bg-height').fill('500')
+    await settingsPage.getByTestId('jimaku-position').locator('div > div').nth(0).click()
     await settingsPage.getByText('置左').click()
-    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[2]/div[2]/div/div[1]/div[1]/div[2]/div/div[7]/div/div/div/input').fill('#123456')
+    await settingsPage.getByTestId('jimaku-color').fill('#123456')
 
 
     await settingsPage.getByText('保存设定').click()

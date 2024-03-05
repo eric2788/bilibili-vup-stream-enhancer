@@ -12,7 +12,7 @@ export type JimakuSchema = {
     position: 'left' | 'right' | 'center'
     lineGap: HundredNumber
     color: HexColor
-    animation: 'slide-x' | 'slide-y' | 'scale'
+    animation: 'left' | 'top' | 'size'
     order: 'top' | 'bottom'
     backgroundHeight: NumRange<100, 700>
     backgroundColor: HexColor
@@ -27,7 +27,7 @@ export const jimakuDefaultSettings: Readonly<JimakuSchema> = {
     position: 'center',
     lineGap: 7,
     color: '#ffffff',
-    animation: 'slide-y',
+    animation: 'top',
     order: 'top',
     backgroundHeight: 150,
     backgroundColor: '#808080',
@@ -88,6 +88,17 @@ function JimakuFragment({ state, useHandler }: StateProxy<JimakuSchema>): JSX.El
                 <AffixInput data-testid="jimaku-bg-height" label="字幕背景高度" variant="static" min={0} max={700} type="number" value={state.backgroundHeight} onChange={numberHandler('backgroundHeight')} suffix="px" />
                 <Hints values={['范围 100 ~ 700']} />
             </div>
+            <Selector<typeof state.animation>
+                data-testid="jimaku-animation"
+                label="字幕动画"
+                value={state.animation}
+                onChange={e => state.animation = e}
+                options={[
+                    { value: 'left', label: '右移' },
+                    { value: 'top', label: '下移' },
+                    { value: 'size', label: '缩放' },
+                ]}
+            />
             <Selector<typeof state.order>
                 data-testid="jimaku-order"
                 label="字幕顺序"

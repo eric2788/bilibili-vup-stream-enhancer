@@ -1,10 +1,11 @@
-import { type ChangeEvent, Fragment } from 'react';
-import { sendMessager } from '~utils/messaging';
-
 import { Alert, Button, Input, Typography } from '@material-tailwind/react';
-
+import { Fragment, type ChangeEvent } from 'react';
+import { toast } from 'sonner/dist';
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { Leaves } from "~types/common";
+import { sendMessager } from '~utils/messaging';
+import { setSettingStorage } from '~utils/storage';
+
 export type SettingSchema = {
     elements: {
         upperButtonArea: string;
@@ -173,18 +174,17 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
 
     const fetchDeveloper = async () => {
         if (!window.confirm('这将覆盖开发者相关所有目前设定。')) return
-        try {
-            await sendMessager('fetch-developer')
-            await sendMessager('notify', {
-                title: '已成功获取最新版本',
-                message: '设定档已储存。请重新加载网页以应用最新版本',
-            })
-        } catch (err: Error | any) {
-            await sendMessager('notify', {
-                title: '获取最新版本失败',
-                message: err.message,
-            })
-        }
+        const fetching = (async function(){
+            const { data, error } = await sendMessager('fetch-developer')
+            if (error) throw new Error(error)
+            await setSettingStorage('settings.developer', data)
+        })()
+        toast.promise(fetching, {
+            loading: '正在获取远端最新开发者设定...',
+            success: '已成功获取最新版本，请重新加载网页。',
+            error: (err) => '获取最新版本失败: '+err.message
+        })
+        await fetching
     }
 
     return (
@@ -210,6 +210,7 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
                     </Typography>
                     {definers.map(({ label, key }) => (
                         <Input
+                            data-testid={key}
                             key={key}
                             crossOrigin="anonymous"
                             variant="static"

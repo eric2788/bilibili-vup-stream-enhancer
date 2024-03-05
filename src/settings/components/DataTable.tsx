@@ -54,17 +54,19 @@ function DataTable<T extends object>(props: DataTableProps<T>): JSX.Element {
 
     const headers: Pick<TableHeader<T>, 'name' | 'align'>[] = [...props.headers, { name: '', align: 'center' }]
 
+    const testId = props['data-testid']
+
     return (
-        <div className='w-full'>
+        <div className='w-full' data-testid={testId}>
             <div className="mb-3 flex flex-col items-center justify-between gap-4 md:flex-row w-full">
                 <Typography variant="h6">{props.title}</Typography>
                 {props.headerSlot}
                 <div className="w-full md:w-72">
-                    <Input ref={inputRef} crossOrigin={'annoymous'} type="text" value={input} onChange={(e) => setInput(e.target.value)} variant="standard" label="新增到列表" icon={<ClickableAddIcon onClick={onAdd} />} />
+                    <Input data-testid={testId && `${testId}-input`} ref={inputRef} crossOrigin={'annoymous'} type="text" value={input} onChange={(e) => setInput(e.target.value)} variant="standard" label="新增到列表" icon={<ClickableAddIcon onClick={onAdd} />} />
                 </div>
             </div>
             <Card className="h-full w-full overflow-auto">
-                <table className="w-full min-w-max table-auto text-left">
+                <table className="w-full min-w-max table-auto text-left" data-testid={testId && `${testId}-table`}>
                     <thead>
                         <tr>
                             {headers.map(({ name, align = 'left' }) => (

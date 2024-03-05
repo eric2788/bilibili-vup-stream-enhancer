@@ -65,9 +65,10 @@ function ListingFragment({ state, useHandler }: StateProxy<ListingSchema>): JSX.
 
     return (
         <Fragment>
-            <div className="col-span-2" data-testid="tongchuan-mans">
+            <div className="col-span-2">
                 <DataTable<ArrElement<typeof state.tongchuanMans>>
                     title="同传名单"
+                    data-testid="tongchuan-mans"
                     headers={user_headers}
                     values={state.tongchuanMans}
                     onAdd={addUserRecord('tongchuanMans')}
@@ -85,9 +86,10 @@ function ListingFragment({ state, useHandler }: StateProxy<ListingSchema>): JSX.
                     ]}
                 />
             </div>
-            <div className="col-span-2" data-testid="tongchuan-blacklist">
+            <div className="col-span-2">
                 <DataTable<ArrElement<typeof state.tongchuanBlackList>>
                     title="同传黑名单"
+                    data-testid="tongchuan-blacklist"
                     headers={user_headers}
                     values={state.tongchuanBlackList}
                     onAdd={addUserRecord('tongchuanBlackList')}

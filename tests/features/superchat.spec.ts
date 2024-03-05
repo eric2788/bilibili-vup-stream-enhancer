@@ -142,7 +142,7 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     await page.goto('about:blank')
     settingsPage.once('dialog', dialog => dialog.accept())
     await settingsPage.bringToFront()
-    await settingsPage.locator('//*[@id="features.superchat"]/div[2]/div/nav/div/label/div[2]/button').click()
+    await settingsPage.locator('#features\\.superchat [role=button] button').click()
     await settingsPage.getByText('所有醒目留言记录已经清空。').waitFor({ state: 'visible' })
 
     await page.bringToFront()
@@ -153,8 +153,40 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     expect(superchatList.length).toBe(0)
 })
 
+test('測試房間名單列表(黑名單/白名單)', async ({ room, content, context, tabUrl }) => {
 
-test('測試保存設定後 css 能否生效', async ({ content, page, room, tabUrl, context }) => {
+    const superchatButton = content.locator('button', { hasText: /^醒目留言$/ })
+    await expect(superchatButton).toBeVisible()
+
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    const roomInput = settingsPage.getByTestId('superchat-whitelist-rooms-input')
+    const switcher = settingsPage.getByTestId('superchat-whitelist-rooms').getByText('使用为黑名单')
+    await roomInput.fill(room.info.roomid.toString())
+    await switcher.click()
+    await roomInput.press('Enter')
+
+    await settingsPage.getByText('保存设定').click()
+
+    await room.page.bringToFront()
+    await content.waitForTimeout(1000)
+
+    await expect(superchatButton).toBeHidden()
+
+    await settingsPage.bringToFront()
+    await switcher.click()
+    await settingsPage.getByText('保存设定').click()
+
+    await room.page.bringToFront()
+    await content.waitForTimeout(1000)
+
+    await expect(superchatButton).toBeVisible()
+
+})
+
+
+test('測試保存設定後 css 能否生效', async ({ content, page, tabUrl, context }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -164,8 +196,8 @@ test('測試保存設定後 css 能否生效', async ({ content, page, room, tab
 
     await settingsPage.getByText('功能设定').click()
 
-    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[3]/div[2]/div/div[1]/div/div/input').fill('#123456')
-    await settingsPage.locator('//html/body/div[1]/form/section[1]/div[2]/div/div/div/div[3]/div[2]/div/div[2]/div/div/input').fill('#123456')
+    await settingsPage.getByTestId('floater-color').fill('#123456')
+    await settingsPage.getByTestId('operator-color').fill('#123456')
 
     await settingsPage.getByText('保存设定').click()
     await settingsPage.waitForTimeout(2000)

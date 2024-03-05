@@ -58,7 +58,7 @@ test('測試名單列表(黑名單/白名單)', async ({ context, content, tabUr
     const settingsPage = await context.newPage()
     await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('名单列表').click()
-    const roomInput = settingsPage.locator('//*[@id="settings.listings"]/div[2]/div/div/div/div/div[1]/div[2]/div/input')
+    const roomInput = settingsPage.getByTestId('black-list-rooms-input')
     await roomInput.fill(room.info.roomid.toString())
     await roomInput.press('Enter')
     await settingsPage.getByText('保存设定').click()
@@ -251,10 +251,10 @@ test('測試导航', async ({ room, content, serviceWorker }) => {
 
     logger.info('正在測試導航前向...')
 
-    const next = content.getByText('下一步')
-    const previous = content.getByText('上一步')
-    const skip = content.getByText('跳过')
-    const finish = content.getByText('完成')
+    const next = content.getByRole('button', { name: '下一步' })
+    const previous = content.getByRole('button', { name: '上一步' })
+    const skip = content.getByRole('button', { name: '跳过' })
+    const finish = content.getByRole('button', { name: '完成' })
 
     while(await next.isVisible()) {
         await next.click()

@@ -43,7 +43,7 @@ function SuperChatItem(props: SuperChatItemProps & { observer: MutableRefObject<
         <div ref={ref} title={new Date(timestamp * 1000).toLocaleString()} className="mb-[10px] border-solid border-[1px] w-full" style={{
             backgroundColor: backgroundColor,
             borderColor: backgroundColor,
-            animation: 'slide-y .5s ease-out',
+            animation: 'top .5s ease-out',
             boxShadow: '1px 1px 5px black'
         }}>
             <div className="p-[5px] bg-contain bg-no-repeat relative" style={{
