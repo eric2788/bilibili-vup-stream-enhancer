@@ -22,6 +22,7 @@ function CheckBoxListItem(props: CheckboxListItemProps): JSX.Element {
             <label className="flex w-full cursor-pointer items-center px-3 py-2">
                 <ListItemPrefix className="mr-3">
                     <Checkbox
+                        data-testid={props['data-testid']}
                         onChange={props.onChange}
                         checked={props.value}
                         crossOrigin={'annoymous'}

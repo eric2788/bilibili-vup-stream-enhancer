@@ -1,14 +1,12 @@
-import type { ChangeEvent, ChangeEventHandler } from "react";
 import { Switch, Typography } from "@material-tailwind/react";
 import type { TableAction, TableHeader } from "./DataTable";
 
-import DataTable from "./DataTable";
-import DeleteIcon from "./DeleteIcon";
+import { toast } from "sonner/dist";
 import type { FeatureType } from "~features";
 import type { RoomList } from "~types/common";
-import type { StateHandler } from "~hooks/binding";
 import { removeArr } from "~utils/misc";
-import { toast } from "sonner/dist";
+import DataTable from "./DataTable";
+import DeleteIcon from "./DeleteIcon";
 
 const roomListHeaders: TableHeader<{ room: string, date: string }>[] = [
     {

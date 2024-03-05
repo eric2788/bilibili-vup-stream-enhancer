@@ -149,7 +149,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                             </div>
                         } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes(f)} onChange={e => toggle(f)} />
                         <Collapse open={state.enabledFeatures.includes(f)}>
-                            <div className="px-5 mt-5 pb-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10 overflow-y-auto max-h-[70vh] bjf-scrollbar">
+                            <div className="px-5 mt-5 pb-5 space-y-10 gap-10 overflow-y-auto max-h-[70vh] bjf-scrollbar">
                                 <List className='col-span-2 border border-[#808080] rounded-md'>
                                     {setting.define.offlineTable !== false && (
                                         <SwitchListItem

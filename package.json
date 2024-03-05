@@ -12,7 +12,8 @@
     "package": "plasmo package",
     "clean": "rm -rf build && rm -rf .plasmo",
     "test": "playwright test",
-    "test:prepare": "mv build/chrome-mv3-prod build/extension"
+    "test:prepare": "mv build/chrome-mv3-prod build/extension",
+    "test:rebuild": "pnpm clean && pnpm build && pnpm test:prepare"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
