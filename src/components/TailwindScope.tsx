@@ -1,5 +1,5 @@
 import ShadowRoot from './ShadowRoot';
-import styleText from '~styles';
+import styleText from 'data-text:~style.css';
 
 function TailwindScope({ children, dark }: { children: React.ReactNode, dark?: boolean }): JSX.Element {
     return (
