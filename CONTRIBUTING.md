@@ -1,57 +1,149 @@
-# 貢獻指南
+# 贡献指南
 
-歡迎您對本項目進行貢獻！在開始之前，請先閱讀以下內容。
+欢迎您对本项目进行贡献！在开始之前，请先阅读以下内容。
 
-## 目錄
+## 目录
 
-- [事前準備](#事前準備)
-- [貢獻流程](#貢獻流程)
-- [程式碼規範](#程式碼規範)
-- [問題回報](#問題回報)
-- [討論與支援](#討論與支援)
+- [事前准备](#事前准备)
+- [贡献流程](#贡献流程)
+- [程式码规范](#程式码规范)
+- [项目架构](#项目架构)
+    - [源代码](#源代码)
+    - [测试代码](#测试代码)
+- [问题回报](#问题回报)
+- [讨论与支援](#讨论与支援)
 
-## 事前準備
+## 事前准备
 
-在開始貢獻本項目之前，請確保您擁有以下條件：
+在开始贡献本项目之前，请确保您拥有以下条件：
 
-- 擁有 NodeJS v20+ 運行環境
-- 具備開發 TypeScript, React, TailwindCSS 的知識
-- 具備開發 ManifestV3 瀏覽器擴展 的知識
-- 初步掌握 [Plasmo](https://www.plasmo.com) 開發框架 的知識
-- 初步掌握 [PlayWright](https://playwright.dev) 測試框架 的知識 (如開發新功能)
+- 拥有 NodeJS v20+ 运行环境
+- 具备开发 TypeScript, React, TailwindCSS 的知识
+- 具备开发 ManifestV3 浏览器扩展 的知识
+- 初步掌握 [Plasmo](https://www.plasmo.com) 开发框架 的知识
+- 初步掌握 [PlayWright](https://playwright.dev) 测试框架 的知识 (如开发新功能)
 
-## 貢獻流程
+## 贡献流程
 
-請按照以下步驟進行貢獻：
+请按照以下步骤进行贡献：
 
-1. [步驟一]
-2. [步驟二]
-3. [步驟三]
+1. Fork 本仓库到你的本地仓库
+2. 在你的本地仓库中进行修改
+3. 如开发新功能，请自行添加合理且可行的单元/集成测试
+4. 完成后，确保你的代码通过所有单元/集成测试
+5. 提交 Pull Request 到本仓库的 `develop` 分支
 
-## 程式碼規範
+## 程式码规范
 
-請遵守以下程式碼規範：
+请遵守以下程式码规范：
 
-- [規範一]
-- [規範二]
-- [規範三]
+- 各个编程语言的官方标准写法
+- 本仓库原有的代码及项目架构
 
-## 問題回報
+> 请放心，我们会在您提交 Pull Request 时进行代码检查，如有任何问题我们会在检查时提出。
 
-如果您在使用本項目時遇到任何問題，請按照以下方式回報：
+## 项目架构
 
->(基於問題嚴重性程度排序)
+本项目的架构如下：
+```plaintext
+assets/        # 项目资源文件
+src/           # 项目源代码
+tests/         # 项目测试代码
+```
 
-1. 在 [Discussion](https://github.com/eric2788/bilibili-vup-stream-enhancer/discussions) 發文
-2. 在 [Issue](https://github.com/eric2788/bilibili-vup-stream-enhancer/issues) 發文
-3. 聯絡[作者](https://t.me/eric1008818)
+本文档只集中讲述**源代码**及**测试代码**的架构。
 
-## 討論與支援
+### 源代码
 
-如果您有任何疑問或需要支援，請參考以下資源：
+本项目的源代码位于 `src/` 目录下，其架构如下：
+```
+src/
+├── adapters/       # 适配器代码，用于连接和转换不同的接口或数据源。
+├── api/            # API 接口定义和实现。
+├── background/     # 浏览器扩展的后台脚本。
+├── components/     # 全局 React 组件。
+├── contents/       # 内容脚本，用于在网页上运行的脚本。
+├── contexts/       # React Contexts，用于全局状态管理。
+├── database/       # 数据库相关代码，包括模型定义和数据库操作。
+├── features/       # 特性模块，每个特性模块包含一组相关的功能。
+├── hooks/          # 自定义 React Hooks。
+├── migrations/     # 数据库迁移脚本。
+├── players/        # 播放器相关代码。
+├── settings/       # 设置相关代码，包括设置界面和设置存储。
+├── tabs/           # 标签页相关代码。
+├── types/          # 类型定义文件。
+├── updaters/       # 更新器代码，用于处理扩展的更新逻辑。(目前仅限 Chrome)
+├── utils/          # 实用工具函数。
+├── logger.ts       # 日志前缀注入。
+├── style.css       # 包含 TailwindCSS 的全局样式。
+└── toaster.ts      # 消息提示（Toast）相关代码。
+```
 
-- 所有相關技術的官方文檔
-- [資源二]
-- [資源三]
+各个目录的具体功能及范例请参考 [`docs/src/`](/docs/src/) 下的 `.md` 文件。
 
-感謝您的貢獻！
+### 测试代码
+
+本项目的测试代码位于 `tests/` 目录下，其架构如下：
+
+```
+tests/ 
+├── features/       # 功能模块的集成测试代码。 
+├── fixtures/       # 测试中需要用到的前置依赖。 
+├── helpers/        # 使用类形式包装的测试辅助工具。
+├── pages/          # 扩展页面的集成测试代码。
+├── utils/          # 辅助测试的函数和工具。
+├── content.spec.ts # 内容脚本的集成测试代码。
+├── options.ts      # fixtures 选项类型定义文件。
+└── theme.setup.ts  # 大海报房间测试的前置依赖。
+```
+
+各个目录的具体功能及范例请参考 [`docs/tests/`](/docs/tests) 下的 `.md` 文件。
+
+### 快速开始
+
+1. 首先，完成安装 `nodejs v20+` 和 `pnpm` 等环境；
+2. 克隆本仓库到本地；
+3. 运行 `pnpm install` 安装依赖；
+4. 最后，运行 `pnpm dev` 开始开发。
+5. 有关如何编写贡献代码，请参阅 [入门指南](#入门指南) 。
+
+
+#### 如要在本地运行集成测试:
+- 请先运行 `pnpm dlx playwright install` 安装 PlayWright 的浏览器引擎
+- 完成后，运行 `pnpm build && pnpm test:prepare` 编译并部署测试环境
+- 最后，运行 `pnpm test` 运行测试 (或者用 playwright vscode 插件运行测试)
+- 每次更新后可以运行 `pnpm test:rebuild` 重新编译并部署测试环境
+
+#### 入门指南
+
+请参阅 [`docs/examples`](/docs/examples) 下的 `.md` 文件来查看详细的代码编写流程。
+
+目录如下:
+```
+docs/examples/
+├── features.md     # 新增功能模块
+├── pages.md        # 新增扩展页面
+└── settings.md     # 新增设定区块
+```
+
+## 问题回报
+
+如果您在使用本项目时遇到任何问题，请按照以下方式回报：
+
+>(基于问题严重性程度排序)
+
+1. 在 [Discussion](https://github.com/eric2788/bilibili-vup-stream-enhancer/discussions) 发文
+2. 在 [Issue](https://github.com/eric2788/bilibili-vup-stream-enhancer/issues) 发文
+3. 联络[作者](https://t.me/eric1008818)
+
+## 讨论与支援
+
+如果您有任何疑问或需要支援，请参考以下资源：
+
+- [Typescript 官方文档](https://www.typescriptlang.org/docs/)
+- [Plasmo 官方文档](https://www.plasmo.com/docs/)
+- [TailwindCSS 官方文档](https://tailwindcss.com/docs)
+- [PlayWright 官方文档](https://playwright.dev/docs/intro)
+- 或其他相关技术的文档或讨论区
+
+感谢您的贡献！
