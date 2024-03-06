@@ -2,7 +2,7 @@ import { useCallback, useContext, useRef, useState } from "react"
 import { getTimeStamp, randomString, toStreamingTime } from "~utils/misc"
 
 import { useInterval } from "@react-hooks-library/core"
-import StreamInfoContext from "~contexts/StreamInfoContexts"
+import ContentContext from "~contexts/ContentContexts"
 import db from "~database"
 import { useBLiveSubscriber } from "~hooks/message"
 import SuperChatArea from "./SuperChatArea"
@@ -16,7 +16,7 @@ export type SuperChatCaptureLayerProps = {
 
 function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
 
-    const { settings, info } = useContext(StreamInfoContext)
+    const { settings, info } = useContext(ContentContext)
     const { offlineRecords } = props
     const { 
         enabledRecording, 

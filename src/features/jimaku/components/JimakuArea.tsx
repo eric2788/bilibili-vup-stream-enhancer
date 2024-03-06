@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Rnd } from 'react-rnd';
 import ConditionalWrapper from '~components/ConditionalWrapper';
 import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
-import StreamInfoContext from '~contexts/StreamInfoContexts';
+import ContentContext from '~contexts/ContentContexts';
 import { useWebScreenChange } from '~hooks/bilibili';
 import { useTeleport } from '~hooks/teleport';
 import type { JimakuSchema } from '~settings/features/jimaku/components/JimakuFragment';
@@ -47,7 +47,7 @@ export type JimakuAreaProps = {
 
 function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
-    const { settings, info: { isTheme } } = useContext(StreamInfoContext)
+    const { settings, info: { isTheme } } = useContext(ContentContext)
     const { jimakuZone: jimakuStyle } = useContext(JimakuFeatureContext)
 
     const dev = settings['settings.developer']
@@ -106,7 +106,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
                         style={{ zIndex: 9999, display: visible ? 'block' : 'none' }}
                         minHeight={100}
                         minWidth={200}
-                        size={0.93}
+                        scale={0.93}
                         default={{
                             x: 100,
                             y: -300,

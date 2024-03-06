@@ -41,7 +41,7 @@ function Selector<T = any>(props: SelectorProps<T>): JSX.Element {
                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                 </div>
-                <div style={{ zIndex: 99 }} className={`origin-top relative overflow-y-visible w-full rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 ${isOpen ? 'transition-all ease-out duration-200 transform opacity-100 size-100' : 'transition-all ease-in duration-75 transform opacity-0 size-75'}`} role="menu" aria-orientation="vertical">
+                <div style={{ zIndex: 99 }} className={`origin-top relative overflow-y-visible w-full rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 ${isOpen ? 'transition-all ease-out duration-200 transform opacity-100 scale-100' : 'transition-all ease-in duration-75 transform opacity-0 scale-75'}`} role="menu" aria-orientation="vertical">
                     <div className={`py-1 overflow-visible ${isOpen ? 'visible' : 'hidden'}`} role="none">
                         {props.options.map((option, index) => (
                             <a key={index} onClick={() => selectOption(option)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-gray-300" role="menuitem">{option.label}</a>

@@ -10,9 +10,13 @@
     "dev:opera": "pnpm dev --target=opera-mv3",
     "build": "plasmo build --no-minify",
     "package": "plasmo package",
-    "clean": "rm -rf build && rm -rf .plasmo",
+    "clean": "run-script-os",
+    "clean:nix": "rm -rf build && rm -rf .plasmo",
+    "clean:windows": "rmdir /s /q build && rmdir /s /q .plasmo",
     "test": "playwright test",
-    "test:prepare": "mv build/chrome-mv3-prod build/extension",
+    "test:prepare": "run-script-os",
+    "test:prepare:nix": "mv build/chrome-mv3-prod build/extension",
+    "test:prepare:windows": "move build\\chrome-mv3-prod build\\extension",
     "test:rebuild": "pnpm clean && pnpm build && pnpm test:prepare"
   },
   "dependencies": {
@@ -56,6 +60,7 @@
     "glob": "^10.3.10",
     "postcss": "^8.4.35",
     "prettier": "^3.2.5",
+    "run-script-os": "^1.1.6",
     "typescript": "^5.3.3"
   },
   "manifest": {

@@ -10,6 +10,7 @@
 - [项目架构](#项目架构)
     - [源代码](#源代码)
     - [测试代码](#测试代码)
+    - [快速开始](#快速开始)
 - [问题回报](#问题回报)
 - [讨论与支援](#讨论与支援)
 
@@ -51,26 +52,24 @@ src/           # 项目源代码
 tests/         # 项目测试代码
 ```
 
-本文档只集中讲述**源代码**及**测试代码**的架构。
-
 ### 源代码
 
 本项目的源代码位于 `src/` 目录下，其架构如下：
 ```
 src/
-├── adapters/       # 适配器代码，用于连接和转换不同的接口或数据源。
-├── api/            # API 接口定义和实现。
+├── adapters/       # 适配器代码，用于连接或转换不同的数据源以供内容脚本使用。
+├── api/            # 不同 API 的接口定义和实现。
 ├── background/     # 浏览器扩展的后台脚本。
-├── components/     # 全局 React 组件。
-├── contents/       # 内容脚本，用于在网页上运行的脚本。
-├── contexts/       # React Contexts，用于全局状态管理。
-├── database/       # 数据库相关代码，包括模型定义和数据库操作。
+├── components/     # 全局用 React 组件，适用于内容脚本和扩展页面。
+├── contents/       # 内容脚本，用于挂钩在网页上运行的脚本。
+├── contexts/       # 全局用 React 状态管理。
+├── database/       # 数据库相关代码，包括模型定义和数据库迁移操作。
 ├── features/       # 特性模块，每个特性模块包含一组相关的功能。
-├── hooks/          # 自定义 React Hooks。
-├── migrations/     # 数据库迁移脚本。
-├── players/        # 播放器相关代码。
-├── settings/       # 设置相关代码，包括设置界面和设置存储。
-├── tabs/           # 标签页相关代码。
+├── hooks/          # 全局用的自定义 React Hooks。
+├── migrations/     # 设定迁移脚本(从MV2到MV3)。
+├── players/        # 直播解析器相关代码。
+├── settings/       # 设定库相关代码，包括对设定区块和功能设定区块的定义。
+├── tabs/           # 浏览器扩展页面。
 ├── types/          # 类型定义文件。
 ├── updaters/       # 更新器代码，用于处理扩展的更新逻辑。(目前仅限 Chrome)
 ├── utils/          # 实用工具函数。
@@ -78,8 +77,6 @@ src/
 ├── style.css       # 包含 TailwindCSS 的全局样式。
 └── toaster.ts      # 消息提示（Toast）相关代码。
 ```
-
-各个目录的具体功能及范例请参考 [`docs/src/`](/docs/src/) 下的 `.md` 文件。
 
 ### 测试代码
 
@@ -96,8 +93,6 @@ tests/
 ├── options.ts      # fixtures 选项类型定义文件。
 └── theme.setup.ts  # 大海报房间测试的前置依赖。
 ```
-
-各个目录的具体功能及范例请参考 [`docs/tests/`](/docs/tests) 下的 `.md` 文件。
 
 ### 快速开始
 
@@ -116,11 +111,11 @@ tests/
 
 #### 入门指南
 
-请参阅 [`docs/examples`](/docs/examples) 下的 `.md` 文件来查看详细的代码编写流程。
+请参阅 [`docs/`](/docs/) 下的 `.md` 文件来查看详细的代码编写流程。
 
 目录如下:
 ```
-docs/examples/
+docs/
 ├── features.md     # 新增功能模块
 ├── pages.md        # 新增扩展页面
 └── settings.md     # 新增设定区块

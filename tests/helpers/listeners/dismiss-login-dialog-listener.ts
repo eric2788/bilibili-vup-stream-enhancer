@@ -1,8 +1,7 @@
 import type { PageFrame } from "../page-frame";
 import { PageListener } from "./type";
 
-
-
+// 监听器：关闭登录对话框
 class DismissLoginDialogListener extends PageListener {
 
     constructor() {

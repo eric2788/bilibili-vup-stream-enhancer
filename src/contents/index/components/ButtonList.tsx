@@ -1,14 +1,14 @@
 import { Button } from "@material-tailwind/react"
 import { useContext } from "react"
 import { sendForward } from "~background/forwards"
-import StreamInfoContext from "~contexts/StreamInfoContexts"
+import ContentContext from "~contexts/ContentContexts"
 import { usePopupWindow } from "~hooks/window"
 import { sendMessager } from "~utils/messaging"
 
 
 function ButtonList(): JSX.Element {
 
-    const streamInfo = useContext(StreamInfoContext)
+    const streamInfo = useContext(ContentContext)
     
     const { settings, info } = streamInfo
     const { "settings.display": displaySettings, "settings.features": { common: { enabledPip, monitorWindow }} } = settings

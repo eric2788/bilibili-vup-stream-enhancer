@@ -4,7 +4,7 @@ import { useToggle } from "@react-hooks-library/core";
 import { Fragment, useContext, useMemo, useRef } from "react";
 import Tutorial, { type TutorialRefProps, type TutorialStep } from "~components/Tutorial";
 import GenericContext from "~contexts/GenericContext";
-import StreamInfoContext from "~contexts/StreamInfoContexts";
+import ContentContext from "~contexts/ContentContexts";
 import { useWebScreenChange } from "~hooks/bilibili";
 import ButtonList from "./components/ButtonList";
 import FloatingMenuButton from "./components/FloatingMenuButtion";
@@ -60,7 +60,7 @@ const steps: Array<TutorialStep> = [
 
 function App(): JSX.Element {
 
-  const streamInfo = useContext(StreamInfoContext)
+  const streamInfo = useContext(ContentContext)
 
   // i don't know why the hell this got rendered at the top level during HMR, should be the bug for plasmo
   if (!streamInfo) {
