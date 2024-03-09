@@ -26,6 +26,7 @@ export const test = extensionBase.extend<BackgroundFixtures>({
         await using room = new BilibiliPage(frontPage, api)
         const generator = Strategy.random(rooms, Math.min(rooms.length, 5))
         const info = await cacher.findRoomTypeWithCache(isThemeRoom ? 'theme' : 'normal', generator)
+        test.skip(!info, `找不到${isThemeRoom ? '' : '不是'}大海報的房間。`)
         await room.enterToRoom(info)
         test.skip(await room.checkIfNotSupport(), '瀏覽器版本過低')
         await use(room)
