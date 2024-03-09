@@ -1,4 +1,4 @@
-## 新增设定区块
+# 新增设定区块
 
 如要新增页面，只需要到以下地方新增即可：
 
@@ -8,7 +8,7 @@ src/
         fragments/ <- 设定区块列表
 ```
 
-### 创建一个新的设定区块
+## 创建一个新的设定区块
 
 在 `src/settings/fragments/` 目录下新增一个新的设定区块，例如 `src/settings/fragments/hello-world.tsx`。
 
@@ -56,7 +56,7 @@ function HelloWorldSettings({ state, useHandler }: StateProxy<SettingSchema>): J
 export default HelloWorldSettings
 ```
 
-**使用 `StateProxy` 进行数据双向绑定**
+### 使用 `StateProxy` 进行数据双向绑定
 
 厌倦了每次写 React 都要手动处理 `onChange` ？ 你可以使用本扩展内置的 `StateProxy` 进行数据双向绑定。
 
@@ -138,7 +138,7 @@ export default fragments
 ```
 
 
-### 获取设定内容
+## 获取设定内容
 
 你可以在任何地方获取设定内容，获取方式有几种:
 
@@ -171,7 +171,7 @@ function ContentScript(): JSX.Element {
 }
 ```
 
-### 进阶开发
+## 进阶开发
 
 你可以参考以下的源码以进行更进阶的设定开发:
 

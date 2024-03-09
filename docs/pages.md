@@ -1,4 +1,4 @@
-## 新增页面
+# 新增页面
 
 > 本扩展基于 [Plasmo Extension Page](https://docs.plasmo.com/framework/ext-pages) 进行页面渲染。
 
@@ -9,7 +9,7 @@ src/
     tabs/ <- 扩展页面
 ```
 
-### 创建一个新的扩展页面
+## 创建一个新的扩展页面
 
 在 `src/tabs/` 目录下新增一个新的扩展页面，例如 `src/tabs/hello-world.tsx`。
 
@@ -28,7 +28,7 @@ export default App
 
 完成后，扩展在建置时会自动生成 hello-world.html 文件，且会自动添加到扩展的 `manifest.json` 中。
 
-### 跳转到扩展页面
+## 跳转到扩展页面
 
 如要在其他位置跳转到扩展页面，有以下两种方式:
 
@@ -54,6 +54,7 @@ function HelloWorldButton(): JSX.Element {
     const openPage = () => chrome.tabs.create({ url: chrome.runtime.getURL('/tabs/hello-world.html') })
     return <button onClick={openPage}>click me to open!</button>
 }
+export default HelloWorldButton
 ```
 
 > 使用 chrome API 方式可能需要考虑到一些API无法在内容脚本中使用的问题，因此建议使用 messager 方式进行跳转。
@@ -61,7 +62,7 @@ function HelloWorldButton(): JSX.Element {
 有关 messager 的更多信息，你可以参阅 [`docs/background.md`](./background.md) 文档中有关 messager 的信息。
 
 
-### 进阶开发
+## 进阶开发
 
 你可以参考以下的源码以进行更进阶页面开发:
 

@@ -116,6 +116,9 @@ tests/
 目录如下:
 ```
 docs/
+├── adapters.md     # 适配器的模块
+├── background.md   # 后台脚本的模块
+├── database.md     # 数据库的结构定义
 ├── features.md     # 新增功能模块
 ├── pages.md        # 新增扩展页面
 └── settings.md     # 新增设定区块

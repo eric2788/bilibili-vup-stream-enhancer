@@ -1,4 +1,4 @@
-## 新增功能
+# 新增功能
 
 > 本扩展基于 [Plasmo CSUI](https://docs.plasmo.com/framework/content-scripts-ui) 进行前端渲染。
 
@@ -15,7 +15,7 @@ src/
 
 `src/settings/features/`: 此目录用于存放功能的设定区块，为了让用户能够切换功能的开关，此处也必须添加。
 
-### 新增内容脚本
+## 新增内容脚本
 
 在 `src/features/` 目录下新增一个新的内容脚本，例如 `src/features/hello-world.tsx`。
 
@@ -98,7 +98,7 @@ const features = {
 
 ```
 
-### 新增功能设定区块
+## 新增功能设定区块
 
 在 `src/settings/features/` 目录下新增一个新的功能设定区块，例如 `src/settings/features/hello-world.tsx`:
 
@@ -144,7 +144,7 @@ function SuperchatFeatureSettings({state, useHandler}: StateProxy<FeatureSetting
 export default SuperchatFeatureSettings
 ```
 
-> 有关 `StateProxy` 的使用，请参考 [自定义Hooks](/src/hooks/binding.ts)。
+> 有关 `StateProxy` 的使用，请参考 [自定义Hooks](/src/hooks/binding.ts) 或 [`docs/settings.md`](/docs/settings.md)。
 
 
 同样，假设你的功能不需要功能设定区块，你可以这样定义：
@@ -193,7 +193,7 @@ const featureSettings = {
 
 以上两个步骤完成后，你的功能就已经基本完成了。
 
-### 进阶开发
+## 进阶开发
 
 你可以参考以下的源码以进行更进阶的功能开发:
 - [现成功能参考](/src/features/)

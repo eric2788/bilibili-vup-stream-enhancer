@@ -1,4 +1,4 @@
-import type { PlasmoCSUIAnchor } from "plasmo"
+import { memo } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { toast } from "sonner/dist"
 import { ensureLogin, type StreamInfo } from "~api/bilibili"
@@ -12,10 +12,9 @@ import { shouldInit } from "~settings"
 import { getStreamInfoByDom } from "~utils/bilibili"
 import { injectAdapter } from "~utils/inject"
 import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
+import { findOrCreateElement } from "~utils/react-node"
 import { getFullSettingStroage } from "~utils/storage"
 import App from "./App"
-import { memo } from "react"
-import { findOrCreateElement } from "~utils/react-node"
 
 interface RootMountable {
     feature: FeatureType
