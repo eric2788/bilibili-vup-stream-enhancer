@@ -1,55 +1,25 @@
 
 import { Fragment, type ChangeEvent } from 'react';
-import { requestUserInfo, type StreamInfo } from '~api/bilibili';
+import { type StreamInfo } from '~api/bilibili';
 import DataTable, { type TableHeader } from '~settings/components/DataTable';
-import { catcher } from '~utils/fetch';
 import { removeArr } from '~utils/misc';
 
 import { Switch, Typography } from '@material-tailwind/react';
 
 import { toast } from 'sonner/dist';
-import type { ExposeHandler, StateProxy } from "~hooks/binding";
+import type { StateProxy } from "~hooks/binding";
 import DeleteIcon from '~settings/components/DeleteIcon';
-import type { ArrElement, PickKeys } from "~types/common";
-
-export type UserRecord = {
-    id: string,
-    name: string,
-    addedDate: string
-}
-
+import type { ArrElement } from "~types/common";
 
 export type SettingSchema = {
-    tongchuanMans: UserRecord[],
-    tongchuanBlackList: UserRecord[],
     blackListRooms: { room: string, addedDate: string }[],
     useAsWhiteListRooms: boolean
 }
 
-
 export const defaultSettings: Readonly<SettingSchema> = {
-    tongchuanMans: [],
-    tongchuanBlackList: [],
     blackListRooms: [],
     useAsWhiteListRooms: false
 }
-
-
-const user_headers: TableHeader<UserRecord>[] = [
-    {
-        name: '用户ID',
-        value: 'id'
-    },
-    {
-        name: '用户名',
-        value: 'name'
-    },
-    {
-        name: '添加时间',
-        value: 'addedDate',
-        align: 'center'
-    }
-]
 
 const room_headers: TableHeader<{ room: string, addedDate: string }>[] = [
     {
@@ -66,71 +36,17 @@ const room_headers: TableHeader<{ room: string, addedDate: string }>[] = [
 
 export const title = '名单列表'
 
+export const description = `此设定区块包含了一些名单列表相关的设定, 你可以在这里调整各个名单列表。`
+
 function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 
     const checker = useHandler<ChangeEvent<HTMLInputElement>, boolean>((e) => e.target.checked)
 
-    const addUserRecord = <K extends PickKeys<SettingSchema, UserRecord[]>>(key: K) => async (value: string) => {
-
-        const handler = (state as ExposeHandler<SettingSchema>)
-
-        if (state[key].some(e => e.id === value)) {
-            toast.error(`用户 ${value} 已经在列表中`)
-            return
-        }
-        const user = await catcher(requestUserInfo(value))
-        if (!user) {
-            toast.error(`用户 ${value} 不存在`)
-            return
-        }
-        state[key].push({ id: user.mid.toString(), name: user.name, addedDate: new Date().toLocaleDateString() })
-        handler.set(key, state[key] as any)
-    }
-
     return (
         <Fragment>
             <div className="col-span-2">
-                <DataTable<ArrElement<typeof state.tongchuanMans>>
-                    title="同传名单"
-                    headers={user_headers}
-                    values={state.tongchuanMans}
-                    onAdd={addUserRecord('tongchuanMans')}
-                    actions={[
-                        {
-                            label: '删除',
-                            icon: <DeleteIcon />,
-                            onClick: (e) => {
-                                const result = removeArr(state.tongchuanMans, e)
-                                if (!result) {
-                                    toast.error('删除失败')
-                                }
-                            }
-                        }
-                    ]}
-                />
-            </div>
-            <div className="col-span-2">
-                <DataTable<ArrElement<typeof state.tongchuanBlackList>>
-                    title="同传黑名单"
-                    headers={user_headers}
-                    values={state.tongchuanBlackList}
-                    onAdd={addUserRecord('tongchuanBlackList')}
-                    actions={[
-                        {
-                            label: '删除',
-                            icon: <DeleteIcon />,
-                            onClick: (e) => {
-                                const result = removeArr(state.tongchuanBlackList, e)
-                                if (!result) {
-                                    toast.error('删除失败')
-                                }
-                            }
-                        }
-                    ]}
-                />
-            </div>
-            <div className="col-span-2">
                 <DataTable<ArrElement<typeof state.blackListRooms>>
+                    data-testid="black-list-rooms"
                     title="房间黑名单(所有功能将不生效)"
                     headers={room_headers}
                     values={state.blackListRooms}

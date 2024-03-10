@@ -1,6 +1,8 @@
 # bilibili vup观众直播增强扩展
 
-不只是同传字幕过滤！
+![thumgnail](https://github.com/eric2788/bilibili-jimaku-filter/raw/web/assets_v2/main.png)
+
+> 前身为 bilibili-jimaku-filter 同传字幕过滤插件
 
 ## ➵ 下载
 
@@ -24,6 +26,16 @@
 目前所有功能都需要各位测试者的意见和bug回报，因此需要大量测试者....
 
 当所有功能完善后，我们将会为 bilibili-jimaku-filter 推出正式的 v2.0 版本 😎😎
+
+## ➵ 使用方式
+
+1. [下载](#-下载)本扩展。
+2. 点击扩展图标进入设定页面，并根据你的偏好进入设定。完成后，然后按下保存设定。
+3. 进入B站任一直播间即可开始使用。
+
+## ➵ 贡献
+
+请参阅 [贡献指南](CONTRIBUTING.md)。
 
 ## ➵ 功能简介
 

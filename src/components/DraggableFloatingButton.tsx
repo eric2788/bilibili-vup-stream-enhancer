@@ -1,13 +1,48 @@
 import { Fragment, useDeferredValue, useState, type MouseEventHandler } from "react"
 import { Rnd } from "react-rnd"
 
+/**
+ * Props for the DraggableFloatingButton component.
+ */
 export type DraggableFloatingButtonProps = {
-    onClick?: MouseEventHandler<HTMLButtonElement>
-    children: React.ReactNode
-    className?: string,
-    style?: React.CSSProperties
+    /**
+     * Event handler for the button click event.
+     */
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+
+    /**
+     * The content of the button.
+     */
+    children: React.ReactNode;
+
+    /**
+     * Additional CSS class name for the button.
+     */
+    className?: string;
+
+    /**
+     * Inline styles for the button.
+     */
+    style?: React.CSSProperties;
 }
 
+
+/**
+ * Renders a draggable floating button component.
+ *
+ * @param {DraggableFloatingButtonProps} props - The component props.
+ * @returns {JSX.Element} The rendered component.
+ *
+ * @example
+ * // Example usage of DraggableFloatingButton component
+ * <DraggableFloatingButton
+ *   onClick={() => console.log('Button clicked')}
+ *   className="bg-blue-500"
+ *   style={{ fontSize: '16px' }}
+ * >
+ *   Click me
+ * </DraggableFloatingButton>
+ */
 function DraggableFloatingButton(props: DraggableFloatingButtonProps): JSX.Element {
 
     const { onClick, children, className, style } = props

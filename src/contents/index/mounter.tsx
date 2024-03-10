@@ -1,10 +1,10 @@
-import type { PlasmoCSUIAnchor } from "plasmo"
+import { memo } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { toast } from "sonner/dist"
-import type { StreamInfo } from "~api/bilibili"
+import { ensureLogin, type StreamInfo } from "~api/bilibili"
 import { sendForward } from "~background/forwards"
 import BLiveThemeProvider from "~components/BLiveThemeProvider"
-import StreamInfoContext from "~contexts/StreamInfoContexts"
+import ContentContext from "~contexts/ContentContexts"
 import type { FeatureType } from "~features"
 import features from "~features"
 import type { Settings } from "~settings"
@@ -12,9 +12,9 @@ import { shouldInit } from "~settings"
 import { getStreamInfoByDom } from "~utils/bilibili"
 import { injectAdapter } from "~utils/inject"
 import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
+import { findOrCreateElement } from "~utils/react-node"
 import { getFullSettingStroage } from "~utils/storage"
 import App from "./App"
-import { memo } from "react"
 
 interface RootMountable {
     feature: FeatureType
@@ -24,9 +24,6 @@ interface RootMountable {
 
 interface PlasmoSpec {
     rootContainer: Element
-    anchor: PlasmoCSUIAnchor
-    OverlayApp?: any
-    InlineApp?: any
 }
 
 
@@ -38,14 +35,12 @@ interface App {
 // createMountPoints will not start or the stop the app
 function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[] {
 
-    const { rootContainer, OverlayApp, anchor } = plasmo
+    const { rootContainer } = plasmo
 
     return Object.entries(features).map(([key, handler]) => {
         const { default: hook, App, FeatureContext: Context } = handler
 
-        const section = document.createElement('section')
-        section.id = `bjf-feature-${key}`
-        rootContainer.appendChild(section)
+        const section = findOrCreateElement('section', `bjf-feature-${key}`, rootContainer)
 
         const feature = key as FeatureType
         // this root is feature root
@@ -84,16 +79,14 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
 
                 root = createRoot(section)
                 root.render(
-                    <OverlayApp anchor={anchor}>
-                        <BLiveThemeProvider element={section}>
-                            <StreamInfoContext.Provider value={{ settings, info }}>
-                                <FeatureContextProvider context={Context} value={settings['settings.features'][feature]}>
-                                    {App && <App />}
-                                    {portals}
-                                </FeatureContextProvider>
-                            </StreamInfoContext.Provider>
-                        </BLiveThemeProvider>
-                    </OverlayApp>
+                    <BLiveThemeProvider element={section}>
+                        <ContentContext.Provider value={{ settings, info }}>
+                            <FeatureContextProvider context={Context} value={settings['settings.features'][feature]}>
+                                {App && <App />}
+                                {portals}
+                            </FeatureContextProvider>
+                        </ContentContext.Provider>
+                    </BLiveThemeProvider>
                 )
             },
             unmount: async () => {
@@ -111,12 +104,10 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
 
 function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
-    const { anchor, OverlayApp, rootContainer } = plasmo
-    const mounters = createMountPoints({ rootContainer, anchor, OverlayApp }, info)
+    const { rootContainer } = plasmo
+    const mounters = createMountPoints({ rootContainer }, info)
 
-    const section = document.createElement('section')
-    section.id = "bjf-root"
-    rootContainer.appendChild(section)
+    const section = findOrCreateElement('section', 'bjf-root', rootContainer)
 
     // this root is main root
     let root: Root = null
@@ -134,14 +125,21 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
             // 依然無法取得，就略過
             if (!info) {
-                console.info('無法取得直播資訊，已略過')
-                toast.warning('無法取得直播資訊，请稍后刷新页面尝试。', { position: 'top-left' })
+                console.warn('無法取得直播資訊，已略過: ', roomId)
                 return
             }
 
             if (!(await shouldInit(settings, info))) {
                 console.info('不符合初始化條件，已略過')
                 return
+            }
+
+            const login = await ensureLogin()
+
+            console.info('login: ', login)
+
+            if (!login) {
+                toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
             }
 
             // hook adapter (only when online)
@@ -153,7 +151,8 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
                 toast.promise(hooking, {
                     loading: '正在挂接直播监听...',
                     success: '挂接成功',
-                    position: 'top-left'
+                    position: 'top-left',
+                    duration: 4000,
                 })
                 try {
                     await hooking
@@ -181,13 +180,11 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             root = createRoot(section)
             console.info('開始渲染主元素....')
             root.render(
-                <OverlayApp anchor={anchor}>
-                    <BLiveThemeProvider element={section}>
-                        <StreamInfoContext.Provider value={{ settings, info }}>
-                            <App />
-                        </StreamInfoContext.Provider>
-                    </BLiveThemeProvider>
-                </OverlayApp>
+                <BLiveThemeProvider element={section}>
+                    <ContentContext.Provider value={{ settings, info }}>
+                        <App />
+                    </ContentContext.Provider>
+                </BLiveThemeProvider>
             )
             console.info('渲染主元素完成')
 

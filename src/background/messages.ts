@@ -10,6 +10,7 @@ import * as notify from './messages/notify'
 import * as openTab from './messages/open-tab'
 import * as openWindow from './messages/open-window'
 import * as request from './messages/request'
+import * as migrationMv2 from './messages/migration-mv2'
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { isBackgroundScript } from '~utils/file'
@@ -69,5 +70,6 @@ const messagers = {
     'inject-func': injectFunc,
     'inject-script': injectScript,
     'add-black-list': addBlackList,
-    'hook-adapter': hookAdapter
+    'hook-adapter': hookAdapter,
+    'migration-mv2': migrationMv2
 }

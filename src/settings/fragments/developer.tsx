@@ -1,10 +1,11 @@
-import { type ChangeEvent, Fragment } from 'react';
-import { sendMessager } from '~utils/messaging';
-
 import { Alert, Button, Input, Typography } from '@material-tailwind/react';
-
+import { Fragment, type ChangeEvent } from 'react';
+import { toast } from 'sonner/dist';
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { Leaves } from "~types/common";
+import { sendMessager } from '~utils/messaging';
+import { setSettingStorage } from '~utils/storage';
+
 export type SettingSchema = {
     elements: {
         upperButtonArea: string;
@@ -28,9 +29,6 @@ export type SettingSchema = {
     attr: {
         chatUserId: string;
         chatDanmaku: string;
-    };
-    code: {
-        scList: string;
     };
 };
 
@@ -57,14 +55,16 @@ export const defaultSettings: Readonly<SettingSchema> = {
     attr: {
         chatUserId: 'data-uid', // 聊天条 用户id 属性
         chatDanmaku: 'data-danmaku' // 聊天条 弹幕 属性
-    },
-    code: {
-        scList: 'window.__NEPTUNE_IS_MY_WAIFU__ ? window.__NEPTUNE_IS_MY_WAIFU__.roomInfoRes.data.super_chat_info.message_list : []'
     }
 }
 
 export const title = '开发者相关'
 
+export const description = [
+    '此设定区块是控制抓取元素的设定，这里的默认数值都是针对当前版本的B站页面。',
+    '若B站页面发生改版, 本扩展将无法抓取元素致无法运作。除了等待本扩展的修复版本更新外, 有JS开发经验的用户可以自行修改此区块的数值以适应新版面。',
+    '至于没有JS开发经验的用户，则尽量不要碰这里的设定，否则有可能导致扩展无法正常运作。'
+]
 
 type ElementDefiner = {
     label: string
@@ -149,13 +149,7 @@ const elementDefiners: ElementDefinerList = {
             label: "聊天条 弹幕 属性",
             key: "attr.chatDanmaku"
         },
-    ],
-    "JavaScript 代码": [
-        {
-            label: "获取网页内目前的 SuperChat",
-            key: "code.scList"
-        },
-    ],
+    ]
 }
 
 
@@ -180,18 +174,17 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
 
     const fetchDeveloper = async () => {
         if (!window.confirm('这将覆盖开发者相关所有目前设定。')) return
-        try {
-            await sendMessager('fetch-developer')
-            await sendMessager('notify', {
-                title: '已成功获取最新版本',
-                message: '设定档已储存。请重新加载网页以应用最新版本',
-            })
-        } catch (err: Error | any) {
-            await sendMessager('notify', {
-                title: '获取最新版本失败',
-                message: err.message,
-            })
-        }
+        const fetching = (async function(){
+            const { data, error } = await sendMessager('fetch-developer')
+            if (error) throw new Error(error)
+            await setSettingStorage('settings.developer', data)
+        })()
+        toast.promise(fetching, {
+            loading: '正在获取远端最新开发者设定...',
+            success: '已成功获取最新版本，请重新加载网页。',
+            error: (err) => '获取最新版本失败: '+err.message
+        })
+        await fetching
     }
 
     return (
@@ -217,6 +210,7 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
                     </Typography>
                     {definers.map(({ label, key }) => (
                         <Input
+                            data-testid={key}
                             key={key}
                             crossOrigin="anonymous"
                             variant="static"

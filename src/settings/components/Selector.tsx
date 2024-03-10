@@ -32,7 +32,7 @@ function Selector<T = any>(props: SelectorProps<T>): JSX.Element {
     }
 
     return (
-        <section className={`relative block text-left`}>
+        <section className={`relative block text-left`} data-testid={props['data-testid']}>
             <label className="text-sm ml-1 font-medium text-gray-900 dark:text-white">{props.label}</label>
             <div ref={dropdownRef} className={`mt-2 ${props.disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`} onClick={() => !props.disabled && setOpen(!isOpen)}>
                 <div className={`inline-flex justify-between h-full w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 text-sm font-medium text-gray-700 dark:text-white ${props.disabled ? 'opacity-50 bg-transparent' : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-gray-500`}>

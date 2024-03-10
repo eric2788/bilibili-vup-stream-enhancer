@@ -1,14 +1,12 @@
-import type { ChangeEvent, ChangeEventHandler } from "react";
 import { Switch, Typography } from "@material-tailwind/react";
 import type { TableAction, TableHeader } from "./DataTable";
 
-import DataTable from "./DataTable";
-import DeleteIcon from "./DeleteIcon";
+import { toast } from "sonner/dist";
 import type { FeatureType } from "~features";
 import type { RoomList } from "~types/common";
-import type { StateHandler } from "~hooks/binding";
 import { removeArr } from "~utils/misc";
-import { toast } from "sonner/dist";
+import DataTable from "./DataTable";
+import DeleteIcon from "./DeleteIcon";
 
 const roomListHeaders: TableHeader<{ room: string, date: string }>[] = [
     {
@@ -28,7 +26,7 @@ export type FeatureRoomTableProps = {
     title?: string
     feature: FeatureType,
     roomList: Record<FeatureType, RoomList>,
-    actions?: TableAction<{room: string, date: string}>[]
+    actions?: TableAction<{ room: string, date: string }>[]
 }
 
 function FeatureRoomTable(props: FeatureRoomTableProps): JSX.Element {
@@ -37,6 +35,7 @@ function FeatureRoomTable(props: FeatureRoomTableProps): JSX.Element {
 
     return (
         <DataTable
+            data-testid={`${feature}-whitelist-rooms`}
             title={title ?? '房间白名单(无数据时不生效)'}
             headers={roomListHeaders}
             values={roomList[feature].list}
@@ -49,6 +48,7 @@ function FeatureRoomTable(props: FeatureRoomTableProps): JSX.Element {
             }}
             headerSlot={
                 <Switch
+                    data-testid={`${feature}-whitelist-rooms-switcher`}
                     checked={roomList[feature].asBlackList}
                     onChange={e => roomList[feature].asBlackList = e.target.checked}
                     crossOrigin={'annoymous'}

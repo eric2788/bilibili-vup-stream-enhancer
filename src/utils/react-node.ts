@@ -36,3 +36,25 @@ export function injectScriptElement(code: string, element: Element = document.bo
     script.textContent = code
     element.appendChild(script)
 }
+
+
+/**
+ * Creates or finds an HTML element with the specified tag name and id.
+ * If the element does not exist, it is created and appended to the specified parent element.
+ * If the element already exists, it is returned.
+ * 
+ * @param tagName - The tag name of the HTML element.
+ * @param id - The id of the HTML element.
+ * @param parent - The parent element to which the created element will be appended. Defaults to document.body.
+ * @returns The created or found HTML element.
+ */
+export function findOrCreateElement(tagName: string, id: string = "", parent: Element = document.documentElement): Element {
+    const selector = `${tagName}${id ? `#${id}` : ''}`
+    let element = parent.querySelector(selector)
+    if (!element) {
+        element = document.createElement(tagName)
+        if (id) element.id = id
+        if (parent !== document.documentElement) parent.appendChild(element)
+    }
+    return element
+}

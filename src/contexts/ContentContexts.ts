@@ -2,11 +2,11 @@ import { createContext } from "react";
 import type { StreamInfo } from "~api/bilibili";
 import type { Settings } from "~settings";
 
-export type StreamInfoContextProps = {
+export type ContentContextProps = {
     info: StreamInfo
     settings: Settings
 }
 
-const StreamInfoContext = createContext<StreamInfoContextProps>(null)
+const ContentContext = createContext<ContentContextProps>(null)
 
-export default StreamInfoContext
+export default ContentContext

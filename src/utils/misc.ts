@@ -1,4 +1,4 @@
-import type { NumRange } from "~types/common"
+import type { Leaves, NumRange, PathLeafType } from "~types/common"
 
 
 /**
@@ -187,4 +187,17 @@ export function assignDefaults<T extends object>(data: T, defaults: T): T {
         }
     })
     return newData
+}
+
+// a function that allow to get value for nested object via path
+export function getNestedValue<T extends object, K extends Leaves<T>>(obj: T, path: K): PathLeafType<T, K> {
+    return path.split('.').reduce((o, p) => o[p], obj)
+}
+
+// a function that allow to set value for nested object via path
+export function setNestedValue<T extends object, K extends Leaves<T>>(obj: T, path: K, value: any): void {
+    const keys = path.split('.')
+    const lastKey = keys.pop()
+    const lastObj = keys.reduce((o, p) => o[p], obj)
+    lastObj[lastKey] = value
 }

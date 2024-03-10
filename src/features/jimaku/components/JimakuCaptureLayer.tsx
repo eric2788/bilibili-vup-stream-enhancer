@@ -2,7 +2,7 @@ import { Fragment, useCallback, useContext, useRef, useState } from 'react';
 import { getTimeStamp, randomString, toStreamingTime } from '~utils/misc';
 
 import { sendForward } from '~background/forwards';
-import StreamInfoContext from '~contexts/StreamInfoContexts';
+import ContentContext from '~contexts/ContentContexts';
 import db from '~database';
 import { useBLiveSubscriber } from '~hooks/message';
 import { parseJimaku } from '~utils/bilibili';
@@ -18,8 +18,8 @@ export type JimakuCaptureLayerProps = {
 
 function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
-    const { settings, info } = useContext(StreamInfoContext)
-    const { jimakuZone: jimakuStyle, danmakuZone, jimakuPopupWindow } = useContext(JimakuFeatureContext)
+    const { settings, info } = useContext(ContentContext)
+    const { jimakuZone: jimakuStyle, danmakuZone, jimakuPopupWindow, listingZone } = useContext(JimakuFeatureContext)
     const { offlineRecords } = props
 
     const {
@@ -28,7 +28,7 @@ function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
     } = settings["settings.features"]
 
     const { regex, color, position } = danmakuZone
-    const { tongchuanBlackList, tongchuanMans } = settings['settings.listings']
+    const { tongchuanBlackList, tongchuanMans } = listingZone
 
     const [jimaku, setJimaku] = useState<Jimaku[]>(offlineRecords)
     const clearJimaku = useCallback(() => setJimaku([]), [])

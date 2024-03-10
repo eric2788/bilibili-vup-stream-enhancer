@@ -8,6 +8,10 @@ const ErrorContext = createContext<Error | any>(null)
 const PromiseHandlerContext = createContext<unknown>(null)
 
 
+/**
+ * Props for the PromiseHandler component.
+ * @template T The type of the resolved value of the promise.
+ */
 export type PromiseHandlerProps<T> = {
     promise: Promise<T> | (() => Promise<T>)
     fallback?: JSX.Element

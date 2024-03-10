@@ -44,7 +44,7 @@ function DanmakuFragment({ state, useHandler }: StateProxy<DanmakuSchema>): JSX.
     return (
         <Fragment>
             <div className="md:col-span-2 max-md:col-span-1">
-                <Input crossOrigin="anonymous" variant="static" label="过滤使用的正则表达式" value={state.regex} onChange={handler('regex')} />
+                <Input data-testid="regex-input" crossOrigin="anonymous" variant="static" label="过滤使用的正则表达式" value={state.regex} onChange={handler('regex')} />
                 <Hints values={[
                     <Fragment>
                         有关正则表达式可以到
@@ -59,6 +59,7 @@ function DanmakuFragment({ state, useHandler }: StateProxy<DanmakuSchema>): JSX.
             </div>
             <div className="md:col-span-2 max-md:col-span-1">
                 <Switch
+                    data-testid="danmaku-hide"
                     crossOrigin={'annoymous'}
                     label={
                         <Typography className="font-medium" >隐藏同传弹幕</Typography>
@@ -68,14 +69,15 @@ function DanmakuFragment({ state, useHandler }: StateProxy<DanmakuSchema>): JSX.
                 />
             </div>
             <div>
-                <ColorInput disabled={state.hide} label="同传弹幕颜色" optional={true} onChange={handler('color')} value={state.color} />
+                <ColorInput data-testid="danmaku-color" disabled={state.hide} label="同传弹幕颜色" optional={true} onChange={handler('color')} value={state.color} />
                 <Hints values={['留空不改变。']} />
             </div>
             <div>
-                <AffixInput disabled={state.hide} label="同传弹幕透明度" suffix="%" onChange={e => changeOpacity(e.target.valueAsNumber)} value={state.opacity ?? -1} variant="static" type="number" min={-1} max={100} />
+                <AffixInput data-testid="danmaku-opacity" disabled={state.hide} label="同传弹幕透明度" suffix="%" onChange={e => changeOpacity(e.target.valueAsNumber)} value={state.opacity ?? -1} variant="static" type="number" min={-1} max={100} />
                 <Hints values={['范围 0 ~ 100, -1 代表不改变。']} />
             </div>
             <Selector<typeof state.position>
+                data-testid="danmaku-position"
                 label="弹幕位置"
                 value={state.position}
                 onChange={changePos}

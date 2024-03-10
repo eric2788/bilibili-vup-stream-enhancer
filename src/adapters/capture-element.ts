@@ -70,7 +70,7 @@ function startDanmakuMonitor(settings: Settings): MutationObserver {
                         undefined
                     ],
                     undefined,
-                    undefined,
+                    [ 99, 99, 99, '', 99 ],
                     undefined,
                     undefined,
                     undefined,

@@ -1,18 +1,18 @@
-import type { PlasmoCSConfig, PlasmoGetStyle, PlasmoRender } from "plasmo";
+import type { PlasmoCSConfig, PlasmoGetRootContainer, PlasmoGetStyle, PlasmoRender } from "plasmo";
 import { toast } from 'sonner/dist';
-import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
+import { getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
 import { getForwarder } from '~background/forwards';
-import { getRoomId } from '~utils/bilibili';
+import { getRoomId, isOutThemedPage } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectFunction } from '~utils/inject';
-import { getSettingStorage, processing, withProcessingFlag } from '~utils/storage';
+import { getSettingStorage, withProcessingFlag } from '~utils/storage';
 
-import styleText from '~styles';
+import styleText from 'data-text:~style.css';
 import createApp from './mounter';
 
-import '~toaster';
 import '~logger';
-
+import injectToaster from "~toaster";
+import { findOrCreateElement } from "~utils/react-node";
 
 export const config: PlasmoCSConfig = {
   matches: ["*://live.bilibili.com/*"],
@@ -24,6 +24,28 @@ export const getStyle: PlasmoGetStyle = () => {
   const style = document.createElement("style")
   style.textContent = styleText
   return style
+}
+
+export const getRootContainer: PlasmoGetRootContainer = async ({ anchor, mountState }) => {
+
+  document.querySelectorAll('plasmo-csui').forEach(e => e.remove())
+
+  const shadowHost = findOrCreateElement('bjf-csui')
+  const shadowRoot = shadowHost.attachShadow({ mode: 'open' })
+  const shadowContainer = document.createElement('div')
+  shadowContainer.id = 'bjf-container'
+  shadowContainer.style.zIndex = '3000'
+  shadowContainer.style.position = 'relative'
+  shadowRoot.prepend(await getStyle({ ...anchor, sfcStyleContent: "" }))
+  shadowRoot.appendChild(shadowContainer)
+  mountState?.hostSet?.add(shadowHost)
+  mountState?.hostMap?.set(shadowHost, anchor)
+  if (anchor.type === "inline") {
+    anchor.element.insertAdjacentElement(anchor.insertPosition || "afterend", shadowHost)
+  } else {
+    document.documentElement.prepend(shadowHost)
+  }
+  return shadowContainer
 }
 
 // 多重檢查直播資訊的方式
@@ -54,7 +76,7 @@ const getStreamInfoFallbacks = [
 let removeHandler: VoidFunction = null
 
 // start from here
-export const render: PlasmoRender<any> = async ({ anchor, createRootContainer }, _, OverlayApp) => {
+export const render: PlasmoRender<any> = async ({ anchor, createRootContainer }) => {
 
   // for hot reload (if it has?)
   if (removeHandler !== null) {
@@ -72,6 +94,14 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       return
     }
 
+    if (isOutThemedPage()) {
+      console.info('檢測到頁面為外圍大海報房間，已略過: ', location.pathname)
+      return
+    }
+
+    // inject the toaster
+    injectToaster();
+
     // doing fast websocket boost here (if enabled)
     (async function () {
       try {
@@ -87,20 +117,12 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
       }
     })();
 
-    const login = await ensureLogin()
-
-    console.info('login: ', login)
-
-    if (!login) {
-      toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
-    }
-
     const info = await withFallbacks<StreamInfo>(getStreamInfoFallbacks.map(f => f(roomId)))
 
     const rootContainer = await createRootContainer(anchor)
     const forwarder = getForwarder('command', 'content-script')
 
-    const app = createApp(roomId, { rootContainer, anchor, OverlayApp }, info)
+    const app = createApp(roomId, { rootContainer }, info)
 
     const start = withProcessingFlag(app.start)
     const stop = withProcessingFlag(app.stop)
@@ -113,13 +135,11 @@ export const render: PlasmoRender<any> = async ({ anchor, createRootContainer },
         await start()
       }
     })
-
     // start the app
     await start()
 
   } catch (err: Error | any) {
     console.error(`渲染 bilibili-vup-stream-enhancer 元素時出現錯誤: `, err)
-    return
   }
 
 }

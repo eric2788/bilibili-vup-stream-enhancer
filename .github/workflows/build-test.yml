@@ -1,0 +1,122 @@
+name: Build And Test Extensions
+
+on:
+    push:
+        branches: 
+          - 'develop'
+          - 'hotfix/**'
+          - 'feature/**'
+        paths:
+          - 'src/**'
+          - 'tests/**'
+          - 'playwright.config.ts'
+          - 'pnpm-lock.yaml'
+          - '.github/workflows/build-test.yml'
+    pull_request:
+        branches: [develop]
+    workflow_dispatch:
+        inputs:
+          debug:
+            description: 'Enable debug logging'
+            required: false
+            default: 'false'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+              browser: [chrome, edge, chromium]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v2
+              with:
+                version: 8
+            - name: Setup Node.js
+              uses: actions/setup-node@v4.0.1
+              with:
+                  node-version: 20
+                  cache: 'pnpm'
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+            - name: Build And Package Extensions
+              run: pnpm build --zip --target=${{ matrix.browser }}-mv3
+            # upload to github artifacts for each browser with matrix
+            - name: Upload to GitHub Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.browser }}-mv3
+                  path: build/
+    test:
+      runs-on: ubuntu-latest
+      needs: build
+      strategy:
+          fail-fast: false
+          matrix:
+              browser: [chrome, edge]
+              theme: ['', '-theme']
+      steps:
+          - uses: actions/checkout@v4
+          - name: Download artifacts
+            uses: actions/download-artifact@v4
+            id: download
+            with:
+                name: ${{ matrix.browser }}-mv3
+                path: build/
+          - name: Unzip artifacts
+            run: unzip build/${{ matrix.browser }}-mv3-prod.zip -d build/extension
+          - uses: pnpm/action-setup@v2
+            with:
+                version: 8
+          - name: Setup Node.js
+            uses: actions/setup-node@v4.0.1
+            with:
+                node-version: 20
+                cache: 'pnpm'
+          - name: Install dependencies
+            run: pnpm install --frozen-lockfile
+          - name: Install Playwright Browsers
+            run: pnpm exec playwright install --with-deps
+          - name: Setup Project
+            id: project
+            run: |
+              # set output variable
+              echo "project=${{ matrix.browser }}${{ matrix.theme}}" >> $GITHUB_OUTPUT
+          - name: Test
+            id: test
+            run: |
+              if [ "${{ inputs.debug }}" == "true" ]; then
+                echo "Enabled Debug Mode"
+                export DEBUG="pw:api"
+              fi
+              pnpm test -- --project=${{ steps.project.outputs.project }}
+          - name: Upload Test Results
+            if: always()
+            uses: actions/upload-artifact@v4
+            with:
+                name: ${{ steps.project.outputs.project }}-test-results
+                path: |
+                  test-results/
+                  playwright-report/
+                if-no-files-found: ignore
+          - name: Upload Results To R2
+            if: ${{ failure() && steps.test.conclusion == 'failure' }}
+            uses: eric2788/r2-upload-action@master
+            id: upload
+            continue-on-error: true
+            with:
+              r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+              r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+              r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+              r2-bucket: ${{ secrets.R2_BUCKET }}
+              source-dir: ./playwright-report
+              destination-dir: ${{ github.event.repository.name }}/${{ github.run_number }}/${{ steps.project.outputs.project }}
+              output-file-url: 'true'
+              multipart-size: 100
+              max-retries: 5
+            env:
+              NODE_OPTIONS: '--max-old-space-size=6144'
+          - name: Print Report URL
+            if: failure() && steps.upload.outcome == 'success'
+            run: echo "::notice title=Report URL for ${{ steps.project.outputs.project }}::https://reports.ericlamm.xyz/${{ github.event.repository.name }}/${{ github.run_number }}/${{ steps.project.outputs.project }}/"

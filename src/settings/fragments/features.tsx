@@ -55,6 +55,12 @@ export const defaultSettings: Readonly<SettingSchema> = {
 
 export const title = '功能设定'
 
+export const description = [
+    '此设定区块包含了一些功能相关的设定, 你可以在这里控制每个功能的启用/禁用，以及调整每个功能的设定。',
+    '除了功能各自的设定外，还有一些通用的设定，例如启用画中画视窗，仅限虚拟主播等。',
+    '另外每个功能都有一些相同的设定(如启用记录和白名单)，他们都是每个功能必须的东西，且数据并不互通。'
+]
+
 function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
 
     const checker = useHandler<ChangeEvent<HTMLInputElement>, boolean>((e) => e.target.checked)
@@ -107,16 +113,18 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                     </Typography>
                 </div>
                 <List className="pl-6">
-                    <SwitchListItem label="仅限虚拟主播" value={state.common.onlyVtuber} onChange={checker('common.onlyVtuber')} />
+                    <SwitchListItem data-testid="vtb-only" label="仅限虚拟主播" value={state.common.onlyVtuber} onChange={checker('common.onlyVtuber')} />
                     <SwitchListItem
+                        data-testid="monitor-window"
                         label="启用监控视窗"
                         hint="如要传入字幕或弹幕，必须开着直播间"
                         value={state.common.monitorWindow}
                         onChange={checker('common.monitorWindow')}
                         marker={<ExperienmentFeatureIcon />}
                     />
-                    <SwitchListItem label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.common.useStreamingTime} onChange={checker('common.useStreamingTime')} />
+                    <SwitchListItem data-testid="use-stream-time" label={(v) => `使用${v ? '直播' : '真实'}时间戳记`} value={state.common.useStreamingTime} onChange={checker('common.useStreamingTime')} />
                     <SwitchListItem
+                        data-testid="pip-window"
                         label="启用画中画弹出视窗"
                         hint='目前只支援 chromium 浏览器, 且视窗数量上限为一个。开启第二个画中画视窗将会导致前一个画中画视窗关闭。'
                         value={state.common.enabledPip}
@@ -134,7 +142,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 const props = asStateProxy(useBinding(state[f], true))
 
                 return (
-                    <div key={f} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
+                    <div key={f} id={`features.${f}`} className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
                         <Switch label={
                             <div>
                                 <Typography className="font-semibold">
@@ -143,10 +151,11 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                             </div>
                         } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes(f)} onChange={e => toggle(f)} />
                         <Collapse open={state.enabledFeatures.includes(f)}>
-                            <div className="px-5 mt-5 pb-5 grid max-md:grid-cols-1 md:grid-cols-2 gap-10 overflow-y-auto max-h-[70vh] bjf-scrollbar">
+                            <div className="px-5 mt-5 pb-5 space-y-10 gap-10 overflow-y-auto max-h-[70vh] bjf-scrollbar">
                                 <List className='col-span-2 border border-[#808080] rounded-md'>
                                     {setting.define.offlineTable !== false && (
                                         <SwitchListItem
+                                            data-testid={`offline-record-${f}`}
                                             label="启用离线记录"
                                             value={state.enabledRecording.includes(f)}
                                             onChange={e => toggleRecord(f)}

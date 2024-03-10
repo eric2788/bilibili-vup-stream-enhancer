@@ -17,7 +17,7 @@ export function getScriptUrl<T extends InjectableScriptType>(script: InjectableS
     return scripts[script.name].url
 }
 
-// TODO: make prototype but without getManifest error
+// getManifest error only happens on development environment
 const scripts = {
     clearIndexedDbTable,
 }

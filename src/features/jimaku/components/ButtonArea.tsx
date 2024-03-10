@@ -1,6 +1,6 @@
 import { Fragment, useContext, useState } from "react";
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
-import StreamInfoContext from "~contexts/StreamInfoContexts";
+import ContentContext from "~contexts/ContentContexts";
 import { useRecords } from "~hooks/records";
 import { usePopupWindow } from "~hooks/window";
 import JimakuButton from './JimakuButton';
@@ -15,7 +15,7 @@ export type ButtonAreaProps = {
 
 function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
 
-    const { settings, info } = useContext(StreamInfoContext)
+    const { settings, info } = useContext(ContentContext)
     const { jimakuZone, buttonZone: btnStyle, jimakuPopupWindow } = useContext(JimakuFeatureContext)
 
     const { order } = jimakuZone

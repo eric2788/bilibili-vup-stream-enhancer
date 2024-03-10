@@ -6,11 +6,12 @@ import { isNativeVtuber } from "~api/bilibili";
 import OfflineRecordsProvider from '~components/OfflineRecordsProvider';
 import TailwindScope from '~components/TailwindScope';
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
-import StreamInfoContext from "~contexts/StreamInfoContexts";
+import ContentContext from "~contexts/ContentContexts";
 import { parseJimaku } from "~utils/bilibili";
 import { retryCatcher } from "~utils/fetch";
 import type { FeatureHookRender } from "..";
 import JimakuCaptureLayer from './components/JimakuCaptureLayer';
+import { findOrCreateElement } from '~utils/react-node';
 
 
 function warnIfAdaptive() {
@@ -26,7 +27,7 @@ export const FeatureContext = JimakuFeatureContext
 
 export function App(): JSX.Element {
 
-    const { settings } = useContext(StreamInfoContext)
+    const { settings } = useContext(ContentContext)
     const { danmakuZone: { regex, opacity, hide } } = useContext(FeatureContext)
 
     const dev = settings['settings.developer']
@@ -85,8 +86,7 @@ const handler: FeatureHookRender = async (settings, info) => {
     const { backgroundListColor } = buttonSettings
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
-    const jimakuArea = document.createElement('div')
-    jimakuArea.id = 'jimaku-area'
+    const jimakuArea = findOrCreateElement('div', 'jimaku-area')
     playerSection.insertAdjacentElement('afterend', jimakuArea)
 
     // 自動過濾國V功能僅限在同傳字幕過濾生效

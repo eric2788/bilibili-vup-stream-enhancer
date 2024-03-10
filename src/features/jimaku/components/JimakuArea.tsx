@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Rnd } from 'react-rnd';
 import ConditionalWrapper from '~components/ConditionalWrapper';
 import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
-import StreamInfoContext from '~contexts/StreamInfoContexts';
+import ContentContext from '~contexts/ContentContexts';
 import { useWebScreenChange } from '~hooks/bilibili';
 import { useTeleport } from '~hooks/teleport';
 import type { JimakuSchema } from '~settings/features/jimaku/components/JimakuFragment';
@@ -47,7 +47,7 @@ export type JimakuAreaProps = {
 
 function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
-    const { settings, info: { isTheme } } = useContext(StreamInfoContext)
+    const { settings, info: { isTheme } } = useContext(ContentContext)
     const { jimakuZone: jimakuStyle } = useContext(JimakuFeatureContext)
 
     const dev = settings['settings.developer']
@@ -56,7 +56,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
     useEffect(() => {
         // make danmaku chat list peer with video 
-        const chatListArea = document.querySelector('div#aside-area-vm') as HTMLDivElement
+        const chatListArea = document.querySelector(dev.elements.videoArea) as HTMLDivElement
         if (!isTheme) {
             chatListArea.style.marginBottom = `${jimakuStyle.backgroundHeight + 30}px`
         }
