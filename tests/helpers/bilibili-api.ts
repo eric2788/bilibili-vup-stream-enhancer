@@ -101,12 +101,13 @@ export default class BilbiliApi {
 
     /**
      * 获取一页的直播房间。
-     * @param page - 要获取的页码。
+     * @param page - 要获取的页码, 默认为 1。
+     * @param area - 要获取的分区，默认为 9 (虚拟主播分区)。
      * @returns 一个解析为直播房间信息数组的Promise。
      * @throws 如果无法获取直播房间列表，则抛出错误。
      */
-    async getLiveRooms(page: number = 1): Promise<LiveRoomInfo[]> {
-        const data = await this.fetch(`/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=9&area_id=0&sort_type=online&page=${page}`)
+    async getLiveRooms(page: number = 1, area: number = 9): Promise<LiveRoomInfo[]> {
+        const data = await this.fetch(`/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${area}&area_id=0&sort_type=online&page=${page}`)
         if (data.code !== 0) throw new Error(`获取bilibili直播房间列表失败：${data.message}`)
         return data.data.list as LiveRoomInfo[]
     }

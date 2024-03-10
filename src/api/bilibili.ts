@@ -27,7 +27,7 @@ export async function getStreamInfo(room: string): Promise<StreamInfo> {
         title: data.room_info.title,
         uid: data.room_info.uid.toString(),
         username: data.anchor_info.base_info.uname,
-        isVtuber: data.room_info.parent_area_id !== 9, // 分區辨識
+        isVtuber: data.room_info.parent_area_id === 9, // 分區辨識
         status: data.room_info.live_status === 1 ? 'online' : 'offline',
         liveTime: data.room_info.live_start_time,
         isTheme: isThemePage() // 目前尚未知道如何在 API 中取得
@@ -62,9 +62,7 @@ export async function ensureLogin(): Promise<boolean> {
 
 export async function ensureIsVtuber(info: StreamInfo): Promise<StreamInfo> {
     // real vtuber identification
-    const vup = await retryCatcher(() => identifyVup(info.uid), 3,
-        { id: info.uid, name: info.username, locale: 'idk' } // if failed, always return is vtuber = true
-    )
+    const vup = await retryCatcher(() => identifyVup(info.uid), 3) // if failed, use area id to identify
 
     // if not undefined
     if (vup) {

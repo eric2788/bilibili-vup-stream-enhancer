@@ -9,6 +9,8 @@ import SuperChatArea from "./SuperChatArea"
 import SuperChatFloatingButton from "./SuperChatFloatingButton"
 import type { SuperChatCard } from "./SuperChatItem"
 import { useTransaction } from "~hooks/optimizer"
+import { useWebScreenChange } from "~hooks/bilibili"
+import SuperChatFeatureContext from "~contexts/SuperChatFeatureContext"
 
 export type SuperChatCaptureLayerProps = {
     offlineRecords: SuperChatCard[]
@@ -17,6 +19,7 @@ export type SuperChatCaptureLayerProps = {
 function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
 
     const { settings, info } = useContext(ContentContext)
+    const { displayFullScreen } = useContext(SuperChatFeatureContext)
     const { offlineRecords } = props
     const { 
         enabledRecording, 
@@ -59,6 +62,12 @@ function SuperChatCaptureLayer(props: SuperChatCaptureLayerProps): JSX.Element {
         }
         push(superChatProps)
     })
+
+    const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
+
+    if (screenStatus !== 'normal' && !displayFullScreen) {
+        return <></>
+    }
 
     return (
         <SuperChatFloatingButton>
