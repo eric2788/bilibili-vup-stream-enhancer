@@ -301,7 +301,7 @@ test('測試設定數據從MV2遷移', async ({ serviceWorker, settings: page })
             "tongchuanMans": ["123456789"],
             "tongchuanBlackList": ["987654321"],
             "subtitleColor": "#222222",
-            "blacklistRooms": ["24689", "98624"],
+            "blacklistRooms": ["24689", "98624", "13579", "97531"],
             "useAsWhitelist": true,
             "subtitleSize": 26,
             "firstSubtitleSize": 28,

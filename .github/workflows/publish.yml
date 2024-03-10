@@ -1,11 +1,12 @@
 name: Publish Extensions
+
 on:
     workflow_dispatch:
       inputs:
         dry-run:
-          description: 'dry run mode, will upload to the store but not publish'
-          type: boolean
+          description: 'dry run mode, will upload to the store but not publish and turn on verbose logging'
           required: false
+          type: boolean
           default: true
 
 jobs:
@@ -33,39 +34,35 @@ jobs:
               with:
                   name: ${{ matrix.browser }}-mv3
                   path: build/
-    publish-chrome:
+    publish:
         runs-on: ubuntu-latest
         needs: build
         steps:
             - name: Download Artifacts
               uses: actions/download-artifact@v4
               with:
-                  name: chrome-mv3
                   path: build/
-            - name: Upload Extension
-              uses: mnao305/chrome-extension-upload@v5.0.0
+            - name: Browser Platform Publish
+              uses: PlasmoHQ/bpp@v3.6.1
               with:
-                file-path: build/chrome-mv3-prod.zip
-                extension-id: nhomlepkjglilcahfcfnggebkaabeiog
-                client-id: ${{ secrets.CHROME_CLIENT_ID }}
-                client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-                refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-                publish: ${{ !inputs.dry-run }}
-    publish-edge:
-        runs-on: ubuntu-latest
-        needs: build
-        steps:
-            - name: Download Artifacts
-              uses: actions/download-artifact@v4
-              with:
-                name: edge-mv3
-                path: build/
-            - name: Upload Extension
-              uses: wdzeng/edge-addon@v1
-              with:
-                product-id: ${{ secrets.EDGE_PRODUCT_ID }}
-                zip-path: build/edge-mv3-prod.zip
-                client-id: ${{ secrets.EDGE_CLIENT_ID }}
-                client-secret: ${{ secrets.EDGE_CLIENT_SECRET }}
-                access-token-url: ${{ secrets.EDGE_ACCESS_TOKEN_URL }}
-                upload-only: ${{ inputs.dry-run }}
+                verbose: ${{ inputs.dry-run }}
+                keys: |
+                  {
+                    "$schema": "https://raw.githubusercontent.com/plasmo-corp/bpp/v3/keys.schema.json",
+                    "chrome": {
+                      "zip": "build/chrome-mv3/chrome-mv3-prod.zip",
+                      "clientId": "${{ secrets.CHROME_CLIENT_ID }}",
+                      "clientSecret": "${{ secrets.CHROME_CLIENT_SECRET }}",
+                      "refreshToken": "${{ secrets.CHROME_REFRESH_TOKEN }}",
+                      "extId": "nhomlepkjglilcahfcfnggebkaabeiog",
+                      "uploadOnly": ${{ inputs.dry-run }}
+                    },
+                    "edge": {
+                      "zip": "build/edge-mv3/edge-mv3-prod.zip",
+                      "clientId": "${{ secrets.EDGE_CLIENT_ID }}",
+                      "clientSecret": "${{ secrets.EDGE_CLIENT_SECRET}}",
+                      "productId": "${{ secrets.EDGE_PRODUCT_ID }}",
+                      "accessTokenUrl": "${{ secrets.EDGE_ACCESS_TOKEN_URL }}",
+                      "uploadOnly": ${{ inputs.dry-run }}
+                    }
+                  }
