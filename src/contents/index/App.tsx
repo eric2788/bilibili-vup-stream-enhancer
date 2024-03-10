@@ -13,7 +13,6 @@ import Header from "./components/Header";
 
 const shadowRoot = () => document.querySelector('bjf-csui').shadowRoot
 
-//TODO: add steps
 const steps: Array<TutorialStep> = [
   {
     target: '#bjf-main-menu-button',
