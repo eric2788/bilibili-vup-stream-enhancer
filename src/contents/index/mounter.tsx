@@ -193,7 +193,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             await Promise.all(mounters.filter(m => enabled.includes(m.feature)).map(m => m.mount(settings)))
             console.info('渲染元素完成')
 
-            // TODO: change to use global data
+            // change to use global data in the future
             removeListener = addBLiveMessageCommandListener('DANMU_MSG', (data) => {
                 const uname = data.info[2][1]
                 const text = data.info[1]
