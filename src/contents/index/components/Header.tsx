@@ -1,11 +1,11 @@
 import { Typography, IconButton } from "@material-tailwind/react"
 import { useContext } from "react"
-import StreamInfoContext from "~contexts/StreamInfoContexts"
+import ContentContext from "~contexts/ContentContexts"
 
 
 function Header({ closeDrawer }: { closeDrawer: VoidFunction }): JSX.Element {
 
-    const { info } = useContext(StreamInfoContext)
+    const { info } = useContext(ContentContext)
 
     return (
         <div className="mb-3 flex items-center justify-between text-ellipsis">

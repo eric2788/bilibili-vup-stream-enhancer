@@ -5,20 +5,30 @@ import type { FeatureType } from "~features";
 import type { Settings } from "~settings";
 
 
+/**
+ * Props for the OfflineRecordsProvider component.
+ * @template T - The type of the table.
+ */
 export type OfflineRecordsProviderProps<T extends TableType> = {
-    feature: FeatureType
-    settings: Settings
-    room: string
-    table: T
-    filter?: (x: RecordType<T>) => boolean
-    sortBy?: keyof RecordType<T>
-    reverse?: boolean
-    loading: React.ReactNode
-    error: (err: any, retry: VoidFunction) => React.ReactNode
-    children: (data: RecordType<T>[]) => React.ReactNode
+    feature: FeatureType; // The feature type.
+    settings: Settings; // The settings object.
+    room: string; // The room name.
+    table: T; // The table type.
+    filter?: (x: RecordType<T>) => boolean; // Optional filter function.
+    sortBy?: keyof RecordType<T>; // Optional key to sort the records by.
+    reverse?: boolean; // Optional flag to reverse the sorting order.
+    loading: React.ReactNode; // The loading indicator.
+    error: (err: any, retry: VoidFunction) => React.ReactNode; // Function to render the error message.
+    children: (data: RecordType<T>[]) => React.ReactNode; // Function to render the children components.
 }
 
-
+/**
+ * Provides offline records for a specific table type.
+ *
+ * @template T - The type of the table.
+ * @param {OfflineRecordsProviderProps<T>} props - The props for the OfflineRecordsProvider component.
+ * @returns {JSX.Element} - The rendered OfflineRecordsProvider component.
+ */
 function OfflineRecordsProvider<T extends TableType>(props: OfflineRecordsProviderProps<T>): JSX.Element {
 
     const { settings, table, feature, children, loading, error, room, reverse, sortBy, filter } = props

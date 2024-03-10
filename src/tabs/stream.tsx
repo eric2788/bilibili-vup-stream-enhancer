@@ -1,4 +1,4 @@
-import '~tailwindcss';
+import '~style.css';
 
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 

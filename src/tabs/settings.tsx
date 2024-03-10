@@ -1,4 +1,4 @@
-import '~tailwindcss';
+import '~style.css';
 
 import { Fragment, useContext, useRef, type Ref, type RefObject } from 'react';
 import BJFThemeProvider from '~components/BJFThemeProvider';

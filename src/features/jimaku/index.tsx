@@ -6,7 +6,7 @@ import { isNativeVtuber } from "~api/bilibili";
 import OfflineRecordsProvider from '~components/OfflineRecordsProvider';
 import TailwindScope from '~components/TailwindScope';
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
-import StreamInfoContext from "~contexts/StreamInfoContexts";
+import ContentContext from "~contexts/ContentContexts";
 import { parseJimaku } from "~utils/bilibili";
 import { retryCatcher } from "~utils/fetch";
 import type { FeatureHookRender } from "..";
@@ -27,7 +27,7 @@ export const FeatureContext = JimakuFeatureContext
 
 export function App(): JSX.Element {
 
-    const { settings } = useContext(StreamInfoContext)
+    const { settings } = useContext(ContentContext)
     const { danmakuZone: { regex, opacity, hide } } = useContext(FeatureContext)
 
     const dev = settings['settings.developer']

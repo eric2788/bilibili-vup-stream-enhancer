@@ -1,10 +1,10 @@
-import type { PlasmoCSUIAnchor } from "plasmo"
+import { memo } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { toast } from "sonner/dist"
 import { ensureLogin, type StreamInfo } from "~api/bilibili"
 import { sendForward } from "~background/forwards"
 import BLiveThemeProvider from "~components/BLiveThemeProvider"
-import StreamInfoContext from "~contexts/StreamInfoContexts"
+import ContentContext from "~contexts/ContentContexts"
 import type { FeatureType } from "~features"
 import features from "~features"
 import type { Settings } from "~settings"
@@ -12,10 +12,9 @@ import { shouldInit } from "~settings"
 import { getStreamInfoByDom } from "~utils/bilibili"
 import { injectAdapter } from "~utils/inject"
 import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
+import { findOrCreateElement } from "~utils/react-node"
 import { getFullSettingStroage } from "~utils/storage"
 import App from "./App"
-import { memo } from "react"
-import { findOrCreateElement } from "~utils/react-node"
 
 interface RootMountable {
     feature: FeatureType
@@ -81,12 +80,12 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
                 root = createRoot(section)
                 root.render(
                     <BLiveThemeProvider element={section}>
-                        <StreamInfoContext.Provider value={{ settings, info }}>
+                        <ContentContext.Provider value={{ settings, info }}>
                             <FeatureContextProvider context={Context} value={settings['settings.features'][feature]}>
                                 {App && <App />}
                                 {portals}
                             </FeatureContextProvider>
-                        </StreamInfoContext.Provider>
+                        </ContentContext.Provider>
                     </BLiveThemeProvider>
                 )
             },
@@ -182,9 +181,9 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             console.info('開始渲染主元素....')
             root.render(
                 <BLiveThemeProvider element={section}>
-                    <StreamInfoContext.Provider value={{ settings, info }}>
+                    <ContentContext.Provider value={{ settings, info }}>
                         <App />
-                    </StreamInfoContext.Provider>
+                    </ContentContext.Provider>
                 </BLiveThemeProvider>
             )
             console.info('渲染主元素完成')

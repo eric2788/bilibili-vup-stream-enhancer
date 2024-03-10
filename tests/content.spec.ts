@@ -222,7 +222,7 @@ test('測試底部的按鈕', async ({ content, context }) => {
     await p1.close()
 
     await button.click()
-    await content.waitForTimeout(1500)
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
     popup = context.waitForEvent('page', { predicate: p => p.url().includes('t.me') })
     await content.getByTitle('联络作者').click()
     const p2 = await popup
@@ -230,9 +230,14 @@ test('測試底部的按鈕', async ({ content, context }) => {
     expect(p2.url()).toBe('https://t.me/Eric1008818')
     await p2.close()
 
+    await button.click()
+    await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
+    popup = context.waitForEvent('page', { predicate: p => p.url().includes('github.com') })
+    await content.getByTitle('贡献指南').click()
+    const p3 = await popup
 
-    // TODO: test contribut button
-
+    expect(p3.url()).toBe('https://github.com/eric2788/bilibili-vup-stream-enhancer/blob/master/CONTRIBUTING.md')
+    await p3.close()
 })
 
 test('測試导航', async ({ room, content, serviceWorker }) => { 

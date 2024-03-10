@@ -15,6 +15,8 @@ export type ContentFixtures = {
 
 export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
 
+    // 代表内容页，可能是直播间页或者大海报直播间内的 iframe
+    // 建议使用 content 来获取内容页，而不是直接使用 page
     content: async ({ room, page }, use) => {
         page.frames().map(f => logger.debug(f.url()))
         const maybeFrame = await room.getContentLocator()
@@ -23,6 +25,7 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
         await use(maybeFrame)
     },
 
+    // 直播间实例
     room: [
         async ({ page, isThemeRoom, rooms, maxRoomRetries, cacher, api }, use) => {
             await using bilibiliPage = new BilibiliPage(page, api)
@@ -37,7 +40,7 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
         { auto: true, timeout: 0 }
     ],
 
-    // force to theme room
+    // 强制使用大海报房间时使用
     themeRoom: [
         async ({ rooms, maxRoomRetries, cacher, room }, use) => {
             if (await room.isThemePage()) {

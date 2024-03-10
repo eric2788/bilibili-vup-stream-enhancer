@@ -15,15 +15,18 @@ export type BackgroundFixtures = {
 
 
 export const test = extensionBase.extend<BackgroundFixtures>({
+    // 代表 设定页面
     settings: async ({ page, tabUrl }, use) => {
         await page.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
         await use(page)
     },
+    // 直播间页面用
     front: async ({ context, rooms, api, isThemeRoom, cacher }, use) => {
         const frontPage = await context.newPage()
         await using room = new BilibiliPage(frontPage, api)
         const generator = Strategy.random(rooms, Math.min(rooms.length, 5))
         const info = await cacher.findRoomTypeWithCache(isThemeRoom ? 'theme' : 'normal', generator)
+        test.skip(!info, `找不到${isThemeRoom ? '' : '不是'}大海報的房間。`)
         await room.enterToRoom(info)
         test.skip(await room.checkIfNotSupport(), '瀏覽器版本過低')
         await use(room)

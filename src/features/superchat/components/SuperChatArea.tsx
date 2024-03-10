@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react"
-import StreamInfoContext from "~contexts/StreamInfoContexts"
+import ContentContext from "~contexts/ContentContexts"
 import { useScrollOptimizer } from "~hooks/optimizer"
 import { useRecords } from "~hooks/records"
 import SuperChatItem, { type SuperChatCard } from "./SuperChatItem"
@@ -15,7 +15,7 @@ export type SuperChatAreaProps = {
 function SuperChatArea(props: SuperChatAreaProps): JSX.Element {
 
     const [ themeDark ] = useContext(BJFThemeDarkContext)
-    const { settings, info } = useContext(StreamInfoContext)
+    const { settings, info } = useContext(ContentContext)
     const { buttonColor } = useContext(SuperChatFeatureContext)
     const { superchats, clearSuperChat } = props
     const { enabledRecording } = settings['settings.features']

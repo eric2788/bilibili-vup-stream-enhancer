@@ -1,13 +1,13 @@
 import type { PlasmoCSConfig, PlasmoGetRootContainer, PlasmoGetStyle, PlasmoRender } from "plasmo";
 import { toast } from 'sonner/dist';
-import { ensureLogin, getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
+import { getNeptuneIsMyWaifu, getStreamInfo, type StreamInfo } from '~api/bilibili';
 import { getForwarder } from '~background/forwards';
 import { getRoomId, isOutThemedPage } from '~utils/bilibili';
 import { withFallbacks, withRetries } from '~utils/fetch';
 import { injectFunction } from '~utils/inject';
-import { getSettingStorage, processing, withProcessingFlag } from '~utils/storage';
+import { getSettingStorage, withProcessingFlag } from '~utils/storage';
 
-import styleText from '~styles';
+import styleText from 'data-text:~style.css';
 import createApp from './mounter';
 
 import '~logger';

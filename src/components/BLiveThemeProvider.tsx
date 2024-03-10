@@ -1,14 +1,27 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isDarkThemeBilbili } from '~utils/bilibili';
-import { isDarkTheme } from '~utils/misc';
 
 import { useMutationObserver } from '@react-hooks-library/core';
 
-import BJFThemeProvider from './BJFThemeProvider';
 import BJFThemeDarkContext from '~contexts/BLiveThemeDarkContext';
+import BJFThemeProvider from './BJFThemeProvider';
 
 const fetchDarkMode = () => /*isDarkTheme() &&*/ isDarkThemeBilbili()
 
+/**
+ * BLiveThemeProvider component provides a theme context for the children components.
+ *
+ * @param children - The child components to be wrapped by the theme provider.
+ * @param element - The element or elements to be used for checking dark/light theme from bilibili. If not provided, the document.documentElement will be used.
+ * @returns The JSX element representing the theme provider.
+ *
+ * @example
+ * ```tsx
+ * <BLiveThemeProvider>
+ *   <App />
+ * </BLiveThemeProvider>
+ * ```
+ */
 function BLiveThemeProvider({ children, element }: { children: React.ReactNode, element?: Element | Element[] }): JSX.Element {
 
   const themeContext = useState<boolean>(fetchDarkMode)

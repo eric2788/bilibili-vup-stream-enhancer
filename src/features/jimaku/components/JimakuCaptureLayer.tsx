@@ -2,7 +2,7 @@ import { Fragment, useCallback, useContext, useRef, useState } from 'react';
 import { getTimeStamp, randomString, toStreamingTime } from '~utils/misc';
 
 import { sendForward } from '~background/forwards';
-import StreamInfoContext from '~contexts/StreamInfoContexts';
+import ContentContext from '~contexts/ContentContexts';
 import db from '~database';
 import { useBLiveSubscriber } from '~hooks/message';
 import { parseJimaku } from '~utils/bilibili';
@@ -18,7 +18,7 @@ export type JimakuCaptureLayerProps = {
 
 function JimakuCaptureLayer(props: JimakuCaptureLayerProps): JSX.Element {
 
-    const { settings, info } = useContext(StreamInfoContext)
+    const { settings, info } = useContext(ContentContext)
     const { jimakuZone: jimakuStyle, danmakuZone, jimakuPopupWindow, listingZone } = useContext(JimakuFeatureContext)
     const { offlineRecords } = props
 
