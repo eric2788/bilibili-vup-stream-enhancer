@@ -208,6 +208,30 @@ test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ conte
     await expect(button).toBeVisible()
 })
 
+test('测试仅限虚拟主播', async ({ context, room, tabUrl, api }) => {
+
+    const nonVtbRooms = await api.getLiveRooms(1, 11) // 获取知识分区直播间
+    test.skip(nonVtbRooms.length === 0, '没有知识分区直播间')
+
+    await room.enterToRoom(nonVtbRooms[0])
+    const content = await room.getContentLocator()
+
+    const button = content.getByText('功能菜单')
+    await expect(button).toBeHidden()
+
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('仅限虚拟主播').click()
+    await settingsPage.getByText('保存设定').click()
+
+    await room.page.bringToFront()
+    await content.waitForTimeout(1000)
+
+    await expect(button).toBeVisible()
+
+})
+
 test('測試底部的按鈕', async ({ content, context }) => {
 
     const button = content.getByText('功能菜单')
@@ -240,7 +264,7 @@ test('測試底部的按鈕', async ({ content, context }) => {
     await p3.close()
 })
 
-test('測試导航', async ({ room, content, serviceWorker }) => { 
+test('測試导航', async ({ room, content, serviceWorker }) => {
 
     const overlay = content.locator('.react-joyride__overlay')
 
@@ -261,7 +285,7 @@ test('測試导航', async ({ room, content, serviceWorker }) => {
     const skip = content.getByRole('button', { name: '跳过' })
     const finish = content.getByRole('button', { name: '完成' })
 
-    while(await next.isVisible()) {
+    while (await next.isVisible()) {
         await next.click()
         await content.waitForTimeout(100)
     }

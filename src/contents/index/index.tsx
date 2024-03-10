@@ -67,7 +67,7 @@ const getStreamInfoFallbacks = [
     title: r.data.room_info.title,
     uid: r.data.room_info.uid.toString(),
     username: r.data.anchor_info.base_info.uname,
-    isVtuber: r.data.room_info.parent_area_id !== 9, // 分區辨識
+    isVtuber: r.data.room_info.parent_area_id === 9, // 分區辨識
     status: r.data.room_info.live_status === 1 ? 'online' : 'offline',
     liveTime: r.data.room_info.live_start_time
   }) as StreamInfo),

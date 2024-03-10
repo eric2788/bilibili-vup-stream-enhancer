@@ -33,7 +33,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     enabledRecording: [],
     common: {
         enabledPip: false,
-        onlyVtuber: false,
+        onlyVtuber: true,
         monitorWindow: false,
         useStreamingTime: true
     },

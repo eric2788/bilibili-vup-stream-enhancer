@@ -28,7 +28,7 @@ test('測試能否保存設定', async ({ settings: page }) => {
     await page.getByText('功能设定').click()
 
     const chexkboxVtbOnly = page.getByTestId('vtb-only')
-    await expect(chexkboxVtbOnly).not.toBeChecked()
+    await expect(chexkboxVtbOnly).toBeChecked()
     await page.getByText('仅限虚拟主播').click()
 
     const checkboxMonitor = page.getByTestId('monitor-window')
@@ -71,7 +71,7 @@ test('測試能否保存設定', async ({ settings: page }) => {
 
     logger.info('正在验证功能設定....')
     await page.getByText('功能设定').click()
-    await expect(chexkboxVtbOnly).toBeChecked()
+    await expect(chexkboxVtbOnly).not.toBeChecked()
     await expect(checkboxMonitor).toBeChecked()
     await expect(inputSubtitleSize).toHaveValue('20')
     await expect(inputFirstSubtitleSize).toHaveValue('22')
@@ -96,7 +96,7 @@ test('測試導出導入設定', async ({ settings: page }) => {
     await page.getByText('功能设定').click()
 
     const chexkboxVtbOnly = page.getByTestId('vtb-only')
-    await expect(chexkboxVtbOnly).not.toBeChecked()
+    await expect(chexkboxVtbOnly).toBeChecked()
     await page.getByText('仅限虚拟主播').click()
 
     const checkboxMonitor = page.getByTestId('monitor-window')
@@ -120,7 +120,7 @@ test('測試導出導入設定', async ({ settings: page }) => {
 
     logger.info('正在验证功能設定....')
     await page.getByText('功能设定').click()
-    await expect(chexkboxVtbOnly).toBeChecked()
+    await expect(chexkboxVtbOnly).not.toBeChecked()
     await expect(checkboxMonitor).toBeChecked()
     await expect(inputSubtitleSize).toHaveValue('20')
     await expect(inputFirstSubtitleSize).toHaveValue('22')
@@ -135,7 +135,7 @@ test('測試導出導入設定', async ({ settings: page }) => {
     await page.getByText('设定已经导入成功。').waitFor({ state: 'visible' })
 
     logger.info('正在验证功能設定....')
-    await expect(chexkboxVtbOnly).not.toBeChecked()
+    await expect(chexkboxVtbOnly).toBeChecked()
     await expect(checkboxMonitor).not.toBeChecked()
     await expect(inputSubtitleSize).toHaveValue('16')
     await expect(inputFirstSubtitleSize).toHaveValue('18')

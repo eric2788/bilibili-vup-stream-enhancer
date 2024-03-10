@@ -53,7 +53,7 @@ export default class RoomTypeFinder {
                 return type
             }
         }
-        logger.info(`房间 ${page.info.roomid} 的类型是: 普通`)
+        logger.info(`房间 ${page.info.roomid} 的类型是: normal`)
         return 'normal'
     }
 
