@@ -1,0 +1,48 @@
+name: Test Only @scoped
+
+on:
+    push:
+        branches: 
+          - 'hotfix/**'
+          - 'feature/**'
+        paths:
+          - 'src/**'
+          - 'tests/**'
+          - 'playwright.config.ts'
+          - 'pnpm-lock.yaml'
+          - '.github/workflows/build-test.yml'
+    workflow_dispatch:
+        inputs:
+          debug:
+            description: 'Enable debug logging'
+            required: false
+            default: 'false'
+
+jobs:
+    fast-test:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+              browser: [chrome, edge]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v2
+              with:
+                version: 8
+            - name: Setup Node.js
+              uses: actions/setup-node@v4.0.1
+              with:
+                  node-version: 20
+                  cache: 'pnpm'
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+            - name: Build And Package Extensions
+              run: pnpm build --zip --target=${{ matrix.browser }}-mv3
+            - name: Install Playwright Browsers
+              run: pnpm exec playwright install --with-deps
+            - name: Test
+              id: test
+              run: pnpm test -- --project=${{ matrix.browser }} --grep=@scoped --pass-with-no-tests
+              env:
+                DEBUG: true

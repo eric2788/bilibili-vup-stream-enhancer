@@ -4,8 +4,6 @@ on:
     push:
         branches: 
           - 'develop'
-          - 'hotfix/**'
-          - 'feature/**'
         paths:
           - 'src/**'
           - 'tests/**'
