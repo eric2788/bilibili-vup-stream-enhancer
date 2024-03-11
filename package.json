@@ -12,7 +12,7 @@
     "package": "plasmo package",
     "clean": "run-script-os",
     "clean:nix": "rm -rf build && rm -rf .plasmo",
-    "clean:windows": "rmdir /s /q build && rmdir /s /q .plasmo",
+    "clean:windows": "if exist build rmdir /s /q build && if exist .plasmo rmdir /s /q .plasmo",
     "test": "playwright test",
     "test:prepare": "run-script-os",
     "test:prepare:nix": "mv build/chrome-mv3-prod build/extension",
