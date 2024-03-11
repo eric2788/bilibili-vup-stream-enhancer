@@ -2,7 +2,7 @@
 
 > 本扩展基于 [Plasmo CSUI](https://docs.plasmo.com/framework/content-scripts-ui) 进行前端渲染。
 
-如要新增功能，你需要到以下地方新增(其余未列明的地方均为可选)：
+如要新增功能，你需要到以下地方新增：
 
 ```
 src/
