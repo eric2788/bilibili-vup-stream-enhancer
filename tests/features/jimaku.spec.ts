@@ -277,7 +277,7 @@ test('测试添加同传用户名单/黑名单', async ({ content, context, tabU
     }
 })
 
-test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content: p, room }) => {
+test('測試全屏時字幕區塊是否存在 + 顯示切換', { tag: "@scoped" },async ({ content: p, room }) => {
 
     test.skip(await room.isThemePage(), '此測試不適用於大海報房間')
 
