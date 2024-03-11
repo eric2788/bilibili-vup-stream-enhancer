@@ -204,6 +204,79 @@ test('測試房間名單列表(黑名單/白名單)', async ({ room, content, co
 
 })
 
+test('测试添加同传用户名单/黑名单', async ({ content, context, tabUrl, room }) => {
+
+    const subtitleList = content.locator('#subtitle-list')
+    await expect(subtitleList).toBeVisible()
+
+    const user1 = 1
+    const user2 = 2
+
+    const txt = '由 playwright 工具發送'
+    const subtitles = content.locator('#subtitle-list > p').filter({ hasText: txt })
+
+    const withBracket = `【${txt}】`
+
+    logger.info('正在測試同傳字幕正則覆蓋....')
+
+    await room.sendDanmaku(withBracket, user1)
+    await room.sendDanmaku(withBracket, user1)
+    await room.sendDanmaku(txt, user1) // this should not be covered
+
+    await expect(subtitles).toHaveCount(2)
+
+    logger.info('正在測試添加同傳用戶名單...')
+
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('同传名单设定').click()
+
+    await settingsPage.getByTestId('tongchuan-mans-input').fill(user1.toString())
+    await settingsPage.getByTestId('tongchuan-mans-input').press('Shift+Enter')
+    await settingsPage.getByText(`添加用户 ${user1} 成功`).waitFor({ state: 'visible' })
+
+    await settingsPage.getByText('保存设定').click()
+
+    await room.page.bringToFront()
+    await subtitleList.waitFor({ state: 'visible' })
+    await room.sendDanmaku(withBracket, user1)
+    await room.sendDanmaku(withBracket, user1)
+    await room.sendDanmaku(txt, user1) // this should be covered
+
+    await expect(subtitles).toHaveCount(3)
+
+    logger.info('正在測試添加同傳用戶黑名單...')
+
+    await settingsPage.bringToFront()
+    await settingsPage.getByTestId('tongchuan-blacklist-input').fill(user2.toString())
+    await settingsPage.getByTestId('tongchuan-blacklist-input').press('Shift+Enter')
+    await settingsPage.getByText(`添加用户 ${user2} 成功`).waitFor({ state: 'visible' })
+
+    await settingsPage.getByText('保存设定').click()
+
+    await room.page.bringToFront()
+    await subtitleList.waitFor({ state: 'visible' })
+    await room.sendDanmaku(withBracket, user2) // should be blacklisted
+    await room.sendDanmaku(withBracket, user2) // should be blacklisted
+
+    await expect(subtitles).toHaveCount(0)
+
+    // github host runner does not have access to bilibili user api
+    if (!process.env.CI) {
+
+        logger.info('正在嘗試添加不存在用戶...')
+
+        await settingsPage.bringToFront()
+        await settingsPage.getByTestId('tongchuan-mans-input').fill('1234569')
+        await settingsPage.getByTestId('tongchuan-mans-input').press('Enter')
+
+        await expect(settingsPage.getByText('用户 1234569 不存在')).toBeVisible()
+
+    }
+})
+
 test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content: p, room }) => {
 
     test.skip(await room.isThemePage(), '此測試不適用於大海報房間')

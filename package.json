@@ -66,6 +66,7 @@
   "manifest": {
     "host_permissions": [
       "*://api.vtbs.moe/*",
+      "*://api.bilibili.com/*",
       "*://api.live.bilibili.com/*",
       "*://live.bilibili.com/*",
       "*://*.bilivideo.com/*",
