@@ -52,20 +52,27 @@ jobs:
               run: pnpm install --frozen-lockfile
             - name: Build Extension and Prepare Tests
               run: pnpm test:rebuild
-            - name: Get installed Playwright version
-              id: playwright-version
-              run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').devDependencies['@playwright/test'].version)")" >> $GITHUB_ENV
             - name: Cache playwright binaries
               uses: actions/cache@v3
               id: playwright-cache
               with:
                 path: |
                   ~/.cache/ms-playwright
-                key: ${{ runner.os }}-playwright-$PLAYWRIGHT_VERSION
-            - name: Install Playwright Browsers
-              run: pnpm exec playwright install --with-deps
+                key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+                restore-keys: |
+                    ${{ runner.os }}-playwright-
+            - run: pnpm exec playwright install --with-deps
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+            - run: pnpm exec playwright install-deps
+              if: steps.playwright-cache.outputs.cache-hit == 'true'
             - name: Test
               id: test
-              run: pnpm test -- --project=${{ matrix.browser }} --grep=@scoped --pass-with-no-tests
+              run: | 
+                pnpm test -- --project=${{ matrix.browser }} \
+                             --grep=@scoped \
+                             --pass-with-no-tests \
+                             --global-timeout=3600000 \
+                             --timeout=60000 \
+                             --max-failures=5
               env:
                 DEBUG: true

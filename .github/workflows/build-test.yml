@@ -56,6 +56,8 @@ jobs:
               theme: ['', '-theme']
       steps:
           - uses: actions/checkout@v4
+          - name: Ensure No @Scoped Test
+            run: grep -r --include "*.spec.ts" "@scoped" && echo "please remove @scoped from tests" && exit 1 || echo "No @scoped tests found"
           - name: Download artifacts
             uses: actions/download-artifact@v4
             id: download
@@ -90,7 +92,7 @@ jobs:
               fi
               pnpm test -- --project=${{ steps.project.outputs.project }}
           - name: Upload Test Results
-            if: always()
+            if: always() && steps.test.conclusion != 'skipped'
             uses: actions/upload-artifact@v4
             with:
                 name: ${{ steps.project.outputs.project }}-test-results
@@ -99,7 +101,7 @@ jobs:
                   playwright-report/
                 if-no-files-found: ignore
           - name: Upload Results To R2
-            if: ${{ failure() && steps.test.conclusion == 'failure' }}
+            if: failure() && steps.test.conclusion == 'failure'
             uses: eric2788/r2-upload-action@master
             id: upload
             continue-on-error: true

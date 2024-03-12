@@ -120,7 +120,7 @@ export class BilibiliPage implements AsyncDisposable {
                 danmaku,
                 [
                     uid,
-                    "username",
+                    `用户 ${uid}`,
                     undefined,
                     undefined,
                     undefined,
