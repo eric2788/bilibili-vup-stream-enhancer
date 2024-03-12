@@ -1,10 +1,9 @@
-import { Fragment, useContext, useEffect, useMemo, useState } from 'react';
+import { Fragment, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import styled from '@emotion/styled';
 import { Rnd } from 'react-rnd';
 import ConditionalWrapper from '~components/ConditionalWrapper';
-import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 import ContentContext from '~contexts/ContentContexts';
+import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 import { useWebScreenChange } from '~hooks/bilibili';
 import { useTeleport } from '~hooks/teleport';
 import type { JimakuSchema } from '~settings/features/jimaku/components/JimakuFragment';
@@ -12,8 +11,9 @@ import { rgba } from '~utils/misc';
 import type { Jimaku } from "./JimakuLine";
 import JimakuList from './JimakuList';
 import JimakuVisibleButton from './JimakuVisibleButton';
+import ShadowStyle from '~components/ShadowStyle';
 
-const createJimakuScope = (jimakuStyle: JimakuSchema) => styled.div`
+const createAreaStyleSheet = (jimakuStyle: JimakuSchema) => `
 
         .subtitle-normal::-webkit-scrollbar {
             width: 5px;
@@ -52,7 +52,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
     const dev = settings['settings.developer']
 
-    const Area = useMemo(() => createJimakuScope(jimakuStyle), [jimakuStyle])
+    const areaCssText = useMemo(() => createAreaStyleSheet(jimakuStyle), [jimakuStyle])
 
     useEffect(() => {
         // make danmaku chat list peer with video 
@@ -95,31 +95,32 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
         subTitleStyle.backgroundColor = rgba(jimakuStyle.backgroundColor, (jimakuStyle.backgroundOpacity / 100))
     }
 
+    const r = useRef<HTMLDivElement>(null)
+
     return (
         <Fragment>
+            <ShadowStyle>{areaCssText}</ShadowStyle>
             <Teleport container={rootContainer}>
-                <Area>
-                    <ConditionalWrapper
-                        as={Rnd}
-                        condition={screenStatus !== 'normal' || isTheme}
-                        bounds={dev.elements.webPlayer}
-                        style={{ zIndex: 9999, display: visible ? 'block' : 'none' }}
-                        minHeight={100}
-                        minWidth={200}
-                        scale={0.93}
-                        default={{
-                            x: 100,
-                            y: -300,
-                            width: '50%',
-                            height: jimakuStyle.backgroundHeight,
-                        }}
-                    >
-                        <JimakuList
-                            jimaku={jimaku}
-                            style={subTitleStyle}
-                        />
-                    </ConditionalWrapper>
-                </Area>
+                <ConditionalWrapper
+                    as={Rnd}
+                    condition={screenStatus !== 'normal' || isTheme}
+                    bounds={dev.elements.webPlayer}
+                    style={{ zIndex: 9999, display: visible ? 'block' : 'none' }}
+                    minHeight={100}
+                    minWidth={200}
+                    scale={0.93}
+                    default={{
+                        x: 100,
+                        y: -300,
+                        width: '50%',
+                        height: jimakuStyle.backgroundHeight,
+                    }}
+                >
+                    <JimakuList
+                        jimaku={jimaku}
+                        style={subTitleStyle}
+                    />
+                </ConditionalWrapper>
             </Teleport>
             {screenStatus !== 'normal' && <JimakuVisibleButton visible={visible} toggle={() => setVisible(!visible)} dev={dev} />}
         </Fragment>

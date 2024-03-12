@@ -8,10 +8,12 @@ import { getSettingStorage, setSettingStorage } from '~utils/storage';
 import type { Jimaku } from "./JimakuLine";
 import JimakuLine from './JimakuLine';
 
-import { useContext } from "react";
+import { useContext, useRef } from "react";
+import styleText from 'data-text:react-contexify/dist/ReactContexify.css';
 import 'react-contexify/dist/ReactContexify.css';
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
 import type { UserRecord } from "~settings/features/jimaku/components/ListingFragment";
+import ShadowStyle from "~components/ShadowStyle";
 
 
 export type JimakuListProps = {
@@ -48,12 +50,14 @@ function JimakuList(props: JimakuListProps): JSX.Element {
         settings.jimaku.listingZone.tongchuanBlackList.push(record)
         await setSettingStorage('settings.features', settings)
         // add blacklist for current (no need restart)
-        listingZone.tongchuanBlackList.push(record) 
+        listingZone.tongchuanBlackList.push(record)
         toast.success(`已不再接收 ${props.uname}(${props.uid}) 的同传弹幕`)
     }
 
 
     const observerRef = useScrollOptimizer({ root: element, rootMargin: '100px', threshold: 0.13 })
+
+    const r = useRef<HTMLDivElement>(null)
 
     return (
         <div
@@ -70,6 +74,7 @@ function JimakuList(props: JimakuListProps): JSX.Element {
                     show={displayContextMenu(item)}
                 />
             ))}
+            <ShadowStyle>{styleText}</ShadowStyle>
             <Menu id="jimaku-context-menu">
                 <Item onClick={blockUser}>屏蔽选中同传发送者</Item>
             </Menu>
