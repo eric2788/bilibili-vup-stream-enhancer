@@ -11,9 +11,9 @@ test('測試主元素是否存在', async ({ content }) => {
     await expect(csui.locator('#bjf-root')).toBeAttached()
 })
 
-test('测试扩展CSS有否影响到外围', { tag: '@scoped' }, async ({ content, room }) => {
+test('测试扩展CSS有否影响到外围', async ({ content, room, isThemeRoom }) => {
 
-    test.skip(await room.isThemePage(), '此測試不適用於大海報房間')
+    test.skip(isThemeRoom, '此測試不適用於大海報房間')
 
     logger.info('正在測試 CSS 有否外溢...')
 
