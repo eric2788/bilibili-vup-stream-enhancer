@@ -12,6 +12,7 @@ import type { Jimaku } from "./JimakuLine";
 import JimakuList from './JimakuList';
 import JimakuVisibleButton from './JimakuVisibleButton';
 import ShadowStyle from '~components/ShadowStyle';
+import TailwindScope from '~components/TailwindScope';
 
 const createAreaStyleSheet = (jimakuStyle: JimakuSchema) => `
 
@@ -95,31 +96,36 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
         subTitleStyle.backgroundColor = rgba(jimakuStyle.backgroundColor, (jimakuStyle.backgroundOpacity / 100))
     }
 
-    const r = useRef<HTMLDivElement>(null)
+    const shouldPutIntoLivePlayer = screenStatus !== 'normal' || isTheme
 
     return (
         <Fragment>
-            <ShadowStyle>{areaCssText}</ShadowStyle>
             <Teleport container={rootContainer}>
                 <ConditionalWrapper
-                    as={Rnd}
-                    condition={screenStatus !== 'normal' || isTheme}
-                    bounds={dev.elements.webPlayer}
-                    style={{ zIndex: 9999, display: visible ? 'block' : 'none' }}
-                    minHeight={100}
-                    minWidth={200}
-                    scale={0.93}
-                    default={{
-                        x: 100,
-                        y: -300,
-                        width: '50%',
-                        height: jimakuStyle.backgroundHeight,
-                    }}
+                    as={TailwindScope}
+                    condition={shouldPutIntoLivePlayer}
                 >
-                    <JimakuList
-                        jimaku={jimaku}
-                        style={subTitleStyle}
-                    />
+                    <ShadowStyle>{areaCssText}</ShadowStyle>
+                    <ConditionalWrapper
+                        as={Rnd}
+                        condition={shouldPutIntoLivePlayer}
+                        bounds={dev.elements.webPlayer}
+                        style={{ zIndex: 3000, display: visible ? 'block' : 'none' }}
+                        minHeight={100}
+                        minWidth={200}
+                        scale={0.93}
+                        default={{
+                            x: 100,
+                            y: -300,
+                            width: '50%',
+                            height: jimakuStyle.backgroundHeight,
+                        }}
+                    >
+                        <JimakuList
+                            jimaku={jimaku}
+                            style={subTitleStyle}
+                        />
+                    </ConditionalWrapper>
                 </ConditionalWrapper>
             </Teleport>
             {screenStatus !== 'normal' && <JimakuVisibleButton visible={visible} toggle={() => setVisible(!visible)} dev={dev} />}

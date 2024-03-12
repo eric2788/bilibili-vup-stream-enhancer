@@ -8,8 +8,8 @@ import { getSettingStorage, setSettingStorage } from '~utils/storage';
 import type { Jimaku } from "./JimakuLine";
 import JimakuLine from './JimakuLine';
 
-import { useContext, useRef } from "react";
 import styleText from 'data-text:react-contexify/dist/ReactContexify.css';
+import { useContext, useRef } from "react";
 import 'react-contexify/dist/ReactContexify.css';
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
 import type { UserRecord } from "~settings/features/jimaku/components/ListingFragment";
@@ -40,7 +40,33 @@ function JimakuList(props: JimakuListProps): JSX.Element {
     })
 
     const displayContextMenu = (jimaku: Jimaku) => (e: React.MouseEvent<Element>) => {
-        show({ event: e, props: jimaku })
+
+        const parent = element.current
+
+        if (!parent) {
+            console.warn('cannot show menu: parent is not mounted yet')
+            return
+        }
+
+        const rootElement = (parent.getRootNode() as ShadowRoot).host;
+        const inFullScreen = rootElement.clientHeight === 0
+        const mouseX = inFullScreen ? parent.clientWidth / 2 + 10 : e.clientX
+        const mouseY = inFullScreen ? (e.screenY - parent.getBoundingClientRect().top) - Math.max(1400 - window.innerHeight, 0) : e.clientY
+
+        console.log(
+            e.screenY,
+            parent.getBoundingClientRect().top,
+            window.innerHeight
+        )
+
+        show({
+            event: e,
+            props: jimaku,
+            position: {
+                x: mouseX,
+                y: mouseY
+            }
+        })
     }
 
     const blockUser = async ({ props }: ItemParams<Jimaku, any>) => {
@@ -57,14 +83,12 @@ function JimakuList(props: JimakuListProps): JSX.Element {
 
     const observerRef = useScrollOptimizer({ root: element, rootMargin: '100px', threshold: 0.13 })
 
-    const r = useRef<HTMLDivElement>(null)
-
     return (
         <div
             id="subtitle-list"
             ref={ref}
             style={style}
-            className="z-[9999] overflow-y-auto overflow-x-hidden w-full subtitle-normal">
+            className="z-[3000] overflow-y-auto overflow-x-hidden w-full subtitle-normal">
             {jimaku.map((item, i) => (
                 <JimakuLine
                     observer={observerRef}
@@ -75,7 +99,7 @@ function JimakuList(props: JimakuListProps): JSX.Element {
                 />
             ))}
             <ShadowStyle>{styleText}</ShadowStyle>
-            <Menu id="jimaku-context-menu">
+            <Menu id="jimaku-context-menu" style={{ zIndex: 9999 }}>
                 <Item onClick={blockUser}>屏蔽选中同传发送者</Item>
             </Menu>
         </div>
