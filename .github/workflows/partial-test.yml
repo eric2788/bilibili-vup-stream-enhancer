@@ -35,19 +35,6 @@ jobs:
               with:
                   node-version: 20
                   cache: 'pnpm'
-            - name: Get pnpm store directory
-              shell: bash
-              run: |
-                echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-            - uses: actions/cache@v3
-              name: Setup pnpm cache
-              with:
-                path: |
-                  $STORE_PATH
-                  node_modules
-                key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-                restore-keys: |
-                    ${{ runner.os }}-pnpm-store-
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
             - name: Build Extension and Prepare Tests
@@ -56,15 +43,10 @@ jobs:
               uses: actions/cache@v3
               id: playwright-cache
               with:
-                path: |
-                  ~/.cache/ms-playwright
+                path: ~/.cache/ms-playwright
                 key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
-                restore-keys: |
-                    ${{ runner.os }}-playwright-
             - run: pnpm exec playwright install --with-deps
               if: steps.playwright-cache.outputs.cache-hit != 'true'
-            - run: pnpm exec playwright install-deps
-              if: steps.playwright-cache.outputs.cache-hit == 'true'
             - name: Test
               id: test
               run: | 

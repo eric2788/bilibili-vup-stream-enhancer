@@ -76,8 +76,15 @@ jobs:
                 cache: 'pnpm'
           - name: Install dependencies
             run: pnpm install --frozen-lockfile
+          - name: Cache playwright binaries
+            uses: actions/cache@v3
+            id: playwright-cache
+            with:
+              path: ~/.cache/ms-playwright
+              key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
           - name: Install Playwright Browsers
             run: pnpm exec playwright install --with-deps
+            if: steps.playwright-cache.outputs.cache-hit != 'true'
           - name: Setup Project
             id: project
             run: |

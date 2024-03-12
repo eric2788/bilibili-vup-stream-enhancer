@@ -1,16 +1,17 @@
 import type React from "react";
-import { Item, type ItemParams, Menu, useContextMenu } from 'react-contexify';
+import { Item, Menu, useContextMenu, type ItemParams } from 'react-contexify';
 import { toast } from 'sonner/dist';
 import { useKeepBottom } from '~hooks/keep-bottom';
 import { useScrollOptimizer } from '~hooks/optimizer';
 import { getSettingStorage, setSettingStorage } from '~utils/storage';
 
-import JimakuLine from './JimakuLine';
 import type { Jimaku } from "./JimakuLine";
+import JimakuLine from './JimakuLine';
 
-import 'react-contexify/dist/ReactContexify.css';
 import { useContext } from "react";
+import 'react-contexify/dist/ReactContexify.css';
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
+import type { UserRecord } from "~settings/features/jimaku/components/ListingFragment";
 
 
 export type JimakuListProps = {
@@ -22,7 +23,7 @@ export type JimakuListProps = {
 
 function JimakuList(props: JimakuListProps): JSX.Element {
 
-    const { jimakuZone: jimakuStyle } = useContext(JimakuFeatureContext)
+    const { jimakuZone: jimakuStyle, listingZone } = useContext(JimakuFeatureContext)
     const { jimaku, style } = props
 
 
@@ -40,12 +41,15 @@ function JimakuList(props: JimakuListProps): JSX.Element {
         show({ event: e, props: jimaku })
     }
 
-    const blockUser = async ({ props }: ItemParams<any, any>) => {
+    const blockUser = async ({ props }: ItemParams<Jimaku, any>) => {
         if (!window.confirm(`是否屏蔽 ${props.uname}(${props.uid}) 的同传弹幕？`)) return
         const settings = await getSettingStorage('settings.features')
-        settings.jimaku.listingZone.tongchuanBlackList.push({ id: props.uid, name: props.uname, addedDate: new Date().toLocaleDateString() })
+        const record: UserRecord = { id: props.uid.toString(), name: props.uname, addedDate: new Date().toLocaleDateString() }
+        settings.jimaku.listingZone.tongchuanBlackList.push(record)
         await setSettingStorage('settings.features', settings)
-        toast.success(`已成功屏蔽 ${props.uname}(${props.uid}) 的同传弹幕`)
+        // add blacklist for current (no need restart)
+        listingZone.tongchuanBlackList.push(record) 
+        toast.success(`已不再接收 ${props.uname}(${props.uid}) 的同传弹幕`)
     }
 
 

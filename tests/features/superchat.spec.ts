@@ -18,7 +18,7 @@ test('測試功能元素是否存在', async ({ content }) => {
 })
 
 
-test('測試浮動按鈕和醒目留言記錄列表是否存在', { tag: "@scoped" }, async ({ content }) => {
+test('測試浮動按鈕和醒目留言記錄列表是否存在', async ({ content }) => {
 
     logger.info('正在測試浮動按鈕是否存在')
     const section = content.locator('bjf-csui section#bjf-feature-superchat')
