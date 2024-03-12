@@ -108,8 +108,8 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
                     <ShadowStyle>{areaCssText}</ShadowStyle>
                     <ConditionalWrapper
                         as={Rnd}
+                        bounds={jimakuStyle.areaDragBoundary ? dev.elements.webPlayer : undefined}
                         condition={shouldPutIntoLivePlayer}
-                        bounds={dev.elements.webPlayer}
                         style={{ zIndex: 3000, display: visible ? 'block' : 'none' }}
                         minHeight={100}
                         minWidth={200}
