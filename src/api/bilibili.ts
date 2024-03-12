@@ -111,6 +111,7 @@ export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> 
         }
     })
     
+    if (res.code === -404) return undefined
     if (res.code !== 0) throw new Error(`B站API请求错误: ${res.message}`)
     return res.data
 }

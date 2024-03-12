@@ -23,7 +23,7 @@ export type DataTableProps<T extends object> = {
     headers: TableHeader<T>[]
     values: T[]
     actions: TableAction<T>[]
-    onAdd?: (value: string) => void
+    onAdd?: (value: string, e: KeyboardEvent) => void
     headerSlot?: React.ReactNode
 }
 
@@ -45,7 +45,7 @@ function DataTable<T extends object>(props: DataTableProps<T>): JSX.Element {
     const onAdd = (e: Event | any) => {
         e?.preventDefault()
         if (!input) return
-        props.onAdd?.(input)
+        props.onAdd?.(input, e)
         setInput('')
     }
 
