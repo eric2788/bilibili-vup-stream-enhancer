@@ -21,6 +21,7 @@ export type JimakuSchema = {
     backgroundOpacity: HundredNumber
     filterUserLevel: number
     areaDragBoundary: boolean
+    rememberDragState: boolean
 }
 
 
@@ -36,7 +37,8 @@ export const jimakuDefaultSettings: Readonly<JimakuSchema> = {
     backgroundColor: '#808080',
     backgroundOpacity: 40,
     filterUserLevel: 0,
-    areaDragBoundary: false
+    areaDragBoundary: false,
+    rememberDragState: true
 }
 
 function JimakuFragment({ state, useHandler }: StateProxy<JimakuSchema>): JSX.Element {
@@ -120,6 +122,12 @@ function JimakuFragment({ state, useHandler }: StateProxy<JimakuSchema>): JSX.El
                     hint="开启后, 字幕背景将无法拖拽出播放器范围以外"
                     onChange={bool('areaDragBoundary')}
                     value={state.areaDragBoundary}
+                />
+                <SwitchListItem 
+                    label="记住全屏时字幕背景的拖拽位置和缩放"
+                    hint="刷新页面后，状态依然会被重设"
+                    onChange={bool('rememberDragState')}
+                    value={state.rememberDragState}
                 />
             </List>
         </Fragment>

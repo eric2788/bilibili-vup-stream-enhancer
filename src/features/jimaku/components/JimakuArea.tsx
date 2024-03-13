@@ -98,6 +98,15 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
 
     const shouldPutIntoLivePlayer = screenStatus !== 'normal' || isTheme
 
+    const [ dragState, setDragState ] = useState<{ 
+        x: number, 
+        y: number, 
+        width: string | number, 
+        height: string | number 
+    }>(() => ({ x: 100, y: -300, width: '50%', height: jimakuStyle.backgroundHeight }))
+
+    const rmbState = jimakuStyle.rememberDragState
+
     return (
         <Fragment>
             <Teleport container={rootContainer}>
@@ -114,12 +123,19 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
                         minHeight={100}
                         minWidth={200}
                         scale={0.93}
-                        default={{
-                            x: 100,
-                            y: -300,
-                            width: '50%',
-                            height: jimakuStyle.backgroundHeight,
+                        onDragStop={(e, d) => {
+                            if (!rmbState) return
+                            setDragState(state => ({ ...state, x: d.x, y: d.y }))
                         }}
+                        onResizeStop={(e, direction, ref, delta, position) => {
+                            if (!rmbState) return
+                            setDragState({
+                                width: ref.style.width,
+                                height: ref.style.height,
+                                ...position
+                            })
+                        }}
+                        default={dragState}
                     >
                         <JimakuList
                             jimaku={jimaku}
