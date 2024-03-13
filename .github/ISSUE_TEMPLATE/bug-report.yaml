@@ -1,0 +1,81 @@
+name: 问题回报
+description: 创建一个问题回报
+title: "[Bug]: <title>"
+labels: ["问题反映/修复", "求助"]
+projects: ["eric2788/4"]
+body:   
+  - type: checkboxes
+    attributes:
+      label: 感谢您抽出时间填写此问题回报！
+      description: 在提交问题之前，请确保您已经搜索了现有的问题，以确保您的问题是独特的。
+      options:
+        - label: 我已经搜索了现有的问题，并且确认我的问题是独特的
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述
+      description: 清楚简明扼要地描述你所遇到的问题
+      Tip: 可以添加图片或其他文件作为补充
+    validations:
+      required: true
+  - type: textarea
+    id: expected-result
+    attributes:
+      label: 期望结果
+      description: 描述一下正常的时候理应出现的结果是如何？
+      Tip: 可以添加图片或其他文件作为补充
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 请提供详细的复现步骤
+      Tip: 可以添加图片或其他文件作为补充
+      placeholder: |
+        1. 进入 '...'
+        2. 点进 '....'
+        3. 打开 '....'
+        4. 无法使用
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: 浏览器
+      description: 你所使用的浏览器以及版本？
+      placeholder: e.g. Chrome 版本 122.0.6261.113 (64 位元)
+    validations:
+      required: true
+  - type: dropdown
+    id: other-browsers
+    attributes:
+      label: 其他浏览器上的复现
+     description: 除了你所使用的浏览器外，你还有在其他浏览器上复现了这个问题吗？
+      multiple: true
+      options:
+        - Chrome
+        - Microsoft Edge
+        - Opera
+        - Brave
+  - type: inpput
+    id: extension-version
+    attributes:
+      label: 扩展版本
+      description: 你所使用的扩展版本？
+      placeholder: e.g. 2.0.0
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关的日志(如有)
+      description: 你可以打开 F12 的控制台查找相关的日志
+    validations:
+      required: false
+  - type: textarea
+    id: others
+    attributes:
+      label: 补充(如有)
+      description: 你还有其他补充吗？
+    validations:
+      required: false

@@ -19,6 +19,17 @@
 - FireFox 不需要在 2024 年 6 月前强制进入 mv3 阶段。
 - FireFox 目前对于 mv3 支援依然尚未完善，包括众多的BUG和未知问题。
 
+## 先行版本
+
+安装先行版本需要手动下载及安装，且可能会有未知问题。
+如发现问题，欢迎到 issue 进行回报。(连带 `先行版本` 标签)
+
+
+- [从 Artifacts 下载](https://github.com/eric2788/bilibili-vup-stream-enhancer/actions/workflows/build-test.yml?query=branch%3Adevelop)
+
+- [安装方式](https://jingyan.baidu.com/article/3065b3b6cc6cf6ffcef8a444.html)
+
+
 ## ➵ 简介
 
 本浏览器插件透过挂接 WebSocket 为管人观众提供众多功能。 本插件虽然功能众多，但全部主要功能均为可选，你仍可为界面保持简化。
