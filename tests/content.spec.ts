@@ -1,6 +1,7 @@
 import { test, expect } from "./fixtures/content";
 import logger from "./helpers/logger";
 import { receiveOneBLiveMessage } from "./utils/bilibili";
+import { random } from "./utils/misc";
 
 
 test('測試主元素是否存在', async ({ content }) => {
@@ -247,7 +248,7 @@ test('测试仅限虚拟主播', async ({ context, room, tabUrl, api }) => {
     const nonVtbRooms = await api.getLiveRooms(1, 11) // 获取知识分区直播间
     test.skip(nonVtbRooms.length === 0, '没有知识分区直播间')
 
-    await room.enterToRoom(nonVtbRooms[0])
+    await room.enterToRoom(random(nonVtbRooms))
     const content = await room.getContentLocator()
 
     const button = content.getByText('功能菜单')
