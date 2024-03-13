@@ -4,6 +4,28 @@ import ShadowRootContext from "~contexts/ShadowRootContext";
 
 
 
+/**
+ * promote a style element to the root level of ShadowRoot.
+ * @param {Object} props - The component props.
+ * @param {React.ReactNode} props.children - The children to be promoted inside the style element.
+ * @returns {JSX.Element} - The rendered style element.
+ * 
+ * @example
+ * import { ShadowStyle } from "~components/ShadowStyle";
+ * 
+ * function MyComponent() {
+ *    return (
+ *       // The style will be promoted to the root level of the ShadowRoot.
+ *      <ShadowStyle>
+ *       {`
+ *          .my-class {
+ *             color: red;
+ *         }
+ *      `}
+ *      </ShadowStyle>
+ *   )
+ * }
+ */
 function ShadowStyle({ children }: { children: React.ReactNode }): JSX.Element {
 
     const host = useContext(ShadowRootContext)
