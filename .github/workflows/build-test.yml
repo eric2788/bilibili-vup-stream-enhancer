@@ -12,6 +12,11 @@ on:
           - '.github/workflows/build-test.yml'
     pull_request:
         branches: [develop]
+        types: 
+          - opened
+          - reopened
+          - ready_for_review
+          - review_requested
     workflow_dispatch:
         inputs:
           debug:
