@@ -78,7 +78,7 @@ function DraggableFloatingButton(props: DraggableFloatingButtonProps): JSX.Eleme
                     height: 25,
                 }}
             >
-                <div className="w-full h-full rounded-full bg-white flex justify-center items-center">
+                <div data-type="draggable-button" className="w-full h-full rounded-full bg-white flex justify-center items-center">
                     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x={0} y={0}
                         viewBox="0 0 18 18" enableBackground="new 0 0 18 18" xmlSpace="preserve">
                         <path fill="#ffffff" d="M9,1L1,9l5.2,5.2L9,17l8-8L9,1z M7,12H6v-1h1V12z M7,7H6V6h1V7z M12,12h-1v-1h1V12z M11,6h1v1h-1V6z" />

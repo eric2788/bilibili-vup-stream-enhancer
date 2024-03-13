@@ -1,5 +1,5 @@
-import ShadowRoot from './ShadowRoot';
 import styleText from 'data-text:~style.css';
+import ShadowRoot from '~components/ShadowRoot';
 
 /**
  * Renders a component that applies a Tailwind CSS scope to its children.
@@ -12,8 +12,7 @@ import styleText from 'data-text:~style.css';
 function TailwindScope({ children, dark }: { children: React.ReactNode, dark?: boolean }): JSX.Element {
     return (
         <div className={dark === true ? `dark` : ''}>
-            <ShadowRoot>
-                <style>{styleText}</style>
+            <ShadowRoot styles={[styleText]}>
                 {children}
             </ShadowRoot>
         </div>

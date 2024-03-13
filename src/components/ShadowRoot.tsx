@@ -1,27 +1,41 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from "react"
+import ReactShadowRoot from "react-shadow-root"
+import ShadowRootContext from "~contexts/ShadowRootContext"
 
-/**
- * Renders a component that attaches a shadow root to a DOM element and sets its inner HTML to a slot.
- * @param {Object} props - The component props.
- * @param {React.ReactNode} props.children - The content to be rendered inside the shadow root.
- * @returns {React.ReactElement} The rendered component.
- * @example
- * // Usage:
- * <ShadowRoot>
- *   <div>Hello, world!</div>
- * </ShadowRoot>
- */
-function ShadowRoot({ children }: { children: React.ReactNode }): JSX.Element {
-  const ref = useRef(null)
 
-  useEffect(() => {
-    if (ref.current) {
-      const shadowRoot = ref.current.attachShadow({ mode: 'open' })
-      shadowRoot.innerHTML = '<slot></slot>'
-    }
-  }, []);
+export type ShadowRootProps = {
+    children: React.ReactNode
+    styles: string[]
+}
 
-  return <div ref={ref}>{children}</div>
+
+function ShadowRoot({ children, styles }: ShadowRootProps): JSX.Element {
+
+    const reactShadowRoot = useRef<ReactShadowRoot>(null)
+    const [shadowRoot, setShadowRoot] = useState<ShadowRoot>(null)
+
+    useEffect(() => {
+
+        if (reactShadowRoot.current) {
+            setShadowRoot(reactShadowRoot.current.shadowRoot)
+            console.debug('ShadowRoot created')
+        }
+
+    }, [])
+
+    return (
+        <ReactShadowRoot ref={reactShadowRoot}>
+            {styles?.map((style, i) => <style key={i}>{style}</style>)}
+            <div className="relative">
+                {shadowRoot && (
+                    <ShadowRootContext.Provider value={shadowRoot}>
+                        {children}
+                    </ShadowRootContext.Provider>
+                )}
+            </div>
+        </ReactShadowRoot>
+    )
+
 }
 
 export default ShadowRoot
