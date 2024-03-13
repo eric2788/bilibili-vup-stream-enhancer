@@ -63,6 +63,7 @@ jobs:
                       "clientSecret": "${{ secrets.EDGE_CLIENT_SECRET}}",
                       "productId": "${{ secrets.EDGE_PRODUCT_ID }}",
                       "accessTokenUrl": "${{ secrets.EDGE_ACCESS_TOKEN_URL }}",
-                      "uploadOnly": ${{ inputs.dry-run }}
+                      "uploadOnly": ${{ inputs.dry-run }},
+                      "notes": "https://github.com/eric2788/bilibili-vup-stream-enhancer"
                     }
                   }
