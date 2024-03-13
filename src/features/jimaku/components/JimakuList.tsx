@@ -50,22 +50,26 @@ function JimakuList(props: JimakuListProps): JSX.Element {
 
         const rootElement = (parent.getRootNode() as ShadowRoot).host;
         const inFullScreen = rootElement.clientHeight === 0
-        const mouseX = inFullScreen ? parent.clientWidth / 2 + 10 : e.clientX
-        const mouseY = inFullScreen ? (e.screenY - parent.getBoundingClientRect().top) - Math.max(1400 - window.innerHeight, 0) : e.clientY
+        // dunno why, but the clientX and clientY are not correct in fullscreen mode
+        // const mouseX = inFullScreen ? parent.clientWidth / 2 + 10 : e.clientX
+        // const mouseY = inFullScreen ? (e.screenY - parent.getBoundingClientRect().top) - Math.max(1400 - window.innerHeight, 0) : e.clientY
 
-        console.log(
-            e.screenY,
-            parent.getBoundingClientRect().top,
-            window.innerHeight
-        )
+        // console.log(
+        //     e.screenY,
+        //     parent.getBoundingClientRect().top,
+        //     window.innerHeight
+        // )
+
+        // currently we don't support fullscreen mode
+        if (inFullScreen) return
 
         show({
             event: e,
             props: jimaku,
-            position: {
-                x: mouseX,
-                y: mouseY
-            }
+            // position: {
+            //     x: mouseX,
+            //     y: mouseY
+            // }
         })
     }
 
