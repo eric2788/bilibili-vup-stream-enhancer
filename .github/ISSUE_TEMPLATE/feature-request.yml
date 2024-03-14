@@ -2,14 +2,13 @@ name: 功能请求
 description: 创建一个功能请求
 title: "[功能请求]: <title>"
 labels: ["功能请求/增強"]
-projects: ["eric2788/4"]
 body:   
   - type: textarea
     id: feature
     attributes:
       label: 功能描述
       description: 请描述你所希望的功能是什么？
-      Tip: 可以添加图片或其他文件作为补充
+      placeholder: 可以添加图片或其他文件作为补充
     validations:
       required: true
   - type: textarea
@@ -19,7 +18,7 @@ body:
       description: 请描述为什么你需要这个功能？
       placeholder: |
         e.g. 我经常需要在 '...' 时做 '....'，但是现在无法做到
-      Tip: 可以添加图片或其他文件作为补充
+        (可以添加图片或其他文件作为补充)
     validations:
       required: true
   - type: textarea
