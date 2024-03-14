@@ -22,6 +22,7 @@ npm-debug.log*
 
 # local env files
 .env*
+.vscode/
 
 out/
 build/

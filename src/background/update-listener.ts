@@ -32,6 +32,12 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
         await sendInternal('notify', {
             title: 'bilibili-vup-stream-enhancer 已更新',
             message: `已更新到版本 v${version}`,
+            buttons: [
+                {
+                    title: '查看更新日志',
+                    clicked: () => sendInternal('open-tab', { url: `https://github.com/eric2788/bilibili-vup-stream-enhancer/releases/tag/${version}` })
+                }
+            ]
         })
 
         const lastVersion = (await localStorage.get('last_version')) ?? '0.12.4'
