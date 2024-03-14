@@ -64,6 +64,8 @@ body:
       label: 扩展版本
       description: 你所使用的扩展版本？
       placeholder: e.g. 2.0.0
+    validations:
+      required: true
   - type: textarea
     id: logs
     attributes:
