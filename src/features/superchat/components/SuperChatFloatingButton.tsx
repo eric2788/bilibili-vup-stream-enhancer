@@ -1,11 +1,9 @@
 import { Item, Menu, useContextMenu } from 'react-contexify';
-
-import DraggableFloatingButton from '~components/DraggableFloatingButton';
-import ShadowRoot from '~components/ShadowRoot';
 import styleText from 'data-text:react-contexify/dist/ReactContexify.css';
-import { useContext } from 'react';
-import SuperChatFeatureContext from '~contexts/SuperChatFeatureContext';
+import { Fragment, useContext } from 'react';
+import DraggableFloatingButton from '~components/DraggableFloatingButton';
 import BJFThemeDarkContext from '~contexts/BLiveThemeDarkContext';
+import SuperChatFeatureContext from '~contexts/SuperChatFeatureContext';
 
 export type SuperChatFloatingButtonProps = {
     children: React.ReactNode
@@ -13,7 +11,7 @@ export type SuperChatFloatingButtonProps = {
 
 function SuperChatFloatingButton({ children }: SuperChatFloatingButtonProps): JSX.Element {
 
-    const [ themeDark ] = useContext(BJFThemeDarkContext)
+    const [themeDark] = useContext(BJFThemeDarkContext)
     const { floatingButtonColor } = useContext(SuperChatFeatureContext)
 
     const { show } = useContextMenu({
@@ -21,7 +19,7 @@ function SuperChatFloatingButton({ children }: SuperChatFloatingButtonProps): JS
     })
 
     return (
-        <ShadowRoot>
+        <Fragment>
             <style>{styleText}</style>
             <DraggableFloatingButton style={{ backgroundColor: themeDark ? '#424242' : floatingButtonColor }} onClick={e => show({ event: e })} className='hover:brightness-90 duration-150 dark:bg-gray-700 dark:hover:bg-gray-800 text-white'>
                 <div className="group-hover:animate-pulse">
@@ -35,7 +33,7 @@ function SuperChatFloatingButton({ children }: SuperChatFloatingButtonProps): JS
                 <Item className='hidden'>{''}</Item>
                 {children}
             </Menu>
-        </ShadowRoot>
+        </Fragment>
     )
 }
 

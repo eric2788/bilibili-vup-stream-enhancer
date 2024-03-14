@@ -26,6 +26,9 @@ npm-debug.log*
 out/
 build/
 dist/
+*.local.yml
+*-local.tsx
+*-local.ts
 
 # plasmo - https://www.plasmo.com
 .plasmo

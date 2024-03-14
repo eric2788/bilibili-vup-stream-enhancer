@@ -5,13 +5,14 @@ import { toast } from 'sonner/dist';
 import { isNativeVtuber } from "~api/bilibili";
 import OfflineRecordsProvider from '~components/OfflineRecordsProvider';
 import TailwindScope from '~components/TailwindScope';
-import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
 import ContentContext from "~contexts/ContentContexts";
+import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
 import { parseJimaku } from "~utils/bilibili";
 import { retryCatcher } from "~utils/fetch";
+import { findOrCreateElement } from '~utils/react-node';
 import type { FeatureHookRender } from "..";
 import JimakuCaptureLayer from './components/JimakuCaptureLayer';
-import { findOrCreateElement } from '~utils/react-node';
+
 
 
 function warnIfAdaptive() {

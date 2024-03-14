@@ -1,7 +1,7 @@
 {
   "name": "bilibili-vup-stream-enhancer",
   "displayName": "Bilibili Vup Stream Enhancer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "管人观众专用直播增强扩展",
   "author": "Eric Lam <tsukiko852@gmail.com>",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "package": "plasmo package",
     "clean": "run-script-os",
     "clean:nix": "rm -rf build && rm -rf .plasmo",
-    "clean:windows": "rmdir /s /q build && rmdir /s /q .plasmo",
+    "clean:windows": "if exist build rmdir /s /q build && if exist .plasmo rmdir /s /q .plasmo",
     "test": "playwright test",
     "test:prepare": "run-script-os",
     "test:prepare:nix": "mv build/chrome-mv3-prod build/extension",
@@ -41,6 +41,7 @@
     "react-dom": "18.2.0",
     "react-joyride": "^2.7.4",
     "react-rnd": "^10.4.1",
+    "react-shadow-root": "^6.2.0",
     "react-state-proxy": "^1.4.11",
     "sonner": "^1.4.3",
     "tailwindcss": "^3.4.1",
@@ -66,6 +67,7 @@
   "manifest": {
     "host_permissions": [
       "*://api.vtbs.moe/*",
+      "*://api.bilibili.com/*",
       "*://api.live.bilibili.com/*",
       "*://live.bilibili.com/*",
       "*://*.bilivideo.com/*",

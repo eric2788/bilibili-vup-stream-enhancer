@@ -4,8 +4,6 @@ on:
     push:
         branches: 
           - 'develop'
-          - 'hotfix/**'
-          - 'feature/**'
         paths:
           - 'src/**'
           - 'tests/**'
@@ -14,6 +12,11 @@ on:
           - '.github/workflows/build-test.yml'
     pull_request:
         branches: [develop]
+        types: 
+          - opened
+          - reopened
+          - ready_for_review
+          - review_requested
     workflow_dispatch:
         inputs:
           debug:
@@ -58,6 +61,8 @@ jobs:
               theme: ['', '-theme']
       steps:
           - uses: actions/checkout@v4
+          - name: Ensure No @Scoped Test
+            run: grep -r --include "*.spec.ts" "@scoped" && echo "please remove @scoped from tests" && exit 1 || echo "No @scoped tests found"
           - name: Download artifacts
             uses: actions/download-artifact@v4
             id: download
@@ -76,8 +81,15 @@ jobs:
                 cache: 'pnpm'
           - name: Install dependencies
             run: pnpm install --frozen-lockfile
+          - name: Cache playwright binaries
+            uses: actions/cache@v3
+            id: playwright-cache
+            with:
+              path: ~/.cache/ms-playwright
+              key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
           - name: Install Playwright Browsers
             run: pnpm exec playwright install --with-deps
+            if: steps.playwright-cache.outputs.cache-hit != 'true'
           - name: Setup Project
             id: project
             run: |
@@ -92,7 +104,7 @@ jobs:
               fi
               pnpm test -- --project=${{ steps.project.outputs.project }}
           - name: Upload Test Results
-            if: always()
+            if: always() && steps.test.conclusion != 'skipped'
             uses: actions/upload-artifact@v4
             with:
                 name: ${{ steps.project.outputs.project }}-test-results
@@ -101,7 +113,7 @@ jobs:
                   playwright-report/
                 if-no-files-found: ignore
           - name: Upload Results To R2
-            if: ${{ failure() && steps.test.conclusion == 'failure' }}
+            if: failure() && steps.test.conclusion == 'failure'
             uses: eric2788/r2-upload-action@master
             id: upload
             continue-on-error: true

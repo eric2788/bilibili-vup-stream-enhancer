@@ -147,7 +147,7 @@ export type ForwardBody = {
     room: string
 }
 
-// 支援 await 函数
+// 支援 async 函数
 const handler: ForwardHandler<ForwardBody, ResponseBody> = (req) => {
 
     let pos: 'scroll' | 'top' | 'bottom' = 'scroll'

@@ -68,6 +68,9 @@ dependencies:
   react-rnd:
     specifier: ^10.4.1
     version: 10.4.1(react-dom@18.2.0)(react@18.2.0)
+  react-shadow-root:
+    specifier: ^6.2.0
+    version: 6.2.0(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
   react-state-proxy:
     specifier: ^1.4.11
     version: 1.4.11
@@ -6257,6 +6260,18 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       react-draggable: 4.4.5(react-dom@18.2.0)(react@18.2.0)
       tslib: 2.3.1
+    dev: false
+
+  /react-shadow-root@6.2.0(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-ruFCVvbzFjWordVAZnrIcVNZpHz7whpNW2sRrAYBPmRpE9uTyN0Xt/1lkw52ktAmoSUkEptF2hjfISHmPirKTg==}
+    peerDependencies:
+      prop-types: '>=15.6.0'
+      react: '>=16.0.0'
+      react-dom: '>=16.0.0'
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react-state-proxy@1.4.11:

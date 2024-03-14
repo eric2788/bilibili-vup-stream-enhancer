@@ -38,7 +38,7 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
     return (
         <Fragment>
             {show && (
-                <div style={{ backgroundColor: btnStyle.backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
+                <div data-testid="subtitle-button-list" style={{ backgroundColor: btnStyle.backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
                     <JimakuButton onClick={deleteRecords}>
                         删除所有字幕记录
                     </JimakuButton>

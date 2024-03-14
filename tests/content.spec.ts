@@ -1,6 +1,7 @@
 import { test, expect } from "./fixtures/content";
 import logger from "./helpers/logger";
 import { receiveOneBLiveMessage } from "./utils/bilibili";
+import { random } from "./utils/misc";
 
 
 test('測試主元素是否存在', async ({ content }) => {
@@ -9,6 +10,40 @@ test('測試主元素是否存在', async ({ content }) => {
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
     await expect(csui.locator('#bjf-root')).toBeAttached()
+})
+
+test('测试扩展CSS有否影响到外围', async ({ content, room, isThemeRoom }) => {
+
+    test.skip(isThemeRoom, '此測試不適用於大海報房間')
+
+    logger.info('正在測試 CSS 有否外溢...')
+
+    await content.evaluate(() => {
+        const span = document.createElement('span')
+        span.id = 'bjf-test-span'
+        span.textContent = '测试 CSS 有否外溢'
+        span.className = "text-red-500"
+        document.body.append(span)
+    })
+
+    const span = content.locator('#bjf-test-span')
+    await expect(span).toBeVisible()
+    await expect(span).toHaveCSS('color', 'rgb(0, 0, 0)')
+
+    logger.info('正在測試 CSS 有否在 shadow root 内生效...')
+
+    await content.evaluate(() => {
+        const root = document.querySelector('bjf-csui').shadowRoot
+        const span = document.createElement('span')
+        span.id = 'bjf-test-span-inside'
+        span.className = "text-red-500"
+        span.textContent = '测试 CSS 有否在 shadow root 内生效'
+        root.append(span)
+    })
+
+    const spanInside = content.locator('#bjf-test-span-inside')
+    await expect(spanInside).toBeVisible()
+    await expect(spanInside).toHaveCSS('color', 'rgb(244, 67, 54)')
 })
 
 
@@ -213,7 +248,7 @@ test('测试仅限虚拟主播', async ({ context, room, tabUrl, api }) => {
     const nonVtbRooms = await api.getLiveRooms(1, 11) // 获取知识分区直播间
     test.skip(nonVtbRooms.length === 0, '没有知识分区直播间')
 
-    await room.enterToRoom(nonVtbRooms[0])
+    await room.enterToRoom(random(nonVtbRooms))
     const content = await room.getContentLocator()
 
     const button = content.getByText('功能菜单')

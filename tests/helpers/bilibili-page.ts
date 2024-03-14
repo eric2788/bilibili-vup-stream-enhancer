@@ -90,9 +90,10 @@ export class BilibiliPage implements AsyncDisposable {
 
     /**
      * 模拟发送弹幕。
-     * @param danmaku 弹幕内容。
+     * @param danmaku 弹幕内容
+     * @param uid 弹幕发送者用户ID。
      */
-    async sendDanmaku(danmaku: string): Promise<void> {
+    async sendDanmaku(danmaku: string, uid: number = randomNumber()): Promise<void> {
         const f = await this.getContentLocator()
         await sendFakeBLiveMessage(f, 'DANMU_MSG', {
             cmd: 'DANMU_MSG',
@@ -118,8 +119,8 @@ export class BilibiliPage implements AsyncDisposable {
                 ],
                 danmaku,
                 [
-                    randomNumber(),
-                    "username",
+                    uid,
+                    `用户 ${uid}`,
                     undefined,
                     undefined,
                     undefined,
@@ -154,8 +155,9 @@ export class BilibiliPage implements AsyncDisposable {
      * @param user 用户名。
      * @param price 价格。
      * @param message 消息内容。
+     * @param uid 用户ID。
      */
-    async sendSuperChat(user: string, price: number, message: string): Promise<void> {
+    async sendSuperChat(user: string, price: number, message: string, uid: number = randomNumber()): Promise<void> {
         const f = await this.getContentLocator()
         await sendFakeBLiveMessage(f, 'SUPER_CHAT_MESSAGE', {
             cmd: 'SUPER_CHAT_MESSAGE',
@@ -169,7 +171,7 @@ export class BilibiliPage implements AsyncDisposable {
                     name_color: '#444444',
                     uname: user
                 },
-                uid: randomNumber(),
+                uid: uid,
                 price: price,
                 message: message,
                 start_time: Date.now()

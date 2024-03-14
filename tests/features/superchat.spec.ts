@@ -18,7 +18,7 @@ test('測試功能元素是否存在', async ({ content }) => {
 })
 
 
-test('測試浮動按鈕和醒目留言記錄列表是否存在', async ({ content, page }) => {
+test('測試浮動按鈕和醒目留言記錄列表是否存在', async ({ content }) => {
 
     logger.info('正在測試浮動按鈕是否存在')
     const section = content.locator('bjf-csui section#bjf-feature-superchat')
@@ -86,7 +86,7 @@ test('測試寫入醒目留言和醒目留言按鈕 (插入/刪除/下載)', asy
 
 test('測試拖拽按鈕', async ({ content }) => {
 
-    const dragPoint = content.locator('bjf-csui section#bjf-feature-superchat > div > div')
+    const dragPoint = content.locator('bjf-csui section#bjf-feature-superchat [data-type="draggable-button"]')
     const p1 = content.locator('#rank-list-ctnr-box')
     const p2 = content.locator('#head-info-vm')
 
