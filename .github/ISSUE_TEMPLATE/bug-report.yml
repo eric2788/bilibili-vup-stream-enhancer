@@ -2,7 +2,6 @@ name: 问题回报
 description: 创建一个问题回报
 title: "[Bug]: <title>"
 labels: ["问题反映/修复", "求助"]
-projects: ["eric2788/4"]
 body:   
   - type: checkboxes
     attributes:
@@ -16,7 +15,7 @@ body:
     attributes:
       label: 问题描述
       description: 清楚简明扼要地描述你所遇到的问题
-      Tip: 可以添加图片或其他文件作为补充
+      placeholder: 可以添加图片或其他文件作为补充
     validations:
       required: true
   - type: textarea
@@ -24,7 +23,7 @@ body:
     attributes:
       label: 期望结果
       description: 描述一下正常的时候理应出现的结果是如何？
-      Tip: 可以添加图片或其他文件作为补充
+      placeholder: 可以添加图片或其他文件作为补充
     validations:
       required: true
   - type: textarea
@@ -32,12 +31,12 @@ body:
     attributes:
       label: 复现步骤
       description: 请提供详细的复现步骤
-      Tip: 可以添加图片或其他文件作为补充
       placeholder: |
         1. 进入 '...'
         2. 点进 '....'
         3. 打开 '....'
         4. 无法使用
+        (可以添加图片或其他文件作为补充)
     validations:
       required: true
   - type: input
@@ -52,14 +51,14 @@ body:
     id: other-browsers
     attributes:
       label: 其他浏览器上的复现
-     description: 除了你所使用的浏览器外，你还有在其他浏览器上复现了这个问题吗？
+      description: 除了你所使用的浏览器外，你还有在其他浏览器上复现了这个问题吗？
       multiple: true
       options:
         - Chrome
         - Microsoft Edge
         - Opera
         - Brave
-  - type: inpput
+  - type: input
     id: extension-version
     attributes:
       label: 扩展版本
