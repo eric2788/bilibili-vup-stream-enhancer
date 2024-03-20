@@ -20,7 +20,7 @@ export type FeatureSettingSchema = {
 export const defaultSettings: Readonly<FeatureSettingSchema> = {
     floatingButtonColor: '#db7d1f',
     buttonColor: '#db7d1f',
-    displayFullScreen: true
+    displayFullScreen: false
 }
 
 

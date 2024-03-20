@@ -18,7 +18,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
     blackListButton: true,
     settingsButton: true,
     themeToNormalButton: true,
-    supportWebFullScreen: true
+    supportWebFullScreen: false
 }
 
 export const title = '界面按钮显示'

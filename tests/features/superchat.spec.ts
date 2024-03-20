@@ -190,24 +190,24 @@ test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ conte
     const button = content.locator('button', { hasText: /^醒目留言$/ })
     await expect(button).toBeVisible()
 
-    logger.info('正在測試啟用時切換網頁全屏...')
+    logger.info('正在測試禁用時切換網頁全屏...')
     await content.locator('#live-player').dblclick()
-    await expect(button).toBeVisible()
+    await expect(button).toBeHidden()
     await content.locator('#live-player').dblclick()
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
-    await settingsPage.locator('#features\\.superchat').getByText('在全屏模式下显示').click() // closed
+    await settingsPage.locator('#features\\.superchat').getByText('在全屏模式下显示').click() // enabled
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
 
     await expect(button).toBeVisible()
 
-    logger.info('正在測試禁用時切換網頁全屏...')
+    logger.info('正在測試啟用時切換網頁全屏...')
     await content.locator('#live-player').dblclick()
-    await expect(button).toBeHidden()
+    await expect(button).toBeVisible()
     await content.locator('#live-player').dblclick()
 
     await expect(button).toBeVisible()
