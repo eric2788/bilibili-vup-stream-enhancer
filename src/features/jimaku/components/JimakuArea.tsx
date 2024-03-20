@@ -140,6 +140,7 @@ function JimakuArea({ jimaku }: JimakuAreaProps): JSX.Element {
                         <JimakuList
                             jimaku={jimaku}
                             style={subTitleStyle}
+                            fullScreen={screenStatus !== 'normal'}
                         />
                     </ConditionalWrapper>
                 </ConditionalWrapper>

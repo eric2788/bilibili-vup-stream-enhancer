@@ -19,6 +19,7 @@ import ShadowStyle from "~components/ShadowStyle";
 export type JimakuListProps = {
     jimaku: Jimaku[]
     style?: React.CSSProperties
+    fullScreen: boolean
 }
 
 
@@ -26,7 +27,7 @@ export type JimakuListProps = {
 function JimakuList(props: JimakuListProps): JSX.Element {
 
     const { jimakuZone: jimakuStyle, listingZone } = useContext(JimakuFeatureContext)
-    const { jimaku, style } = props
+    const { jimaku, style, fullScreen } = props
 
 
     const { ref, element } = useKeepBottom<HTMLDivElement>(
@@ -102,10 +103,14 @@ function JimakuList(props: JimakuListProps): JSX.Element {
                     show={displayContextMenu(item)}
                 />
             ))}
-            <ShadowStyle>{styleText}</ShadowStyle>
-            <Menu id="jimaku-context-menu" style={{ zIndex: 9999 }}>
-                <Item onClick={blockUser}>屏蔽选中同传发送者</Item>
-            </Menu>
+            {!fullScreen && (
+                <>
+                    <ShadowStyle>{styleText}</ShadowStyle>
+                    <Menu id="jimaku-context-menu" style={{ zIndex: 9999 }}>
+                        <Item onClick={blockUser}>屏蔽选中同传发送者</Item>
+                    </Menu>
+                </>
+            )}
         </div>
     )
 

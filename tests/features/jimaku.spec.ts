@@ -277,7 +277,9 @@ test('测试添加同传用户名单/黑名单', async ({ content, context, tabU
     }
 })
 
-test('測試右鍵同傳字幕來屏蔽同傳發送者', async ({ content, room, page }) => {
+test('測試右鍵同傳字幕來屏蔽同傳發送者', async ({ content, room, page, isThemeRoom }) => {
+
+    test.skip(isThemeRoom, '此測試不適用於大海報房間')
 
     await content.locator('#subtitle-list').waitFor({ state: 'visible' })
 
