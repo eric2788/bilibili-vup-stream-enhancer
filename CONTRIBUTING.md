@@ -48,7 +48,9 @@
 ### 提交规范
 
 - 本项目在 commit message 上没有限制, 清晰明了即可
-- PR分支请确保是基于 `develop` 分支创建，且分支名称应该为 `[类型]/[issue号]-[概要]` 的格式；例如 `feature/123-new-feature`
+- PR分支请确保是基于 `develop` 分支创建，且分支名称应如下:
+    - 如果你的分支是基于一个 issue, 请使用 `[类型]/[issue号]-[概要]` 的格式；例如 `feature/123-new-feature`
+    - 如果你的分支并非基于一个 issue, 请使用 `[类型]/[概要]` 的格式；例如 `feature/new-feature`
 - 请确保你的每一条 commits 都有意义，如有必要请使用 `git rebase` 合并 commits
 - 如果你的 PR 是为了修复某个 issue，请在 PR 描述中写明 `Fixed|Resolved #issue号`，以便自动连结 issue
 
