@@ -1,6 +1,6 @@
 import '~style.css';
 
-import { Fragment, useContext, useRef, type Ref, type RefObject } from 'react';
+import { Fragment, useContext, useRef, type RefObject } from 'react';
 import BJFThemeProvider from '~components/BJFThemeProvider';
 import { useBinding } from '~hooks/binding';
 import { useForwarder } from '~hooks/forwarder';
@@ -84,17 +84,6 @@ async function clearRecords(): Promise<void> {
     await clearing
 }
 
-async function checkingUpdate(): Promise<void> {
-    try {
-        await sendMessager('check-update')
-    } catch (err: Error | any) {
-        await sendMessager('notify', {
-            title: '检查更新失败',
-            message: err.message
-        })
-    }
-}
-
 function SettingPage(): JSX.Element {
 
     const tutorial = useContext<RefObject<TutorialRefProps>>(GenericContext)
@@ -109,107 +98,106 @@ function SettingPage(): JSX.Element {
     const processing = useStorageWatch('processing', 'session', false)
     const forwarder = useForwarder('command', 'pages')
 
-    const [loader, loading] = useLoader({
-        checkingUpdate,
-        exportSettings,
-        clearRecords,
-        migrateSettings: async () => {
-            if (!window.confirm('这将覆盖所有受影响的原有设定，确定继续？')) return
-            const migrating = (async () => {
-                const { data: settings, error } = await sendMessager('migration-mv2')
-                if (error) throw new Error(error)
-                if (!settings) throw new Error('找不到舊設定，無法遷移')
-                // do import
-                await Promise.all(fragmentRefs.map((ref) => {
-                    const fragmentKey = ref.current.fragmentKey
-                    const { defaultSettings } = fragments[fragmentKey]
-                    const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
-                    return ref.current.importSettings(importContent)
-                }))
-            })();
-            toast.promise(migrating, {
-                loading: '正在迁移设定...',
-                success: '设定已迁移并导入成功。',
-                error: err => '迁移设定失败: ' + err.message,
-                action: {
-                    label: '删除旧设定',
-                    onClick: removeAllMV2Settings
-                }
-            })
-            await migrating
-            if (!processing) {
-                // 向所有页面发送重启指令
-                forwarder.sendForward('content-script', { command: 'restart' })
+    const migrateSettings = async () => {
+        if (!window.confirm('这将覆盖所有受影响的原有设定，确定继续？')) return
+        const migrating = (async () => {
+            const { data: settings, error } = await sendMessager('migration-mv2')
+            if (error) throw new Error(error)
+            if (!settings) throw new Error('找不到舊設定，無法遷移')
+            // do import
+            await Promise.all(fragmentRefs.map((ref) => {
+                const fragmentKey = ref.current.fragmentKey
+                const { defaultSettings } = fragments[fragmentKey]
+                const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
+                return ref.current.importSettings(importContent)
+            }))
+        })();
+        toast.promise(migrating, {
+            loading: '正在迁移设定...',
+            success: '设定已迁移并导入成功。',
+            error: err => '迁移设定失败: ' + err.message,
+            action: {
+                label: '删除旧设定',
+                onClick: removeAllMV2Settings
             }
-        },
-        importSettings: async () => {
-            const listener = async (e: Event) => {
-                const target = e.target as HTMLInputElement
-                if (target.files.length === 0) return
-                const file = target.files[0]
-                try {
-                    const importing = (async () => {
-                        const settings = (await readAsJson(file)) as Settings
-                        if (!(settings instanceof Object)) {
-                            throw new Error('导入的设定文件格式错误。')
-                        }
-                        if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
-                            throw new Error('导入的设定文件格式错误。')
-                        }
-                        await Promise.all(fragmentRefs.map((ref) => {
-                            const fragmentKey = ref.current.fragmentKey
-                            const { defaultSettings } = fragments[fragmentKey]
-                            const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
-                            return ref.current.importSettings(importContent)
-                        }))
-                    })();
-                    toast.promise(importing, {
-                        loading: '正在导入设定...',
-                        success: '设定已经导入成功。',
-                        error: err => '导入设定失败: ' + err.message
-                    })
-                    await importing
-                    if (!processing) {
-                        // 向所有页面发送重启指令
-                        forwarder.sendForward('content-script', { command: 'restart' })
+        })
+        await migrating
+        if (!processing) {
+            // 向所有页面发送重启指令
+            forwarder.sendForward('content-script', { command: 'restart' })
+        }
+    }
+
+    const importSettings = async () => {
+        const listener = async (e: Event) => {
+            const target = e.target as HTMLInputElement
+            if (target.files.length === 0) return
+            const file = target.files[0]
+            try {
+                const importing = (async () => {
+                    const settings = (await readAsJson(file)) as Settings
+                    if (!(settings instanceof Object)) {
+                        throw new Error('导入的设定文件格式错误。')
                     }
-                } catch (err: Error | any) {
-                    console.error(err)
-                    toast.error('导入设定失败: ', {
-                        description: err.message
-                    })
-                } finally {
-                    fileImport.current.files = null
-                    fileImport.current.removeEventListener('change', listener)
-                }
-            }
-            fileImport.current.addEventListener('change', listener)
-            fileImport.current.click()
-        },
-        saveAllSettings: async () => {
-            if (!form.current.checkValidity()) {
-                form.current.reportValidity()
-                return
-            }
-            if (fragmentRefs.every(ref => ref.current.saveSettings === undefined)) {
-                toast.warning('无需保存设定', {
-                    description: '没有设定被变更。'
+                    if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
+                        throw new Error('导入的设定文件格式错误。')
+                    }
+                    await Promise.all(fragmentRefs.map((ref) => {
+                        const fragmentKey = ref.current.fragmentKey
+                        const { defaultSettings } = fragments[fragmentKey]
+                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
+                        return ref.current.importSettings(importContent)
+                    }))
+                })();
+                toast.promise(importing, {
+                    loading: '正在导入设定...',
+                    success: '设定已经导入成功。',
+                    error: err => '导入设定失败: ' + err.message
                 })
-                return
-            }
-            const saving = Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
-            toast.promise(saving, {
-                loading: '正在保存设定...',
-                success: '所有设定已经保存成功。',
-                error: err => '保存设定失败: ' + err.message
-            })
-            await saving
-            if (!processing) {
-                // 向所有页面发送重启指令
-                forwarder.sendForward('content-script', { command: 'restart' }, { url: '*://live.bilibili.com/*' })
+                await importing
+                if (!processing) {
+                    // 向所有页面发送重启指令
+                    forwarder.sendForward('content-script', { command: 'restart' })
+                }
+            } catch (err: Error | any) {
+                console.error(err)
+                toast.error('导入设定失败: ', {
+                    description: err.message
+                })
+            } finally {
+                fileImport.current.files = null
+                fileImport.current.removeEventListener('change', listener)
             }
         }
-    })
+        fileImport.current.addEventListener('change', listener)
+        fileImport.current.click()
+    }
+
+    const saveAllSettings = async () => {
+        if (!form.current.checkValidity()) {
+            form.current.reportValidity()
+            return
+        }
+        if (fragmentRefs.every(ref => ref.current.saveSettings === undefined)) {
+            toast.warning('无需保存设定', {
+                description: '没有设定被变更。'
+            })
+            return
+        }
+        const saving = Promise.all(fragmentRefs.map(ref => ref.current.saveSettings()))
+        toast.promise(saving, {
+            loading: '正在保存设定...',
+            success: '所有设定已经保存成功。',
+            error: err => '保存设定失败: ' + err.message
+        })
+        await saving
+        if (!processing) {
+            // 向所有页面发送重启指令
+            forwarder.sendForward('content-script', { command: 'restart' }, { url: '*://live.bilibili.com/*' })
+        }
+    }
+
+    const [loader, loading] = useLoader({ exportSettings, clearRecords, migrateSettings, importSettings, saveAllSettings, })
 
     return (
         <Fragment>
@@ -223,12 +211,6 @@ function SettingPage(): JSX.Element {
                     <h1 className="mb-4 text-4xl tracking-tight leading-none md:text-5xl lg:text-6xl ">设定页面</h1>
                     <p className="mb-8 text-lg font-light lg:text-xl text-black-400">按下储存后可即时生效。</p>
                     <div id="upper-button-list" className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 gap-3">
-                        <Button onClick={loader.checkingUpdate} disabled={loading.checkingUpdate} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 group-disabled:animate-spin">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                            </svg>
-                            检查更新
-                        </Button>
                         <Button onClick={loader.importSettings} disabled={loading.importSettings || processing} className="group flex items-center justify-center gap-3 text-lg hover:shadow-white-100/50">
                             导入设定
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 group-disabled:animate-bounce">
@@ -289,9 +271,6 @@ function SettingPage(): JSX.Element {
         </Fragment>
     )
 }
-
-
-
 
 function SettingApp(): JSX.Element {
 

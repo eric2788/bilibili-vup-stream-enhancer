@@ -3,6 +3,7 @@ import type { BaseResponse, CommonResponse, V1Response } from '~types/bilibili'
 import { sleep } from './misc'
 import type { RequestBody } from '~background/messages/request'
 import { sendMessager } from './messaging'
+import { localStorage } from './storage'
 
 /**
  * Fetches data from the specified URL with the same credentials.
@@ -147,4 +148,27 @@ export async function sendRequest<T = any>(request: RequestBody): Promise<T> {
   const res = await sendMessager('request', request)
   if (res.error) throw new Error(res.error)
   return res.data as T
+}
+
+
+export type CacheInfo<T> ={
+  data: T
+  timestamp: number
+}
+
+/**
+ * Fetches data from the specified URL and caches it.
+ * If the data is already cached and not expired, it will return the cached data.
+ * @param url - The URL to fetch data from.
+ * @param maxAge - The maximum age of the cached data in milliseconds. Default is 1 hour.
+ * @returns A promise that resolves to the fetched data.
+ */
+export async function fetchAndCache<T>(url: string, maxAge: number = 3600000): Promise<T> {
+  const cache = await localStorage.get<CacheInfo<T>>(url)
+  if (cache && Date.now() - cache.timestamp < maxAge) return cache.data
+  const res = await fetch(url)
+  if (!res.ok) throw await res.json()
+  const data = await res.json() as T
+  await localStorage.set(url, { data, timestamp: Date.now() })
+  return data
 }
