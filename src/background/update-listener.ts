@@ -1,10 +1,10 @@
 
-import storage, { localStorage } from '~utils/storage'
+import storage, { getSettingStorage, localStorage } from '~utils/storage'
 import { sendInternal } from './messages'
-import { notifyUpdate } from './messages/check-update'
 import { type MV2Settings } from '~migrations/schema'
 import semver from 'semver'
 import migrateFromMV2 from '~migrations'
+import { getLatestRelease } from '~api/github'
 
 chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDetails) => {
 
@@ -63,6 +63,26 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
 })
 
 
-chrome.runtime.onUpdateAvailable.addListener((data: chrome.runtime.UpdateAvailableDetails) => notifyUpdate(data.version))
-
+getSettingStorage('settings.version').then(async (settings) => {
+    if (!settings.autoCheckUpdate) return
+    const currentVersion = chrome.runtime.getManifest().version
+    const latest = await getLatestRelease()
+    if (semver.lt(currentVersion, latest.tag_name)) {
+        await sendInternal('notify', {
+            type: 'list',
+            title: 'bilibili-vup-stream-enhancer 已推出新版本',
+            message: `当前版本: v${currentVersion}`,
+            items: [
+                { title: '最新版本', message: `v${latest.tag_name}` },
+                { title: '发布日期', message: new Date(latest.published_at).toDateString() }
+            ],
+            buttons: [
+                {
+                    title: '查看更新日志',
+                    clicked: () => sendInternal('open-tab', { url: latest.html_url })
+                }
+            ]
+        })
+    }
+})
 

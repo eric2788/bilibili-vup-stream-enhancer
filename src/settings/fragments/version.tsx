@@ -65,14 +65,15 @@ function VersionSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                         {([current, last]: ReleaseInfo[]) => (
                             <div className="md:flex justify-between text-center md:text-left space-y-3 md:space-y-0">
                                 <div>
-                                    {semver.lt(current.tag_name, last.tag_name) ?
-                                        (
-                                            <Typography color="red" className="font-bold mb-4">你有可用的更新</Typography>
-                                        ) :
-                                        (
-                                            <Typography color="green" className="font-semibold mb-4">你的版本已是最新</Typography>
-                                        )
-                                    }
+                                    {semver.lt(current.tag_name, last.tag_name) ? (
+                                        <Typography color="red" className="font-bold mb-4">
+                                            你有可用的更新
+                                        </Typography>
+                                    ) : (
+                                        <Typography color="green" className="font-semibold mb-4">
+                                            你的版本已是最新
+                                        </Typography>
+                                    )}
                                     <Typography className="font-normal">当前版本: v{current.tag_name}</Typography>
                                     <Typography variant="small">发布日期: {new Date(current.published_at).toLocaleDateString()} | <a href={current.html_url} target="_blank" className="underline">更新日志</a></Typography>
                                     <Typography className="font-normal">Github 最新版本: v{last.tag_name}</Typography>
