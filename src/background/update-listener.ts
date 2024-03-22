@@ -71,8 +71,8 @@ getSettingStorage('settings.version').then(async (settings) => {
         await sendInternal('notify', {
             type: 'list',
             title: 'bilibili-vup-stream-enhancer 已推出新版本',
-            message: `当前版本: v${currentVersion}`,
             items: [
+                { title: '当前版本', message: `v${currentVersion}` },
                 { title: '最新版本', message: `v${latest.tag_name}` },
                 { title: '发布日期', message: new Date(latest.published_at).toDateString() }
             ],
