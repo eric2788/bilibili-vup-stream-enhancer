@@ -82,7 +82,6 @@ src/
 ├── settings/       # 设定库相关代码，包括对设定区块和功能设定区块的定义。
 ├── tabs/           # 浏览器扩展页面。
 ├── types/          # 类型定义文件。
-├── updaters/       # 更新器代码，用于处理扩展的更新逻辑。(目前仅限 Chrome)
 ├── utils/          # 实用工具函数。
 ├── logger.ts       # 日志前缀注入。
 ├── style.css       # 包含 TailwindCSS 的全局样式。

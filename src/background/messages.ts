@@ -1,5 +1,4 @@
 import * as addBlackList from './messages/add-black-list'
-import * as checkUpdate from './messages/check-update'
 import * as clearTable from './messages/clear-table'
 import * as fetchDeveloper from './messages/fetch-developer'
 import * as getStreamUrls from './messages/get-stream-urls'
@@ -63,7 +62,6 @@ const messagers = {
     'open-tab': openTab,
     'request': request,
     'get-stream-urls': getStreamUrls,
-    'check-update': checkUpdate,
     'fetch-developer': fetchDeveloper,
     'open-window': openWindow,
     'clear-table': clearTable,

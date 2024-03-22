@@ -4,6 +4,7 @@ import * as developer from './fragments/developer'
 import * as display from './fragments/display'
 import * as features from './fragments/features'
 import * as listings from './fragments/listings'
+import * as version from './fragments/version'
 
 import type { StreamInfo } from '~api/bilibili'
 
@@ -43,7 +44,8 @@ const fragments = {
     'settings.listings': listings,
     'settings.capture': capture,
     'settings.display': display,
-    'settings.developer': developer
+    'settings.developer': developer,
+    'settings.version': version
 }
 
 
