@@ -152,8 +152,8 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                         } crossOrigin={'annoymous'} checked={state.enabledFeatures.includes(f)} onChange={e => toggle(f)} />
                         <Collapse open={state.enabledFeatures.includes(f)}>
                             <div className="px-5 mt-5 pb-5 space-y-10 gap-10 overflow-y-auto max-h-[70vh] bjf-scrollbar">
-                                <List className='col-span-2 border border-[#808080] rounded-md'>
-                                    {setting.define.offlineTable !== false && (
+                                {setting.define.offlineTable !== false && (
+                                    <List className='col-span-2 border border-[#808080] rounded-md'>
                                         <SwitchListItem
                                             data-testid={`offline-record-${f}`}
                                             label="启用离线记录"
@@ -163,9 +163,13 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                                                 <TrashIconButton table={setting.define.offlineTable} title={setting.title} />
                                             }
                                         />
-                                    )}
-                                </List>
-                                {Component && <Component {...props} />}
+                                    </List>
+                                )}
+                                {Component && (
+                                    <div className="grid max-md:grid-cols-1 md:grid-cols-2 gap-10">
+                                        <Component {...props} />
+                                    </div>
+                                )}
                                 <div className='col-span-2'>
                                     <FeatureRoomTable
                                         feature={f}

@@ -116,20 +116,22 @@ function JimakuFragment({ state, useHandler }: StateProxy<JimakuSchema>): JSX.El
                     { value: 'bottom', label: '下到上' },
                 ]}
             />
-            <List className="col-span-2">
-                <SwitchListItem 
-                    label="全屏时字幕背景拖拽范围边界限制"
-                    hint="开启后, 字幕背景将无法拖拽出播放器范围以外"
-                    onChange={bool('areaDragBoundary')}
-                    value={state.areaDragBoundary}
-                />
-                <SwitchListItem 
-                    label="记住全屏时字幕背景的拖拽位置和缩放"
-                    hint="刷新页面后，状态依然会被重设"
-                    onChange={bool('rememberDragState')}
-                    value={state.rememberDragState}
-                />
-            </List>
+            <div className="md:col-span-2">
+                <List>
+                    <SwitchListItem
+                        label="全屏时字幕背景拖拽范围边界限制"
+                        hint="开启后, 字幕背景将无法拖拽出播放器范围以外"
+                        onChange={bool('areaDragBoundary')}
+                        value={state.areaDragBoundary}
+                    />
+                    <SwitchListItem
+                        label="记住全屏时字幕背景的拖拽位置和缩放"
+                        hint="刷新页面后，状态依然会被重设"
+                        onChange={bool('rememberDragState')}
+                        value={state.rememberDragState}
+                    />
+                </List>
+            </div>
         </Fragment>
     )
 }
