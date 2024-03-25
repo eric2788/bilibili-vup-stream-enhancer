@@ -15,7 +15,7 @@ export type RecorderLayerProps = {
 function RecorderLayer(props: RecorderLayerProps): JSX.Element {
 
     const { urls } = props
-    const { duration, hotkeyClip, mechanism } = useContext(RecorderFeatureContext)
+    const { duration, hotkeyClip, recordFix } = useContext(RecorderFeatureContext)
 
     const chunks = useRef<Blob[]>([])
 

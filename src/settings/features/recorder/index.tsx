@@ -1,4 +1,4 @@
-import type { StateProxy } from "~hooks/binding"
+import type { ExposeHandler, StateHandler, StateProxy } from "~hooks/binding"
 import type { FeatureSettingsDefinition } from ".."
 import { Fragment } from "react"
 import { HotKeyInput, type HotKey } from "~settings/components/HotKeyInput"
@@ -12,49 +12,55 @@ export const define: FeatureSettingsDefinition = {
 
 export type FeatureSettingSchema = {
     duration: number
-    mechanism: 'ffmpeg' | 'fetch-buffer'
+    recordFix: 'copy' | 'reencode'
     hotkeyClip: HotKey
 }
 
 export const defaultSettings: Readonly<FeatureSettingSchema> = {
     duration: 10,
-    mechanism: 'ffmpeg',
+    recordFix: 'copy',
     hotkeyClip: {
-        key: 'KeyC',
+        key: 'z',
         ctrlKey: true,
         shiftKey: false,
     }
 }
 
 export function RecorderFeatureSettings({ state, useHandler }: StateProxy<FeatureSettingSchema>): JSX.Element {
-    
+
+    const onChangeHotKey = (key: HotKey) => {
+        state.hotkeyClip.key = key.key
+        state.hotkeyClip.ctrlKey = key.ctrlKey
+        state.hotkeyClip.shiftKey = key.shiftKey
+    }
 
     return (
         <Fragment>
-            <Selector<typeof state.mechanism>
-                label="录制方式"
-                value={state.mechanism}
-                onChange={e => state.mechanism = e}
+            <Selector<typeof state.recordFix>
+                label="录制后编译方式"
+                value={state.recordFix}
+                onChange={e => state.recordFix = e}
                 options={[
-                    { value: 'ffmpeg', label: 'FFmpeg' },
-                    { value: 'fetch-buffer', label: 'Fetch Buffer' }
+                    { value: 'copy', label: '快速编译 (可能不完整)' },
+                    { value: 'reencode', label: '完整编译 (速度极慢)' }
                 ]}
             />
             <Selector<number>
-                label="录制时长"
+                label="录制方式"
                 value={state.duration}
                 onChange={e => state.duration = e}
                 options={[
-                    { value: 5, label: '5分钟' },
-                    { value: 10, label: '10分钟' },
-                    { value: 15, label: '15分钟' },
+                    { value: 5, label: '前5分钟' },
+                    { value: 10, label: '前10分钟' },
+                    { value: 15, label: '前15分钟' },
+                    { value: -1, label: '即时录制' }
                 ]}
             />
             <div>
                 <HotKeyInput
                     label="快速切片热键"
                     value={state.hotkeyClip}
-                    onChange={e => state.hotkeyClip = e}
+                    onChange={onChangeHotKey}
                 />
             </div>
         </Fragment>
