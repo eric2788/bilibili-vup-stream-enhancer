@@ -11,6 +11,15 @@ dependencies:
   '@emotion/styled':
     specifier: ^11.11.0
     version: 11.11.0(@emotion/react@11.11.4)(@types/react@18.2.37)(react@18.2.0)
+  '@ffmpeg/core-mt':
+    specifier: ^0.12.6
+    version: 0.12.6
+  '@ffmpeg/ffmpeg':
+    specifier: ^0.12.10
+    version: 0.12.10
+  '@ffmpeg/util':
+    specifier: ^0.12.1
+    version: 0.12.1
   '@material-tailwind/react':
     specifier: ^2.1.9
     version: 2.1.9(react-dom@18.2.0)(react@18.2.0)
@@ -88,6 +97,9 @@ dependencies:
     version: 1.12.4
 
 devDependencies:
+  '@ffmpeg/types':
+    specifier: ^0.12.2
+    version: 0.12.2
   '@ianvs/prettier-plugin-sort-imports':
     specifier: ^4.2.1
     version: 4.2.1(prettier@3.2.5)
@@ -659,6 +671,27 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       cross-spawn: 7.0.3
+    dev: false
+
+  /@ffmpeg/core-mt@0.12.6:
+    resolution: {integrity: sha512-f7wrOeUk24VFRi2Gfsp/mwwkK1hbDV0ajgm2fOU/oRi+IDullyzAYdHOagAWfpSZXcTPAGZ1Ild7HmBwr3k2tg==}
+    engines: {node: '>=16.x'}
+    dev: false
+
+  /@ffmpeg/ffmpeg@0.12.10:
+    resolution: {integrity: sha512-lVtk8PW8e+NUzGZhPTWj2P1J4/NyuCrbDD3O9IGpSeLYtUZKBqZO8CNj1WYGghep/MXoM8e1qVY1GztTkf8YYQ==}
+    engines: {node: '>=18.x'}
+    dependencies:
+      '@ffmpeg/types': 0.12.2
+    dev: false
+
+  /@ffmpeg/types@0.12.2:
+    resolution: {integrity: sha512-NJtxwPoLb60/z1Klv0ueshguWQ/7mNm106qdHkB4HL49LXszjhjCCiL+ldHJGQ9ai2Igx0s4F24ghigy//ERdA==}
+    engines: {node: '>=16.x'}
+
+  /@ffmpeg/util@0.12.1:
+    resolution: {integrity: sha512-10jjfAKWaDyb8+nAkijcsi9wgz/y26LOc1NKJradNMyCIl6usQcBbhkjX5qhALrSBcOy6TOeksunTYa+a03qNQ==}
+    engines: {node: '>=18.x'}
     dev: false
 
   /@floating-ui/core@1.6.0:

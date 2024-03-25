@@ -4,9 +4,9 @@
  * @param content - The content of the file.
  * @param type - The MIME type of the file. Defaults to 'text/plain'.
  */
-export function download(filename: string, content: string, type: string = 'text/plain') {
+export function download(filename: string, content: any | any[], type: string = 'text/plain') {
     const a = document.createElement('a')
-    const file = new Blob([content], { type })
+    const file = new Blob(Array.isArray(content) ? content : [content], { type })
     a.href = URL.createObjectURL(file)
     a.download = filename
     a.click()

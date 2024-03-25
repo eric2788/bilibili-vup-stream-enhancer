@@ -5,8 +5,7 @@ import { sendInternal } from "~background/messages"
 import type { PlayerType } from "~players"
 
 export type RequestBody = {
-    roomId: number | string,
-    withCredentials?: boolean
+    roomId: number | string
 }
 
 export type StreamUrls = {
