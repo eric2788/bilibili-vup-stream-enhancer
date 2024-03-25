@@ -1,9 +1,10 @@
-import type { StreamPlayer } from "~players";
+import type { BufferHandler, StreamPlayer } from "~players";
 import Hls from 'hls.js'
 
 
 class HlsPlayer implements StreamPlayer {
 
+    private bufferHandlers: BufferHandler[] = []
     private player: Hls
 
     get isSupported(): boolean {
@@ -20,8 +21,11 @@ class HlsPlayer implements StreamPlayer {
                 res()
             })
 
-            this.player.once(Hls.Events.MANIFEST_PARSED, (event, data) => {
+            this.player.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
                 console.log('manifest loaded, found ' + data.levels.length + ' quality level', data)
+                this.player.on(Hls.Events.FRAG_LOADED, (event, data) => {
+                    this.bufferHandlers.forEach(handler => handler(data.frag.data))
+                })
             })
 
             this.player.loadSource(url);
@@ -47,6 +51,16 @@ class HlsPlayer implements StreamPlayer {
                 }
             })
         })
+    }
+
+    addBufferHandler(handler: BufferHandler): VoidFunction {
+        this.bufferHandlers.push(handler)
+        return () => {
+            const idx = this.bufferHandlers.indexOf(handler)
+            if (idx !== -1) {
+                this.bufferHandlers.splice(idx, 1)
+            }
+        }
     }
 
     stopAndDestroy(): Promise<void> {

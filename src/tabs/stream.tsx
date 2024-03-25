@@ -51,7 +51,7 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
     useEffect(() => {
 
         console.info('urls: ', urls)
-        loadStream(roomId, urls, videoRef.current)
+        loadStream(urls, videoRef.current, 'hls')
             .then(p => {
                 player.current = p
                 danmaku.current = new NDanmaku(containerRef.current, 'bjf-danmaku')

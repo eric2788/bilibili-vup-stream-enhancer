@@ -1,4 +1,4 @@
-import { Toaster } from 'sonner/dist'
+import { Toaster } from 'sonner'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 
