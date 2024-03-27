@@ -2,7 +2,7 @@ import BilibiliPage from "@tests/helpers/bilibili-page";
 import logger from "@tests/helpers/logger";
 import type { PageFrame } from "@tests/helpers/page-frame";
 import { Strategy } from "@tests/utils/misc";
-import { extensionBase } from "./base";
+import { extensionBase } from "./extension";
 
 export type ContentOptions = {
 }

@@ -32,7 +32,7 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
         async (clean) => {
             console.log('clean up!')
             if (clean) {
-                clean()
+                await clean()
             }
             chunks.current = []
         }, 

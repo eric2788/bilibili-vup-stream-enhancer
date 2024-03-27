@@ -1,7 +1,7 @@
 import type { Page, Worker } from "@playwright/test";
 import BilibiliPage from "@tests/helpers/bilibili-page";
 import { Strategy } from "@tests/utils/misc";
-import { extensionBase } from "./base";
+import { extensionBase } from "./extension";
 
 
 export type BackgroundOptions = {
