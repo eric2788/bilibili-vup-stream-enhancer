@@ -142,10 +142,6 @@ export default class BilbiliApi {
         }
 
         const streams = data?.playurl_info?.playurl?.stream ?? []
-        if (streams.length == 0) {
-            throw new Error('没有可用的直播视频流')
-        }
-
         const names = data?.playurl_info?.playurl?.g_qn_desc ?? []
 
         return streams

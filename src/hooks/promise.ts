@@ -58,6 +58,7 @@ export function usePromise<T>(promise: Promise<T> | (() => Promise<T>), deps: an
         dispatch({ type: "SUCCESS", payload: data })
       })
       .catch((error) => {
+        console.warn(error)
         dispatch({ type: "ERROR", payload: error })
       })
   }, [promise, ...deps])

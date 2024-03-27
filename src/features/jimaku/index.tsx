@@ -51,7 +51,7 @@ export function App(): JSX.Element {
 
     // danmaku style callback
     useMutationObserver(danmakuArea, (mutationsList: MutationRecord[]) => {
-        for (const node of mutationsList.flatMap(mu => mu.addedNodes).flatMap(node => [...node.values()])) {
+        for (const node of mutationsList.flatMap(mu => mu.addedNodes).flatMap(node => [...Array.from(node)])) {
             let danmaku: string = undefined
             let danmakuNode: HTMLElement = undefined
             if (node instanceof Text) {

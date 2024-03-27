@@ -17,7 +17,10 @@ class FlvPlayer implements StreamPlayer {
             url
         }, {
             stashInitialSize: 1024 * 1024,
-            autoCleanupSourceBuffer: true
+            autoCleanupSourceBuffer: true,
+            headers: {
+                'Origin': 'https://live.bilibili.com'
+            }
         })
         this.player.attachMediaElement(container)
         this.player.load()
@@ -48,6 +51,7 @@ class FlvPlayer implements StreamPlayer {
     async stopAndDestroy(): Promise<void> {
         this.player.detachMediaElement()
         this.player.destroy()
+        this.player = null
     }
 
     get internalPlayer(): any {
