@@ -21,10 +21,17 @@ class HlsPlayer implements StreamPlayer {
                 res()
             })
 
-            this.player.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+            this.player.once(Hls.Events.MANIFEST_PARSED, (event, data) => {
                 console.log('manifest loaded, found ' + data.levels.length + ' quality level', data)
-                this.player.on(Hls.Events.FRAG_LOADED, (event, data) => {
-                    this.bufferHandlers.forEach(handler => handler(data.frag.data))
+                let i = 0;
+                this.player.on(Hls.Events.BUFFER_APPENDING, (event, data) => {
+                    this.bufferHandlers.forEach(handler => handler(data.data))
+                    i++;
+                    const end = this.player.config.maxBufferLength+1
+                    if (i % end === 0){
+                        console.info('flushing buffer', i, '/', end)
+                        this.player.trigger(Hls.Events.BUFFER_FLUSHING, {startOffset: 0, endOffset: end-1, type: 'audiovideo'})
+                    }
                 })
             })
 
@@ -63,14 +70,10 @@ class HlsPlayer implements StreamPlayer {
         }
     }
 
-    stopAndDestroy(): Promise<void> {
-        return new Promise((res,) => {
-            this.player.detachMedia()
-            this.player.on(Hls.Events.MEDIA_DETACHED, () => {
-                this.player.destroy()
-                res()
-            })
-        })
+    async stopAndDestroy(): Promise<void> {
+        this.player.stopLoad()
+        this.player.detachMedia()
+        this.player.destroy()
     }
 
     get internalPlayer(): Hls {

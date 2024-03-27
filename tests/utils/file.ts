@@ -1,5 +1,7 @@
 import { glob, type GlobOptions as IOptions } from 'glob'
 import type { Readable } from 'stream'
+import fs from 'fs/promises'
+import type { PathLike } from 'fs'
 
 export type IModule = {
     name: string,
@@ -8,13 +10,13 @@ export type IModule = {
 }
 
 /**
- * Retrieves an array of TypeScript file paths from the specified directory path.
- * @param dirPath - The directory path to search for TypeScript files.
+ * Retrieves an array of JavaScript/TypeScript file paths from the specified directory path.
+ * @param dirPath - The directory path to search for JavaScript/TypeScript files.
  * @param options - Optional configuration options for the glob pattern matching.
- * @returns An array of TypeScript file paths.
+ * @returns An array of JavaScript/TypeScript file paths.
  */
-export function getTSFiles(dirPath: string, options?: IOptions): string[] {
-    return glob.sync(`${dirPath}/**/*.{ts,tsx}`, options) as string[]
+export function getJSFiles(dirPath: string, options?: IOptions): string[] {
+    return glob.sync(`${dirPath}/**/*.{ts,tsx,js,jsx}`, options) as string[]
 }
 
 /**
@@ -24,8 +26,8 @@ export function getTSFiles(dirPath: string, options?: IOptions): string[] {
  * @returns A generator that yields promises of modules.
  */
 export function* getModuleStream(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<Promise<IModule>, void, any> {
-    for (const file of getTSFiles(dirPath, options)) {
-        const name = file.split('/').pop().split('.')[0]
+    for (const file of getJSFiles(dirPath, options)) {
+        const name = file.split(/[\\\/]/).pop().split('.')[0]
         yield import(file).then(module => ({ name, file, module }))
     }
 }
@@ -35,8 +37,8 @@ export function* getModuleStream(dirPath: string, options: IOptions = { ignore: 
  * @param dirPath - The directory path to search for TypeScript files.
  * @param options - The options for filtering files. Default value is { ignore: '**/
 export function* getModuleStreamSync(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<IModule, void, any> {
-    for (const file of getTSFiles(dirPath, options)) {
-        const name = file.split('/').pop().split('.')[0]
+    for (const file of getJSFiles(dirPath, options)) {
+        const name = file.split(/[\\\/]/).pop().split('.')[0]
         yield { name, file, module: require(file) }
     }
 }
@@ -53,4 +55,27 @@ export async function readText(readable: Readable): Promise<string> {
         readable.on('end', () => res(data))
         readable.on('error', rej)
     })
+}
+
+
+/**
+ * Reads the MP4 file information.
+ * @param path - The path to the MP4 file.
+ * @returns An object containing the time scale, duration, movie length, and start position.
+ */
+export async function readMp4Info(path: PathLike) {
+    const buf = Buffer.alloc(100);
+    const file = await fs.open(path);
+    const { buffer } = await file.read({
+      buffer: buf,
+      length: 100,
+      offset: 0,
+      position: 0,
+    });
+    await file.close();
+    const start = buffer.indexOf(Buffer.from("mvhd")) + 16;
+    const timeScale = buffer.readUInt32BE(start);
+    const duration = buffer.readUInt32BE(start + 4);
+    const movieLength = Math.floor(duration / timeScale);
+    return { timeScale, duration, movieLength, start }
 }

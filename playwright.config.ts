@@ -56,22 +56,50 @@ export default defineConfig<GlobalOptions>({
       }
     },
     {
+      name: 'units',
+      testMatch: '**/units/**',
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      timeout: 300000,
+    },
+    {
+      name: 'integrations',
+      testMatch: '**/integrations/*.spec.ts',
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      timeout: 300000,
+    },
+    {
       name: 'edge',
       use: { ...devices['Desktop Edge'], channel: 'msedge' },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'chrome',
       use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'edge-theme',
       dependencies: ['theme-setup'],
       use: { ...devices['Desktop Edge'], channel: 'msedge', isThemeRoom: true },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'chrome-theme',
       dependencies: ['theme-setup'],
       use: { ...devices['Desktop Chrome'], channel: 'chrome', isThemeRoom: true },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'local',

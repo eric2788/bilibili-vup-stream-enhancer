@@ -1,4 +1,8 @@
 import { request, type APIRequestContext } from "@playwright/test";
+import { sendInternal } from "~background/messages";
+import type { StreamUrls } from "~background/messages/get-stream-urls";
+import type { V1Response, StreamUrlResponse } from "~types/bilibili";
+import logger from "./logger";
 
 export interface LiveRoomInfo {
     roomid: number;
@@ -43,7 +47,7 @@ export default class BilbiliApi {
      * @returns 一个解析为获取的数据的Promise。
      * @throws 如果获取操作失败，则抛出错误。
      */
-    private async fetch(path: string): Promise<any> {
+    private async fetch<T = any>(path: string): Promise<T> {
         const res = await this.context.get(path)
         if (!res.ok()) throw new Error(`获取bilibili API失败：${res.statusText()}`)
         return await res.json()
@@ -110,6 +114,64 @@ export default class BilbiliApi {
         const data = await this.fetch(`/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${area}&area_id=0&sort_type=online&page=${page}`)
         if (data.code !== 0) throw new Error(`获取bilibili直播房间列表失败：${data.message}`)
         return data.data.list as LiveRoomInfo[]
+    }
+
+
+    /**
+     * Retrieves the stream URLs for a given room.
+     * @param room - The room ID or room number.
+     * @returns A promise that resolves to an array of stream URLs.
+     * @throws An error if the room is hidden, locked, or encrypted without verification.
+     * @throws An error if there are no available stream URLs.
+     */
+    async getStreamUrls(room: number | string): Promise<StreamUrls> {
+        const res = await this.fetch<V1Response<StreamUrlResponse>>(`/xlive/web-room/v2/index/getRoomPlayInfo?room_id=${room}&protocol=0,1&format=0,2&codec=0,1&qn=10000&platform=web&ptype=16`)
+        if (res.code !== 0) throw new Error(res.message)
+        const data = res.data
+
+        if (data.is_hidden) {
+            throw new Error('此直播間被隱藏')
+        }
+
+        if (data.is_locked) {
+            throw new Error('此直播間已被封鎖')
+        }
+
+        if (data.encrypted && !data.pwd_verified) {
+            throw new Error('此直播間已被上鎖')
+        }
+
+        const streams = data?.playurl_info?.playurl?.stream ?? []
+        if (streams.length == 0) {
+            throw new Error('没有可用的直播视频流')
+        }
+
+        const names = data?.playurl_info?.playurl?.g_qn_desc ?? []
+
+        return streams
+            .filter(st => ['http_stream', 'http_hls'].includes(st.protocol_name))
+            .flatMap(st =>
+                st.format
+                    .filter(format => st.protocol_name === 'http_hls' || format.format_name === 'flv')
+                    .flatMap(format => {
+                        return format.codec
+                            .toSorted((a, b) => b.current_qn - a.current_qn)
+                            .flatMap(codec =>
+                                codec.url_info.map(url_info => {
+                                    const queries = new URLSearchParams(url_info.extra)
+                                    const order = queries.get('order') ?? '0'
+                                    return ({
+                                        desc: `${names.find(n => n.qn === codec.current_qn)?.desc ?? codec.current_qn}`,
+                                        url: url_info.host + codec.base_url + url_info.extra,
+                                        type: format.format_name === 'flv' ? 'flv' : 'hls',
+                                        codec: codec.codec_name,
+                                        track: order,
+                                        quality: codec.current_qn
+                                    })
+                                })
+                            )
+                    })
+            )
     }
 
 }

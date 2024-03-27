@@ -1,4 +1,4 @@
-import { extensionBase as test } from "@tests/fixtures/base";
+import { base as test } from "@tests/fixtures/base";
 import logger from "@tests/helpers/logger";
 
 test('getRoomStatus - API', async ({ api }) => {

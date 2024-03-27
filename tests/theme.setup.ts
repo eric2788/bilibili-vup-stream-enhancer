@@ -1,4 +1,4 @@
-import { extensionBase as setup } from "./fixtures/base";
+import { extensionBase as setup } from "./fixtures/extension";
 import logger from "./helpers/logger";
 import { Strategy } from "./utils/misc";
 

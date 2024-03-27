@@ -53,13 +53,19 @@ async function loadStream(urls: StreamUrls, video: HTMLVideoElement, type?: Play
     throw new Error('No player is supported')
 }
 
-export async function recordStream(urls: StreamUrls, handler: BufferHandler, type?: PlayerType): Promise<VoidFunction> {
+export async function recordStream(urls: StreamUrls, handler: BufferHandler, type?: PlayerType): Promise<() => Promise<void>> {
     const video = document.createElement('video')
     video.style.display = 'none'
     video.volume = 0
     video.muted = true
+    video.autoplay = true
+    video.playsInline = true
     const player = await loadStream(urls, video, type)
-    return player.addBufferHandler(handler)
+    const remover =  player.addBufferHandler(handler)
+    return () => {
+        remover()
+        return player.stopAndDestroy()
+    }
 }
 
 export default loadStream
