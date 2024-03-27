@@ -1,76 +1,187 @@
-import { test, expect } from "@tests/fixtures/integration";
-import { Strategy } from "@tests/utils/misc";
-import type { StreamUrls } from "~background/messages/get-stream-urls";
+import { expect, test } from "@tests/fixtures/component";
 import logger from "@tests/helpers/logger";
-import { sleep } from "~utils/misc";
-import { readMp4Info } from "@tests/utils/file";
-import fs from "fs/promises";
+import { readMovieInfo } from "@tests/utils/file";
+test(
+    '測試透過 Buffer 錄製 HLS 推流並用 ffmpeg.wasm 修復資訊損壞',
+    { tag: "@scoped" },
+    async ({ context, room: { stream }, page, modules }) => {
 
-test('record streams', { tag: "@scoped" }, async ({ context, rooms, api, page, modules }) => {
+        test.slow()
+        const chunkSizeExpectedMoreThan = 50
 
-    const chunkSizeExpectedMoreThan = 36
+        context.on('console', logger.debug)
 
-    context.on('console', logger.debug)
-    await page.addScriptTag({
-        content: modules['player'].code,
-        type: 'module'
-    })
+        await modules['player'].loadToPage()
+        await modules['utils'].loadToPage()
 
-    const iterator = Strategy.random(rooms)
-    let streams: StreamUrls
-    for (const room of iterator) {
-        try {
-            logger.info(`尝试获取房间 ${room.roomid} 的流`)
-            streams = await api.getStreamUrls(room.roomid)
-            break
-        } catch (err: any) {
-            logger.warn(`获取房间 ${room.roomid} 的流失败: ${err?.message}`)
-            logger.info(`尝试下一个房间`)
-        }
-    }
-    expect(streams).toBeDefined()
-    expect(streams.length).toBeGreaterThan(0)
+        const downloading = page.waitForEvent('download')
+        const length = await page.evaluate(async ({ stream, chunkSizeExpectedMoreThan: expected }) => {
 
-    await context.exposeFunction('sleep', sleep)
+            const { player, utils } = window as any
 
-    const chunks = await page.evaluate(async ({ streams, chunkSizeExpectedMoreThan: expected }) => {
+            let timeout = undefined
+            let fail = false
 
-        const { player, sleep } = window as any
+            function resetAndTimeout() {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => fail = true, 1000 * 30)
+            }
 
-        let timeout = undefined
-        let fail = false
+            const chunks = []
+            const cleanup = await player.recordStream(stream, (buffer: ArrayBuffer) => {
+                const blob = new Blob([buffer], { type: 'application/octet-stream' })
+                chunks.push(blob)
+                resetAndTimeout()
+                console.info('total chunks size: ', chunks.length, buffer.byteLength)
+            }, 'hls')
 
-        function resetAndTimeout() {
+            while (chunks.length <= expected && !fail) {
+                await utils.misc.sleep(1000)
+            }
+
             clearTimeout(timeout)
-            timeout = setTimeout(() => fail = true, 1000 * 30)
-        }
+            console.info('cleaning up stream buffer...')
+            await cleanup()
 
-        const chunks = []
-        const cleanup = await player.recordStream(streams, (buffer: ArrayBuffer) => {
-            chunks.push(buffer)
-            resetAndTimeout()
-            console.info('total chunks size: ', chunks.length, buffer.byteLength)
-        }, 'hls')
+            utils.file.download('test.mp4', [...chunks], 'video/mp4')
 
-        while (chunks.length <= expected && !fail) {
-            await sleep(1000)
-        }
-        clearTimeout(timeout)
-        console.info('cleaning up stream buffer...')
-        await cleanup()
-        return chunks
-    }, { streams, chunkSizeExpectedMoreThan })
+            {
+                // for next use
+                (window as any).testVideo = chunks;
+            }
 
-    logger.info('total chunks: ', chunks.length)
-    expect(chunks.length).toBeGreaterThan(chunkSizeExpectedMoreThan)
+            return chunks.length
 
-    const blob = new Blob(chunks, { type: 'video/mp4' })
-    
-    await fs.mkdir('out')
-    await fs.writeFile('out/test.mp4', Buffer.from(await blob.arrayBuffer()), { flag: 'w' })
+        }, { stream, chunkSizeExpectedMoreThan })
 
-    const info = await readMp4Info('out/test.mp4')
-    logger.info('info: ', info)
+        expect(length).toBeGreaterThan(chunkSizeExpectedMoreThan)
+        const downloaded = await downloading
+        await downloaded.saveAs('out/test.mp4')
+        const info = await readMovieInfo('out/test.mp4')
 
-    expect(info.duration).toBeGreaterThan(chunkSizeExpectedMoreThan)
-})
+        logger.info('info: ', info)
+
+        expect(info.relativeDuration()).toBe(0) // broken info
+
+        // now trying to fix broken info with ffmpeg
+
+        await modules['ffmpeg'].loadToPage()
+
+        const downloadingFix = page.waitForEvent('download')
+        await page.evaluate(async () => {
+            const { testVideo, getFFmpeg, utils } = window as any
+            const ffmpeg = await getFFmpeg()
+            console.log('ffmpeg loaded. converting file....')
+            const input = await new Blob(testVideo, { type: 'video/mp4' }).arrayBuffer()
+            await ffmpeg.writeFile('input.mp4', new Uint8Array(input))
+            console.log('input file written, executing....')
+            await ffmpeg.exec(['-i', 'input.mp4', '-c', 'copy', 'output.mp4'])
+            console.log('output file written, downloading....')
+            const data = await ffmpeg.readFile('output.mp4')
+            const output = new Blob([data], { type: 'video/mp4' })
+            utils.file.downloadBlob(output, 'fixed.mp4')
+        })
+
+        const downloadedFix = await downloadingFix
+        await downloadedFix.saveAs('out/fixed.mp4')
+        const infoFix = await readMovieInfo('out/fixed.mp4')
+
+        logger.info('infoFix: ', infoFix)
+
+        expect(infoFix.relativeDuration()).toBeGreaterThan(0) // fixed info
+    }
+)
+
+
+test.fail(
+    '測試透過 Buffer 錄製 FLV 推流並用 ffmpeg.wasm 修復資訊損壞',
+    { tag: "@scoped" },
+    async ({ context, room: { stream }, page, modules }) => {
+
+        test.slow()
+        const chunkSizeExpectedMoreThan = 50
+
+        context.on('console', logger.debug)
+
+        await modules['player'].loadToPage()
+        await modules['utils'].loadToPage()
+
+        const downloading = page.waitForEvent('download')
+        const length = await page.evaluate(async ({ stream, chunkSizeExpectedMoreThan: expected }) => {
+
+            const { player, utils } = window as any
+
+            let timeout = undefined
+            let fail = false
+
+            function resetAndTimeout() {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => fail = true, 1000 * 30)
+            }
+
+            const chunks = []
+            const cleanup = await player.recordStream(stream, (buffer: ArrayBuffer) => {
+                const blob = new Blob([buffer], { type: 'application/octet-stream' })
+                chunks.push(blob)
+                resetAndTimeout()
+                console.info('total chunks size: ', chunks.length, buffer.byteLength)
+            }, 'flv')
+
+            while (chunks.length <= expected && !fail) {
+                await utils.misc.sleep(1000)
+            }
+
+            clearTimeout(timeout)
+            console.info('cleaning up stream buffer...')
+            await cleanup()
+
+            utils.file.download('test.flv', [...chunks], 'video/x-flv')
+
+            {
+                // for next use
+                (window as any).testVideo = chunks;
+            }
+
+            return chunks.length
+
+        }, { stream, chunkSizeExpectedMoreThan })
+
+        expect(length).toBeGreaterThan(chunkSizeExpectedMoreThan)
+        const downloaded = await downloading
+        await downloaded.saveAs('out/test.flv')
+        const info = await readMovieInfo('out/test.flv')
+
+        logger.info('info: ', info)
+
+        expect(info.relativeDuration()).toBe(0) // broken info
+
+        // now trying to fix broken info with ffmpeg
+
+        await modules['ffmpeg'].loadToPage()
+
+        const downloadingFix = page.waitForEvent('download')
+        await page.evaluate(async () => {
+            const { testVideo, getFFmpeg, utils } = window as any
+            const ffmpeg = await getFFmpeg()
+            console.log('ffmpeg loaded. converting file....')
+            const input = await new Blob(testVideo, { type: 'video/x-flv' }).arrayBuffer()
+            await ffmpeg.writeFile('input.flv', new Uint8Array(input))
+            console.log('input file written, executing....')
+            await ffmpeg.exec(['-i', 'input.flv', '-c', 'copy', 'output.flv'])
+            console.log('output file written, downloading....')
+            const data = await ffmpeg.readFile('output.flv')
+            const output = new Blob([data], { type: 'video/x-flv' })
+            utils.file.downloadBlob(output, 'fixed.flv')
+        })
+
+        const downloadedFix = await downloadingFix
+        await downloadedFix.saveAs('out/fixed.flv')
+        const infoFix = await readMovieInfo('out/fixed.flv')
+
+        logger.info('infoFix: ', infoFix)
+        
+        expect(infoFix.relativeDuration()).toBeGreaterThan(0) // fixed info
+
+    }
+
+)

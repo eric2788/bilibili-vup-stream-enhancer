@@ -1,11 +1,12 @@
 import { useKeyDown } from "@react-hooks-library/core"
-import { useContext, useRef } from "react"
+import { useContext, useEffect, useRef } from "react"
 import { toast } from "sonner/dist"
 import type { StreamUrls } from "~background/messages/get-stream-urls"
 import RecorderFeatureContext from "~contexts/RecorderFeatureContext"
 import { useAsyncEffect } from "~hooks/life-cycle"
 import { recordStream } from "~players"
-import { download } from "~utils/file"
+import { fixCorrupted } from "~utils/ffmpeg"
+import { download, downloadBlob } from "~utils/file"
 
 export type RecorderLayerProps = {
     urls: StreamUrls
@@ -38,17 +39,21 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
         }, 
     [urls])
 
-    useKeyDown(hotkeyClip.key, (e) => {
+    useEffect(() => {
+        if (error) {
+            toast.error('直播推流录制失败: '+error)
+        }
+    }, [error])
+
+    useKeyDown(hotkeyClip.key, async (e) => {
         if (e.ctrlKey !== hotkeyClip.ctrlKey) return
         if (e.shiftKey !== hotkeyClip.shiftKey) return
+        toast.info('修复视频中...')
+        const original = new Blob([ ...chunks.current ], { type: 'video/mp4' })
+        const fixed = await fixCorrupted(original)
         toast.info('下載視頻中...')
-        console.log('size: ', chunks.current.length, chunks.current.reduce((a, b) => a + b.size, 0))
-        download('test.mp4', [ ...chunks.current ], 'video/mp4')
+        downloadBlob(new Blob([fixed], { type: 'video/mp4' }), 'clip.mp4')
     })
-
-    if (error){
-        console.error('錄製直播流失敗: ', error)
-    }
 
     return null
 }

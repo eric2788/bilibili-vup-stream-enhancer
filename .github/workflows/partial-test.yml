@@ -52,7 +52,6 @@ jobs:
                            --grep=@scoped \
                            --pass-with-no-tests \
                            --global-timeout=3600000 \
-                           --timeout=60000 \
                            --max-failures=2
             env:
               DEBUG: true

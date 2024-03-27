@@ -27,10 +27,10 @@ class HlsPlayer implements StreamPlayer {
                 this.player.on(Hls.Events.BUFFER_APPENDING, (event, data) => {
                     this.bufferHandlers.forEach(handler => handler(data.data))
                     i++;
-                    const end = this.player.config.maxBufferLength+1
+                    const end = this.player.config.maxBufferLength
                     if (i % end === 0){
-                        console.info('flushing buffer', i, '/', end)
-                        this.player.trigger(Hls.Events.BUFFER_FLUSHING, {startOffset: 0, endOffset: end-1, type: 'audiovideo'})
+                        console.info('flushing buffer: ', i, '/', end)
+                        this.player.trigger(Hls.Events.BUFFER_FLUSHING, {startOffset: 0, endOffset: end, type: 'audiovideo'})
                     }
                 })
             })
@@ -72,8 +72,12 @@ class HlsPlayer implements StreamPlayer {
 
     async stopAndDestroy(): Promise<void> {
         this.player.stopLoad()
+        console.info('hls player loading stopped')
         this.player.detachMedia()
+        console.info('hls player detached from media')
         this.player.destroy()
+        console.info('hls player destroyed')
+        this.player = null
     }
 
     get internalPlayer(): Hls {
