@@ -1,87 +1,103 @@
-import type { BufferHandler, StreamPlayer } from "~players";
-import Hls from 'hls.js'
+import Hls from 'hls.js';
+import { type VideoInfo } from "~players";
+import { StreamPlayer } from '~types/media';
 
+class HlsPlayer extends StreamPlayer {
 
-class HlsPlayer implements StreamPlayer {
-
-    private bufferHandlers: BufferHandler[] = []
     private player: Hls
 
     get isSupported(): boolean {
         return Hls.isSupported()
     }
 
-    loadAndPlay(url: string, video: HTMLMediaElement): Promise<void> {
+    get internalPlayer(): Hls {
+        return this.player
+    }
+
+    get videoInfo(): VideoInfo {
+        return {
+            mimeType: 'video/mp4',
+            extension: 'mp4'
+        }
+    }
+
+    play(url: string, media?: HTMLMediaElement): Promise<void> {
+
+        if (!media) {
+            // create a hidden video element
+            media = document.createElement('video')
+            media.style.display = 'none'
+            media.volume = 0
+            media.muted = true
+            media.autoplay = true
+        }
+
         this.player = new Hls({
+            enableWorker: true,
+            liveDurationInfinity: true,
             lowLatencyMode: true,
+            maxBufferLength: Infinity
         })
+
         return new Promise((res, rej) => {
             this.player.once(Hls.Events.MEDIA_ATTACHED, () => {
                 console.log('video and hls.js are now bound together !')
-                res()
+
             })
 
             this.player.once(Hls.Events.MANIFEST_PARSED, (event, data) => {
                 console.log('manifest loaded, found ' + data.levels.length + ' quality level', data)
-                let i = 0;
-                this.player.on(Hls.Events.BUFFER_APPENDING, (event, data) => {
-                    this.bufferHandlers.forEach(handler => handler(data.data))
-                    i++;
-                    const end = this.player.config.maxBufferLength
-                    if (i % end === 0){
-                        console.info('flushing buffer: ', i, '/', end)
-                        this.player.trigger(Hls.Events.BUFFER_FLUSHING, {startOffset: 0, endOffset: end, type: 'audiovideo'})
-                    }
-                })
+                this.emit('loaded', {})
+                res()
+            })
+
+            this.player.on(Hls.Events.BUFFER_APPENDING, (event, data) => {
+                this.emit('buffer', data.data.buffer)
             })
 
             this.player.loadSource(url);
-            this.player.attachMedia(video);
+            this.player.attachMedia(media);
 
-            this.player.once(Hls.Events.ERROR, (event, data) => {
-                console.warn('hls error: ', data)
+            let retryCount = 0
+            this.player.on(Hls.Events.ERROR, (event, data) => {
+                console.warn('hls error: ', data.error, data.errorAction, data.reason)
+                console.warn('retry count: ', retryCount++)
+                if (retryCount >= 3) {
+                    console.error('retry count exceeded, stop and destroy player')
+                    this.stopAndDestroy()
+                    this.emit('error', data.error)
+                    return
+                }
+                
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.MEDIA_ERROR:
                             console.log('fatal media error encountered, try to recover');
-                            this.player.recoverMediaError();
+                            if (media) this.player.recoverMediaError()
                             break;
                         case Hls.ErrorTypes.NETWORK_ERROR:
                             console.error('fatal network error encountered', data);
+                            this.player.startLoad()
                             break;
                         default:
                             // cannot recover
+                            console.error('fatal error encountered, cannot recover');
                             this.player.destroy();
+                            this.emit('error', data.error)
                             break;
                     }
-                    rej(data)
+                    rej(data.error)
                 }
             })
         })
     }
 
-    addBufferHandler(handler: BufferHandler): VoidFunction {
-        this.bufferHandlers.push(handler)
-        return () => {
-            const idx = this.bufferHandlers.indexOf(handler)
-            if (idx !== -1) {
-                this.bufferHandlers.splice(idx, 1)
-            }
-        }
-    }
-
-    async stopAndDestroy(): Promise<void> {
+    stopAndDestroy() {
+        this.clearHandlers()
         this.player.stopLoad()
-        console.info('hls player loading stopped')
         this.player.detachMedia()
-        console.info('hls player detached from media')
         this.player.destroy()
-        console.info('hls player destroyed')
         this.player = null
-    }
-
-    get internalPlayer(): Hls {
-        return this.player
     }
 
 }

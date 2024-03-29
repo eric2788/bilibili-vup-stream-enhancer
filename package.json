@@ -23,6 +23,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@ffmpeg/core": "^0.12.6",
+    "@ffmpeg/core-mt": "^0.12.6",
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
     "@material-tailwind/react": "^2.1.9",
@@ -47,7 +48,7 @@
     "react-shadow-root": "^6.2.0",
     "react-state-proxy": "^1.4.11",
     "semver": "7.6.0",
-    "sonner": "1.4.41",
+    "sonner": "1.4.3",
     "tailwindcss": "^3.4.1",
     "virtual-scroller": "^1.12.4"
   },
@@ -103,7 +104,7 @@
       }
     ],
     "content_security_policy": {
-      "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+      "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self' 'wasm-unsafe-eval';"
     },
     "cross_origin_embedder_policy": {
       "value": "require-corp"

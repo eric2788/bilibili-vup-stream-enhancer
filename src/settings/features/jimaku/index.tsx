@@ -87,7 +87,7 @@ function JimakuFeatureSettings({ state, useHandler }: StateProxy<FeatureSettingS
                         onChange={checker('noNativeVtuber')}
                         marker={<ExperienmentFeatureIcon />}
                     />
-                    <SwitchListItem data-testid="jimaku-window" label="启用同传弹幕彈出式视窗" hint="使用弹出式视窗时必须开着直播间才能运行" value={state.jimakuPopupWindow} onChange={checker('jimakuPopupWindow')} />
+                    <SwitchListItem data-testid="jimaku-window" label="启用同传弹幕弹出式视窗" hint="使用弹出式视窗时必须开着直播间才能运行" value={state.jimakuPopupWindow} onChange={checker('jimakuPopupWindow')} />
                 </List>
             </div>
             <div className="col-span-2">

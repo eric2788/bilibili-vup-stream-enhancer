@@ -144,6 +144,8 @@ export default class BilbiliApi {
         const streams = data?.playurl_info?.playurl?.stream ?? []
         const names = data?.playurl_info?.playurl?.g_qn_desc ?? []
 
+        logger.debug('stream urls:', JSON.stringify(streams, null, 2))
+
         return streams
             .filter(st => ['http_stream', 'http_hls'].includes(st.protocol_name))
             .flatMap(st =>

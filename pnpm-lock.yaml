@@ -14,6 +14,9 @@ dependencies:
   '@ffmpeg/core':
     specifier: ^0.12.6
     version: 0.12.6
+  '@ffmpeg/core-mt':
+    specifier: ^0.12.6
+    version: 0.12.6
   '@ffmpeg/ffmpeg':
     specifier: ^0.12.10
     version: 0.12.10
@@ -87,8 +90,8 @@ dependencies:
     specifier: 7.6.0
     version: 7.6.0
   sonner:
-    specifier: 1.4.41
-    version: 1.4.41(react-dom@18.2.0)(react@18.2.0)
+    specifier: 1.4.3
+    version: 1.4.3(react-dom@18.2.0)(react@18.2.0)
   tailwindcss:
     specifier: ^3.4.1
     version: 3.4.1
@@ -890,6 +893,11 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       cross-spawn: 7.0.3
+    dev: false
+
+  /@ffmpeg/core-mt@0.12.6:
+    resolution: {integrity: sha512-f7wrOeUk24VFRi2Gfsp/mwwkK1hbDV0ajgm2fOU/oRi+IDullyzAYdHOagAWfpSZXcTPAGZ1Ild7HmBwr3k2tg==}
+    engines: {node: '>=16.x'}
     dev: false
 
   /@ffmpeg/core@0.12.6:
@@ -6403,8 +6411,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /sonner@1.4.41(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-uG511ggnnsw6gcn/X+YKkWPo5ep9il9wYi3QJxHsYe7yTZ4+cOd1wuodOUmOpFuXL+/RE3R04LczdNCDygTDgQ==}
+  /sonner@1.4.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-SArYlHbkjqRuLiR0iGY2ZSr09oOrxw081ZZkQPfXrs8aZQLIBOLOdzTYxGJB5yIZ7qL56UEPmrX1YqbODwG0Lw==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0

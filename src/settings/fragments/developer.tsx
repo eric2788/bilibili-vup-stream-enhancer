@@ -8,6 +8,7 @@ import { setSettingStorage } from '~utils/storage';
 
 export type SettingSchema = {
     elements: {
+        upperHeaderArea: string;
         upperButtonArea: string;
         webPlayer: string;
         danmakuArea: string;
@@ -34,6 +35,7 @@ export type SettingSchema = {
 
 export const defaultSettings: Readonly<SettingSchema> = {
     elements: {
+        upperHeaderArea: 'div.upper-row > div.left-ctnr.left-header-area', // 上方标题界面元素
         upperButtonArea: '.lower-row .left-ctnr', // 上方按钮界面元素
         webPlayer: '.web-player-danmaku', // 播放器元素
         danmakuArea: '.danmaku-item-container', // 弹幕容器元素
@@ -79,6 +81,10 @@ type ElementDefinerList = {
 
 const elementDefiners: ElementDefinerList = {
     "元素捕捉": [
+        {
+            label: "上方标题界面元素",
+            key: "elements.upperHeaderArea"
+        },
         {
             label: "上方按钮界面元素",
             key: "elements.upperButtonArea"

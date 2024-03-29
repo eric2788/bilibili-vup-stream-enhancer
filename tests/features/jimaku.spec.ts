@@ -2,6 +2,7 @@ import type { Locator } from '@playwright/test'
 import { expect, test } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { isFrame, type PageFrame } from '@tests/helpers/page-frame'
+import { testFeatureRoomList } from '@tests/utils/playwright'
 import { readText } from 'tests/utils/file'
 
 test.beforeEach(async ({ content: p }) => {
@@ -82,7 +83,7 @@ test('測試彈出同傳視窗', async ({ room, context, tabUrl, page, content }
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()
-    await settingsPage.getByText('启用同传弹幕彈出式视窗').click()
+    await settingsPage.getByText('启用同传弹幕弹出式视窗').click()
     await settingsPage.getByText('保存设定').click()
     await settingsPage.waitForTimeout(2000)
 
@@ -172,37 +173,13 @@ test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, pag
     expect(subtitleList.length).toBe(0)
 })
 
-test('測試房間名單列表(黑名單/白名單)', async ({ room, content, context, tabUrl }) => {
-
-    const subtitleList = content.locator('#subtitle-list')
-    await expect(subtitleList).toBeVisible()
-
-    const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
-    await settingsPage.getByText('功能设定').click()
-    const roomInput = settingsPage.getByTestId('jimaku-whitelist-rooms-input')
-    const switcher = settingsPage.getByTestId('jimaku-whitelist-rooms').getByText('使用为黑名单')
-    await roomInput.fill(room.info.roomid.toString())
-    await switcher.click()
-    await roomInput.press('Enter')
-
-    await settingsPage.getByText('保存设定').click()
-
-    await room.page.bringToFront()
-    await content.waitForTimeout(1000)
-
-    await expect(subtitleList).toBeHidden()
-
-    await settingsPage.bringToFront()
-    await switcher.click()
-    await settingsPage.getByText('保存设定').click()
-
-    await room.page.bringToFront()
-    await content.waitForTimeout(1000)
-
-    await expect(subtitleList).toBeVisible()
-
-})
+test('測試房間名單列表(黑名單/白名單)',
+    testFeatureRoomList(
+        'jimaku',
+        expect,
+        (content) => content.locator('#subtitle-list')
+    )
+)
 
 test('测试添加同传用户名单/黑名单', async ({ content, context, tabUrl, room }) => {
 

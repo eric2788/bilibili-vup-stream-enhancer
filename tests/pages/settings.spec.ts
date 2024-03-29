@@ -6,11 +6,15 @@ import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
 import type { MV2Settings } from '~migrations/schema'
 
-test('測試頁面是否成功加載', async ({ settings: page }) => {
+test.beforeEach(async ({ page, tabUrl }) => {
+    await page.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+})
+
+test('測試頁面是否成功加載', async ({ page }) => {
     await expect(page.getByText('设定页面')).toBeVisible()
 })
 
-test('測試所有設定區塊能否展開', async ({ settings: page }) => {
+test('測試所有設定區塊能否展開', async ({ page }) => {
     const form = page.locator('form.container')
     await form.waitFor({ state: 'attached' })
     expect(form).toBeDefined()
@@ -21,7 +25,7 @@ test('測試所有設定區塊能否展開', async ({ settings: page }) => {
     }
 })
 
-test('測試能否保存設定', async ({ settings: page }) => {
+test('測試能否保存設定', async ({ page }) => {
 
     logger.info('正在修改功能設定....')
 
@@ -33,7 +37,7 @@ test('測試能否保存設定', async ({ settings: page }) => {
 
     const checkboxMonitor = page.getByTestId('monitor-window')
     await expect(checkboxMonitor).not.toBeChecked()
-    await page.getByText('启用监控视窗').click()
+    await page.getByText('启用弹出直播视窗').click()
 
     await page.getByText('字幕设定').click()
 
@@ -84,7 +88,7 @@ test('測試能否保存設定', async ({ settings: page }) => {
     await expect(liveFullScreenClass).toHaveValue('liveFullScreenClass changed')
 })
 
-test('測試導出導入設定', async ({ settings: page }) => {
+test('測試導出導入設定', async ({ page }) => {
     logger.info('正在導出設定....')
     const downloading = page.waitForEvent('download')
     await page.getByText('导出设定').click()
@@ -101,7 +105,7 @@ test('測試導出導入設定', async ({ settings: page }) => {
 
     const checkboxMonitor = page.getByTestId('monitor-window')
     await expect(checkboxMonitor).not.toBeChecked()
-    await page.getByText('启用监控视窗').click()
+    await page.getByText('启用弹出直播视窗').click()
 
     const inputSubtitleSize = page.getByTestId('jimaku-size')
     await expect(inputSubtitleSize).toHaveValue('16')
@@ -143,7 +147,7 @@ test('測試導出導入設定', async ({ settings: page }) => {
 })
 
 
-test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
+test('測試清空數據庫', async ({ page, front: room, api }) => {
 
     await page.bringToFront()
     const feature = page.getByText('功能设定')
@@ -229,7 +233,7 @@ test('測試清空數據庫', async ({ settings: page, front: room, api }) => {
 
 })
 
-test('測試從遠端獲取開發者設定', async ({ settings: page }) => {
+test('測試從遠端獲取開發者設定', async ({ page }) => {
 
     const api = await request.newContext()
     const response = await api.get('https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/cdn/developer_v2.json')
@@ -284,7 +288,7 @@ test('測試從遠端獲取開發者設定', async ({ settings: page }) => {
     expect(storageStr).toBe(JSON.stringify(remote))
 })
 
-test('測試設定數據從MV2遷移', async ({ serviceWorker, settings: page }) => {
+test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
 
     logger.info('正在測試寫入 MV2 設定....')
     const mv2Settings = await serviceWorker.evaluate(async () => {
@@ -419,7 +423,7 @@ test('測試設定數據從MV2遷移', async ({ serviceWorker, settings: page })
 })
 
 
-test('測試导航', async ({ settings: page, serviceWorker }) => {
+test('測試导航', async ({ page, serviceWorker }) => {
 
     const overlay = page.locator('.react-joyride__overlay')
 
@@ -431,12 +435,12 @@ test('測試导航', async ({ settings: page, serviceWorker }) => {
 
     logger.info('正在測試導航前向...')
 
-    const next = page.getByText('下一步')
-    const previous = page.getByText('上一步')
-    const skip = page.getByText('跳过')
-    const finish = page.getByText('完成')
+    const next = page.locator('[data-test-id=button-primary]').filter({ hasText: '下一步' })
+    const previous = page.locator('[data-test-id=button-back]')
+    const skip = page.locator('[data-test-id=button-skip]')
+    const finish = page.locator('[data-test-id=button-primary]').filter({ hasText: '完成' })
 
-    while(await next.isVisible()) {
+    while (await next.isVisible()) {
         await next.click()
         await page.waitForTimeout(100)
     }

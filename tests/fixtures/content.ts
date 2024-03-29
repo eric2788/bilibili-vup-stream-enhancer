@@ -3,6 +3,7 @@ import logger from "@tests/helpers/logger";
 import type { PageFrame } from "@tests/helpers/page-frame";
 import { Strategy } from "@tests/utils/misc";
 import { extensionBase } from "./extension";
+import type { Locator } from "@playwright/test";
 
 export type ContentOptions = {
 }
@@ -62,3 +63,10 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
 })
 
 export const expect = test.expect
+
+test.beforeEach(async ({ context }) => {
+    context.on('console', (msg) => {
+        if (!msg.text().includes('bilibili-vup-stream-enhancer')) return
+        logger.debug(msg.text().replace('bilibili-vup-stream-enhancer', 'console'))
+    })
+})

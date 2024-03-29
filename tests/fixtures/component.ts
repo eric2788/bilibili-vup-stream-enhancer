@@ -78,7 +78,13 @@ export const test = base.extend<IntegrationFixtures>({
 export const expect = test.expect
 
 
-test.beforeEach(async () => {
+test.beforeEach(async ({ context }) => {
     await fs.rm('out', { recursive: true, force: true })
     await fs.mkdir('out', { recursive: true })
+    context.on('console', logger.debug)
+})
+
+test.afterEach(async ({ page, context }) => {
+    await page.close()
+    await context.close()
 })

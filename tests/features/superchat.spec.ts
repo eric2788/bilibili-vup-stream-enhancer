@@ -1,7 +1,7 @@
 import { expect, test } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { readText } from '@tests/utils/file'
-import { getSuperChatList } from '@tests/utils/playwright'
+import { getSuperChatList, testFeatureRoomList } from '@tests/utils/playwright'
 
 test.beforeEach(async ({ page }) => {
     logger.info('正在等待登入彈窗消失...')
@@ -153,37 +153,13 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     expect(superchatList.length).toBe(0)
 })
 
-test('測試房間名單列表(黑名單/白名單)', async ({ room, content, context, tabUrl }) => {
-
-    const superchatButton = content.locator('button', { hasText: /^醒目留言$/ })
-    await expect(superchatButton).toBeVisible()
-
-    const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
-    await settingsPage.getByText('功能设定').click()
-    const roomInput = settingsPage.getByTestId('superchat-whitelist-rooms-input')
-    const switcher = settingsPage.getByTestId('superchat-whitelist-rooms').getByText('使用为黑名单')
-    await roomInput.fill(room.info.roomid.toString())
-    await switcher.click()
-    await roomInput.press('Enter')
-
-    await settingsPage.getByText('保存设定').click()
-
-    await room.page.bringToFront()
-    await content.waitForTimeout(1000)
-
-    await expect(superchatButton).toBeHidden()
-
-    await settingsPage.bringToFront()
-    await switcher.click()
-    await settingsPage.getByText('保存设定').click()
-
-    await room.page.bringToFront()
-    await content.waitForTimeout(1000)
-
-    await expect(superchatButton).toBeVisible()
-
-})
+test('測試房間名單列表(黑名單/白名單)', 
+    testFeatureRoomList(
+        'superchat',
+        expect,
+        (content) => content.locator('button', { hasText: /^醒目留言$/ })
+    )
+)
 
 test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, tabUrl }) => {
 

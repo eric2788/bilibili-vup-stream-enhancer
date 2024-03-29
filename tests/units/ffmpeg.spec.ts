@@ -3,12 +3,9 @@ import logger from '@tests/helpers/logger'
 import { readGifInfo, readMovieInfo } from '@tests/utils/file'
 import fs from 'fs/promises'
 
-test.slow()
-
-test('測試在 playwright 加載 ffmpeg.wasm', { tag: "@scoped" }, async ({ context, page, modules}) => {
+test('測試在 playwright 加載 ffmpeg.wasm', async ({ page, modules }) => {
 
     await modules['ffmpeg'].loadToPage()
-    context.on('console', console.log)
 
     const ret = await page.evaluate(async () => {
         const { getFFmpeg } = window as any
@@ -19,56 +16,53 @@ test('測試在 playwright 加載 ffmpeg.wasm', { tag: "@scoped" }, async ({ con
     expect(ret).toBe(0)
 })
 
-test('測試 ffmpeg.wasm 轉換 mp4 到 gif', { tag: "@scoped" }, async ({ context, page, modules }) => {
-    
-        await modules['ffmpeg'].loadToPage()
-        await modules['utils'].loadToPage()
+test('測試 ffmpeg.wasm 轉換 mp4 到 gif', async ({ context, page, modules }) => {
 
-        context.on('console', console.log)
-        const downloading = page.waitForEvent('download')
+    await modules['ffmpeg'].loadToPage()
+    await modules['utils'].loadToPage()
 
-        logger.info('downloading video...')
-        const res = await context.request.get('https://www.w3schools.com/html/mov_bbb.mp4')
-        test.skip(res.status() !== 200, '无法下载测试视频')
-        const mp4Content = await res.body()
+    const downloading = page.waitForEvent('download')
 
-        const info = await readMovieInfo(mp4Content) // ensure is mp4
-        logger.info('mp4 info: ', info)
+    logger.info('downloading video...')
+    const res = await context.request.get('https://www.w3schools.com/html/mov_bbb.mp4')
+    test.skip(res.status() !== 200, '无法下载测试视频')
+    const mp4Content = await res.body()
 
-        expect(info.duration).toBeGreaterThan(0)
+    const info = await readMovieInfo(mp4Content) // ensure is mp4
+    logger.info('mp4 info: ', info)
 
-        await fs.writeFile('out/input.mp4', mp4Content, { })
+    expect(info.duration).toBeGreaterThan(0)
 
-        const mp4 = atob(mp4Content.toString('base64')).split('').map(c => c.charCodeAt(0))
-        await page.evaluate(async (mp4) => {
+    await fs.writeFile('out/input.mp4', mp4Content, {})
 
-            const { getFFmpeg, utils } = window as any
-            const ffmpeg = await getFFmpeg()
-            const inFile = 'input.mp4'
-            const outFile = 'out.gif'
+    const mp4 = atob(mp4Content.toString('base64')).split('').map(c => c.charCodeAt(0))
+    await page.evaluate(async (mp4) => {
 
-            await ffmpeg.writeFile(inFile, new Uint8Array(mp4))
-            await ffmpeg.exec(['-i', inFile, '-f', 'gif', outFile])
+        const { getFFmpeg, utils } = window as any
+        const ffmpeg = await getFFmpeg()
+        const inFile = 'input.mp4'
+        const outFile = 'out.gif'
 
-            const data = await ffmpeg.readFile(outFile)
-            const output = new Blob([data], { type: 'image/gif' })
-            utils.file.downloadBlob(output, outFile)
+        await ffmpeg.writeFile(inFile, new Uint8Array(mp4))
+        await ffmpeg.exec(['-i', inFile, '-f', 'gif', outFile])
 
-        }, mp4)
-        
-        const downloaded = await downloading
-        await downloaded.saveAs('out/test.gif')
+        const data = await ffmpeg.readFile(outFile)
+        const output = new Blob([data], { type: 'image/gif' })
+        utils.file.downloadBlob(output, outFile)
 
-        const infoGif = await readGifInfo('out/test.gif') // ensure is gif
-        logger.info('gif info: ', infoGif)
+    }, mp4)
 
-        expect(infoGif.valid).toBe(true)
+    const downloaded = await downloading
+    await downloaded.saveAs('out/test.gif')
+
+    const infoGif = await readGifInfo('out/test.gif') // ensure is gif
+    logger.info('gif info: ', infoGif)
+
+    expect(infoGif.valid).toBe(true)
 })
 
 // FYR: https://ffmpegwasm.netlify.app/docs/faq#is-rtsp-supported-by-ffmpegwasm
-test.fail('測試透過 ffmpeg.wasm 錄製 http-flv 直播流', { tag: "@scoped" }, async ({ context, modules, room: { stream, roomid }, page }) => {
-
-    context.on('console', console.log)
+test.fail('測試透過 ffmpeg.wasm 錄製 http-flv 直播流', async ({ modules, room: { stream, roomid }, page }) => {
 
     await modules['utils'].loadToPage()
     await modules['ffmpeg'].loadToPage()
@@ -81,7 +75,7 @@ test.fail('測試透過 ffmpeg.wasm 錄製 http-flv 直播流', { tag: "@scoped"
 
         const { getFFmpeg, utils } = window as any
         const ffmpeg = await getFFmpeg()
-        
+
         const outFile = `${roomid}.flv`
         await ffmpeg.exec(['-f', 'live_flv', '-i', flvs[0].replace('https', 'http'), outFile], 15 * 1000)
         const data = await ffmpeg.readFile(outFile)
@@ -100,9 +94,7 @@ test.fail('測試透過 ffmpeg.wasm 錄製 http-flv 直播流', { tag: "@scoped"
 })
 
 // FYR: https://ffmpegwasm.netlify.app/docs/faq#is-rtsp-supported-by-ffmpegwasm
-test.fail('測試透過 ffmpeg.wasm 錄製 HLS 直播流', { tag: "@scoped" }, async ({ context, modules, room: { stream, roomid }, page }) => {
-
-    context.on('console', console.log)
+test.fail('測試透過 ffmpeg.wasm 錄製 HLS 直播流', async ({ modules, room: { stream, roomid }, page }) => {
 
     await modules['utils'].loadToPage()
     await modules['ffmpeg'].loadToPage()
@@ -115,7 +107,7 @@ test.fail('測試透過 ffmpeg.wasm 錄製 HLS 直播流', { tag: "@scoped" }, a
 
         const { getFFmpeg, utils } = window as any
         const ffmpeg = await getFFmpeg()
-        
+
         const outFile = `${roomid}.flv`
         await ffmpeg.exec(['-f', 'live_flv', '-i', hls[0].replace('https', 'http'), outFile], 15 * 1000)
         const data = await ffmpeg.readFile(outFile)

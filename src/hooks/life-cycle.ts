@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * Hook to run an async effect on mount and another on unmount.
@@ -8,10 +8,10 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 export const useAsyncEffect = <R = void>(
     mountCallback: () => Promise<R>,
     unmountCallback: (r: R) => Promise<void>,
+    errorCallback: (error: any) => void,
     deps: any[] = [],
-): UseAsyncEffectResult => {
+): void => {
     const isMounted = useRef(false);
-    const [error, setError] = useState<unknown>(undefined);
 
     useEffect(() => {
         isMounted.current = true;
@@ -33,15 +33,13 @@ export const useAsyncEffect = <R = void>(
             try {
                 cleaner = await mountCallback();
                 mountSucceeded = true;
-                if (isMounted.current && !ignore) {
-                    setError(undefined);
-                } else {
+                if (!isMounted.current || ignore) {
                     // Component was unmounted before the mount callback returned, cancel it
                     unmountCallback(cleaner);
                 }
             } catch (error) {
                 if (!isMounted.current) return;
-                setError(error);
+                errorCallback(error);
             }
         })();
 
@@ -54,16 +52,26 @@ export const useAsyncEffect = <R = void>(
                     })
                     .catch((error: unknown) => {
                         if (!isMounted.current) return;
-                        setError(error);
+                        errorCallback(error);
                     });
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, deps);
-
-    return useMemo(() => ({ error }), [error]);
 };
 
-export interface UseAsyncEffectResult {
-    error: any;
+
+
+export function useTimeoutElement(before: JSX.Element, after: JSX.Element, timeout: number) {
+    const [element, setElement] = useState(before);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setElement(after);
+        }, timeout);
+
+        return () => clearTimeout(timer);
+    }, [after, before, timeout]);
+
+    return element;
 }

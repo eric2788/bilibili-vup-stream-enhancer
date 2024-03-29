@@ -17,7 +17,7 @@ export function download(filename: string, content: any | any[], type: string = 
  * @param filename - The name of the file to be downloaded.
  * @returns A Promise that resolves when the download is complete.
  */
-export async function downloadBlob(blob: Blob, filename: string) {
+export function downloadBlob(blob: Blob, filename: string) {
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
     a.download = filename

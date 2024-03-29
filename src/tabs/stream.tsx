@@ -23,8 +23,9 @@ import type { StreamUrls } from '~background/messages/get-stream-urls';
 import BJFThemeProvider from '~components/BJFThemeProvider';
 import PromiseHandler from '~components/PromiseHandler';
 import { useForwarder } from '~hooks/forwarder';
-import loadStream, { type StreamPlayer } from '~players';
+import loadStream from '~players';
 import { sendMessager } from '~utils/messaging';
+import { useAsyncEffect } from '~hooks/life-cycle';
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('roomId');
@@ -42,44 +43,39 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
 
     const containerRef = useRef<HTMLDivElement>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
-    const player = useRef<StreamPlayer>(null)
     const danmaku = useRef<NDanmaku>(null)
     const danmakus = useRef<DanmakuBody[]>([])
     const danmakuForwarder = useForwarder('danmaku', 'pages')
     const jimakuForwarder = useForwarder('jimaku', 'pages')
 
-    useEffect(() => {
 
-        console.info('urls: ', urls)
-        loadStream(urls, videoRef.current, 'hls')
-            .then(p => {
-                player.current = p
-                danmaku.current = new NDanmaku(containerRef.current, 'bjf-danmaku')
-            })
-            .catch(e => {
-                console.error(e)
-                alert('加载播放器失败, 请刷新页面')
-            })
-
-        return () => {
+    useAsyncEffect(
+        async () => {
+            console.info('urls: ', urls)
+            const p = await loadStream(urls, videoRef.current)
+            danmaku.current = new NDanmaku(containerRef.current, 'bjf-danmaku')
+            p.on('error', console.error)
+            return p
+        },
+        async (p) => {
             if (danmaku.current) {
                 danmaku.current.clear()
             } else {
                 console.warn('danmaku is not initialized, skip cleanup')
             }
-            if (player.current) {
-                player.current.stopAndDestroy()
-                    .then(() => {
-                        console.info('player destroyed')
-                        player.current = null
-                    })
+            if (p) {
+                p.stopAndDestroy()
+                console.info('player destroyed')
             } else {
                 console.warn('player is not initialized, skip cleanup')
             }
-
-        }
-
-    }, [urls])
+        },
+        (err) => {
+            console.error(err)
+            alert('加载播放器失败, 请刷新页面')
+        },
+        [urls]
+    )
 
     useInterval(() => {
         if (danmakus.current.length === 0) return

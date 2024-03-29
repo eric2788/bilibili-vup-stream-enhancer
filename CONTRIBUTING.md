@@ -76,6 +76,7 @@ src/
 ├── contexts/       # 全局用 React 状态管理。
 ├── database/       # 数据库相关代码，包括模型定义和数据库迁移操作。
 ├── features/       # 特性模块，每个特性模块包含一组相关的功能。
+├── ffmpeg/         # FFmpeg 相关代码。
 ├── hooks/          # 全局用的自定义 React Hooks。
 ├── migrations/     # 设定迁移脚本(从MV2到MV3)。
 ├── players/        # 直播解析器相关代码。

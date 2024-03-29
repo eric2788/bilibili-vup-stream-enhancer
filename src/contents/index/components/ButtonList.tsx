@@ -36,7 +36,7 @@ function ButtonList(): JSX.Element {
             {displaySettings.restartButton &&
                 <Button variant="outlined" size="lg" className="text-lg" onClick={restart}>重新启动</Button>}
             {monitorWindow &&
-                <Button variant="outlined" size="lg" className="text-lg" onClick={openMonitor}>打开监控式视窗</Button>}
+                <Button variant="outlined" size="lg" className="text-lg" onClick={openMonitor}>弹出直播视窗</Button>}
             {(info.isTheme && displaySettings.themeToNormalButton) && 
                 <Button variant="outlined" size="lg" className="text-lg" onClick={() => window.open(`https://live.bilibili.com/blanc/${info.room}`)}>返回非海报界面</Button>    
             }

@@ -29,7 +29,7 @@ export type SettingSchema = {
 
 
 export const defaultSettings: Readonly<SettingSchema> = {
-    enabledFeatures: featureTypes,
+    enabledFeatures: [ 'superchat', 'jimaku' ],
     enabledRecording: [],
     common: {
         enabledPip: false,
@@ -116,7 +116,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                     <SwitchListItem data-testid="vtb-only" label="仅限虚拟主播" value={state.common.onlyVtuber} onChange={checker('common.onlyVtuber')} />
                     <SwitchListItem
                         data-testid="monitor-window"
-                        label="启用监控视窗"
+                        label="启用弹出直播视窗"
                         hint="如要传入字幕或弹幕，必须开着直播间"
                         value={state.common.monitorWindow}
                         onChange={checker('common.monitorWindow')}

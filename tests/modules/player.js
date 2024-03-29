@@ -1,3 +1,3 @@
-import loadStream, { recordStream } from '../../src/players'
+import loadStream, { recordStream } from '~players'
 
 window.player = { loadStream, recordStream }

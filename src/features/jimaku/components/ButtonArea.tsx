@@ -7,6 +7,7 @@ import JimakuButton from './JimakuButton';
 import type { Jimaku } from "./JimakuLine";
 import { createPortal } from "react-dom";
 import ButtonSwitchList from "./ButtonSwitchList";
+import TailwindScope from "~components/TailwindScope";
 
 export type ButtonAreaProps = {
     clearJimaku: VoidFunction
@@ -61,7 +62,9 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
                 </div>
             )}
             {info.isTheme && document.querySelector(upperButtonArea) !== null && createPortal(
-                <ButtonSwitchList switched={show} onClick={() => setShow(!show)} />,
+                <TailwindScope>
+                    <ButtonSwitchList switched={show} onClick={() => setShow(!show)} />
+                </TailwindScope>,
                 document.querySelector(upperButtonArea)
             )}
         </Fragment>

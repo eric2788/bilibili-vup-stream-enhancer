@@ -1,9 +1,11 @@
+/// <reference path="../types/movie.ts" />
 import { glob, type GlobOptions as IOptions } from 'glob'
 import type { Readable } from 'stream'
 import fs from 'fs/promises'
 import type { PathLike } from 'fs'
 import VideoLib from 'node-video-lib'
 import gifyParse from 'gify-parse'
+import type { Movie } from '@tests/types/movie'
 
 export type IModule = {
     name: string,
@@ -59,33 +61,9 @@ export async function readText(readable: Readable): Promise<string> {
     })
 }
 
-// reference data
-// Movie {
-//     duration: 32167,
-//     timescale: 1000,
-//     tracks: [
-//       VideoTrack {
-//         duration: 2894970,
-//         timescale: 90000,
-//         extraData: <Buffer 61 76 63 43 01 64 00 28 ff e1 00 1d 67 64 00 28 ac 72 89 01 40 16 e9 a8 08 08 0a 00 00 03 00 02 00 00 0f a0 1e 30 61 44 c0 01 00 04 68 e9 3b cb fd f8 ... 6 more bytes>,
-//         codec: 'avc1.640028',
-//         samples: [Array],
-//         width: 1280,
-//         height: 720
-//       },
-//       AudioTrack {
-//         duration: 1542734,
-//         timescale: 48000,
-//         extraData: <Buffer 6d 70 34 61 11 90 56 e5 00>,
-//         codec: 'mp4a.40.2',
-//         samples: [Array],
-//         channels: 2,
-//         sampleRate: 48000,
-//         sampleSize: 16
-//       }
-//     ]
-//   }
-export async function readMovieInfo(source: PathLike | Buffer) {
+
+
+export async function readMovieInfo(source: PathLike | Buffer): Promise<Movie> {
     source = await readBufferIfNeeded(source)
     return VideoLib.MovieParser.parse(source)
 }

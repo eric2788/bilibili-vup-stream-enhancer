@@ -57,7 +57,7 @@ export default defineConfig<GlobalOptions>({
     },
     {
       name: 'units',
-      testMatch: '**/units/**',
+      testMatch: '**/units/*.spec.ts',
       use: { ...devices['Desktop Chrome'], channel: 'chrome' },
       timeout: 300000,
     },

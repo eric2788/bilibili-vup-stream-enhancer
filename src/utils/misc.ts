@@ -21,10 +21,11 @@ export function toTimer(secs: number): string {
     const min = Math.floor(secs / 60)
     secs %= 60
 
+    const mh = hr > 9 ? `${hr}` : `0${hr}`
     const mu = min > 9 ? `${min}` : `0${min}`
     const ms = secs > 9 ? `${secs}` : `0${secs}`
 
-    return `${hr}:${mu}:${ms}`
+    return `${mh}:${mu}:${ms}`
 }
 
 /**
