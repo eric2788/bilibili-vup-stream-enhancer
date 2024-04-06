@@ -12,7 +12,30 @@ test('測試主元素是否存在', async ({ content }) => {
     await expect(csui.locator('#bjf-root')).toBeAttached()
 })
 
-test('测试扩展CSS有否影响到外围', async ({ content, room, isThemeRoom }) => {
+test('測試功能元素有否基於設定而消失/顯示', async ({ content, context, optionPageUrl }) => {
+
+    // 默認只開了同傳字幕
+    const csui = content.locator('bjf-csui')
+    await csui.waitFor({ state: 'attached', timeout: 10000 })
+
+    await expect(csui.locator('section#bjf-feature-jimaku')).toBeAttached()
+    await expect(csui.locator('section#bjf-feature-recorder')).not.toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).not.toBeAttached()
+
+    logger.info('正在修改設定')
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('启用快速切片').click()
+    await settingsPage.getByText('启用醒目留言').click()
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.close()
+
+    await expect(csui.locator('section#bjf-feature-recorder')).toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).toBeAttached()
+})
+
+test('测试扩展CSS有否影响到外围', async ({ content, isThemeRoom }) => {
 
     test.skip(isThemeRoom, '此測試不適用於大海報房間')
 
@@ -212,7 +235,7 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
         'media-chrome-button#danmaku-btn', // custom button
         'media-chrome-button#reload-btn' // custom button
     ]
-    
+
     await monitor.locator('media-control-bar').hover()
     for (const button of buttons) {
         const locator = monitor.locator(button)
@@ -220,14 +243,14 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
     }
 
     // Test custom buttons
-    
+
     // danmaku button
     await monitor.locator('media-control-bar').hover()
     await monitor.locator('#danmaku-btn').click()
     await expect(monitor.locator('.N-dmLayer')).toHaveCSS('display', 'none')
     await monitor.locator('#danmaku-btn').click()
     await expect(monitor.locator('.N-dmLayer')).toHaveCSS('display', 'block')
-    
+
     // reload button
     await monitor.locator('media-control-bar').hover()
     const reload = monitor.waitForEvent('load')

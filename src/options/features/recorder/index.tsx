@@ -1,12 +1,11 @@
-import { List, Switch, Typography } from "@material-tailwind/react"
+import { Switch, Typography } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
 import type { RecorderType } from "~features/recorder/recorders"
 import type { StateProxy } from "~hooks/binding"
 import { HotKeyInput, type HotKey } from "~options/components/HotKeyInput"
 import Selector from "~options/components/Selector"
-import type { FeatureSettingsDefinition } from ".."
-import SwitchListItem from "~options/components/SwitchListItem"
 import type { PlayerType } from "~players"
+import type { FeatureSettingsDefinition } from ".."
 import { toast } from "sonner/dist"
 
 export const title: string = '快速切片'
@@ -19,7 +18,8 @@ export type FeatureSettingSchema = {
     duration: number
     outputType?: PlayerType
     recordFix: 'copy' | 'reencode'
-    hotkeyClip: HotKey
+    recordHotkey: HotKey
+    screenshotHotkey: HotKey
     mechanism: RecorderType
     hiddenUI: boolean
     threads: number
@@ -30,8 +30,13 @@ export const defaultSettings: Readonly<FeatureSettingSchema> = {
     duration: 5,
     outputType: 'hls',
     recordFix: 'copy',
-    hotkeyClip: {
+    recordHotkey: {
         key: 'x',
+        ctrlKey: true,
+        shiftKey: false,
+    },
+    screenshotHotkey: {
+        key: 'v',
         ctrlKey: true,
         shiftKey: false,
     },
@@ -43,10 +48,15 @@ export const defaultSettings: Readonly<FeatureSettingSchema> = {
 
 export function RecorderFeatureSettings({ state, useHandler }: StateProxy<FeatureSettingSchema>): JSX.Element {
 
-    const onChangeHotKey = (key: HotKey) => {
-        state.hotkeyClip.key = key.key
-        state.hotkeyClip.ctrlKey = key.ctrlKey
-        state.hotkeyClip.shiftKey = key.shiftKey
+    const validateKeyInConflict = (key: HotKey, type: 'record' | 'screenshot') => {
+        const inputKey = key.key.toLowerCase()
+        const currentKey = type === 'record' ? state.screenshotHotkey.key.toLowerCase() : state.recordHotkey.key.toLowerCase()
+        console.debug('inputKey:', inputKey, 'currentKey:', currentKey)
+        if (inputKey === currentKey) {
+            toast.error('热键冲突: 快速切片热键与截图热键的主键不能相同。')
+            return true
+        }
+        return false
     }
 
     const bool = useHandler<ChangeEvent<HTMLInputElement>, boolean>(e => e.target.checked)
@@ -100,7 +110,7 @@ export function RecorderFeatureSettings({ state, useHandler }: StateProxy<Featur
                     { value: 0.5, label: '50%' },
                 ]}
             />
-            <Selector<typeof state.overflow> 
+            <Selector<typeof state.overflow>
                 data-testid="record-overflow"
                 label="超出 2GB 大小时"
                 value={state.overflow}
@@ -111,21 +121,13 @@ export function RecorderFeatureSettings({ state, useHandler }: StateProxy<Featur
                 ]}
             />
             <div>
-                <HotKeyInput
-                    data-testid="record-hotkey"
-                    label="快速切片热键"
-                    value={state.hotkeyClip}
-                    onChange={onChangeHotKey}
-                />
-            </div>
-            <div>
                 <Switch
                     data-testid="record-hide-ui"
                     crossOrigin="annoymous"
                     label={
                         <Fragment>
                             <Typography className="font-medium ml-3 flex items-center gap-2">
-                                隐藏录制按钮
+                                隐藏界面按钮
                             </Typography>
                             <Typography variant="small" className="font-normal ml-3">
                                 隐藏后，你仍可通过热键使用本功能。
@@ -134,6 +136,32 @@ export function RecorderFeatureSettings({ state, useHandler }: StateProxy<Featur
                     }
                     checked={state.hiddenUI}
                     onChange={bool('hiddenUI')}
+                />
+            </div>
+            <div>
+                <HotKeyInput
+                    data-testid="record-hotkey"
+                    label="快速切片热键"
+                    value={state.recordHotkey}
+                    onChange={key => {
+                        if (validateKeyInConflict(key, 'record')) return
+                        state.recordHotkey.key = key.key
+                        state.recordHotkey.ctrlKey = key.ctrlKey
+                        state.recordHotkey.shiftKey = key.shiftKey
+                    }}
+                />
+            </div>
+            <div>
+                <HotKeyInput
+                    data-testid="screenshot-hotkey"
+                    label="截图热键"
+                    value={state.screenshotHotkey}
+                    onChange={key => {
+                        if (validateKeyInConflict(key, 'screenshot')) return
+                        state.screenshotHotkey.key = key.key
+                        state.screenshotHotkey.ctrlKey = key.ctrlKey
+                        state.screenshotHotkey.shiftKey = key.shiftKey
+                    }}
                 />
             </div>
         </Fragment>

@@ -83,3 +83,15 @@ export function deserializeNumbersToBlob(numbers: number[]): Blob {
     const buffer = new Uint8Array(numbers)
     return new Blob([buffer])
 }
+
+export async function screenshotFromVideo(media: HTMLVideoElement): Promise<Blob> {
+    const canvas = document.createElement('canvas')
+    canvas.width = media.videoWidth
+    canvas.height = media.videoHeight
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(media, 0, 0, canvas.width, canvas.height)
+    return new Promise((res, rej) => {
+        canvas.toBlob(res, 'image/jpeg')
+        canvas.onerror = rej
+    })
+}

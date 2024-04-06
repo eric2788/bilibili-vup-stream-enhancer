@@ -19,7 +19,7 @@ export function HotKeyInput(props: HotKeyInputProps): JSX.Element {
     const { optional: opt, value, onChange, ...attrs } = props
     const optional = opt ?? true
 
-    const [ listening, setListening ] = useState(false)
+    const [listening, setListening] = useState(false)
 
     const onListenKeyInput = () => {
         const listener = (e: KeyboardEvent) => {

@@ -3,9 +3,26 @@ import logger from '@tests/helpers/logger'
 import { readText } from '@tests/utils/file'
 import { getSuperChatList, testFeatureRoomList } from '@tests/utils/playwright'
 
-test.beforeEach(async ({ page }) => {
-    logger.info('正在等待登入彈窗消失...')
-    await page.waitForTimeout(7000)
+test.beforeEach(async ({ content, context, optionPageUrl, isThemeRoom }) => {
+
+    if (isThemeRoom) {
+        test.slow()
+        await content.getByText('挂接成功').waitFor({
+            state: 'visible',
+            timeout: 60000
+        })
+    }
+
+
+    logger.info('正在啟用功能...')
+    const settingsPage = await context.newPage()
+    await settingsPage.bringToFront()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('启用醒目留言').click()
+    await settingsPage.getByText("保存设定").click()
+    await settingsPage.getByText("所有设定已经保存成功。").waitFor({ state: 'visible' })
+    await settingsPage.close()
 })
 
 test('測試功能元素是否存在', async ({ content }) => {

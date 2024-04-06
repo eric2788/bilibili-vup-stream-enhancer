@@ -17,6 +17,7 @@ import { sendMessager } from "~utils/messaging"
 import { randomString } from '~utils/misc'
 import createRecorder from "../recorders"
 import RecorderButton from "./RecorderButton"
+import { screenshotFromVideo } from "~utils/binary"
 
 export type RecorderLayerProps = {
     urls: StreamUrls
@@ -64,10 +65,11 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
 
     const { urls } = props
     const { info, settings } = useContext(ContentContext)
-    const { elements: { upperHeaderArea } } = settings['settings.developer']
+    const { elements: { upperHeaderArea, livePlayerVideo } } = settings['settings.developer']
     const {
         duration,
-        hotkeyClip,
+        recordHotkey: recordKey,
+        screenshotHotkey: screenshotKey,
         recordFix,
         mechanism,
         hiddenUI,
@@ -174,7 +176,7 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
                 success: recordFix === 'reencode' ? '视频已发送到后台进行完整编码。' : '视频下载成功。'
             })
         }
-        
+
 
         try {
             await encoding
@@ -190,15 +192,43 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
 
     }, [ffmpeg])
 
-    useKeyDown(hotkeyClip.key, async (e) => {
-        if (e.ctrlKey !== hotkeyClip.ctrlKey) return
-        if (e.shiftKey !== hotkeyClip.shiftKey) return
+    const screenshot = useCallback(() => {
+        const video = document.querySelector(livePlayerVideo) as HTMLVideoElement
+        if (video === null) {
+            toast.warning('截图失败: 无法找到直播视频')
+            return
+        }
+        const screenshoting = (async () => {
+            const blob = await screenshotFromVideo(video)
+            const today = new Date().toString().substring(0, 24).replaceAll(' ', '-').replaceAll(':', '-')
+            const filename = `${info.room}-${today}.jpeg`
+            downloadBlob(blob, filename)
+        })();
+        toast.promise(screenshoting, {
+            loading: '正在摄取直播画面...',
+            error: err => `截图失败: ${err?.message ?? err}`,
+            success: '截图成功并已保存。'
+        })
+    }, [])
+
+
+    useKeyDown(recordKey.key, async (e) => {
+        if (e.ctrlKey !== recordKey.ctrlKey) return
+        if (e.shiftKey !== recordKey.shiftKey) return
+        e.preventDefault()
         try {
             await clipRecord()
         } catch (err: Error | any) {
             console.error('unexpected error: ', err)
             toast.error('未知错误: ' + err.message)
         }
+    })
+
+    useKeyDown(screenshotKey.key, (e) => {
+        if (e.ctrlKey !== screenshotKey.ctrlKey) return
+        if (e.shiftKey !== screenshotKey.shiftKey) return
+        e.preventDefault()
+        screenshot()
     })
 
     if (hiddenUI || document.querySelector(upperHeaderArea) === null) {
@@ -208,7 +238,8 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
     return createPortal(
         <RecorderButton
             recorder={recorder}
-            onClick={clipRecord}
+            record={clipRecord}
+            screenshot={screenshot}
         />,
         document.querySelector(upperHeaderArea)
     )

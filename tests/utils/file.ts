@@ -5,7 +5,9 @@ import fs from 'fs/promises'
 import type { PathLike } from 'fs'
 import VideoLib from 'node-video-lib'
 import gifyParse from 'gify-parse'
+import jpeg from 'jpeg-js'
 import type { Movie } from '@tests/types/movie'
+
 
 export type IModule = {
     name: string,
@@ -61,14 +63,22 @@ export async function readText(readable: Readable): Promise<string> {
     })
 }
 
-
-
+/**
+ * Reads movie information from a file or buffer.
+ * @param source - The path to the file or the buffer containing the movie information.
+ * @returns A promise that resolves to the parsed movie information.
+ */
 export async function readMovieInfo(source: PathLike | Buffer): Promise<Movie> {
     source = await readBufferIfNeeded(source)
     return VideoLib.MovieParser.parse(source)
 }
 
-
+/**
+ * Reads the GIF information from the given source.
+ * 
+ * @param source - The path or buffer containing the GIF data.
+ * @returns A promise that resolves to the GIF information.
+ */
 export async function readGifInfo(source: PathLike | Buffer) {
     source = await readBufferIfNeeded(source)
     return gifyParse.getInfo(source);
@@ -77,3 +87,14 @@ export async function readGifInfo(source: PathLike | Buffer) {
 async function readBufferIfNeeded(source: PathLike | Buffer): Promise<Buffer> {
     return Buffer.isBuffer(source) ? source : fs.readFile(source)
 }
+
+/**
+ * Reads a JPEG file from the specified path and decodes it.
+ * @param path - The path to the JPEG file.
+ * @returns A Promise that resolves to the decoded JPEG data.
+ */
+export async function readJpeg(path: string) {
+    const data = await fs.readFile(path)
+    return jpeg.decode(data)
+}
+

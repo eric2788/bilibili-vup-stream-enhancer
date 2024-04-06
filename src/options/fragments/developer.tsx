@@ -8,6 +8,7 @@ import { setSettingStorage } from '~utils/storage';
 
 export type SettingSchema = {
     elements: {
+        headInfoArea: string;
         upperHeaderArea: string;
         upperButtonArea: string;
         webPlayer: string;
@@ -16,6 +17,7 @@ export type SettingSchema = {
         jimakuArea: string;
         jimakuFullArea: string;
         videoArea: string;
+        livePlayerVideo: string;
         liveTitle: string;
         chatItems: string;
         newMsgButton: string;
@@ -35,6 +37,7 @@ export type SettingSchema = {
 
 export const defaultSettings: Readonly<SettingSchema> = {
     elements: {
+        headInfoArea: '#head-info-vm', // 直播头部元素
         upperHeaderArea: 'div.upper-row > div.left-ctnr.left-header-area', // 上方标题界面元素
         upperButtonArea: '.lower-row .left-ctnr', // 上方按钮界面元素
         webPlayer: '.web-player-danmaku', // 播放器元素
@@ -43,6 +46,7 @@ export const defaultSettings: Readonly<SettingSchema> = {
         jimakuArea: 'div.player-section', // 字幕区块全屏插入元素
         jimakuFullArea: '.web-player-inject-wrap', // 字幕区块非全屏插入元素
         videoArea: 'div#aside-area-vm', // 直播屏幕区块
+        livePlayerVideo: '#live-player video', // 直播视频元素
         liveTitle: '.live-skin-main-text.small-title', // 直播标题
         chatItems: '#chat-items', // 直播聊天栏列表
         newMsgButton: 'div#danmaku-buffer-prompt', // 新消息按钮
@@ -82,6 +86,10 @@ type ElementDefinerList = {
 const elementDefiners: ElementDefinerList = {
     "元素捕捉": [
         {
+            label: "直播头部元素",
+            key: "elements.headInfoArea"
+        },
+        {
             label: "上方标题界面元素",
             key: "elements.upperHeaderArea"
         },
@@ -112,6 +120,10 @@ const elementDefiners: ElementDefinerList = {
         {
             label: "直播屏幕区块",
             key: "elements.videoArea"
+        },
+        {
+            label: "直播视频元素",
+            key: "elements.livePlayerVideo"
         },
         {
             label: "直播标题",

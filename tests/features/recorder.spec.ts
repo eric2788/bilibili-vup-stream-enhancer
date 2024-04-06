@@ -1,6 +1,6 @@
 import { test, expect } from "@tests/fixtures/content"
 import logger from "@tests/helpers/logger"
-import { readMovieInfo } from "@tests/utils/file"
+import { readJpeg, readMovieInfo } from "@tests/utils/file"
 import { testFeatureRoomList } from "@tests/utils/playwright"
 import fs from 'fs/promises'
 
@@ -40,7 +40,18 @@ test('測試功能元素是否存在', async ({ content }) => {
 
 })
 
-test('測試錄製按鈕有否根據設定顯示', async ({ content, context, optionPageUrl }) => {
+test('測試界面元素是否存在', async ({ content }) => {
+
+    const button = content.getByTestId('record-button')
+    const timer = content.getByTestId('record-timer')
+    const screenshot = content.getByTestId('screenshot-button')
+
+    await expect(button).toBeVisible()
+    await expect(timer).toBeVisible()
+    await expect(screenshot).toBeVisible()
+})
+
+test('測試界面按鈕有否根據設定顯示', async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByTestId('record-button')
     const timer = content.getByTestId('record-timer')
@@ -53,7 +64,7 @@ test('測試錄製按鈕有否根據設定顯示', async ({ content, context, op
     await settingsPage.bringToFront()
     await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
-    await settingsPage.getByText('隐藏录制按钮').click() // hide the ui
+    await settingsPage.getByText('隐藏界面按钮').click() // hide the ui
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
 
@@ -85,6 +96,29 @@ test('測試房間名單列表(黑名單/白名單)',
         (content) => content.getByTestId('record-button')
     )
 )
+
+test('測試截圖', async ({ content, page }) => {
+
+    const button = content.getByTestId('screenshot-button')
+    const download = page.waitForEvent('download')
+
+    await button.click()
+    await expect(content.getByText('截图成功并已保存')).toBeVisible()
+
+    const downloaded = await download
+    expect(() => downloaded.suggestedFilename().endsWith('.jpeg')).toBeTruthy()
+    await downloaded.saveAs('out/screenshot.jpeg')
+
+    // 默认超清画质
+    const info = await readJpeg('out/screenshot.jpeg')
+    logger.info('图片信息:', info)
+
+    expect(info.width).toBeLessThanOrEqual(1920)
+    expect(info.height).toBeLessThanOrEqual(1080)
+
+    expect(info.width).toBeGreaterThanOrEqual(854)
+    expect(info.height).toBeGreaterThanOrEqual(480)
+})
 
 test('測試錄製 FLV', async ({ content, page, context, optionPageUrl }) => {
 
@@ -156,6 +190,14 @@ test('測試熱鍵錄製', async ({ page, optionPageUrl, context, content }) => 
     await settingsPage.getByText('功能设定').click()
 
     const input = settingsPage.getByTestId('record-hotkey')
+
+    logger.info('正在測試按鍵衝突阻止...')
+    await input.click()
+    await expect(input).toHaveValue('监听输入中...')
+    await input.press('V')
+    await expect(settingsPage.getByText('热键冲突')).toBeVisible()
+
+    logger.info('正在測試修改熱鍵...')
     await input.click()
     await expect(input).toHaveValue('监听输入中...')
     await input.press('Control+Shift+R')
@@ -179,6 +221,50 @@ test('測試熱鍵錄製', async ({ page, optionPageUrl, context, content }) => 
     logger.info('視頻信息:', info)
 
     expect(info.relativeDuration()).toBeGreaterThan(30)
+})
+
+test('測試熱鍵截圖', async ({ page, content, context, optionPageUrl }) => {
+
+    logger.info('正在修改設定...')
+    const settingsPage = await context.newPage()
+    await settingsPage.bringToFront()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+
+    const input = settingsPage.getByTestId('screenshot-hotkey')
+    
+    logger.info('正在測試按鍵衝突阻止...')
+    await input.click()
+    await expect(input).toHaveValue('监听输入中...')
+    await input.press('X')
+    await expect(settingsPage.getByText('热键冲突')).toBeVisible()
+
+    logger.info('正在測試修改熱鍵...')
+    await input.click()
+    await expect(input).toHaveValue('监听输入中...')
+    await input.press('Control+Shift+V')
+    await expect(input).toHaveValue('Ctrl+Shift+V')
+
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.close()
+
+    await content.getByTestId('screenshot-button').waitFor({ state: 'visible' })
+    const download = page.waitForEvent('download')
+    await page.locator('body').press('Control+Shift+V')
+    await expect(content.getByText('截图成功并已保存')).toBeVisible()
+
+    const downloaded = await download
+    expect(() => downloaded.suggestedFilename().endsWith('.jpeg')).toBeTruthy()
+    await downloaded.saveAs('out/screenshot.jpeg')
+
+    const info = await readJpeg('out/screenshot.jpeg')
+    logger.info('图片信息:', info)
+
+    expect(info.width).toBeLessThanOrEqual(1920)
+    expect(info.height).toBeLessThanOrEqual(1080)
+
+    expect(info.width).toBeGreaterThanOrEqual(854)
+    expect(info.height).toBeGreaterThanOrEqual(480)
 })
 
 
