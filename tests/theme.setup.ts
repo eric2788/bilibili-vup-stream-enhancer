@@ -1,8 +1,9 @@
-import { extensionBase as setup } from "./fixtures/base";
+import { extensionBase as setup } from "./fixtures/extension";
 import logger from "./helpers/logger";
 import { Strategy } from "./utils/misc";
 
 setup('預先搜索大海報房間', async ({ cacher, rooms, maxRoomRetries, roomId }) => {
+    setup.setTimeout(0)
     setup.skip(roomId > 0, '已指定直播房間，跳過搜索')
     setup.skip(rooms.length < 2, '房間數量不足，跳過搜索')
     console.info('正在搜索大海報房間...')

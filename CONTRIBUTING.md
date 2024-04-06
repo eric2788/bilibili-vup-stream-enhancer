@@ -32,8 +32,8 @@
 
 1. Fork 本仓库到你的本地仓库
 2. 在你的本地仓库中进行修改
-3. 如开发新功能，请自行添加合理且可行的端到端测试
-4. 完成后，确保你的代码通过所有端到端测试
+3. 如开发新功能，请自行添加合理且可行的测试
+4. 完成后，确保你的代码通过所有测试
 5. 提交 Pull Request 到本仓库的 `develop` 分支
 
 ## 程式码规范
@@ -76,6 +76,7 @@ src/
 ├── contexts/       # 全局用 React 状态管理。
 ├── database/       # 数据库相关代码，包括模型定义和数据库迁移操作。
 ├── features/       # 特性模块，每个特性模块包含一组相关的功能。
+├── ffmpeg/         # FFmpeg 相关代码。
 ├── hooks/          # 全局用的自定义 React Hooks。
 ├── migrations/     # 设定迁移脚本(从MV2到MV3)。
 ├── players/        # 直播解析器相关代码。
@@ -97,6 +98,9 @@ tests/
 ├── features/       # 功能模块的端到端测试代码。 
 ├── fixtures/       # 测试中需要用到的前置依赖。 
 ├── helpers/        # 使用类形式包装的测试辅助工具。
+├── integrations/   # 集成测试代码。
+├── units/          # 单元测试代码。
+├── modules/        # 用于注入到集成测试的模块JS。
 ├── pages/          # 扩展页面的端到端测试代码。
 ├── utils/          # 辅助测试的函数和工具。
 ├── content.spec.ts # 内容脚本的端到端测试代码。
@@ -113,7 +117,7 @@ tests/
 5. 有关如何编写贡献代码，请参阅 [入门指南](#入门指南) 。
 
 
-#### 如要在本地运行端到端测试:
+#### 如要在本地运行测试:
 - 请先运行 `pnpm dlx playwright install` 安装 PlayWright 的浏览器引擎
 - 完成后，运行 `pnpm build && pnpm test:prepare` 编译并部署测试环境
 - 最后，运行 `pnpm test` 运行测试 (或者用 playwright vscode 插件运行测试)

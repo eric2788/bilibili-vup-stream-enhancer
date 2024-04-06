@@ -3,6 +3,7 @@ import * as command from './forwards/command'
 import * as danmaku from './forwards/danmaku'
 import * as jimaku from './forwards/jimaku'
 import * as redirect from './forwards/redirect'
+import * as streamContent from './forwards/stream-content'
 
 export type ForwardData = typeof forwards
 
@@ -125,7 +126,7 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
     }
 
     return {
-        addHandler: (handler: (data: R) => void): (() => void) => {
+        addHandler: (handler: (data: R) => void): VoidCallback => {
             const fn = listener(handler)
             chrome.runtime.onMessage.addListener(fn)
             return () => chrome.runtime.onMessage.removeListener(fn)
@@ -142,7 +143,7 @@ export function useDefaultHandler<T extends object>(): ForwardHandler<T> {
 
 
 export type Forwarder<K extends keyof ForwardData> = {
-    addHandler: (handler: (data: ForwardResponse<ForwardData[K]>) => void) => () => void
+    addHandler: (handler: (data: ForwardResponse<ForwardData[K]>) => void) => VoidCallback
     sendForward: <C extends ChannelType>(toTarget: C, body: ForwardBody<ForwardData[K]>, queryInfo?: ChannelQueryInfo[C]) => void
 }
 
@@ -151,5 +152,6 @@ const forwards = {
     'command': command,
     'redirect': redirect,
     'danmaku': danmaku,
-    'blive-data': bliveData
+    'blive-data': bliveData,
+    'stream-content': streamContent
 }

@@ -1,4 +1,4 @@
-import { extensionBase as test } from "@tests/fixtures/base";
+import { test } from "@tests/fixtures/component";
 import logger from "@tests/helpers/logger";
 
 test('getRoomStatus - API', async ({ api }) => {
@@ -15,6 +15,10 @@ test('getLiveRoomsRange - API', async ({ api }) => {
 
 test('getLiveRooms - API', async ({ api }) => {
     await expectNoError(api.getLiveRooms())
+})
+
+test('getStreamUrls - API', async ({ api }) => {
+    await expectNoError(api.getStreamUrls(21696950))
 })
 
 async function expectNoError(p: Promise<any>) {

@@ -1,6 +1,7 @@
 
 import * as jimaku from './jimaku'
 import * as superchat from './superchat'
+import * as recorder from './recorder'
 
 import type { FeatureType } from '~features'
 import type { TableType } from "~database"
@@ -23,7 +24,8 @@ export type FeatureSettings = typeof featureSettings
 
 const featureSettings = {
     jimaku,
-    superchat
+    superchat,
+    recorder
 }
 
 export default (featureSettings as { [K in FeatureType]: FeatureSettings[K] })
