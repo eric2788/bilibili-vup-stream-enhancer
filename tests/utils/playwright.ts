@@ -59,7 +59,7 @@ export async function getSuperChatList(section: Locator, options?: {
  */
 export function testFeatureRoomList(feature: string, expect: Expect<Locator>, locate: (content: PageFrame) => Locator): (args: any) => Promise<void> {
 
-    return async ({ room, content, context, tabUrl }) => {
+    return async ({ room, content, context, optionPageUrl }) => {
 
         const locator = locate(content)
         await expect(locator).toBeVisible()
