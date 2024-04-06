@@ -1,4 +1,4 @@
-import fragments, { type Schema, type SettingFragments, type Settings } from '~settings'
+import fragments, { type Schema, type SettingFragments, type Settings } from '~options/fragments'
 import { Storage } from '@plasmohq/storage'
 import { assignDefaults } from './misc'
 

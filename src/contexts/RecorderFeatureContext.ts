@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { FeatureSettingSchema as RecorderFeatureSchema } from "~settings/features/recorder";
+import type { FeatureSettingSchema as RecorderFeatureSchema } from "~options/features/recorder";
 
 const RecorderFeatureContext = createContext<RecorderFeatureSchema>(null)
 

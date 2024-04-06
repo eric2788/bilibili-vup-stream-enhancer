@@ -1,7 +1,7 @@
 import { Switch, Typography } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
 import type { StateProxy } from "~hooks/binding"
-import ColorInput from "~settings/components/ColorInput"
+import ColorInput from "~options/components/ColorInput"
 import type { HexColor } from "~types/common"
 import type { FeatureSettingsDefinition } from ".."
 

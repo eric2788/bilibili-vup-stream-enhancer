@@ -1,14 +1,14 @@
 
 import { Fragment, type ChangeEvent } from 'react';
 import { type StreamInfo } from '~api/bilibili';
-import DataTable, { type TableHeader } from '~settings/components/DataTable';
+import DataTable, { type TableHeader } from '~options/components/DataTable';
 import { removeArr } from '~utils/misc';
 
 import { Switch, Typography } from '@material-tailwind/react';
 
 import { toast } from 'sonner/dist';
 import type { StateProxy } from "~hooks/binding";
-import DeleteIcon from '~settings/components/DeleteIcon';
+import DeleteIcon from '~options/components/DeleteIcon';
 import type { ArrElement } from "~types/common";
 
 export type SettingSchema = {

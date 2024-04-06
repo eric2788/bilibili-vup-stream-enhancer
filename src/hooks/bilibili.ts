@@ -1,6 +1,6 @@
 import { useMutationObserver } from '@react-hooks-library/core'
 import { useState } from 'react'
-import { type SettingSchema as DeveloperSchema } from '~settings/fragments/developer'
+import { type SettingSchema as DeveloperSchema } from '~options/fragments/developer'
 
 export type WebScreenStatus = 'normal' | 'web-fullscreen' | 'fullscreen'
 

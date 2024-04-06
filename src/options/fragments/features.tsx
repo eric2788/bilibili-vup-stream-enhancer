@@ -1,6 +1,6 @@
 import { useCallback, type ChangeEvent } from 'react';
 import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
-import SwitchListItem from '~settings/components/SwitchListItem';
+import SwitchListItem from '~options/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
 
 import { Collapse, IconButton, List, Switch, Typography } from '@material-tailwind/react';
@@ -9,9 +9,9 @@ import { toast } from 'sonner/dist';
 import type { TableType } from "~database";
 import type { FeatureType } from "~features";
 import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding";
-import ExperienmentFeatureIcon from '~settings/components/ExperientmentFeatureIcon';
-import FeatureRoomTable from '~settings/components/FeatureRoomTable';
-import settings, { featureTypes, type FeatureSettingSchema, type FeatureSettings } from '~settings/features';
+import ExperienmentFeatureIcon from '~options/components/ExperientmentFeatureIcon';
+import FeatureRoomTable from '~options/components/FeatureRoomTable';
+import settings, { featureTypes, type FeatureSettingSchema, type FeatureSettings } from '~options/features';
 import type { RoomList } from '~types/common';
 
 
@@ -134,7 +134,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 </List>
             </div>
             {...featureTypes.map((f: FeatureType) => {
-                // mechanism same as src/settings/components/SettingFragment.tsx
+                // mechanism same as src/options/components/SettingFragment.tsx
                 type F = typeof f
                 const setting = settings[f] as FeatureSettings[F]
                 const Component = setting.default as React.FC<StateProxy<FeatureSettingSchema<FeatureSettings[F]>>>

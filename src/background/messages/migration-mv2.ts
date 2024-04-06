@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging";
 import migrateFromMV2 from "~migrations";
-import type { Settings } from "~settings";
+import type { Settings } from "~options/fragments";
 
 export type ResponseBody = { data?: Settings, error?: string }
 

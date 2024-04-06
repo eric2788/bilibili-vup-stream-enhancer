@@ -6,7 +6,7 @@ import ContentContext from '~contexts/ContentContexts';
 import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 import { useWebScreenChange } from '~hooks/bilibili';
 import { useTeleport } from '~hooks/teleport';
-import type { JimakuSchema } from '~settings/features/jimaku/components/JimakuFragment';
+import type { JimakuSchema } from '~options/features/jimaku/components/JimakuFragment';
 import { rgba } from '~utils/misc';
 import type { Jimaku } from "./JimakuLine";
 import JimakuList from './JimakuList';

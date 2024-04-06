@@ -3,7 +3,7 @@ import * as superchat from './superchat'
 import * as recorder from './recorder'
 
 import type { StreamInfo } from '~api/bilibili'
-import type { Settings } from '~settings'
+import type { Settings } from '~options/fragments'
 
 export type FeatureHookRender = (settings: Readonly<Settings>, info: StreamInfo) => Promise<(React.ReactPortal | React.ReactNode)[] | undefined>
 

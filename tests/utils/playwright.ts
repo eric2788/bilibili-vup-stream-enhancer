@@ -65,7 +65,7 @@ export function testFeatureRoomList(feature: string, expect: Expect<Locator>, lo
         await expect(locator).toBeVisible()
     
         const settingsPage = await context.newPage()
-        await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+        await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
         await settingsPage.getByText('功能设定').click()
         const roomInput = settingsPage.getByTestId(feature+'-whitelist-rooms-input')
         const switcher = settingsPage.getByTestId(feature+'-whitelist-rooms').getByText('使用为黑名单')

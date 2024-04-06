@@ -13,6 +13,7 @@ export type ExtensionFixtures = {
     context: BrowserContext
     extensionId: string
     tabUrl: (tab: string) => string
+    optionPageUrl: string
     serviceWorker: Worker
 }
 
@@ -63,6 +64,9 @@ export const extensionBase = base.extend<ExtensionFixtures, ExtensionOptions & E
     },
     tabUrl: async ({ extensionId }, use) => {
         await use((tab: string) => `chrome-extension://${extensionId}/tabs/${tab}`)
+    },
+    optionPageUrl: async ({ extensionId }, use) => {
+        await use(`chrome-extension://${extensionId}/options.html`)
     },
     serviceWorker: [
         async ({ context }, use) => {

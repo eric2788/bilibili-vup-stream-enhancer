@@ -7,13 +7,13 @@
 ```
 src/
     features/ <- 內容腳本
-    settings/
+    options/
         features/ <- 功能设定区块
 ```
 
 `src/features/`: 此目录用于存放功能，虽然主要集中在内容脚本的渲染，但是也是定义结构的地方，因此必须添加。
 
-`src/settings/features/`: 此目录用于存放功能的设定区块，为了让用户能够切换功能的开关，此处也必须添加。
+`src/options/features/`: 此目录用于存放功能的设定区块，为了让用户能够切换功能的开关，此处也必须添加。
 
 ## 新增内容脚本
 
@@ -100,7 +100,7 @@ const features = {
 
 ## 新增功能设定区块
 
-在 `src/settings/features/` 目录下新增一个新的功能设定区块，例如 `src/settings/features/hello-world.tsx`:
+在 `src/options/features/` 目录下新增一个新的功能设定区块，例如 `src/options/features/hello-world.tsx`:
 
 ```tsx
 
@@ -172,7 +172,7 @@ export default function HelloFeatureSettings(): JSX.Element {
 有关设定的更多详细信息，你可以参考 [`docs/settings.md`](/docs/settings.md) 文档。
 
 
-完成後，別忘了到 `src/settings/features/index.ts` 中新增你的功能设定区块：
+完成後，別忘了到 `src/options/features/index.ts` 中新增你的功能设定区块：
 
 ```ts
 
@@ -197,9 +197,9 @@ const featureSettings = {
 
 你可以参考以下的源码以进行更进阶的功能开发:
 - [现成功能参考](/src/features/)
-- [功能设定区块参考](/src/settings/features/)
+- [功能设定区块参考](/src/options/features/)
 - [自定义Hooks](/src/hooks/)
 - [自定义Context](/src/contexts/)
 - [辅助函数](/src/utils/)
 - [全局组件](/src/components)
-- [设定区块用组件](/src/settings/components/)
+- [设定区块用组件](/src/options/components/)

@@ -2,10 +2,10 @@
 import { Fragment, type ChangeEvent } from 'react';
 import { toast } from 'sonner/dist';
 import { type StateProxy } from '~hooks/binding';
-import Selector from '~settings/components/Selector';
+import Selector from '~options/components/Selector';
 
 import type { AdapterType } from '~adapters';
-import SwitchListItem from '~settings/components/SwitchListItem';
+import SwitchListItem from '~options/components/SwitchListItem';
 import { List } from '@material-tailwind/react';
 
 export type SettingSchema = {

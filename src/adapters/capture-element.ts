@@ -2,7 +2,7 @@ import { injectFuncAsListener } from '~utils/event'
 import { sendBLiveMessage } from '~utils/messaging'
 import { md5 } from 'hash-wasm'
 
-import type { Settings } from "~settings"
+import type { Settings } from "~options/fragments"
 // mutation observer danmaku must be text node
 type DanmakuMutation = {
     content: string

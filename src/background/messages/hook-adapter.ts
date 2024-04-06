@@ -4,7 +4,7 @@ import { adapters } from '~adapters'
 import { sendInternal } from '~background/messages'
 import { getResourceName } from '~utils/file'
 
-import type { Settings } from "~settings"
+import type { Settings } from "~options/fragments"
 import type { FuncEventResult } from "~utils/event"
 export type AdaptOperation = 'hook' | 'unhook'
 

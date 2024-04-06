@@ -1,11 +1,11 @@
 import { List } from "@material-tailwind/react"
 import { type ChangeEvent, Fragment } from "react"
 import type { StateProxy } from "~hooks/binding"
-import AffixInput from "~settings/components/AffixInput"
-import ColorInput from "~settings/components/ColorInput"
-import Hints from "~settings/components/Hints"
-import Selector from "~settings/components/Selector"
-import SwitchListItem from "~settings/components/SwitchListItem"
+import AffixInput from "~options/components/AffixInput"
+import ColorInput from "~options/components/ColorInput"
+import Hints from "~options/components/Hints"
+import Selector from "~options/components/Selector"
+import SwitchListItem from "~options/components/SwitchListItem"
 import type { HundredNumber, HexColor, NumRange } from "~types/common"
 
 export type JimakuSchema = {

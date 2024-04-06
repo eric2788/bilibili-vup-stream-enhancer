@@ -6,7 +6,7 @@ import {
 import PromiseHandler from '~components/PromiseHandler';
 import { asStateProxy, useBinding, type StateProxy } from '~hooks/binding';
 import { useForceUpdate } from '~hooks/force-update';
-import fragments, { type Schema, type SettingFragments } from '~settings';
+import fragments, { type Schema, type SettingFragments } from '~options/fragments';
 import { deepCopy } from '~utils/misc';
 import { getSettingStorage, setSettingStorage } from '~utils/storage';
 

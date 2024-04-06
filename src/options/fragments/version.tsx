@@ -3,7 +3,7 @@ import { type ChangeEvent, Fragment, useState } from "react"
 import { getLatestRelease, getRelease } from "~api/github"
 import PromiseHandler from "~components/PromiseHandler"
 import type { StateProxy } from "~hooks/binding"
-import SwitchListItem from "~settings/components/SwitchListItem"
+import SwitchListItem from "~options/components/SwitchListItem"
 import type { ReleaseInfo } from "~types/github"
 import semver from 'semver';
 

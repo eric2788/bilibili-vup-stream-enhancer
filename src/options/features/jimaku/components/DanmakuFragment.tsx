@@ -1,8 +1,8 @@
 import { type ChangeEvent, Fragment } from 'react';
-import AffixInput from '~settings/components/AffixInput';
-import ColorInput from '~settings/components/ColorInput';
-import Hints from '~settings/components/Hints';
-import Selector from '~settings/components/Selector';
+import AffixInput from '~options/components/AffixInput';
+import ColorInput from '~options/components/ColorInput';
+import Hints from '~options/components/Hints';
+import Selector from '~options/components/Selector';
 import { sendMessager } from '~utils/messaging';
 
 import { Input, Switch, Typography } from '@material-tailwind/react';

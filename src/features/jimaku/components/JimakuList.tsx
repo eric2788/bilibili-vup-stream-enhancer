@@ -12,7 +12,7 @@ import styleText from 'data-text:react-contexify/dist/ReactContexify.css';
 import { useContext, useRef } from "react";
 import 'react-contexify/dist/ReactContexify.css';
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
-import type { UserRecord } from "~settings/features/jimaku/components/ListingFragment";
+import type { UserRecord } from "~options/features/jimaku/components/ListingFragment";
 import ShadowStyle from "~components/ShadowStyle";
 
 

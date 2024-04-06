@@ -85,13 +85,13 @@ test('測試是否挂接成功', async ({ room }) => {
 })
 
 
-test('測試名單列表(黑名單/白名單)', async ({ context, content, tabUrl, room }) => {
+test('測試名單列表(黑名單/白名單)', async ({ context, content, optionPageUrl, room }) => {
 
     const button = content.getByText('功能菜单')
     await expect(button).toBeVisible()
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('名单列表').click()
     const roomInput = settingsPage.getByTestId('black-list-rooms-input')
     await roomInput.fill(room.info.roomid.toString())
@@ -114,17 +114,17 @@ test('測試名單列表(黑名單/白名單)', async ({ context, content, tabUr
 })
 
 
-test('測試进入设置按鈕', async ({ context, content, tabUrl }) => {
+test('測試进入设置按鈕', async ({ context, content, optionPageUrl }) => {
 
     await content.getByText('功能菜单').click()
     await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
 
-    const popup = context.waitForEvent('page', { predicate: p => p.url().includes('settings.html') })
+    const popup = context.waitForEvent('page', { predicate: p => p.url().includes('options.html') })
     await content.getByText('进入设置').click()
 
     const settings = await popup
 
-    expect(settings.url()).toBe(tabUrl('settings.html'))
+    expect(settings.url()).toBe(optionPageUrl)
 
 })
 
@@ -145,11 +145,11 @@ test('測試添加到黑名单按鈕', async ({ content, page, room }) => {
 
 })
 
-test('測試重新启动按鈕', async ({ content, tabUrl, context }) => {
+test('測試重新启动按鈕', async ({ content, optionPageUrl, context }) => {
 
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('界面按钮显示').click()
     await settingsPage.getByText('重新启动按钮').click()
     await settingsPage.getByText('保存设定').click()
@@ -170,10 +170,10 @@ test('測試重新启动按鈕', async ({ content, tabUrl, context }) => {
 })
 
 
-test('測試弹出直播视窗按鈕', async ({ context, tabUrl, content }) => {
+test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content }) => {
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('启用弹出直播视窗').click()
     await settingsPage.getByText('保存设定').click()
@@ -253,7 +253,7 @@ test('測試大海報房間下返回非海报界面按鈕', async ({ context, th
 
 })
 
-test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, tabUrl }) => {
+test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByText('功能菜单')
     await expect(button).toBeVisible()
@@ -265,7 +265,7 @@ test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ conte
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('界面按钮显示').click()
     await settingsPage.getByText('支持在网页全屏下显示').click() // enabled
     await settingsPage.getByText('保存设定').click()
@@ -281,7 +281,7 @@ test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ conte
     await expect(button).toBeVisible()
 })
 
-test('测试仅限虚拟主播', async ({ context, room, tabUrl, api }) => {
+test('测试仅限虚拟主播', async ({ context, room, optionPageUrl, api }) => {
 
     const nonVtbRooms = await api.getLiveRooms(1, 11) // 获取知识分区直播间
     test.skip(nonVtbRooms.length === 0, '没有知识分区直播间')
@@ -293,7 +293,7 @@ test('测试仅限虚拟主播', async ({ context, room, tabUrl, api }) => {
     await expect(button).toBeHidden()
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('仅限虚拟主播').click()
     await settingsPage.getByText('保存设定').click()

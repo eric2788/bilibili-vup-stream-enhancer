@@ -1,4 +1,4 @@
-import type { Schema, SettingFragments } from "~settings"
+import type { Schema, SettingFragments } from "~options/fragments"
 import type { Leaves, PathLeafType, PickLeaves } from "~types/common";
 
 export interface MV2Settings {

@@ -1,5 +1,5 @@
 import { type ChangeEvent, Fragment } from 'react';
-import CheckBoxListItem from '~settings/components/CheckBoxListItem';
+import CheckBoxListItem from '~options/components/CheckBoxListItem';
 
 import { List } from '@material-tailwind/react';
 

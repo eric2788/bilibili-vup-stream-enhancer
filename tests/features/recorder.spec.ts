@@ -4,7 +4,7 @@ import { readMovieInfo } from "@tests/utils/file"
 import { testFeatureRoomList } from "@tests/utils/playwright"
 import fs from 'fs/promises'
 
-test.beforeEach(async ({ content, context, tabUrl, isThemeRoom }) => {
+test.beforeEach(async ({ content, context, optionPageUrl, isThemeRoom }) => {
 
     logger.info('正在整理 out 文件夾...')
     await fs.rm('out', { recursive: true, force: true })
@@ -22,7 +22,7 @@ test.beforeEach(async ({ content, context, tabUrl, isThemeRoom }) => {
     logger.info('正在啟用功能...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('启用快速切片').click()
     await settingsPage.getByText("保存设定").click()
@@ -40,7 +40,7 @@ test('測試功能元素是否存在', async ({ content }) => {
 
 })
 
-test('測試錄製按鈕有否根據設定顯示', async ({ content, context, tabUrl }) => {
+test('測試錄製按鈕有否根據設定顯示', async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByTestId('record-button')
     const timer = content.getByTestId('record-timer')
@@ -51,7 +51,7 @@ test('測試錄製按鈕有否根據設定顯示', async ({ content, context, ta
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('隐藏录制按钮').click() // hide the ui
     await settingsPage.getByText('保存设定').click()
@@ -86,14 +86,14 @@ test('測試房間名單列表(黑名單/白名單)',
     )
 )
 
-test('測試錄製 FLV', async ({ content, page, context, tabUrl }) => {
+test('測試錄製 FLV', async ({ content, page, context, optionPageUrl }) => {
 
     test.slow()
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
     await settingsPage.getByTestId('record-output-type').locator('div > div').nth(0).click()
@@ -145,14 +145,14 @@ test('測試錄製 HLS', async ({ content, page }) => {
     expect(info.relativeDuration()).toBeGreaterThan(30)
 })
 
-test('測試熱鍵錄製', async ({ page, tabUrl, context, content }) => {
+test('測試熱鍵錄製', async ({ page, optionPageUrl, context, content }) => {
 
     test.slow()
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
     const input = settingsPage.getByTestId('record-hotkey')
@@ -218,14 +218,14 @@ test('測試錄製時長', async ({ content, page }) => {
 })
 
 
-test('測試手動錄製', async ({ content, page, context, tabUrl }) => {
+test('測試手動錄製', async ({ content, page, context, optionPageUrl }) => {
 
     test.slow()
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
     await settingsPage.getByTestId('record-duration').locator('div > div').nth(0).click()
@@ -262,7 +262,7 @@ test('測試手動錄製', async ({ content, page, context, tabUrl }) => {
 })
 
 
-test('測試 HLS 完整編譯', async ({ content, page, context, tabUrl }) => {
+test('測試 HLS 完整編譯', async ({ content, page, context, optionPageUrl }) => {
 
     // I bet 10 mins for this
     test.setTimeout(600000)
@@ -270,7 +270,7 @@ test('測試 HLS 完整編譯', async ({ content, page, context, tabUrl }) => {
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
     await settingsPage.getByTestId('record-fix').locator('div > div').nth(0).click()
@@ -341,7 +341,7 @@ test('測試 HLS 完整編譯', async ({ content, page, context, tabUrl }) => {
 })
 
 
-test('測試 FLV 完整編譯', async ({ content, page, context, tabUrl }) => {
+test('測試 FLV 完整編譯', async ({ content, page, context, optionPageUrl }) => {
 
     // I bet 10 mins for this
     test.setTimeout(600000)
@@ -349,7 +349,7 @@ test('測試 FLV 完整編譯', async ({ content, page, context, tabUrl }) => {
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
     // change to flv first

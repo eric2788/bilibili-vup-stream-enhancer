@@ -1,15 +1,15 @@
 import { Collapse, List } from "@material-tailwind/react"
 import { Fragment, type ChangeEvent } from "react"
 import { asStateProxy, useBinding, type StateProxy } from "~hooks/binding"
-import ExperienmentFeatureIcon from "~settings/components/ExperientmentFeatureIcon"
-import SwitchListItem from "~settings/components/SwitchListItem"
+import ExperienmentFeatureIcon from "~options/components/ExperientmentFeatureIcon"
+import SwitchListItem from "~options/components/SwitchListItem"
 import type { FeatureSettingsDefinition } from ".."
 import ButtonFragment, { buttonDefaultSettings, type ButtonSchema } from "./components/ButtonFragment"
 import DanmakuZone, { danmakuDefaultSettings, type DanmakuSchema } from "./components/DanmakuFragment"
 import JimakuZone, { jimakuDefaultSettings, type JimakuSchema } from "./components/JimakuFragment"
 import ListingFragment, { listingDefaultSettings, type ListingSchema } from "./components/ListingFragment"
 import { useToggle } from "@react-hooks-library/core"
-import Expander from "~settings/components/Expander"
+import Expander from "~options/components/Expander"
 import type { PickKeys } from "~types/common"
 
 

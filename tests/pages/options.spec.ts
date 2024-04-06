@@ -6,8 +6,8 @@ import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
 import type { MV2Settings } from '~migrations/schema'
 
-test.beforeEach(async ({ page, tabUrl }) => {
-    await page.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+test.beforeEach(async ({ page, extensionId }) => {
+    await page.goto(`chrome-extension://${extensionId}/options.html`, { waitUntil: 'domcontentloaded' })
 })
 
 test('測試頁面是否成功加載', async ({ page }) => {

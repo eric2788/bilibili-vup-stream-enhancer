@@ -20,7 +20,7 @@ function ButtonList(): JSX.Element {
 
     const restart = useCallback(() => sendForward('background', 'redirect', { target: 'content-script', command: 'command', body: { command: 'restart' }, queryInfo: { url: '*://live.bilibili.com/*' } }), [])
     const addBlackList = () => confirm(`确定添加房间 ${info.room}${info.room === info.shortRoom ? '' : `(${info.shortRoom})`} 到黑名单?`) && sendMessager('add-black-list', { roomId: info.room })
-    const openSettings = useCallback(() => sendMessager('open-tab', { tab: 'settings' }), [])
+    const openSettings = useCallback(() => sendMessager('open-options'), [])
     const openMonitor = createPopupWindow(`stream.html`, {
         roomId: info.room,
         title: info.title,

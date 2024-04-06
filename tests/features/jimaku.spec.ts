@@ -74,12 +74,12 @@ test('測試字幕按鈕 (刪除/下載)', async ({ room, content: p, page }) =>
 })
 
 
-test('測試彈出同傳視窗', async ({ room, context, tabUrl, page, content }) => {
+test('測試彈出同傳視窗', async ({ room, context, optionPageUrl, page, content }) => {
     // modify settings
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()
@@ -126,12 +126,12 @@ test('測試彈出同傳視窗', async ({ room, context, tabUrl, page, content }
 })
 
 
-test('測試離線記錄彈幕', async ({ room, content: p, context, tabUrl, page }) => {
+test('測試離線記錄彈幕', async ({ room, content: p, context, optionPageUrl, page }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()
@@ -181,7 +181,7 @@ test('測試房間名單列表(黑名單/白名單)',
     )
 )
 
-test('测试添加同传用户名单/黑名单', async ({ content, context, tabUrl, room }) => {
+test('测试添加同传用户名单/黑名单', async ({ content, context, optionPageUrl, room }) => {
 
     const subtitleList = content.locator('#subtitle-list')
     await expect(subtitleList).toBeVisible()
@@ -205,7 +205,7 @@ test('测试添加同传用户名单/黑名单', async ({ content, context, tabU
     logger.info('正在測試添加同傳用戶名單...')
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
 
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('同传名单设定').click()
@@ -321,12 +321,12 @@ test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content:
 })
 
 
-test('測試保存設定後 css 能否生效', async ({ context, content, tabUrl, page, room }) => {
+test('測試保存設定後 css 能否生效', async ({ context, content, optionPageUrl, page, room }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()

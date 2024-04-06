@@ -4,13 +4,13 @@
 
 ```
 src/
-    settings/
+    options/
         fragments/ <- 设定区块列表
 ```
 
 ## 创建一个新的设定区块
 
-在 `src/settings/fragments/` 目录下新增一个新的设定区块，例如 `src/settings/fragments/hello-world.tsx`。
+在 `src/options/fragments/` 目录下新增一个新的设定区块，例如 `src/options/fragments/hello-world.tsx`。
 
 ```tsx
 
@@ -110,7 +110,7 @@ function HelloWorldSettings({ state, useHandler }: StateProxy<SettingSchema>): J
 > 有关 `StateProxy` 的使用，请参考 [自定义Hooks](/src/hooks/binding.ts)。
 
 
-完成后，你需要到 `src/settings/index.ts` 中新增你的设定区块：
+完成后，你需要到 `src/options/fragments.ts` 中新增你的设定区块：
 
 ```ts
 // ...
@@ -175,8 +175,8 @@ function ContentScript(): JSX.Element {
 
 你可以参考以下的源码以进行更进阶的设定开发:
 
-- [现成的设定区块参考](/src/settings/fragments/)
-- [设定区块组件](/src/settings/components/)
+- [现成的设定区块参考](/src/options/fragments/)
+- [设定区块组件](/src/options/components/)
 - [自定义Hooks](/src/hooks/)
 - [自定义Context](/src/contexts/)
 - [辅助函数](/src/utils/)
