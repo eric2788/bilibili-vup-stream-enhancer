@@ -1,6 +1,8 @@
 {
     "developer": {
         "elements": {
+            "headInfoArea": "#head-info-vm",
+            "upperHeaderArea": "div.upper-row > div.left-ctnr.left-header-area",
             "upperButtonArea": ".lower-row .left-ctnr",
             "webPlayer": ".web-player-danmaku",
             "danmakuArea": ".danmaku-item-container",
@@ -8,6 +10,7 @@
             "jimakuArea": "div.player-section",
             "jimakuFullArea": ".web-player-inject-wrap",
             "videoArea": "div#aside-area-vm",
+            "livePlayerVideo": "#live-player video",
             "liveTitle": ".live-skin-main-text.small-title",
             "chatItems": "#chat-items",
             "newMsgButton": "div#danmaku-buffer-prompt",
