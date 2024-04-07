@@ -21,7 +21,7 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
 
     const { order } = jimakuZone
     const { enabledRecording } = settings["settings.features"]
-    const { elements: { upperButtonArea } } = settings['settings.developer']
+    const { elements: { upperHeaderArea } } = settings['settings.developer']
 
     const { createPopupWindow } = usePopupWindow(true, { width: 500 })
 
@@ -61,11 +61,11 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
                     }
                 </div>
             )}
-            {info.isTheme && document.querySelector(upperButtonArea) !== null && createPortal(
+            {info.isTheme && document.querySelector(upperHeaderArea) !== null && createPortal(
                 <TailwindScope>
                     <ButtonSwitchList switched={show} onClick={() => setShow(!show)} />
                 </TailwindScope>,
-                document.querySelector(upperButtonArea)
+                document.querySelector(upperHeaderArea)
             )}
         </Fragment>
     )
