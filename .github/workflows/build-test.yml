@@ -37,7 +37,7 @@ jobs:
               browser: [chrome, edge, chromium]
         steps:
             - uses: actions/checkout@v4
-            - uses: pnpm/action-setup@v2
+            - uses: pnpm/action-setup@v3
               with:
                 version: 8
             - name: Setup Node.js
@@ -67,7 +67,7 @@ jobs:
           - uses: actions/checkout@v4
           - name: Ensure No @Scoped Test
             run: grep -r --include "*.spec.ts" "@scoped" && echo "please remove @scoped from tests" && exit 1 || echo "No @scoped tests found"
-          - uses: pnpm/action-setup@v2
+          - uses: pnpm/action-setup@v3
             with:
               version: 8
           - name: Setup Node.js
@@ -123,7 +123,7 @@ jobs:
                 path: build/
           - name: Unzip artifacts
             run: unzip build/${{ matrix.browser }}-mv3-prod.zip -d build/extension
-          - uses: pnpm/action-setup@v2
+          - uses: pnpm/action-setup@v3
             with:
                 version: 8
           - name: Setup Node.js
