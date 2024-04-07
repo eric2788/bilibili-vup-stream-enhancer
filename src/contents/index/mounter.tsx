@@ -7,8 +7,8 @@ import BLiveThemeProvider from "~components/BLiveThemeProvider"
 import ContentContext from "~contexts/ContentContexts"
 import type { FeatureType } from "~features"
 import features from "~features"
-import type { Settings } from "~settings"
-import { shouldInit } from "~settings"
+import type { Settings } from "~options/fragments"
+import { shouldInit } from "~options/fragments"
 import { getStreamInfoByDom } from "~utils/bilibili"
 import { injectAdapter } from "~utils/inject"
 import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
@@ -38,10 +38,8 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
     const { rootContainer } = plasmo
 
     return Object.entries(features).map(([key, handler]) => {
+
         const { default: hook, App, FeatureContext: Context } = handler
-
-        const section = findOrCreateElement('section', `bjf-feature-${key}`, rootContainer)
-
         const feature = key as FeatureType
         // this root is feature root
         let root: Root = null
@@ -76,7 +74,7 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
                         </Context.Provider>
                     )
                 })
-
+                const section = findOrCreateElement('section', `bjf-feature-${key}`, rootContainer)
                 root = createRoot(section)
                 root.render(
                     <BLiveThemeProvider element={section}>
@@ -94,6 +92,7 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
                     return
                 }
                 root.unmount()
+                rootContainer.querySelector(`section#bjf-feature-${key}`)?.remove()
             }
         }
     })

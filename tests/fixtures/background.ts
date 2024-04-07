@@ -1,25 +1,19 @@
 import type { Page, Worker } from "@playwright/test";
 import BilibiliPage from "@tests/helpers/bilibili-page";
 import { Strategy } from "@tests/utils/misc";
-import { extensionBase } from "./base";
+import { extensionBase } from "./extension";
 
 
 export type BackgroundOptions = {
 }
 
 export type BackgroundFixtures = {
-    settings: Page
     front: BilibiliPage
     serviceWorker: Worker
 }
 
 
 export const test = extensionBase.extend<BackgroundFixtures>({
-    // 代表 设定页面
-    settings: async ({ page, tabUrl }, use) => {
-        await page.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
-        await use(page)
-    },
     // 直播间页面用
     front: async ({ context, rooms, api, isThemeRoom, cacher }, use) => {
         const frontPage = await context.newPage()

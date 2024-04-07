@@ -2,9 +2,10 @@ import {
     getForwarder,
     type ChannelType,
     type ForwardData,
-    type ForwardResponse} from '~background/forwards'
+    type ForwardResponse
+} from '~background/forwards'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 /**
  * `useForwarder` is a React hook that creates a forwarder for sending and receiving messages between different parts of a Chrome extension.
@@ -30,21 +31,23 @@ import { useEffect } from 'react'
 export function useForwarder<K extends keyof ForwardData>(key: K, target: ChannelType) {
 
     type R = ForwardResponse<ForwardData[K]>
-    const removeFunc = new Set<() => void>()
+    const removeFunc = new Set<VoidCallback>()
+
+    const forwarder = useMemo(() => getForwarder(key, target), [key, target])
 
     useEffect(() => {
         return () => {
             removeFunc.forEach(fn => fn())
         }
-    }, [])
+    }, [forwarder])
 
-    const forwarder = getForwarder(key, target)
-
-    return {
-        addHandler: (handler: (data: R) => void) => {
-            removeFunc.add(forwarder.addHandler(handler))
+    return useMemo(() => ({
+        addHandler: (handler: (data: R) => void): VoidCallback => {
+            const remover = forwarder.addHandler(handler)
+            removeFunc.add(remover)
+            return remover // auto remove on unmount or manual remove
         },
         sendForward: forwarder.sendForward
-    }
+    }), [forwarder])
 
 }

@@ -1,5 +1,13 @@
+/// <reference path="../types/movie.ts" />
 import { glob, type GlobOptions as IOptions } from 'glob'
 import type { Readable } from 'stream'
+import fs from 'fs/promises'
+import type { PathLike } from 'fs'
+import VideoLib from 'node-video-lib'
+import gifyParse from 'gify-parse'
+import jpeg from 'jpeg-js'
+import type { Movie } from '@tests/types/movie'
+
 
 export type IModule = {
     name: string,
@@ -8,13 +16,13 @@ export type IModule = {
 }
 
 /**
- * Retrieves an array of TypeScript file paths from the specified directory path.
- * @param dirPath - The directory path to search for TypeScript files.
+ * Retrieves an array of JavaScript/TypeScript file paths from the specified directory path.
+ * @param dirPath - The directory path to search for JavaScript/TypeScript files.
  * @param options - Optional configuration options for the glob pattern matching.
- * @returns An array of TypeScript file paths.
+ * @returns An array of JavaScript/TypeScript file paths.
  */
-export function getTSFiles(dirPath: string, options?: IOptions): string[] {
-    return glob.sync(`${dirPath}/**/*.{ts,tsx}`, options) as string[]
+export function getJSFiles(dirPath: string, options?: IOptions): string[] {
+    return glob.sync(`${dirPath}/**/*.{ts,tsx,js,jsx}`, options) as string[]
 }
 
 /**
@@ -24,8 +32,8 @@ export function getTSFiles(dirPath: string, options?: IOptions): string[] {
  * @returns A generator that yields promises of modules.
  */
 export function* getModuleStream(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<Promise<IModule>, void, any> {
-    for (const file of getTSFiles(dirPath, options)) {
-        const name = file.split('/').pop().split('.')[0]
+    for (const file of getJSFiles(dirPath, options)) {
+        const name = file.split(/[\\\/]/).pop().split('.')[0]
         yield import(file).then(module => ({ name, file, module }))
     }
 }
@@ -35,8 +43,8 @@ export function* getModuleStream(dirPath: string, options: IOptions = { ignore: 
  * @param dirPath - The directory path to search for TypeScript files.
  * @param options - The options for filtering files. Default value is { ignore: '**/
 export function* getModuleStreamSync(dirPath: string, options: IOptions = { ignore: '**/index.ts' }): Generator<IModule, void, any> {
-    for (const file of getTSFiles(dirPath, options)) {
-        const name = file.split('/').pop().split('.')[0]
+    for (const file of getJSFiles(dirPath, options)) {
+        const name = file.split(/[\\\/]/).pop().split('.')[0]
         yield { name, file, module: require(file) }
     }
 }
@@ -54,3 +62,39 @@ export async function readText(readable: Readable): Promise<string> {
         readable.on('error', rej)
     })
 }
+
+/**
+ * Reads movie information from a file or buffer.
+ * @param source - The path to the file or the buffer containing the movie information.
+ * @returns A promise that resolves to the parsed movie information.
+ */
+export async function readMovieInfo(source: PathLike | Buffer): Promise<Movie> {
+    source = await readBufferIfNeeded(source)
+    return VideoLib.MovieParser.parse(source)
+}
+
+/**
+ * Reads the GIF information from the given source.
+ * 
+ * @param source - The path or buffer containing the GIF data.
+ * @returns A promise that resolves to the GIF information.
+ */
+export async function readGifInfo(source: PathLike | Buffer) {
+    source = await readBufferIfNeeded(source)
+    return gifyParse.getInfo(source);
+}
+
+async function readBufferIfNeeded(source: PathLike | Buffer): Promise<Buffer> {
+    return Buffer.isBuffer(source) ? source : fs.readFile(source)
+}
+
+/**
+ * Reads a JPEG file from the specified path and decodes it.
+ * @param path - The path to the JPEG file.
+ * @returns A Promise that resolves to the decoded JPEG data.
+ */
+export async function readJpeg(path: string) {
+    const data = await fs.readFile(path)
+    return jpeg.decode(data)
+}
+

@@ -2,9 +2,8 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import icon from 'raw:assets/icon.png'
 
-export type RequestBody = {
-    title: string,
-    message: string
+export type RequestBody = Partial<Omit<chrome.notifications.NotificationOptions<true>, 'buttons'>> & {
+    messages?: string[],
     buttons?: (chrome.notifications.ButtonOptions & { clicked: (id: string, index: number) => void })[],
     onClicked?: (id: string) => void
 }
@@ -22,14 +21,15 @@ async function createNotification(option: chrome.notifications.NotificationOptio
 }
 
 const handler: PlasmoMessaging.MessageHandler<RequestBody, string> = async (req, res) => {
-    const { title, message, buttons, onClicked } = req.body
+    const { title, message, messages, type, buttons, onClicked, ...option } = req.body
     const id = await createNotification({
-        type: 'basic',
+        type: type ?? 'basic',
         title,
-        message,
+        message: message ?? messages?.join('\n') ?? '',
+        buttons: buttons?.map(({ clicked, ...option }) => option),
+        ...option,
         iconUrl: icon
     })
-
     const callbackFunc = (notificationId: string) => {
         if (id !== notificationId) return
         onClicked(notificationId)

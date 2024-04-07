@@ -1,11 +1,28 @@
 import { expect, test } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { readText } from '@tests/utils/file'
-import { getSuperChatList } from '@tests/utils/playwright'
+import { getSuperChatList, testFeatureRoomList } from '@tests/utils/playwright'
 
-test.beforeEach(async ({ page }) => {
-    logger.info('正在等待登入彈窗消失...')
-    await page.waitForTimeout(7000)
+test.beforeEach(async ({ content, context, optionPageUrl, isThemeRoom }) => {
+
+    if (isThemeRoom) {
+        test.slow()
+        await content.getByText('挂接成功').waitFor({
+            state: 'visible',
+            timeout: 60000
+        })
+    }
+
+
+    logger.info('正在啟用功能...')
+    const settingsPage = await context.newPage()
+    await settingsPage.bringToFront()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('启用醒目留言').click()
+    await settingsPage.getByText("保存设定").click()
+    await settingsPage.getByText("所有设定已经保存成功。").waitFor({ state: 'visible' })
+    await settingsPage.close()
 })
 
 test('測試功能元素是否存在', async ({ content }) => {
@@ -103,14 +120,14 @@ test('測試拖拽按鈕', async ({ content }) => {
     // dunno how to validate....
 })
 
-test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUrl, page }) => {
+test('測試離線記錄醒目留言', async ({ room, content: p, context, optionPageUrl, page }) => {
 
     let section = p.locator('bjf-csui section#bjf-feature-superchat')
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()
@@ -153,56 +170,17 @@ test('測試離線記錄醒目留言', async ({ room, content: p, context, tabUr
     expect(superchatList.length).toBe(0)
 })
 
-test('測試房間名單列表(黑名單/白名單)', async ({ room, content, context, tabUrl }) => {
+test('測試房間名單列表(黑名單/白名單)', 
+    testFeatureRoomList(
+        'superchat',
+        expect,
+        (content) => content.locator('button', { hasText: /^醒目留言$/ })
+    )
+)
 
-    const superchatButton = content.locator('button', { hasText: /^醒目留言$/ })
-    await expect(superchatButton).toBeVisible()
-
-    const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
-    await settingsPage.getByText('功能设定').click()
-    const roomInput = settingsPage.getByTestId('superchat-whitelist-rooms-input')
-    const switcher = settingsPage.getByTestId('superchat-whitelist-rooms').getByText('使用为黑名单')
-    await roomInput.fill(room.info.roomid.toString())
-    await switcher.click()
-    await roomInput.press('Enter')
-
-    await settingsPage.getByText('保存设定').click()
-
-    await room.page.bringToFront()
-    await content.waitForTimeout(1000)
-
-    await expect(superchatButton).toBeHidden()
-
-    await settingsPage.bringToFront()
-    await switcher.click()
-    await settingsPage.getByText('保存设定').click()
-
-    await room.page.bringToFront()
-    await content.waitForTimeout(1000)
-
-    await expect(superchatButton).toBeVisible()
-
-})
-
-test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, tabUrl }) => {
+test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, optionPageUrl }) => {
 
     const button = content.locator('button', { hasText: /^醒目留言$/ })
-    await expect(button).toBeVisible()
-
-    logger.info('正在測試啟用時切換網頁全屏...')
-    await content.locator('#live-player').dblclick()
-    await expect(button).toBeVisible()
-    await content.locator('#live-player').dblclick()
-
-    logger.info('正在修改設定...')
-    const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
-    await settingsPage.getByText('功能设定').click()
-    await settingsPage.locator('#features\\.superchat').getByText('在全屏模式下显示').click() // closed
-    await settingsPage.getByText('保存设定').click()
-    await settingsPage.close()
-
     await expect(button).toBeVisible()
 
     logger.info('正在測試禁用時切換網頁全屏...')
@@ -210,15 +188,30 @@ test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ conte
     await expect(button).toBeHidden()
     await content.locator('#live-player').dblclick()
 
+    logger.info('正在修改設定...')
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.locator('#features\\.superchat').getByText('在全屏模式下显示').click() // enabled
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.close()
+
+    await expect(button).toBeVisible()
+
+    logger.info('正在測試啟用時切換網頁全屏...')
+    await content.locator('#live-player').dblclick()
+    await expect(button).toBeVisible()
+    await content.locator('#live-player').dblclick()
+
     await expect(button).toBeVisible()
 })
 
-test('測試保存設定後 css 能否生效', async ({ content, page, tabUrl, context }) => {
+test('測試保存設定後 css 能否生效', async ({ content, page, optionPageUrl, context }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.bringToFront()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.waitForTimeout(1000)
 
     await settingsPage.getByText('功能设定').click()

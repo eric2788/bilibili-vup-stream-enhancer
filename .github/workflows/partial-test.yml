@@ -10,7 +10,6 @@ on:
           - 'tests/**'
           - 'playwright.config.ts'
           - 'pnpm-lock.yaml'
-          - '.github/workflows/build-test.yml'
     workflow_dispatch:
         inputs:
           debug:
@@ -24,10 +23,47 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
+              project: [units, integrations]
+        steps:
+          - uses: actions/checkout@v4
+          - uses: pnpm/action-setup@v3
+            with:
+              version: 8
+          - name: Setup Node.js
+            uses: actions/setup-node@v4.0.1
+            with:
+                node-version: 20
+                cache: 'pnpm'
+          - name: Install dependencies
+            run: pnpm install --frozen-lockfile
+          - name: Cache playwright binaries
+            uses: actions/cache@v3
+            id: playwright-cache
+            with:
+              path: ~/.cache/ms-playwright
+              key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+          - run: pnpm exec playwright install --with-deps
+            if: steps.playwright-cache.outputs.cache-hit != 'true'
+          - name: Test
+            id: test
+            run: | 
+              pnpm test -- --project=${{ matrix.project }} \
+                           --grep=@scoped \
+                           --pass-with-no-tests \
+                           --global-timeout=3600000 \
+                           --max-failures=2
+            env:
+              DEBUG: true
+    fast-e2e-test:
+        runs-on: ubuntu-latest
+        needs: fast-test
+        strategy:
+            fail-fast: false
+            matrix:
               browser: [chrome, edge]
         steps:
             - uses: actions/checkout@v4
-            - uses: pnpm/action-setup@v2
+            - uses: pnpm/action-setup@v3
               with:
                 version: 8
             - name: Setup Node.js
@@ -39,6 +75,8 @@ jobs:
               run: pnpm install --frozen-lockfile
             - name: Build Extension and Prepare Tests
               run: pnpm test:rebuild
+              env:
+                DEBUG: true
             - name: Cache playwright binaries
               uses: actions/cache@v3
               id: playwright-cache
@@ -58,3 +96,12 @@ jobs:
                              --max-failures=5
               env:
                 DEBUG: true
+            - name: Upload Test Results
+              if: failure() && steps.test.conclusion != 'skipped'
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ matrix.browser }}-test-results
+                path: |
+                  test-results/
+                  playwright-report/
+                if-no-files-found: ignore

@@ -1,4 +1,4 @@
-const debug = process.env.CI || process.env.NODE_ENV !== 'production'
+const debug = process.env.DEBUG || process.env.NODE_ENV !== 'production'
 
 
 console.info = console.info.bind(console, '[bilibili-vup-stream-enhancer]')

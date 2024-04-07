@@ -7,6 +7,7 @@ import JimakuButton from './JimakuButton';
 import type { Jimaku } from "./JimakuLine";
 import { createPortal } from "react-dom";
 import ButtonSwitchList from "./ButtonSwitchList";
+import TailwindScope from "~components/TailwindScope";
 
 export type ButtonAreaProps = {
     clearJimaku: VoidFunction
@@ -20,7 +21,7 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
 
     const { order } = jimakuZone
     const { enabledRecording } = settings["settings.features"]
-    const { elements: { upperButtonArea } } = settings['settings.developer']
+    const { elements: { upperHeaderArea } } = settings['settings.developer']
 
     const { createPopupWindow } = usePopupWindow(true, { width: 500 })
 
@@ -60,9 +61,11 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
                     }
                 </div>
             )}
-            {info.isTheme && document.querySelector(upperButtonArea) !== null && createPortal(
-                <ButtonSwitchList switched={show} onClick={() => setShow(!show)} />,
-                document.querySelector(upperButtonArea)
+            {info.isTheme && document.querySelector(upperHeaderArea) !== null && createPortal(
+                <TailwindScope>
+                    <ButtonSwitchList switched={show} onClick={() => setShow(!show)} />
+                </TailwindScope>,
+                document.querySelector(upperHeaderArea)
             )}
         </Fragment>
     )

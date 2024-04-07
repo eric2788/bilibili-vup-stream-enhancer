@@ -12,7 +12,30 @@ test('測試主元素是否存在', async ({ content }) => {
     await expect(csui.locator('#bjf-root')).toBeAttached()
 })
 
-test('测试扩展CSS有否影响到外围', async ({ content, room, isThemeRoom }) => {
+test('測試功能元素有否基於設定而消失/顯示', async ({ content, context, optionPageUrl }) => {
+
+    // 默認只開了同傳字幕
+    const csui = content.locator('bjf-csui')
+    await csui.waitFor({ state: 'attached', timeout: 10000 })
+
+    await expect(csui.locator('section#bjf-feature-jimaku')).toBeAttached()
+    await expect(csui.locator('section#bjf-feature-recorder')).not.toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).not.toBeAttached()
+
+    logger.info('正在修改設定')
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('启用快速切片').click()
+    await settingsPage.getByText('启用醒目留言').click()
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.close()
+
+    await expect(csui.locator('section#bjf-feature-recorder')).toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).toBeAttached()
+})
+
+test('测试扩展CSS有否影响到外围', async ({ content, isThemeRoom }) => {
 
     test.skip(isThemeRoom, '此測試不適用於大海報房間')
 
@@ -85,13 +108,13 @@ test('測試是否挂接成功', async ({ room }) => {
 })
 
 
-test('測試名單列表(黑名單/白名單)', async ({ context, content, tabUrl, room }) => {
+test('測試名單列表(黑名單/白名單)', async ({ context, content, optionPageUrl, room }) => {
 
     const button = content.getByText('功能菜单')
     await expect(button).toBeVisible()
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('名单列表').click()
     const roomInput = settingsPage.getByTestId('black-list-rooms-input')
     await roomInput.fill(room.info.roomid.toString())
@@ -114,17 +137,17 @@ test('測試名單列表(黑名單/白名單)', async ({ context, content, tabUr
 })
 
 
-test('測試进入设置按鈕', async ({ context, content, tabUrl }) => {
+test('測試进入设置按鈕', async ({ context, content, optionPageUrl }) => {
 
     await content.getByText('功能菜单').click()
     await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
 
-    const popup = context.waitForEvent('page', { predicate: p => p.url().includes('settings.html') })
+    const popup = context.waitForEvent('page', { predicate: p => p.url().includes('options.html') })
     await content.getByText('进入设置').click()
 
     const settings = await popup
 
-    expect(settings.url()).toBe(tabUrl('settings.html'))
+    expect(settings.url()).toBe(optionPageUrl)
 
 })
 
@@ -145,11 +168,11 @@ test('測試添加到黑名单按鈕', async ({ content, page, room }) => {
 
 })
 
-test('測試重新启动按鈕', async ({ content, tabUrl, context }) => {
+test('測試重新启动按鈕', async ({ content, optionPageUrl, context }) => {
 
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('界面按钮显示').click()
     await settingsPage.getByText('重新启动按钮').click()
     await settingsPage.getByText('保存设定').click()
@@ -170,12 +193,12 @@ test('測試重新启动按鈕', async ({ content, tabUrl, context }) => {
 })
 
 
-test('測試打开监控式视窗按鈕', async ({ context, tabUrl, content }) => {
+test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content }) => {
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
-    await settingsPage.getByText('启用监控视窗').click()
+    await settingsPage.getByText('启用弹出直播视窗').click()
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
 
@@ -183,18 +206,56 @@ test('測試打开监控式视窗按鈕', async ({ context, tabUrl, content }) =
     await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
 
     const popup = context.waitForEvent('page', { predicate: p => p.url().includes('stream.html') })
-    await content.getByText('打开监控式视窗').click()
+    await content.getByText('弹出直播视窗').click()
     const monitor = await popup
     await monitor.waitForTimeout(2000)
 
-    // danmaku container
+    // video container
     await expect(monitor.locator('div#__plasmo > div#bjf-danmaku-container')).toBeVisible()
 
     // video area
     await expect(monitor.locator('video#bjf-video')).toBeVisible()
 
+    // danmaku layer
+    await expect(monitor.locator('.N-dmLayer')).toBeVisible()
+
     // media controller
     await expect(monitor.locator('media-controller#bjf-player')).toBeVisible()
+
+    // media controller bar
+    await expect(monitor.locator('media-control-bar')).toBeVisible()
+
+    // media controller buttons
+    const buttons = [
+        'media-play-button',
+        'media-live-button',
+        'media-time-display',
+        'media-mute-button',
+        'media-volume-range',
+        'media-chrome-button#danmaku-btn', // custom button
+        'media-chrome-button#reload-btn' // custom button
+    ]
+
+    await monitor.locator('media-control-bar').hover()
+    for (const button of buttons) {
+        const locator = monitor.locator(button)
+        await expect(locator).toBeVisible()
+    }
+
+    // Test custom buttons
+
+    // danmaku button
+    await monitor.locator('media-control-bar').hover()
+    await monitor.locator('#danmaku-btn').click()
+    await expect(monitor.locator('.N-dmLayer')).toHaveCSS('display', 'none')
+    await monitor.locator('#danmaku-btn').click()
+    await expect(monitor.locator('.N-dmLayer')).toHaveCSS('display', 'block')
+
+    // reload button
+    await monitor.locator('media-control-bar').hover()
+    const reload = monitor.waitForEvent('load')
+    await monitor.locator('#reload-btn').click()
+    await reload
 
     await monitor.close()
 })
@@ -215,24 +276,9 @@ test('測試大海報房間下返回非海报界面按鈕', async ({ context, th
 
 })
 
-test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, tabUrl }) => {
+test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByText('功能菜单')
-    await expect(button).toBeVisible()
-
-    logger.info('正在測試啟用時切換網頁全屏...')
-    await content.locator('#live-player').dblclick()
-    await expect(button).toBeVisible()
-    await content.locator('#live-player').dblclick()
-
-    logger.info('正在修改設定...')
-    const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
-    await settingsPage.getByText('界面按钮显示').click()
-    await settingsPage.getByText('支持在网页全屏下显示').click() // closed
-    await settingsPage.getByText('保存设定').click()
-    await settingsPage.close()
-
     await expect(button).toBeVisible()
 
     logger.info('正在測試禁用時切換網頁全屏...')
@@ -240,10 +286,25 @@ test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ conte
     await expect(button).toBeHidden()
     await content.locator('#live-player').dblclick()
 
+    logger.info('正在修改設定...')
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('界面按钮显示').click()
+    await settingsPage.getByText('支持在网页全屏下显示').click() // enabled
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.close()
+
+    await expect(button).toBeVisible()
+
+    logger.info('正在測試啟用時切換網頁全屏...')
+    await content.locator('#live-player').dblclick()
+    await expect(button).toBeVisible()
+    await content.locator('#live-player').dblclick()
+
     await expect(button).toBeVisible()
 })
 
-test('测试仅限虚拟主播', async ({ context, room, tabUrl, api }) => {
+test('测试仅限虚拟主播', async ({ context, room, optionPageUrl, api }) => {
 
     const nonVtbRooms = await api.getLiveRooms(1, 11) // 获取知识分区直播间
     test.skip(nonVtbRooms.length === 0, '没有知识分区直播间')
@@ -255,7 +316,7 @@ test('测试仅限虚拟主播', async ({ context, room, tabUrl, api }) => {
     await expect(button).toBeHidden()
 
     const settingsPage = await context.newPage()
-    await settingsPage.goto(tabUrl('settings.html'), { waitUntil: 'domcontentloaded' })
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('仅限虚拟主播').click()
     await settingsPage.getByText('保存设定').click()
@@ -315,10 +376,10 @@ test('測試导航', async ({ room, content, serviceWorker }) => {
 
     logger.info('正在測試導航前向...')
 
-    const next = content.getByRole('button', { name: '下一步' })
-    const previous = content.getByRole('button', { name: '上一步' })
-    const skip = content.getByRole('button', { name: '跳过' })
-    const finish = content.getByRole('button', { name: '完成' })
+    const next = content.locator('[data-test-id=button-primary]').filter({ hasText: '下一步' })
+    const previous = content.locator('[data-test-id=button-back]')
+    const skip = content.locator('[data-test-id=button-skip]')
+    const finish = content.locator('[data-test-id=button-primary]').filter({ hasText: '完成' })
 
     while (await next.isVisible()) {
         await next.click()

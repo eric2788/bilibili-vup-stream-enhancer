@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { sendInternal } from '~background/messages'
-import type { SettingSchema as DeveloperSchema } from "~settings/fragments/developer"
+import type { SettingSchema as DeveloperSchema } from "~options/fragments/developer"
 
 const developerLink = `https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/cdn/developer_v2.json`
 

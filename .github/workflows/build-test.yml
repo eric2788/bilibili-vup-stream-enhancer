@@ -1,22 +1,25 @@
 name: Build And Test Extensions
 
 on:
-    push:
-        branches: 
-          - 'develop'
+    push: 
+        branches: [develop]
+        paths:
+          - 'src/**'
+          - 'tests/**'
+          - 'playwright.config.ts'
+    pull_request:
+        branches: [develop, master]
+        types: 
+          - opened
+          - reopened
+          - ready_for_review
+          - review_requested
         paths:
           - 'src/**'
           - 'tests/**'
           - 'playwright.config.ts'
           - 'pnpm-lock.yaml'
           - '.github/workflows/build-test.yml'
-    pull_request:
-        branches: [develop]
-        types: 
-          - opened
-          - reopened
-          - ready_for_review
-          - review_requested
     workflow_dispatch:
         inputs:
           debug:
@@ -27,13 +30,14 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[run ci]')) }}
         strategy:
             fail-fast: false
             matrix:
               browser: [chrome, edge, chromium]
         steps:
             - uses: actions/checkout@v4
-            - uses: pnpm/action-setup@v2
+            - uses: pnpm/action-setup@v3
               with:
                 version: 8
             - name: Setup Node.js
@@ -45,15 +49,63 @@ jobs:
               run: pnpm install --frozen-lockfile
             - name: Build And Package Extensions
               run: pnpm build --zip --target=${{ matrix.browser }}-mv3
+              env:
+                DEBUG: true
             # upload to github artifacts for each browser with matrix
             - name: Upload to GitHub Artifacts
               uses: actions/upload-artifact@v4
               with:
                   name: ${{ matrix.browser }}-mv3
                   path: build/
-    test:
+    test: # non-e2e test no need upload to r2
       runs-on: ubuntu-latest
-      needs: build
+      strategy:
+          fail-fast: true
+          matrix:
+              project: [integrations, units]
+      steps:
+          - uses: actions/checkout@v4
+          - name: Ensure No @Scoped Test
+            run: grep -r --include "*.spec.ts" "@scoped" && echo "please remove @scoped from tests" && exit 1 || echo "No @scoped tests found"
+          - uses: pnpm/action-setup@v3
+            with:
+              version: 8
+          - name: Setup Node.js
+            uses: actions/setup-node@v4.0.1
+            with:
+                node-version: 20
+                cache: 'pnpm'
+          - name: Install dependencies
+            run: pnpm install --frozen-lockfile
+          - name: Cache playwright binaries
+            uses: actions/cache@v3
+            id: playwright-cache
+            with:
+              path: ~/.cache/ms-playwright
+              key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+          - name: Install Playwright Browsers
+            run: pnpm exec playwright install --with-deps
+            if: steps.playwright-cache.outputs.cache-hit != 'true'
+          - name: Test
+            id: test
+            run: |
+              if [ "${{ inputs.debug }}" == "true" ]; then
+                echo "Enabled Debug Mode"
+                export DEBUG=true
+              fi
+              pnpm test -- --project=${{ matrix.project }} --max-failures=5
+          - name: Upload Test Results
+            if: always() && steps.test.conclusion != 'skipped'
+            uses: actions/upload-artifact@v4
+            with:
+                name: ${{ matrix.project }}-test-results
+                path: |
+                  test-results/
+                  playwright-report/
+                if-no-files-found: ignore
+    e2e-test:
+      runs-on: ubuntu-latest
+      needs: [build, test]
       strategy:
           fail-fast: false
           matrix:
@@ -71,7 +123,7 @@ jobs:
                 path: build/
           - name: Unzip artifacts
             run: unzip build/${{ matrix.browser }}-mv3-prod.zip -d build/extension
-          - uses: pnpm/action-setup@v2
+          - uses: pnpm/action-setup@v3
             with:
                 version: 8
           - name: Setup Node.js
@@ -100,7 +152,7 @@ jobs:
             run: |
               if [ "${{ inputs.debug }}" == "true" ]; then
                 echo "Enabled Debug Mode"
-                export DEBUG="pw:api"
+                export DEBUG=true
               fi
               pnpm test -- --project=${{ steps.project.outputs.project }}
           - name: Upload Test Results

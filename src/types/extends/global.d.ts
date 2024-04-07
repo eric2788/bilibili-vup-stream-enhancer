@@ -34,6 +34,14 @@ declare global {
     webkitallowfullscreen: boolean
   }
 
+  interface FileSystemDirectoryHandle {
+    [Symbol.asyncIterator](): AsyncIterableIterator<[string, FileSystemHandle]>;
+    entries(): AsyncIterableIterator<[string, FileSystemHandle]>;
+    keys(): AsyncIterableIterator<string>;
+    values(): AsyncIterableIterator<FileSystemHandle>;
+    remove(options?: { recursive: boolean }): Promise<void>;
+  }
+
 }
 
 export { }

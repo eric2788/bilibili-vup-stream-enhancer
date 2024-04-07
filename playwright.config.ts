@@ -15,7 +15,7 @@ dotenv.config({ path: '.env.local' })
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig<GlobalOptions>({
-  timeout: process.env.CI ? 120000 : 30000,
+  timeout: process.env.CI ? 120000 : 60000,
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -56,22 +56,50 @@ export default defineConfig<GlobalOptions>({
       }
     },
     {
+      name: 'units',
+      testMatch: '**/units/*.spec.ts',
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      timeout: 300000,
+    },
+    {
+      name: 'integrations',
+      testMatch: '**/integrations/*.spec.ts',
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      timeout: 300000,
+    },
+    {
       name: 'edge',
       use: { ...devices['Desktop Edge'], channel: 'msedge' },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'chrome',
       use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'edge-theme',
       dependencies: ['theme-setup'],
       use: { ...devices['Desktop Edge'], channel: 'msedge', isThemeRoom: true },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'chrome-theme',
       dependencies: ['theme-setup'],
       use: { ...devices['Desktop Chrome'], channel: 'chrome', isThemeRoom: true },
+      testIgnore: [
+        '**/integrations/**',
+        '**/units/**',
+      ],
     },
     {
       name: 'local',

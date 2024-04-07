@@ -2,8 +2,8 @@ import { getNestedValue, setNestedValue } from "~utils/misc";
 import storage, { getFullSettingStroage, getSettingStorage, setSettingStorage } from "~utils/storage";
 import migrations, { addMigrationMapping, addMigrationTransfer, type MV2Settings, type MV2SettingsMapping } from "./schema";
 import type { FeatureType } from "~features";
-import type { Settings } from "~settings";
-import fragments from "~settings";
+import type { Settings } from "~options/fragments";
+import fragments from "~options/fragments";
 
 
 addMigrationMapping('regex', 'settings.features', 'jimaku.danmakuZone.regex')

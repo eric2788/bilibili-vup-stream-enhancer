@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 
-import type { SettingSchema } from "~settings/fragments/developer";
+import type { SettingSchema } from "~options/fragments/developer";
 
 export type JimakuVisibleButtonProps = {
     toggle: VoidFunction

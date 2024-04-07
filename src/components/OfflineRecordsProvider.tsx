@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import PromiseHandler from '~components/PromiseHandler';
 import db, { type RecordType, type TableType } from '~database';
 import type { FeatureType } from "~features";
-import type { Settings } from "~settings";
+import type { Settings } from "~options/fragments";
 
 
 /**

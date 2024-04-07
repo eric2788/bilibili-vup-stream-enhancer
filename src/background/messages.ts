@@ -1,5 +1,4 @@
 import * as addBlackList from './messages/add-black-list'
-import * as checkUpdate from './messages/check-update'
 import * as clearTable from './messages/clear-table'
 import * as fetchDeveloper from './messages/fetch-developer'
 import * as getStreamUrls from './messages/get-stream-urls'
@@ -11,6 +10,7 @@ import * as openTab from './messages/open-tab'
 import * as openWindow from './messages/open-window'
 import * as request from './messages/request'
 import * as migrationMv2 from './messages/migration-mv2'
+import * as openOptions from './messages/open-options'
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { isBackgroundScript } from '~utils/file'
@@ -63,7 +63,6 @@ const messagers = {
     'open-tab': openTab,
     'request': request,
     'get-stream-urls': getStreamUrls,
-    'check-update': checkUpdate,
     'fetch-developer': fetchDeveloper,
     'open-window': openWindow,
     'clear-table': clearTable,
@@ -71,5 +70,6 @@ const messagers = {
     'inject-script': injectScript,
     'add-black-list': addBlackList,
     'hook-adapter': hookAdapter,
-    'migration-mv2': migrationMv2
+    'migration-mv2': migrationMv2,
+    'open-options': openOptions,
 }

@@ -2,7 +2,7 @@ import type { V1Response, WebInterfaceNavResponse } from "~types/bilibili"
 
 import { md5 } from 'hash-wasm'
 import type { StreamInfo } from "~api/bilibili"
-import type { Settings } from "~settings"
+import type { Settings } from "~options/fragments"
 import { sendRequest } from "./fetch"
 import { localStorage } from './storage'
 

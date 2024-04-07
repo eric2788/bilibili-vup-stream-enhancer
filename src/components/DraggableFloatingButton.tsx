@@ -24,6 +24,16 @@ export type DraggableFloatingButtonProps = {
      * Inline styles for the button.
      */
     style?: React.CSSProperties;
+
+    /**
+     * The initial X position of the button.
+     */
+    initX?: number;
+
+    /**
+     * The initial Y position of the button.
+     */
+    initY?: number;
 }
 
 
@@ -45,11 +55,18 @@ export type DraggableFloatingButtonProps = {
  */
 function DraggableFloatingButton(props: DraggableFloatingButtonProps): JSX.Element {
 
-    const { onClick, children, className, style } = props
+    const { 
+        onClick, 
+        children, 
+        className, 
+        style, 
+        initX = window.innerWidth - 500, 
+        initY = 96 
+    } = props
 
     const colorClass = className ?? 'bg-red-600 duration-150 hover:bg-red-700 dark:bg-gray-700 dark:hover:bg-gray-800 text-white'
 
-    const [position, setPosition] = useState({ x: 48, y: 96 })
+    const [position, setPosition] = useState({ x: initX, y: initY })
     const pos = useDeferredValue(position)
 
     return (
@@ -72,8 +89,8 @@ function DraggableFloatingButton(props: DraggableFloatingButtonProps): JSX.Eleme
                 className="rounded-full fixed"
                 onDrag={(_, d) => setPosition({ x: (d.x - 60), y: (d.y - 5) })}
                 default={{
-                    x: 108,
-                    y: 101,
+                    x: initX+60,
+                    y: initY+5,
                     width: 25,
                     height: 25,
                 }}
