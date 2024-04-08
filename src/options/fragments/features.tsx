@@ -3,7 +3,7 @@ import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~options/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
 
-import { Collapse, IconButton, List, Switch, Typography } from '@material-tailwind/react';
+import { Button, Collapse, IconButton, List, Switch, Typography } from '@material-tailwind/react';
 
 import { toast } from 'sonner/dist';
 import type { TableType } from "~database";
@@ -29,7 +29,7 @@ export type SettingSchema = {
 
 
 export const defaultSettings: Readonly<SettingSchema> = {
-    enabledFeatures: [ 'jimaku' ],
+    enabledFeatures: ['jimaku'],
     enabledRecording: [],
     common: {
         enabledPip: false,
@@ -106,6 +106,14 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
 
     return (
         <div className="col-span-2">
+            <div className="mb-4 w-full flex">
+                <Button variant="outlined" className="flex items-center gap-3" size="sm" onClick={() => sendMessager('open-tab', { url: 'https://eric2788.github.io/bilibili-vup-stream-enhancer/tutorials' })}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                    </svg>
+                    使用指南
+                </Button>
+            </div>
             <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-4 mb-4">
                 <div>
                     <Typography className="font-semibold">
@@ -138,7 +146,7 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                 type F = typeof f
                 const setting = settings[f] as FeatureSettings[F]
                 const Component = setting.default as React.FC<StateProxy<FeatureSettingSchema<FeatureSettings[F]>>>
-                console.info(state)
+                console.debug(state)
                 const props = asStateProxy(useBinding(state[f], true))
 
                 return (
