@@ -51,7 +51,7 @@
 2. 点击扩展图标进入设定页面，并根据你的偏好进入设定。完成后，然后按下保存设定。
 3. 进入B站任一直播间即可开始使用。
 
-详情可参阅 [使用指南](https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/tutorials/index.md)
+详情可参阅 [使用指南](https://eric2788.github.io/bilibili-vup-stream-enhancer/tutorials)
 
 ## ➵ 贡献
 
