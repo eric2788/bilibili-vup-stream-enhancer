@@ -4,10 +4,14 @@ import type { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
 import ffmpegWorkerJs from 'url:assets/ffmpeg/worker.js';
 
+const baseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm"
+
 export class SingleThread implements FFMpegCore {
 
     async load(ffmpeg: FFmpeg): Promise<boolean> {
         return ffmpeg.load({
+            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "application/javascript"),
+            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
             classWorkerURL: await toBlobURL(ffmpegWorkerJs, 'text/javascript')
         })
     }
