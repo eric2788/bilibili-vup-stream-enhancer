@@ -18,7 +18,7 @@ export type Primitive = string | number | boolean | bigint | symbol | null | und
 
 export type KeyType = string | number | symbol
 
-export type ConvertToPrimitive<T extends PrimitiveType> = T extends 'string' ? string :
+export type ConvertToPrimitive<T extends Primitive> = T extends 'string' ? string :
   T extends 'number' ? number :
   T extends 'boolean' ? boolean :
   T extends 'bigint' ? bigint :
