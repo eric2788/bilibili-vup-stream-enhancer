@@ -36,7 +36,8 @@ class HlsPlayer extends StreamPlayer {
             enableWorker: true,
             liveDurationInfinity: true,
             lowLatencyMode: true,
-            maxBufferLength: Infinity
+            maxBufferLength: Infinity,
+            backBufferLength: 30
         })
 
         return new Promise((res, rej) => {
