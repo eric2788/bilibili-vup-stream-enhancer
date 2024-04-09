@@ -31,7 +31,7 @@ test.beforeEach(async ({ content, context, optionPageUrl, isThemeRoom }) => {
 })
 
 
-test('測試功能元素是否存在', async ({ content }) => {
+test('測試功能元素是否存在', { tag: "@scoped" }, async ({ content }) => {
 
     const csui = content.locator('bjf-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
@@ -40,7 +40,7 @@ test('測試功能元素是否存在', async ({ content }) => {
 
 })
 
-test('測試界面元素是否存在', async ({ content }) => {
+test('測試界面元素是否存在', { tag: "@scoped" }, async ({ content }) => {
 
     const button = content.getByTestId('record-button')
     const timer = content.getByTestId('record-timer')
@@ -51,7 +51,7 @@ test('測試界面元素是否存在', async ({ content }) => {
     await expect(screenshot).toBeVisible()
 })
 
-test('測試界面按鈕有否根據設定顯示', async ({ content, context, optionPageUrl }) => {
+test('測試界面按鈕有否根據設定顯示', { tag: "@scoped" }, async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByTestId('record-button')
     const timer = content.getByTestId('record-timer')
@@ -74,7 +74,7 @@ test('測試界面按鈕有否根據設定顯示', async ({ content, context, op
     await expect(timer).toBeHidden()
 })
 
-test('測試 timer 有否更新', async ({ content }) => {
+test('測試 timer 有否更新', { tag: "@scoped" }, async ({ content }) => {
 
     const timer = content.getByTestId('record-timer')
 
@@ -97,7 +97,7 @@ test('測試房間名單列表(黑名單/白名單)',
     )
 )
 
-test('測試截圖', async ({ content, page }) => {
+test('測試截圖', { tag: "@scoped" }, async ({ content, page }) => {
 
     const button = content.getByTestId('screenshot-button')
     const download = page.waitForEvent('download')
@@ -120,7 +120,7 @@ test('測試截圖', async ({ content, page }) => {
     expect(info.height).toBeGreaterThanOrEqual(480)
 })
 
-test('測試錄製 FLV', async ({ content, page, context, optionPageUrl }) => {
+test('測試錄製 FLV', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
 
     test.slow()
 
@@ -155,7 +155,7 @@ test('測試錄製 FLV', async ({ content, page, context, optionPageUrl }) => {
     expect(info.relativeDuration()).toBeGreaterThan(30)
 })
 
-test('測試錄製 HLS', async ({ content, page }) => {
+test('測試錄製 HLS', { tag: "@scoped" }, async ({ content, page }) => {
 
     test.slow()
 
@@ -179,7 +179,7 @@ test('測試錄製 HLS', async ({ content, page }) => {
     expect(info.relativeDuration()).toBeGreaterThan(30)
 })
 
-test('測試熱鍵錄製', async ({ page, optionPageUrl, context, content }) => {
+test('測試熱鍵錄製', { tag: "@scoped" }, async ({ page, optionPageUrl, context, content }) => {
 
     test.slow()
 
@@ -223,7 +223,7 @@ test('測試熱鍵錄製', async ({ page, optionPageUrl, context, content }) => 
     expect(info.relativeDuration()).toBeGreaterThan(30)
 })
 
-test('測試熱鍵截圖', async ({ page, content, context, optionPageUrl }) => {
+test('測試熱鍵截圖', { tag: "@scoped" }, async ({ page, content, context, optionPageUrl }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -268,7 +268,7 @@ test('測試熱鍵截圖', async ({ page, content, context, optionPageUrl }) => 
 })
 
 
-test('測試錄製時長', async ({ content, page }) => {
+test('測試錄製時長', { tag: "@scoped" }, async ({ content, page }) => {
 
     // 10 mins: 6 mins recording + 4 mins operations
     test.setTimeout(600000)
@@ -282,7 +282,13 @@ test('測試錄製時長', async ({ content, page }) => {
     await page.waitForTimeout(360000)
 
     // timer should be fixed on 5 mins
-    await expect(timer).toHaveText('00:05:00')
+    await expect.poll(async () => {
+        return (await timer.textContent()) === '00:05:00'
+    }, {
+        message: '錄製時長未達到 5 分鐘或顯示沒有固定到 5 分鐘',
+        timeout: 30000,
+    }).toBeTruthy()
+    
     const download = page.waitForEvent('download')
     await button.click()
 
@@ -304,7 +310,7 @@ test('測試錄製時長', async ({ content, page }) => {
 })
 
 
-test('測試手動錄製', async ({ content, page, context, optionPageUrl }) => {
+test('測試手動錄製', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
 
     test.slow()
 
@@ -348,7 +354,7 @@ test('測試手動錄製', async ({ content, page, context, optionPageUrl }) => 
 })
 
 
-test('測試 HLS 完整編譯', async ({ content, page, context, optionPageUrl }) => {
+test('測試 HLS 完整編譯', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
 
     // I bet 10 mins for this
     test.setTimeout(600000)
@@ -427,7 +433,7 @@ test('測試 HLS 完整編譯', async ({ content, page, context, optionPageUrl }
 })
 
 
-test('測試 FLV 完整編譯', async ({ content, page, context, optionPageUrl }) => {
+test('測試 FLV 完整編譯', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
 
     // I bet 10 mins for this
     test.setTimeout(600000)

@@ -74,6 +74,16 @@ export function RecorderFeatureSettings({ state, useHandler }: StateProxy<Featur
                     { value: undefined, label: '随机' }
                 ]}
             />
+            <Selector<typeof state.mechanism> 
+                data-testid="record-mechanism"
+                label="录制方式"
+                value={state.mechanism}
+                onChange={e => state.mechanism = e}
+                options={[
+                    { value: 'buffer', label: '另开直播线路录制' },
+                    { value: 'capture', label: '捕捉直播流媒体元素' }
+                ]}
+            />
             <Selector<typeof state.recordFix>
                 data-testid="record-fix"
                 label="录制后编译方式"

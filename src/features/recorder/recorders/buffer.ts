@@ -1,5 +1,3 @@
-import db from "~database";
-import type { Streams } from "~database/tables/stream";
 import { recordStream } from "~players";
 import type { StreamPlayer } from "~types/media";
 import { Recorder } from "~types/media";
@@ -8,7 +6,6 @@ import { type ChunkData } from ".";
 class BufferRecorder extends Recorder {
 
     private player: StreamPlayer = null
-    private readonly fallbackChunks: Streams[] = []
     private errorHandler: (error: Error) => void = null
     private bufferAppendChecker: NodeJS.Timeout = null
 
@@ -30,47 +27,15 @@ class BufferRecorder extends Recorder {
 
     private async onBufferArrived(order: number, buffer: ArrayBuffer): Promise<void> {
         const blob = new Blob([buffer], { type: 'application/octet-stream' })
-        const stream = {
-            date: new Date().toISOString(),
-            content: blob,
-            order,
-            room: this.room
-        }
-        try {
-            await db.streams.add(stream)
-            console.debug('recorded segment: ', buffer.byteLength, 'bytes, order: ', stream.order)
-        } catch (err: Error | any) {
-            console.error('Error writing buffer to file', err)
-            console.warn('writing into fallback chunks')
-            this.fallbackChunks.push(stream)
-        } finally {
-            this.recordedSize += buffer.byteLength
-        }
+        return this.saveChunk(blob, order)
     }
 
     async loadChunkData(flush: boolean = true): Promise<ChunkData> {
-
-        const streams = await db.streams.where({ room: this.room }).sortBy('order')
-        if (flush) {
-            while (this.recordedSize >= (Recorder.FFmpegLimit - 1024) && streams.length > 0) { // 2GB - 1KB
-                console.info(`recorded size exceeds 2GB (${this.fileSize}), deleting oldest record`)
-                const { id, content } = streams.shift()
-                await db.streams.delete(id)
-                this.recordedSize -= content.size
-            }
-        }
-        const chunks = [...streams, ...this.fallbackChunks].toSorted((a, b) => a.order - b.order).map(c => c.content)
+        const chunks = await this.loadChunks(flush)
         return {
             chunks,
             info: this.player.videoInfo
         }
-    }
-
-    async flush(): Promise<void> {
-        this.recordedSize = 0
-        const re = await db.streams.where({ room: this.room }).delete()
-        this.fallbackChunks.length = 0
-        console.debug('flushed ', re, ' records from databases')
     }
 
     stop(): void {
