@@ -2,7 +2,7 @@ import type { StreamUrls } from "~background/messages/get-stream-urls"
 import type { PlayerOptions, VideoInfo } from "~players"
 import { Recorder } from "~types/media"
 import buffer from "./buffer"
-import capture from "./capture"
+import capture, { type CaptureOptions } from "./capture"
 
 export type ChunkData = {
     chunks: Blob[]
@@ -11,12 +11,17 @@ export type ChunkData = {
 
 export type RecorderType = keyof typeof recorders
 
-const recorders = {
-    buffer,
-    capture
+export type RecorderPayload = {
+    buffer: PlayerOptions
+    capture: CaptureOptions
 }
 
-function createRecorder(room: string, urls: StreamUrls, type: RecorderType, options: PlayerOptions = { codec: 'avc' }): Recorder {
+const recorders = {
+    buffer,
+    capture,
+}
+
+function createRecorder<T extends RecorderType>(room: string, urls: StreamUrls, type: T, options: RecorderPayload[T]): Recorder {
     const Recorder = recorders[type]
     if (!Recorder) {
         throw new Error('unsupported recorder type: ' + type)

@@ -34,7 +34,8 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
         mechanism,
         hiddenUI,
         outputType,
-        overflow
+        overflow,
+        autoSwitchQuality
     } = useContext(RecorderFeatureContext)
 
     const recorder = useRef<Recorder>()
@@ -44,14 +45,19 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
 
     useAsyncEffect(
         async () => {
-            recorder.current = createRecorder(info.room, urls, mechanism, { type: outputType, codec: 'avc' }) // ffmpeg.wasm is not supported hevc codec
+             // ffmpeg.wasm is not supported hevc codec
+            recorder.current = createRecorder(info.room, urls, mechanism, { 
+                type: outputType, 
+                codec: 'avc',
+                autoSwitchQuality
+            })
             await recorder.current.flush() // clear old records
             if (!manual) {
                 await recorder.current.start()
             }
             recorder.current.onerror = (err) => {
                 console.error('recorder error: ', err)
-                toast.error('录制直播推流时出现错误: ' + err.message)
+                toast.error('录制直播时出现错误: ' + err.message)
             }
         },
         async () => {
@@ -79,13 +85,21 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
         }
 
         if (!recorder.current.recording) {
-            if (manual) {
-                await recorder.current.start()
-                toast.info('开始录制...')
-            } else {
-                toast.warning('录制没有在加载时自动开始，请稍等片刻或刷新页面。')
+            try {
+                if (manual) {
+                    await recorder.current.start()
+                    toast.info('开始录制...')
+                } else {
+                    toast.warning('录制没有在加载时自动开始，请稍等片刻或刷新页面。')
+                }
+            } catch (err: Error | any) {
+                console.error('unexpected error: ', err)
+                toast.error('未知错误: ' + err.message)
+            } finally {
+                return
             }
-            return
+        } else if (manual) {
+            recorder.current.stop()
         }
 
         const encoding = (async () => {
@@ -145,12 +159,13 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
         }
 
         if (manual) {
-            recorder.current.stop()
             await recorder.current.flush() // clear records after download
+            // make sure to make this toast be the latest (although it's already stopped the recorder)
             toast.info('录制已中止。')
         }
 
     }, [ffmpeg])
+
 
     const screenshot = useCallback(() => {
         const video = document.querySelector(livePlayerVideo) as HTMLVideoElement
@@ -172,16 +187,11 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
     }, [])
 
 
-    useKeyDown(recordKey.key, async (e) => {
+    useKeyDown(recordKey.key, (e) => {
         if (e.ctrlKey !== recordKey.ctrlKey) return
         if (e.shiftKey !== recordKey.shiftKey) return
         e.preventDefault()
-        try {
-            await clipRecord()
-        } catch (err: Error | any) {
-            console.error('unexpected error: ', err)
-            toast.error('未知错误: ' + err.message)
-        }
+        clipRecord()
     })
 
     useKeyDown(screenshotKey.key, (e) => {

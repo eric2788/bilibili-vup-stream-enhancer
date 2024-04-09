@@ -77,7 +77,7 @@ export class FFMpegHooks implements Disposable {
         await this.ffmpeg.writeFile(inputFile, new Uint8Array(original))
         this.stage = 'fix'
         console.debug('fixArg: ', fixArgs)
-        await this.ffmpeg.exec(['-i', inputFile, ...fixArgs, middleFile])
+        await this.ffmpeg.exec(['-fflags', '+genpts+igndts', '-i', inputFile, ...fixArgs, middleFile])
         if (needCut) {
             this.stage = 'cut'
             console.debug('cutArg: ', cutArgs)

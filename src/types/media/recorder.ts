@@ -2,24 +2,23 @@ import type { StreamUrls } from "~background/messages/get-stream-urls"
 import db from "~database"
 import type { Stream } from "~database/tables/stream"
 import type { ChunkData } from "~features/recorder/recorders"
-import type { PlayerOptions } from "~players"
 import { formatBytes } from "~utils/binary"
 
-export abstract class Recorder {
+export abstract class Recorder<Options = {}> {
 
     protected static readonly FFmpegLimit = 2 * 1024 * 1024 * 1024 // 2GB
 
-    protected readonly room: string
-    protected readonly urls: StreamUrls
-    protected readonly options: PlayerOptions
+    protected _ticking: boolean | null = null
     protected recordedSize = 0
     protected fallbackChunks: Stream[] = []
+    protected errorHandler: (error: Error) => void = null
+    protected bufferAppendChecker: NodeJS.Timeout = null
 
-    constructor(room: string, urls: StreamUrls, options: PlayerOptions) {
-        this.room = room
-        this.urls = urls
-        this.options = options
-    }
+    constructor(
+        protected readonly room: string,
+        protected readonly urls: StreamUrls,
+        protected readonly options: Options
+    ) { }
 
     abstract start(): Promise<void>
 
@@ -29,7 +28,13 @@ export abstract class Recorder {
 
     abstract get recording(): boolean
 
-    abstract set onerror(handler: (error: Error) => void)
+    get ticking(): boolean {
+        return this._ticking ?? this.recording
+    }
+
+    set onerror(handler: (error: Error) => void) {
+        this.errorHandler = handler
+    }
 
     get fileSize(): string {
         return formatBytes(this.recordedSize)
@@ -39,7 +44,34 @@ export abstract class Recorder {
         return this.recordedSize / (1024 * 1024)
     }
 
-    async saveChunk(blob: Blob, order: number): Promise<void> {
+    async flush(): Promise<void> {
+        this.recordedSize = 0
+        const re = await db.streams.where({ room: this.room }).delete()
+        this.fallbackChunks.length = 0
+        console.debug('flushed ', re, ' records from databases')
+    }
+
+    protected appendBufferChecker(): void {
+        let lastRecordedSize = 0
+        this._ticking = null
+        this.bufferAppendChecker = setInterval(() => {
+            if (!this.recording) {
+                clearInterval(this.bufferAppendChecker)
+                return
+            }
+            try {
+                if (lastRecordedSize !== this.recordedSize) return
+                console.warn('buffer data has not been appended for 15 seconds! current recorded size: ', this.fileSize)
+                this.errorHandler?.(new Error('已超过15秒没再接收到数据流!你可能需要刷新页面'))
+                this._ticking = false
+            } finally {
+                lastRecordedSize = this.recordedSize
+            }
+
+        }, 15000)
+    }
+
+    protected async saveChunk(blob: Blob, order: number): Promise<void> {
         const stream = {
             date: new Date().toISOString(),
             content: blob,
@@ -58,7 +90,7 @@ export abstract class Recorder {
         }
     }
 
-    async loadChunks(flush: boolean = true): Promise<Blob[]> {
+    protected async loadChunks(flush: boolean = true): Promise<Blob[]> {
         const streams = await db.streams.where({ room: this.room }).sortBy('order')
         if (flush) {
             while (this.recordedSize >= (Recorder.FFmpegLimit - 1024) && streams.length > 0) { // 2GB - 1KB
@@ -71,10 +103,4 @@ export abstract class Recorder {
         return [...streams, ...this.fallbackChunks].toSorted((a, b) => a.order - b.order).map(c => c.content)
     }
 
-    async flush(): Promise<void> {
-        this.recordedSize = 0
-        const re = await db.streams.where({ room: this.room }).delete()
-        this.fallbackChunks.length = 0
-        console.debug('flushed ', re, ' records from databases')
-    }
 }

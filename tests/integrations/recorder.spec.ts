@@ -165,7 +165,7 @@ test(
 
 )
 
-test.fail(
+test(
     '測試透過 Capture 錄製 WEBM 推流並用 ffmpeg.wasm 修復資訊損壞 + 剪時',
     { tag: "@scoped" },
     async ({ room: { stream, roomid }, page, modules }) => {
@@ -188,10 +188,6 @@ test.fail(
 
             // autoSwitchQuality require extension
             const recorder = createRecorder(roomid, stream, 'capture', { autoSwitchQuality: false })
-
-            const ctx = new AudioContext()
-            ctx.createMediaElementSource(document.querySelector('video'))
-            await ctx.resume()
 
             await recorder.start()
             await utils.misc.sleep(17000) // gap for appending

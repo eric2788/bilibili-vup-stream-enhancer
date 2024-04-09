@@ -33,17 +33,15 @@ class HlsPlayer extends StreamPlayer {
         }
 
         this.player = new Hls({
-            enableWorker: true,
-            liveDurationInfinity: true,
             lowLatencyMode: true,
             maxBufferLength: Infinity,
-            backBufferLength: 30
+            liveDurationInfinity: true,
+            backBufferLength: 10,
         })
 
         return new Promise((res, rej) => {
             this.player.once(Hls.Events.MEDIA_ATTACHED, () => {
                 console.log('video and hls.js are now bound together !')
-
             })
 
             this.player.once(Hls.Events.MANIFEST_PARSED, (event, data) => {
@@ -54,6 +52,18 @@ class HlsPlayer extends StreamPlayer {
 
             this.player.on(Hls.Events.BUFFER_APPENDING, (event, data) => {
                 this.emit('buffer', data.data.buffer)
+            })
+
+            this.player.on(Hls.Events.BACK_BUFFER_REACHED, (event, data) => {
+                console.log('back buffer reached, buffer length: ', data.bufferEnd)
+            })
+
+            this.player.on(Hls.Events.BUFFER_FLUSHING, (event, data) => {
+                console.log('buffer flushing from ', data.startOffset, ' to ', data.endOffset, ', type: ', data.type)  
+            })
+
+            this.player.on(Hls.Events.BUFFER_FLUSHED, (event, data) => {
+                console.log('buffer flushed for type: ', data.type)
             })
 
             this.player.loadSource(url);
@@ -73,8 +83,8 @@ class HlsPlayer extends StreamPlayer {
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.log('fatal media error encountered, try to recover');
-                            if (media) this.player.recoverMediaError()
+                            console.error('fatal media error encountered, try to recover');
+                            this.player.recoverMediaError()
                             break;
                         case Hls.ErrorTypes.NETWORK_ERROR:
                             console.error('fatal network error encountered', data);

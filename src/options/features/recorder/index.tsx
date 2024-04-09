@@ -24,6 +24,7 @@ export type FeatureSettingSchema = {
     hiddenUI: boolean
     threads: number
     overflow: 'limit' | 'skip'
+    autoSwitchQuality: boolean
 }
 
 export const defaultSettings: Readonly<FeatureSettingSchema> = {
@@ -43,7 +44,8 @@ export const defaultSettings: Readonly<FeatureSettingSchema> = {
     mechanism: 'buffer',
     hiddenUI: false,
     threads: 0.5,
-    overflow: 'limit'
+    overflow: 'limit',
+    autoSwitchQuality: false
 }
 
 export function RecorderFeatureSettings({ state, useHandler }: StateProxy<FeatureSettingSchema>): JSX.Element {
@@ -67,6 +69,7 @@ export function RecorderFeatureSettings({ state, useHandler }: StateProxy<Featur
                 data-testid="record-output-type"
                 label="输出格式"
                 value={state.outputType}
+                disabled={state.mechanism !== 'buffer'}
                 onChange={e => state.outputType = e}
                 options={[
                     { value: 'hls', label: 'MP4' },
@@ -74,11 +77,28 @@ export function RecorderFeatureSettings({ state, useHandler }: StateProxy<Featur
                     { value: undefined, label: '随机' }
                 ]}
             />
-            <Selector<typeof state.mechanism> 
+            <Selector<typeof state.mechanism>
                 data-testid="record-mechanism"
                 label="录制方式"
                 value={state.mechanism}
-                onChange={e => state.mechanism = e}
+                onChange={e => {
+                    if (e === 'capture') {
+                        state.outputType = 'hls'
+                        toast.info('捕捉直播流媒体元素將使用当前直播的画质录制，录制前先记得调至原画。', { 
+                            position: 'top-center',
+                            action: {
+                                label: '启用自动切换到原画',
+                                onClick: () => {
+                                    state.autoSwitchQuality = true
+                                    toast.success('已启用自动切换到原画画质功能。')
+                                }
+                            }
+                        })
+                    } else {
+                        state.autoSwitchQuality = false
+                    }
+                    state.mechanism = e
+                }}
                 options={[
                     { value: 'buffer', label: '另开直播线路录制' },
                     { value: 'capture', label: '捕捉直播流媒体元素' }
