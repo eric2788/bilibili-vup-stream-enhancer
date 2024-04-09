@@ -1,64 +1,24 @@
-import type { ProgressEvent } from "@ffmpeg/ffmpeg/dist/esm/types"
-import { Progress, Spinner } from "@material-tailwind/react"
 import { useKeyDown } from "@react-hooks-library/core"
-import { useCallback, useContext, useRef, useState } from "react"
+import { useCallback, useContext, useRef } from "react"
 import { createPortal } from "react-dom"
 import { toast } from "sonner/dist"
 import type { StreamUrls } from "~background/messages/get-stream-urls"
-import TailwindScope from "~components/TailwindScope"
 import ContentContext from "~contexts/ContentContexts"
 import RecorderFeatureContext from "~contexts/RecorderFeatureContext"
-import { FFMpegHooks, useFFMpeg } from "~hooks/ffmpeg"
+import { useFFMpeg } from "~hooks/ffmpeg"
 import { useAsyncEffect } from "~hooks/life-cycle"
 import { useShardSender } from "~hooks/stream"
 import { Recorder } from "~types/media"
+import { screenshotFromVideo } from "~utils/binary"
 import { downloadBlob } from "~utils/file"
 import { sendMessager } from "~utils/messaging"
 import { randomString } from '~utils/misc'
 import createRecorder from "../recorders"
+import ProgressText from "./ProgressText"
 import RecorderButton from "./RecorderButton"
-import { screenshotFromVideo } from "~utils/binary"
 
 export type RecorderLayerProps = {
     urls: StreamUrls
-}
-
-
-function ProgressText({ ffmpeg }: { ffmpeg: Promise<FFMpegHooks> }) {
-
-    const [progress, setProgress] = useState<ProgressEvent>(null)
-
-    useAsyncEffect(
-        async () => {
-            const ff = await ffmpeg
-            ff.onProgress(setProgress)
-        },
-        async () => { },
-        (err) => {
-            console.error('unexpected: ', err)
-        },
-        [ffmpeg])
-
-    if (!progress) {
-        return `编译视频中...`
-    }
-
-    return (
-        <TailwindScope>
-            <div className="flex justify-center flex-col space-y-2">
-                <div className="flex flex-row items-center space-x-2">
-                    <div>
-                        <Spinner className="h-5 w-5" />
-                    </div>
-                    <div>
-                        {`编译视频中... (${Math.round(progress.progress * 10000) / 100}%)`}
-                    </div>
-                </div>
-                <Progress color="blue" value={progress.progress * 100} />
-            </div>
-        </TailwindScope>
-    )
-
 }
 
 function RecorderLayer(props: RecorderLayerProps): JSX.Element {
