@@ -1,7 +1,7 @@
 import { test, expect } from "@tests/fixtures/content"
 import logger from "@tests/helpers/logger"
 import { readJpeg, readMovieInfo } from "@tests/utils/file"
-import { testFeatureRoomList } from "@tests/utils/playwright"
+import { selectOption, testFeatureRoomList } from "@tests/utils/playwright"
 import fs from 'fs/promises'
 
 test.beforeEach(async ({ content, context, optionPageUrl, isThemeRoom }) => {
@@ -31,7 +31,7 @@ test.beforeEach(async ({ content, context, optionPageUrl, isThemeRoom }) => {
 })
 
 
-test('測試功能元素是否存在', { tag: "@scoped" }, async ({ content }) => {
+test('測試功能元素是否存在', async ({ content }) => {
 
     const csui = content.locator('bjf-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
@@ -40,7 +40,7 @@ test('測試功能元素是否存在', { tag: "@scoped" }, async ({ content }) =
 
 })
 
-test('測試界面元素是否存在', { tag: "@scoped" }, async ({ content }) => {
+test('測試界面元素是否存在', async ({ content }) => {
 
     const button = content.getByTestId('record-button')
     const timer = content.getByTestId('record-timer')
@@ -51,7 +51,7 @@ test('測試界面元素是否存在', { tag: "@scoped" }, async ({ content }) =
     await expect(screenshot).toBeVisible()
 })
 
-test('測試界面按鈕有否根據設定顯示', { tag: "@scoped" }, async ({ content, context, optionPageUrl }) => {
+test('測試界面按鈕有否根據設定顯示', async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByTestId('record-button')
     const timer = content.getByTestId('record-timer')
@@ -74,7 +74,7 @@ test('測試界面按鈕有否根據設定顯示', { tag: "@scoped" }, async ({ 
     await expect(timer).toBeHidden()
 })
 
-test('測試 timer 有否更新', { tag: "@scoped" }, async ({ content }) => {
+test('測試 timer 有否更新', async ({ content }) => {
 
     const timer = content.getByTestId('record-timer')
 
@@ -97,7 +97,7 @@ test('測試房間名單列表(黑名單/白名單)',
     )
 )
 
-test('測試截圖', { tag: "@scoped" }, async ({ content, page }) => {
+test('測試截圖', async ({ content, page }) => {
 
     const button = content.getByTestId('screenshot-button')
     const download = page.waitForEvent('download')
@@ -130,8 +130,10 @@ test('測試錄製 FLV', { tag: "@scoped" }, async ({ content, page, context, op
     await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
-    await settingsPage.getByTestId('record-output-type').locator('div > div').nth(0).click()
-    await settingsPage.getByText('FLV').click()
+    await selectOption(
+        settingsPage.getByTestId('record-output-type'),
+        'FLV'
+    )
 
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
@@ -155,7 +157,7 @@ test('測試錄製 FLV', { tag: "@scoped" }, async ({ content, page, context, op
     expect(info.relativeDuration()).toBeGreaterThan(30)
 })
 
-test('測試錄製 HLS', { tag: "@scoped" }, async ({ content, page }) => {
+test('測試錄製 HLS', async ({ content, page }) => {
 
     test.slow()
 
@@ -179,7 +181,7 @@ test('測試錄製 HLS', { tag: "@scoped" }, async ({ content, page }) => {
     expect(info.relativeDuration()).toBeGreaterThan(30)
 })
 
-test('測試熱鍵錄製', { tag: "@scoped" }, async ({ page, optionPageUrl, context, content }) => {
+test('測試熱鍵錄製', async ({ page, optionPageUrl, context, content }) => {
 
     test.slow()
 
@@ -223,7 +225,7 @@ test('測試熱鍵錄製', { tag: "@scoped" }, async ({ page, optionPageUrl, con
     expect(info.relativeDuration()).toBeGreaterThan(30)
 })
 
-test('測試熱鍵截圖', { tag: "@scoped" }, async ({ page, content, context, optionPageUrl }) => {
+test('測試熱鍵截圖', async ({ page, content, context, optionPageUrl }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -310,7 +312,7 @@ test('測試錄製時長', { tag: "@scoped" }, async ({ content, page }) => {
 })
 
 
-test('測試手動錄製', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
+test('測試手動錄製', async ({ content, page, context, optionPageUrl }) => {
 
     test.slow()
 
@@ -320,8 +322,10 @@ test('測試手動錄製', { tag: "@scoped" }, async ({ content, page, context, 
     await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
-    await settingsPage.getByTestId('record-duration').locator('div > div').nth(0).click()
-    await settingsPage.getByText('手动录制').click()
+    await selectOption(
+        settingsPage.getByTestId('record-duration'),
+        '手动录制'
+    )
 
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
@@ -354,7 +358,7 @@ test('測試手動錄製', { tag: "@scoped" }, async ({ content, page, context, 
 })
 
 
-test('測試 HLS 完整編譯', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
+test('測試 HLS 完整編譯', async ({ content, page, context, optionPageUrl }) => {
 
     // I bet 10 mins for this
     test.setTimeout(600000)
@@ -365,8 +369,10 @@ test('測試 HLS 完整編譯', { tag: "@scoped" }, async ({ content, page, cont
     await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
 
-    await settingsPage.getByTestId('record-fix').locator('div > div').nth(0).click()
-    await settingsPage.getByText('完整编译').click()
+    await selectOption(
+        settingsPage.getByTestId('record-fix'),
+        '完整编译'
+    )
 
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
@@ -445,11 +451,15 @@ test('測試 FLV 完整編譯', { tag: "@scoped" }, async ({ content, page, cont
     await settingsPage.getByText('功能设定').click()
 
     // change to flv first
-    await settingsPage.getByTestId('record-output-type').locator('div > div').nth(0).click()
-    await settingsPage.getByText('FLV').click()
+    await selectOption(
+        settingsPage.getByTestId('record-output-type'),
+        'FLV'
+    )
 
-    await settingsPage.getByTestId('record-fix').locator('div > div').nth(0).click()
-    await settingsPage.getByText('完整编译').click()
+    await selectOption(
+        settingsPage.getByTestId('record-fix'),
+        '完整编译'
+    )
 
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
