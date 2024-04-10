@@ -146,3 +146,57 @@ test('測試終止 FLV 推流后有否成功關閉數據流', async ({ modules, 
 
     expect(before).toBe(after)
 })
+
+test('測試 HLS 長錄製有否 flush buffer', async ({ context, modules, page, room: { stream } }) => {
+
+    // 5 mins
+    test.setTimeout(300000)
+
+    await modules['player'].loadToPage()
+    await modules['utils'].loadToPage()
+
+    const logs: string[] = []
+    context.on('console', (msg) => {
+        logs.push(msg.text())
+    })
+
+    const downloading = page.waitForEvent('download')
+    const length = await page.evaluate(async (stream) => {
+
+        const { player, utils } = window as any
+
+        const chunks = []
+
+        const p = await player.recordStream(stream, (buffer: ArrayBuffer) => {
+            const blob = new Blob([buffer], { type: 'application/octet-stream' })
+            chunks.push(blob)
+            console.info('total chunks size: ', chunks.length, buffer.byteLength)
+        }, {
+            type: 'hls',
+            codec: 'avc'
+        })
+
+        await utils.misc.sleep(60000) // 測試錄製 60 秒
+        console.info('cleaning up stream buffer...')
+        p.stopAndDestroy()
+
+        utils.file.download('test.mp4', [...chunks], 'video/mp4')
+
+        return chunks.length
+
+    }, stream)
+
+    expect(length).toBeGreaterThan(0) // 確保有錄製到東西
+    const downloaded = await downloading
+    await downloaded.saveAs('out/test.mp4')
+
+    const info = await readMovieInfo('out/test.mp4') // 確保影片是能被正常解析的
+    logger.info('info: ', info)
+
+    // 檢查是否有 flush buffer
+    const flushed = logs.filter(l => l.includes('buffer flushing') || l.includes('buffer flushed'))
+
+    logger.info('flush messages: ', flushed)
+
+    expect(flushed.length).toBeGreaterThan(0)
+})
