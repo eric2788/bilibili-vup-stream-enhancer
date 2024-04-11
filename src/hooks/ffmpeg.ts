@@ -72,16 +72,32 @@ export class FFMpegHooks implements Disposable {
         const needCut = duration > 0
         console.debug('reading file size: ', formatBytes(input.size))
         const original = await input.arrayBuffer()
-        const cutArgs = [...this.ffCore.args, '-b:v', '0', '-r', '60']
+        const cutArgs = [
+            ...this.ffCore.args,
+            '-b:v', '0',
+            '-r', '60',
+            '-avoid_negative_ts', 'make_zero'
+        ]
         const fixArgs = needCut ? ['-c', 'copy'] : cutArgs // 如需剪輯，則在第一次執行一律使用快速編譯
         await this.ffmpeg.writeFile(inputFile, new Uint8Array(original))
         this.stage = 'fix'
         console.debug('fixArg: ', fixArgs)
-        await this.ffmpeg.exec(['-fflags', '+genpts+igndts', '-i', inputFile, ...fixArgs, middleFile])
+        await this.ffmpeg.exec([
+            '-fflags', '+genpts+igndts', 
+            '-i', inputFile, 
+            ...fixArgs, 
+            middleFile
+        ])
         if (needCut) {
             this.stage = 'cut'
             console.debug('cutArg: ', cutArgs)
-            await this.ffmpeg.exec(['-sseof', `-${duration * 60}`, '-i', middleFile, ...cutArgs, outputFile])
+            await this.ffmpeg.exec([
+                '-fflags', '+genpts+igndts', 
+                '-sseof', `-${duration * 60}`, 
+                '-i', middleFile, 
+                ...cutArgs, 
+                outputFile
+            ])
         }
         const data = await this.ffmpeg.readFile(needCut ? outputFile : middleFile)
         return (data as Uint8Array).buffer

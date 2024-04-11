@@ -8,14 +8,16 @@ export type RequestBody = {
     roomId: number | string
 }
 
-export type StreamUrls = {
+export type StreamUrl = {
     desc: string
     url: string
     type: PlayerType
     codec: string
     track: string
     quality: number
-}[]
+}
+
+export type StreamUrls = StreamUrl[]
 
 export type ResponseBody = {
     error?: string

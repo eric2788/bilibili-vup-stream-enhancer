@@ -1,4 +1,4 @@
-import Hls from 'hls.js';
+import Hls, { LevelDetails } from 'hls.js';
 import { type VideoInfo } from "~players";
 import { StreamPlayer } from '~types/media';
 
@@ -36,7 +36,9 @@ class HlsPlayer extends StreamPlayer {
             lowLatencyMode: true,
             maxBufferLength: Infinity,
             liveDurationInfinity: true,
-            backBufferLength: 10,
+            backBufferLength: 30,
+            maxBufferHole: 0
+            //debug: globalThis.process ? !!process.env.DEBUG : true,
         })
 
         return new Promise((res, rej) => {
@@ -54,20 +56,19 @@ class HlsPlayer extends StreamPlayer {
                 this.emit('buffer', data.data.buffer)
             })
 
-            this.player.on(Hls.Events.BACK_BUFFER_REACHED, (event, data) => {
-                console.log('back buffer reached, buffer length: ', data.bufferEnd)
-            })
-
-            this.player.on(Hls.Events.BUFFER_FLUSHING, (event, data) => {
-                console.log('buffer flushing from ', data.startOffset, ' to ', data.endOffset, ', type: ', data.type)  
-            })
-
-            this.player.on(Hls.Events.BUFFER_FLUSHED, (event, data) => {
-                console.log('buffer flushed for type: ', data.type)
+            this.player.on(Hls.Events.BUFFER_APPENDED, (event, data) => {
+                const tr = data.timeRanges.audiovideo
+                if (tr.length < 1) return
+                console.debug('start: ', tr.start(0), ', end: ', tr.end(tr.length - 1), ', gap: ', tr.end(tr.length - 1) - tr.start(0))
+                this.checkBufferShouldFlush(tr)
             })
 
             this.player.loadSource(url);
             this.player.attachMedia(media);
+
+            this.player.on(Hls.Events.BUFFER_FLUSHED, (event, data) => {
+                console.debug('buffer flushed for type: ', data.type)
+            })
 
             let retryCount = 0
             this.player.on(Hls.Events.ERROR, (event, data) => {
@@ -79,7 +80,16 @@ class HlsPlayer extends StreamPlayer {
                     this.emit('error', data.error)
                     return
                 }
-                
+
+                if (data.details === Hls.ErrorDetails.BUFFER_FULL_ERROR) {
+                    console.warn('buffer full error encountered, trying to flush all buffer')
+                    this.player.trigger(Hls.Events.BUFFER_FLUSHING, { 
+                        startOffset: 0, 
+                        endOffset: media.buffered.end(media.buffered.length - 1) - 60, 
+                        type: 'audiovideo'
+                    })
+                }
+
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.MEDIA_ERROR:
@@ -109,6 +119,26 @@ class HlsPlayer extends StreamPlayer {
         this.player.detachMedia()
         this.player.destroy()
         this.player = null
+    }
+
+
+    // not sure why but backBuffLength not work:
+    // frag changed event never triggered;
+    // buffer flushing never triggered;
+    // TODO: need test with video integrity
+    private checkBufferShouldFlush(tr: TimeRanges) {
+        if (tr.length < 1) return
+        const start = tr.start(0)
+        const gap = tr.end(tr.length - 1) - start
+        const maxBuffer = this.player.config.backBufferLength * 1.3
+        // if the hlsjs back buffer flushing is working, this gap will never larger than maxBuffer
+        if (gap <= maxBuffer) return
+        console.debug('buffer gap is larger than max buffer, flushing buffer...')
+        this.player.trigger(Hls.Events.BUFFER_FLUSHING, { 
+            startOffset: 0, 
+            endOffset: start + (gap - maxBuffer), 
+            type: 'audiovideo'
+        })
     }
 
 }
