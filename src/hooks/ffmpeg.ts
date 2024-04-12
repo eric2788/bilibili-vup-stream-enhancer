@@ -72,35 +72,26 @@ export class FFMpegHooks implements Disposable {
         const needCut = duration > 0
         console.debug('reading file size: ', formatBytes(input.size))
         const original = await input.arrayBuffer()
-        const cutArgs = [
-            ...this.ffCore.args,
-            '-b:v', '0',
-            '-r', '60',
-            '-avoid_negative_ts', 'make_zero'
-        ]
-        const fixArgs = needCut ? ['-c', 'copy'] : cutArgs // 如需剪輯，則在第一次執行一律使用快速編譯
         await this.ffmpeg.writeFile(inputFile, new Uint8Array(original))
+
+        const cleanups = [
+            async () => {
+                await this.ffmpeg.deleteFile(inputFile)
+            }, 
+        ]
+
         this.stage = 'fix'
-        console.debug('fixArg: ', fixArgs)
-        await this.ffmpeg.exec([
-            '-fflags', '+genpts+igndts', 
-            '-i', inputFile, 
-            ...fixArgs, 
-            middleFile
-        ])
+        cleanups.push(await this.ffCore.fix(inputFile, middleFile, needCut))
         if (needCut) {
             this.stage = 'cut'
-            console.debug('cutArg: ', cutArgs)
-            await this.ffmpeg.exec([
-                '-fflags', '+genpts+igndts', 
-                '-sseof', `-${duration * 60}`, 
-                '-i', middleFile, 
-                ...cutArgs, 
-                outputFile
-            ])
+            cleanups.push(await this.ffCore.cut(middleFile, outputFile, duration))
         }
         const data = await this.ffmpeg.readFile(needCut ? outputFile : middleFile)
-        return (data as Uint8Array).buffer
+        const buffer = (data as Uint8Array).buffer
+        console.debug('cleaning up files...')
+        await Promise.all(cleanups.map(cleanup => cleanup()))
+        console.debug('files cleaned up')
+        return buffer
     }
 
     /**

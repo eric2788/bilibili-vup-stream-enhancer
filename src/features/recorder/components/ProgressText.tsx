@@ -25,6 +25,8 @@ function ProgressText({ ffmpeg }: { ffmpeg: Promise<FFMpegHooks> }) {
         return `编译视频中...`
     }
 
+    const progressValid = progress.progress > 0 && progress.progress <= 1
+
     return (
         <TailwindScope>
             <div className="flex justify-center flex-col space-y-2">
@@ -33,10 +35,10 @@ function ProgressText({ ffmpeg }: { ffmpeg: Promise<FFMpegHooks> }) {
                         <Spinner className="h-5 w-5" />
                     </div>
                     <div>
-                        {`编译视频中... (${Math.round(progress.progress * 10000) / 100}%)`}
+                        {`编译视频中... ${progressValid ? `(${Math.round(progress.progress * 10000) / 100}%)` : ''}`}
                     </div>
                 </div>
-                <Progress color="blue" value={progress.progress * 100} />
+                {progressValid && <Progress color="blue" value={progress.progress * 100} />}
             </div>
         </TailwindScope>
     )

@@ -64,21 +64,32 @@ test(
             const input = await new Blob(testVideo, { type: 'video/mp4' }).arrayBuffer()
             await ffmpeg.writeFile('input.mp4', new Uint8Array(input))
             console.log('input file written, executing....')
+
             await ffmpeg.exec([
-                '-fflags', '+genpts+igndts', 
-                '-i', 'input.mp4', 
-                '-c', 'copy', 
+                '-fflags', '+genpts+igndts',
+                '-i', 'input.mp4',
+                '-c', 'copy',
                 'output-uncut.mp4'
             ])
+
             await ffmpeg.exec([
-                '-fflags', '+genpts+igndts', 
-                '-sseof', '-15', 
-                '-i', 'output-uncut.mp4', 
-                '-b:v', '0', '-r', '60', 
+                '-fflags', '+genpts+igndts',
+                '-sseof', '-15',
+                '-i', 'output-uncut.mp4',
+                '-r', '60',
                 '-avoid_negative_ts', 'make_zero',
-                '-c', 'copy', 
+                '-c', 'copy',
+                'cut.mp4'
+            ])
+
+            await ffmpeg.exec([
+                '-fflags', '+genpts+igndts',
+                '-i', 'cut.mp4',
+                '-t', '15',
+                '-c', 'copy',
                 'output.mp4'
             ])
+
             console.log('output file written, downloading....')
             const data = await ffmpeg.readFile('output.mp4')
             const output = new Blob([data], { type: 'video/mp4' })
@@ -92,9 +103,7 @@ test(
         logger.info('infoFix: ', infoFix)
         logger.info('duration:', infoFix.relativeDuration())
 
-        // fixed info with gap 15-18s
-        expect(Math.round(infoFix.relativeDuration())).toBeGreaterThanOrEqual(15) 
-        expect(infoFix.relativeDuration()).toBeLessThanOrEqual(20) 
+        expect(Math.floor(infoFix.relativeDuration())).toBe(15)
     }
 )
 
@@ -159,20 +168,32 @@ test(
             const input = await new Blob(testVideo, { type: 'video/x-flv' }).arrayBuffer()
             await ffmpeg.writeFile('input.flv', new Uint8Array(input))
             console.log('input file written, executing....')
+
             await ffmpeg.exec([
-                '-fflags', '+genpts+igndts', 
-                '-i', 'input.flv', 
-                '-c', 'copy', 
+                '-fflags', '+genpts+igndts',
+                '-i', 'input.flv',
+                '-c', 'copy',
                 'output-uncut.flv'
             ])
+
             await ffmpeg.exec([
-                '-fflags', '+genpts+igndts', 
-                '-sseof', '-15', 
-                '-i', 'output-uncut.flv', 
-                '-b:v', '0', '-r', '60', '-c', 'copy', 
+                '-fflags', '+genpts+igndts',
+                '-sseof', '-15',
+                '-i', 'output-uncut.flv',
+                '-r', '60', 
+                '-c', 'copy',
                 '-avoid_negative_ts', 'make_zero',
+                'cut.flv'
+            ])
+
+            await ffmpeg.exec([
+                '-fflags', '+genpts+igndts',
+                '-i', 'cut.flv',
+                '-t', '15',
+                '-c', 'copy',
                 'output.flv'
             ])
+
             console.log('output file written, downloading....')
             const data = await ffmpeg.readFile('output.flv')
             const output = new Blob([data], { type: 'video/x-flv' })
@@ -186,10 +207,7 @@ test(
         logger.info('infoFix: ', infoFix)
         logger.info('duration:', infoFix.relativeDuration())
 
-        // fixed info with gap 15-18s
-        expect(Math.round(infoFix.relativeDuration())).toBeGreaterThanOrEqual(15) 
-        expect(infoFix.relativeDuration()).toBeLessThanOrEqual(20) 
-
+        expect(Math.floor(infoFix.relativeDuration())).toBe(15)
     }
 
 )
@@ -219,7 +237,7 @@ test(
             const recorder = createRecorder(roomid, stream, 'capture', { autoSwitchQuality: false })
 
             await recorder.start()
-            await utils.misc.sleep(30000) // gap for appending
+            await utils.misc.sleep(30000)
 
             const { chunks } = await recorder.loadChunkData()
             utils.file.download('test.webm', [...chunks], 'video/webm')
@@ -258,19 +276,28 @@ test(
             await ffmpeg.writeFile('input.webm', new Uint8Array(input))
             console.log('input file written, executing....')
             await ffmpeg.exec([
-                '-fflags', '+genpts+igndts', 
-                '-i', 'input.webm', 
-                '-c', 'copy', 
+                '-fflags', '+genpts+igndts',
+                '-i', 'input.webm',
+                '-c', 'copy',
                 'output-uncut.mp4'
             ])
             await ffmpeg.exec([
-                '-fflags', '+genpts+igndts', 
-                '-sseof', '-15', 
-                '-i', 'output-uncut.mp4', 
-                '-b:v', '0', '-r', '60', '-c', 'copy', 
+                '-fflags', '+genpts+igndts',
+                '-sseof', '-15',
+                '-i', 'output-uncut.mp4',
+                '-r', '60', '-c', 'copy',
                 '-avoid_negative_ts', 'make_zero',
                 'output.mp4'
             ])
+
+            await ffmpeg.exec([
+                '-fflags', '+genpts+igndts',
+                '-i', 'output.mp4',
+                '-t', '15',
+                '-c', 'copy',
+                'output.mp4'
+            ])
+
             console.log('output file written, downloading....')
             const data = await ffmpeg.readFile('output.mp4')
             const output = new Blob([data], { type: 'video/mp4' })
@@ -284,8 +311,116 @@ test(
         logger.info('infoFix: ', infoFix)
         logger.info('duration:', infoFix.relativeDuration())
 
-        // fixed info with gap 15-18s
-        expect(Math.round(infoFix.relativeDuration())).toBeGreaterThanOrEqual(15) 
-        expect(infoFix.relativeDuration()).toBeLessThanOrEqual(20) 
+        expect(Math.floor(infoFix.relativeDuration())).toBe(15)
     }
 )
+
+
+test('測試 HLS 長錄製，並用 ffmpeg.wasm 修復資訊損壞 + 剪時', async ({ room: { stream, roomid }, page, modules }) => {
+
+    // 太費時間，且與 features/recorder.spec.ts 重複
+    test.skip(!!process.env.CI, 'local test only')
+
+    // 10 mins
+    test.setTimeout(600000)
+
+    await modules['recorder'].loadToPage()
+    await modules['utils'].loadToPage()
+
+    const downloading = page.waitForEvent('download')
+    const length = await page.evaluate(async ({ stream, roomid }) => {
+
+        const { createRecorder, utils } = window as any
+
+        const recorder = createRecorder(roomid, stream,
+            'buffer',
+            {
+                type: 'hls',
+                codec: 'avc'
+            }
+        )
+
+        await recorder.start()
+        // 6 mins
+        await utils.misc.sleep(360000)
+
+        const { chunks } = await recorder.loadChunkData()
+        utils.file.download('test.mp4', [...chunks], 'video/mp4')
+
+        console.info('cleaning up stream buffer...')
+        await recorder.stop()
+        await recorder.flush()
+
+        {
+            // for next use
+            (window as any).testVideo = chunks;
+        }
+
+        return chunks.length
+
+    }, { stream, roomid })
+
+    expect(length).toBeGreaterThan(100)
+    const downloaded = await downloading
+    await downloaded.saveAs('out/test.mp4')
+    const info = await readMovieInfo('out/test.mp4')
+
+    logger.info('info: ', info)
+
+    expect(info.relativeDuration() || 0).toBe(0) // broken info
+
+    // now trying to fix broken info with ffmpeg
+
+    await modules['ffmpeg'].loadToPage()
+
+    const downloadingFix = page.waitForEvent('download')
+    await page.evaluate(async () => {
+        const { testVideo, getFFmpeg, utils } = window as any
+        const ffmpeg = await getFFmpeg()
+        console.log('ffmpeg loaded. converting file....')
+        const input = await new Blob(testVideo, { type: 'video/mp4' }).arrayBuffer()
+        await ffmpeg.writeFile('input.mp4', new Uint8Array(input))
+        console.log('input file written, executing....')
+
+        await ffmpeg.exec([
+            '-fflags', '+genpts+igndts',
+            '-i', 'input.mp4',
+            '-c', 'copy',
+            'output-uncut.mp4'
+        ])
+
+        await ffmpeg.exec([
+            '-fflags', '+genpts+igndts',
+            '-sseof', '-300',
+            '-i', 'output-uncut.mp4',
+            '-r', '60',
+            '-avoid_negative_ts', 'make_zero',
+            '-c', 'copy',
+            'cut.mp4'
+        ])
+
+        await ffmpeg.exec([
+            '-fflags', '+genpts+igndts',
+            '-i', 'cut.mp4',
+            '-t', '300',
+            '-c', 'copy',
+            'output.mp4'
+        ])
+
+        console.log('output file written, downloading....')
+        const data = await ffmpeg.readFile('output.mp4')
+        const output = new Blob([data], { type: 'video/mp4' })
+        utils.file.downloadBlob(output, 'fixed.mp4')
+    })
+
+    const downloadedFix = await downloadingFix
+    await downloadedFix.saveAs('out/fixed.mp4')
+    const infoFix = await readMovieInfo('out/fixed.mp4')
+
+    logger.info('infoFix: ', infoFix)
+    logger.info('duration:', infoFix.relativeDuration())
+
+    // fixed info with gap 15-18s
+    expect(Math.round(infoFix.relativeDuration())).toBe(300)
+
+})
