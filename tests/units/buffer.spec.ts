@@ -194,7 +194,7 @@ test('測試 HLS 長錄製有否 flush buffer', { tag: "@scoped" }, async ({ con
     logger.info('info: ', info)
 
     // 檢查是否有 flush buffer
-    const flushed = logs.filter(l => l.includes('buffer flushing') || l.includes('buffer flushed'))
+    const flushed = logs.filter(l => l.includes('buffer flushing') || l.includes('flushing buffer...'))
 
     logger.info('flush messages: ', flushed)
 

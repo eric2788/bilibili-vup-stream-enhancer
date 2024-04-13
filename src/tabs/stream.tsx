@@ -52,9 +52,12 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
     useAsyncEffect(
         async () => {
             console.info('urls: ', urls)
-            const p = await loadStream(urls, videoRef.current)
+            const p = await loadStream(urls, videoRef.current, { codec: 'avc' })
             danmaku.current = new NDanmaku(containerRef.current, 'bjf-danmaku')
-            p.on('error', console.error)
+            p.on('error', err => {
+                console.error(err)
+                alert('播放錯誤, 请刷新页面: '+err?.message)
+            })
             return p
         },
         async (p) => {
@@ -72,7 +75,7 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
         },
         (err) => {
             console.error(err)
-            alert('加载播放器失败, 请刷新页面')
+            alert('加载播放器失败, 请刷新页面: '+err?.message)
         },
         [urls]
     )
