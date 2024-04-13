@@ -156,7 +156,7 @@ function App(): JSX.Element {
 - 使用 [`getSettingStorage`](/src/utils/storage.ts) 函数:
 
 ```ts
-const helloWorldSettings = getSettingStorage('settings.helloWorld')
+const helloWorldSettings = await getSettingStorage('settings.helloWorld')
 ```
 
 > 此方式返回的数据本身包含设定结构，因此无需手动标注类型。
