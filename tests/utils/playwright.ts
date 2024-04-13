@@ -91,3 +91,13 @@ export function testFeatureRoomList(feature: string, expect: Expect<Locator>, lo
     
     }
 }
+
+
+export async function selectOption(selector: Locator, option: string | Locator){
+    await selector.locator('div > div').nth(0).click()
+    if(typeof option === 'string'){
+        await selector.getByText(option).click()
+    } else {
+        await option.click()
+    }
+}

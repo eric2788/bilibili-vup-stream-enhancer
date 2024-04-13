@@ -133,7 +133,8 @@ function Converter(props: ConverterProps): JSX.Element {
     }
 
     console.debug('progress: ', progress)
-    const progressInvalid = isNaN(progress.progress) || !isFinite(progress.progress)
+    const progressInvalid = progress.progress > 1 || progress.progress < 0
+
     return (
         <div className="h-screen w-screen flex justify-center items-center flex-col space-y-2 dark:text-white">
             <div className="flex flex-row items-center space-x-2">

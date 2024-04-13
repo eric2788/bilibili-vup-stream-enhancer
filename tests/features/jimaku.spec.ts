@@ -2,7 +2,7 @@ import type { Locator } from '@playwright/test'
 import { expect, test } from '@tests/fixtures/content'
 import logger from '@tests/helpers/logger'
 import { isFrame, type PageFrame } from '@tests/helpers/page-frame'
-import { testFeatureRoomList } from '@tests/utils/playwright'
+import { selectOption, testFeatureRoomList } from '@tests/utils/playwright'
 import { readText } from 'tests/utils/file'
 
 test.beforeEach(async ({ content: p }) => {
@@ -335,8 +335,12 @@ test('測試保存設定後 css 能否生效', async ({ context, content, option
     await settingsPage.getByTestId('jimaku-size').fill('30')
     await settingsPage.getByTestId('jimaku-first-size').fill('30')
     await settingsPage.getByTestId('jimaku-bg-height').fill('500')
-    await settingsPage.getByTestId('jimaku-position').locator('div > div').nth(0).click()
-    await settingsPage.getByText('置左').click()
+
+    await selectOption(
+        settingsPage.getByTestId('jimaku-position'),
+        '置左'
+    )
+    
     await settingsPage.getByTestId('jimaku-color').fill('#123456')
 
 

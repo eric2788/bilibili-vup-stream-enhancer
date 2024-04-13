@@ -1,76 +1,32 @@
-import db from "~database";
-import type { Streams } from "~database/tables/stream";
-import { recordStream } from "~players";
+import { recordStream, type PlayerOptions, type VideoInfo } from "~players";
 import type { StreamPlayer } from "~types/media";
 import { Recorder } from "~types/media";
 import { type ChunkData } from ".";
+import type { StreamUrls } from "~background/messages/get-stream-urls";
 
-class BufferRecorder extends Recorder {
+class BufferRecorder extends Recorder<PlayerOptions> {
 
     private player: StreamPlayer = null
-    private readonly fallbackChunks: Streams[] = []
-    private errorHandler: (error: Error) => void = null
-    private bufferAppendChecker: NodeJS.Timeout = null
+    private info: VideoInfo = null
 
     async start(): Promise<void> {
         let i = 0
         this.player = await recordStream(this.urls, (buffer) => this.onBufferArrived(++i, buffer), this.options)
-        let lastRecordedSize = 0
-        this.bufferAppendChecker = setInterval(() => {
-            if (!this.recording) {
-                clearInterval(this.bufferAppendChecker)
-                return
-            }
-            if (lastRecordedSize !== this.recordedSize) return
-            console.warn('buffer data has not been appended for 15 seconds! current recorded size: ', this.fileSize)
-            this.errorHandler?.(new Error('已超过15秒没再接收到数据流!你可能需要刷新页面'))
-            lastRecordedSize = this.recordedSize
-        }, 15000)
+        this.appendBufferChecker()
+        this.info = this.player.videoInfo
     }
 
     private async onBufferArrived(order: number, buffer: ArrayBuffer): Promise<void> {
         const blob = new Blob([buffer], { type: 'application/octet-stream' })
-        const stream = {
-            date: new Date().toISOString(),
-            content: blob,
-            order,
-            room: this.room
-        }
-        try {
-            await db.streams.add(stream)
-            console.debug('recorded segment: ', buffer.byteLength, 'bytes, order: ', stream.order)
-        } catch (err: Error | any) {
-            console.error('Error writing buffer to file', err)
-            console.warn('writing into fallback chunks')
-            this.fallbackChunks.push(stream)
-        } finally {
-            this.recordedSize += buffer.byteLength
-        }
+        return this.saveChunk(blob, order)
     }
 
     async loadChunkData(flush: boolean = true): Promise<ChunkData> {
-
-        const streams = await db.streams.where({ room: this.room }).sortBy('order')
-        if (flush) {
-            while (this.recordedSize >= (Recorder.FFmpegLimit - 1024) && streams.length > 0) { // 2GB - 1KB
-                console.info(`recorded size exceeds 2GB (${this.fileSize}), deleting oldest record`)
-                const { id, content } = streams.shift()
-                await db.streams.delete(id)
-                this.recordedSize -= content.size
-            }
-        }
-        const chunks = [...streams, ...this.fallbackChunks].toSorted((a, b) => a.order - b.order).map(c => c.content)
+        const chunks = await this.loadChunks(flush)
         return {
             chunks,
-            info: this.player.videoInfo
+            info: this.info
         }
-    }
-
-    async flush(): Promise<void> {
-        this.recordedSize = 0
-        const re = await db.streams.where({ room: this.room }).delete()
-        this.fallbackChunks.length = 0
-        console.debug('flushed ', re, ' records from databases')
     }
 
     stop(): void {

@@ -42,6 +42,10 @@ declare global {
     remove(options?: { recursive: boolean }): Promise<void>;
   }
 
+  interface HTMLMediaElement{
+    captureStream(): MediaStream;
+  }
+
 }
 
 export { }

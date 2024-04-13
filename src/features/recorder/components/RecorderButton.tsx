@@ -36,7 +36,9 @@ function RecorderButton(props: RecorderButtonProps): JSX.Element {
 
         if (recording) {
             if (timer === duration * 60) return // if reached duration, stop increasing timer
-            setTimer(timer + 1)
+            if (recorder.current.ticking) { // only ticking recorder will increase timer
+                setTimer(timer + 1)
+            }
         } else {
             setTimer(0)
         }

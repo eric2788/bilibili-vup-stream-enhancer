@@ -35,7 +35,7 @@
     "dexie": "^3.2.7",
     "dexie-react-hooks": "^1.1.7",
     "hash-wasm": "^4.11.0",
-    "hls.js": "^1.5.7",
+    "hls.js": "^1.5.8",
     "media-chrome": "^2.2.5",
     "mpegts.js": "^1.7.3",
     "n-danmaku": "^2.2.1",

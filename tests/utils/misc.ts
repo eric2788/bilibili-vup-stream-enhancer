@@ -118,3 +118,21 @@ export function deferAsync(run: () => Promise<void>): { [Symbol.asyncDispose]: (
         [Symbol.asyncDispose]: run
     }
 }
+
+
+/**
+ * Shuffles the items in an array.
+ * 
+ * @param items - The array of items to be shuffled.
+ * @returns The shuffled array.
+ */
+export function shuffle<T>(items: T[]): T[] {
+    const shuffled = [...items]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        const temp = shuffled[i]
+        shuffled[i] = shuffled[j]
+        shuffled[j] = temp
+    }
+    return shuffled
+}
