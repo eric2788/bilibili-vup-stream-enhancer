@@ -263,6 +263,7 @@ test('測試熱鍵錄製', async ({ page, optionPageUrl, context, content }) => 
     await page.waitForTimeout(30000)
 
     const downloading = page.waitForEvent('download')
+    await content.locator('body').click() // gesture the iframe (if theme room)
     await page.keyboard.press('Control+Shift+R')
 
     const downloaded = await downloading
@@ -303,7 +304,8 @@ test('測試熱鍵截圖', async ({ page, content, context, optionPageUrl }) => 
 
     await content.getByTestId('screenshot-button').waitFor({ state: 'visible' })
     const download = page.waitForEvent('download')
-    await page.locator('body').press('Control+Shift+V')
+    await content.locator('body').click() // gesture the iframe (if theme room)
+    await page.keyboard.press('Control+Shift+V')
     await expect(content.getByText('截图成功并已保存')).toBeVisible()
 
     const downloaded = await download
@@ -737,7 +739,16 @@ test('測試 WEBM 錄製 - 更換視頻源時的處理', async ({ content, page,
     expect(info.relativeDuration()).toBeGreaterThanOrEqual(5)
 })
 
-test('測試 WEBM 錄製 - 不解除靜音的處理', async ({ content, page, api, room, optionPageUrl, context }) => {
+test('測試 WEBM 錄製 - 不解除靜音的處理', async ({ content, page, optionPageUrl, context }) => {
+
+    // first, we need to mute the video
+    await content.waitForSelector('video')
+    await content.evaluate(() => {
+        const video = document.querySelector('video')
+        if (video?.muted === false) {
+            video.muted = true
+        }
+    })
 
     page.on('dialog', d => {
         if (d.message().includes('解除静音')) {

@@ -195,6 +195,7 @@ test('測試重新启动按鈕', async ({ content, optionPageUrl, context }) => 
 
 test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content }) => {
 
+    logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
     await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
@@ -202,6 +203,7 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
 
+    logger.info('正在測試弹出直播视窗按鈕...')
     await content.getByText('功能菜单').click()
     await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
 
@@ -210,6 +212,7 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
     const monitor = await popup
     await monitor.waitForTimeout(2000)
 
+    logger.info('正在測試元素是否存在...')
     // video container
     await expect(monitor.locator('div#__plasmo > div#bjf-danmaku-container')).toBeVisible()
 
@@ -236,6 +239,7 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
         'media-chrome-button#reload-btn' // custom button
     ]
 
+    logger.info('正在測試媒體控制按鈕是否存在...')
     await monitor.locator('media-control-bar').hover()
     for (const button of buttons) {
         const locator = monitor.locator(button)
@@ -243,6 +247,7 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
     }
 
     // Test custom buttons
+    logger.info('正在測試媒體自定義按鈕...')
 
     // danmaku button
     await monitor.locator('media-control-bar').hover()
@@ -257,11 +262,36 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
     await monitor.locator('#reload-btn').click()
     await reload
 
+    logger.info('正在測試直播畫面有否正常播放....')
+    await monitor.waitForSelector('video', { state: 'visible' })
+
+    const beforeCurrentTime = await monitor.evaluate(() => {
+        return document.querySelector('video').currentTime
+    })
+    await monitor.waitForTimeout(3000)
+    const afterCurrentTime = await monitor.evaluate(() => {
+        return document.querySelector('video').currentTime
+    })
+    expect(afterCurrentTime).toBeGreaterThan(beforeCurrentTime)
+    
+    const beforeBufferEnd = await monitor.evaluate(async () => {
+        const video = document.querySelector('video')
+        return video.buffered.end(video.buffered.length - 1)
+    }) 
+    await monitor.waitForTimeout(3000)
+    const afterBufferEnd = await monitor.evaluate(() => {
+        const video = document.querySelector('video')
+        return video.buffered.end(video.buffered.length - 1)
+    })
+    expect(afterBufferEnd).toBeGreaterThan(beforeBufferEnd)
+
     await monitor.close()
 })
 
 
-test('測試大海報房間下返回非海报界面按鈕', async ({ context, themeRoom: room }) => {
+test('測試大海報房間下返回非海报界面按鈕', async ({ context, room, isThemeRoom }) => {
+
+    test.skip(!isThemeRoom, '此測試只適用於大海報房間')
 
     const content = await room.getContentLocator()
     await content.locator('body').scrollIntoViewIfNeeded()
