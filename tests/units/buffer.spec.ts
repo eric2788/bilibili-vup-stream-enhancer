@@ -147,7 +147,7 @@ test('測試終止 FLV 推流后有否成功關閉數據流', async ({ modules, 
     expect(before).toBe(after)
 })
 
-test('測試 HLS 長錄製有否 flush buffer', { tag: "@scoped" }, async ({ context, modules, page, room: { stream } }) => {
+test('測試 HLS 長錄製有否 flush buffer', async ({ context, modules, page, room: { stream } }) => {
 
     // 5 mins
     test.setTimeout(300000)

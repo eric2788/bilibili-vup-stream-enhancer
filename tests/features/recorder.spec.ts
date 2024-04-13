@@ -184,7 +184,7 @@ test('測試錄製 HLS', async ({ content, page }) => {
     expect(info.relativeDuration()).toBeGreaterThanOrEqual(30)
 })
 
-test('測試錄製 WEBM -> MP4', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
+test('測試錄製 WEBM -> MP4', async ({ content, page, context, optionPageUrl }) => {
 
     test.slow()
 
@@ -320,7 +320,7 @@ test('測試熱鍵截圖', async ({ page, content, context, optionPageUrl }) => 
     expect(info.height).toBeGreaterThanOrEqual(480)
 })
 
-test('測試錄製時長', { tag: "@scoped" }, async ({ content, page }) => {
+test('測試錄製時長', async ({ content, page }) => {
 
     // 10 mins: 6 mins recording + 4 mins operations
     test.setTimeout(600000)
@@ -570,7 +570,7 @@ test('測試 FLV 完整編譯', async ({ content, page, context, optionPageUrl }
     expect(info.relativeDuration()).toBeGreaterThanOrEqual(10)
 })
 
-test('測試 WEBM -> MP4 完整編譯', { tag: "@scoped" }, async ({ content, page, context, optionPageUrl }) => {
+test('測試 WEBM -> MP4 完整編譯', async ({ content, page, context, optionPageUrl }) => {
     // I bet 10 mins for this
     test.setTimeout(600000)
 
@@ -660,7 +660,7 @@ test('測試 WEBM -> MP4 完整編譯', { tag: "@scoped" }, async ({ content, pa
     expect(info.relativeDuration()).toBeGreaterThanOrEqual(10)
 })
 
-test('測試 WEBM 錄製 - 更換視頻源時的處理', { tag: "@scoped" }, async ({ content, page, api, room, optionPageUrl, context }) => {
+test('測試 WEBM 錄製 - 更換視頻源時的處理', async ({ content, page, api, room, optionPageUrl, context }) => {
 
     test.slow()
 
@@ -737,7 +737,7 @@ test('測試 WEBM 錄製 - 更換視頻源時的處理', { tag: "@scoped" }, asy
     expect(info.relativeDuration()).toBeGreaterThanOrEqual(5)
 })
 
-test('測試 WEBM 錄製 - 不解除靜音的處理', { tag: "@scoped" }, async ({ content, page, api, room, optionPageUrl, context }) => {
+test('測試 WEBM 錄製 - 不解除靜音的處理', async ({ content, page, api, room, optionPageUrl, context }) => {
 
     page.on('dialog', d => {
         if (d.message().includes('解除静音')) {

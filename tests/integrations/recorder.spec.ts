@@ -214,7 +214,6 @@ test(
 
 test(
     '測試透過 Capture 錄製 WEBM 推流並用 ffmpeg.wasm 修復資訊損壞 + 剪時',
-    { tag: "@scoped" },
     async ({ room: { stream, roomid }, page, modules }) => {
 
         await page.goto(`https://live.bilibili.com/${roomid}`, { waitUntil: 'domcontentloaded' })

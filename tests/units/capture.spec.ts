@@ -4,7 +4,7 @@ import logger from "@tests/helpers/logger";
 
 test.slow()
 
-test('測試畫質轉換', { tag: "@scoped" }, async ({ page, room: { roomid, stream }, modules }) => {
+test('測試畫質轉換', async ({ page, room: { roomid, stream }, modules }) => {
 
     await page.goto(`https://live.bilibili.com/${roomid}`, { waitUntil: 'domcontentloaded' })
     await page.waitForSelector('video')
@@ -59,7 +59,7 @@ test('測試畫質轉換', { tag: "@scoped" }, async ({ page, room: { roomid, st
 })
 
 
-test('測試 MediaRecorder + captureStream', { tag: "@scoped" }, async ({ page, room: { roomid }, modules }) => {
+test('測試 MediaRecorder + captureStream', async ({ page, room: { roomid }, modules }) => {
 
     await page.goto(`https://live.bilibili.com/${roomid}`, { waitUntil: 'domcontentloaded' })
     await page.waitForSelector('video')
@@ -120,7 +120,7 @@ test('測試 MediaRecorder + captureStream', { tag: "@scoped" }, async ({ page, 
 
 })
 
-test.fail('測試 MediaRecorder 在靜音時的錄製', { tag: "@scoped" }, async ({ page, room: { roomid }, modules }) => {
+test.fail('測試 MediaRecorder 在靜音時的錄製', async ({ page, room: { roomid }, modules }) => {
 
     await page.goto(`https://live.bilibili.com/${roomid}`, { waitUntil: 'domcontentloaded' })
     await page.waitForSelector('video')
