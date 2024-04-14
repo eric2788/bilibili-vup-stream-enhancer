@@ -1,4 +1,4 @@
-import type { StreamUrls } from '~background/messages/get-stream-urls'
+import type { StreamUrl, StreamUrls } from '~background/messages/get-stream-urls'
 import flv from './flv'
 import hls from './hls'
 import type { StreamPlayer } from '~types/media'
@@ -31,10 +31,12 @@ export type PlayerOptions = {
     codec?: 'avc' | 'hevc'
 }
 
-async function loadStream(urls: StreamUrls, video: HTMLVideoElement, options: PlayerOptions = { codec: 'avc' }): Promise<StreamPlayer> {
-    for (const url of urls) {
-        if (options.type && url.type !== options.type) continue
-        if (options.codec && url.codec !== options.codec) continue
+async function loopStreams(urls: StreamUrls, handler: (p: StreamPlayer, url: StreamUrl) => Promise<void>, options: PlayerOptions = { codec: 'avc' }) {
+    const availables = urls
+        .filter(url => options.type ? url.type === options.type : true)
+        .filter(url => options.codec ? url.codec === options.codec : true)
+    if (availables.length === 0) throw new Error('没有可用的视频流URL')
+    for (const url of availables) {
         const Player = players[url.type]
         const player = new Player()
         console.info(`trying to use type ${url.type} player to load: `, url.url, ' quality: ', url.quality, ' codec: ', url.codec)
@@ -43,37 +45,33 @@ async function loadStream(urls: StreamUrls, video: HTMLVideoElement, options: Pl
             continue
         }
         try {
-            await player.play(url.url, video)
+            await handler(player, url)
             return player
         } catch (err: Error | any) {
             console.error(`Player failed to load: `, err, ', from: ', url)
             continue
         }
     }
-    throw new Error('No player is supported')
+    throw new Error('没有可用的播放器支援 ' + JSON.stringify(options))
+}
+
+export async function loadStream(urls: StreamUrls, video: HTMLVideoElement, options: PlayerOptions = { codec: 'avc' }): Promise<StreamPlayer> {
+    return loopStreams(
+        urls,
+        (p, url) => p.play(url.url, video),
+        options
+    )
 }
 
 export async function recordStream(urls: StreamUrls, handler: EventHandler<'buffer'>, options: PlayerOptions = { codec: 'avc' }): Promise<StreamPlayer> {
-    for (const url of urls) {
-        if (options.type && url.type !== options.type) continue
-        if (options.codec && url.codec !== options.codec) continue
-        const Player = players[url.type]
-        const player = new Player()
-        console.info(`trying to use type ${url.type} player to record: `, url.url, ' quality: ', url.quality, ' codec: ', url.codec)
-        if (!player.isSupported) {
-            console.warn(`Player ${url.type} is not supported, skipped: `, url)
-            continue
-        }
-        try {
-            await player.play(url.url)
-            player.on('buffer', handler)
-            return player
-        } catch (err: Error | any) {
-            console.error(`Player failed to load: `, err, ', from: ', url)
-            continue
-        }
-    }
-    throw new Error('No recorder is supported')
+    return loopStreams(
+        urls,
+        async (p, url) => {
+            p.on('buffer', handler)
+            await p.play(url.url)
+        },
+        options
+    )
 }
 
 export default loadStream

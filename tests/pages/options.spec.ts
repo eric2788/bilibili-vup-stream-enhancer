@@ -478,6 +478,17 @@ test('測試导航', async ({ page, serviceWorker }) => {
     }
 })
 
+test('測試點擊使用指南', async ({ context, page }) => {
+
+    await page.getByText('功能设定').click()
+    
+    const tutorial = context.waitForEvent('page')
+    await page.getByText('使用指南').click()
+    const tutorialPage = await tutorial
+
+    expect(tutorialPage.url()).toBe('https://eric2788.github.io/bilibili-vup-stream-enhancer/tutorials/')
+
+})
 
 async function compareTable(table: Locator, data: string[], index: number = 0): Promise<void> {
     const rows = await table.locator('tbody tr').all()

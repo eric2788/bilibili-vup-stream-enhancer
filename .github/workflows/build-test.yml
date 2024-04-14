@@ -166,7 +166,7 @@ jobs:
                 if-no-files-found: ignore
           - name: Upload Results To R2
             if: failure() && steps.test.conclusion == 'failure'
-            uses: eric2788/r2-upload-action@master
+            uses: eric2788/r2-upload-action@concurrent
             id: upload
             continue-on-error: true
             with:

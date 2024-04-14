@@ -1,14 +1,16 @@
-import type { FFmpeg } from "@ffmpeg/ffmpeg"
+import { FFmpeg } from "@ffmpeg/ffmpeg"
 import { isBackgroundScript } from "~utils/file"
 import coreSt from './core'
 import coreMt from './core-mt'
+
+export type Cleanup = () => Promise<void>
 
 export interface FFMpegCore {
 
     load(ffmpeg: FFmpeg): Promise<boolean>
 
-    get args(): string[]
-
+    cut(input: string, output: string, duration: number): Promise<Cleanup>
+    fix(input: string, output: string, prepareCut: boolean): Promise<Cleanup>
 }
 
 function getFFMpegCore(): FFMpegCore {

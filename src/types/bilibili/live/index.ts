@@ -1,6 +1,6 @@
-import { DanmuMsg } from './danmu_msg'
-import { InteractWord } from './interact_word'
-import { SuperChatMessage } from './super_chat_message'
+import type { DanmuMsg } from './danmu_msg'
+import type { InteractWord } from './interact_word'
+import type { SuperChatMessage } from './super_chat_message'
 
 export type BLiveData = {
     'DANMU_MSG': DanmuMsg,
@@ -13,7 +13,7 @@ export type BLiveType = keyof BLiveData
 export type BLiveDataWild<T = string> = T extends BLiveType ? BLiveData[T] : any
 
 
-export {
+export type {
     DanmuMsg,
     InteractWord,
     SuperChatMessage

@@ -1,6 +1,7 @@
 import boostWebSocketHook from './boostWebsocketHook'
 import getBLiveCachedData from './getBLiveCachedData'
 import getWindowVariable from './getWindowVariable'
+import invokeLivePlayer from "./p2pLivePlayer"
 
 export interface InjectableFunction<T extends InjectableFunctionType> {
     name: T
@@ -18,7 +19,8 @@ export type InjectableFunctionReturnType<T extends InjectableFunctionType> = Ret
 const functions = {
     getWindowVariable,
     getBLiveCachedData,
-    boostWebSocketHook
+    boostWebSocketHook,
+    invokeLivePlayer
 }
 
 
