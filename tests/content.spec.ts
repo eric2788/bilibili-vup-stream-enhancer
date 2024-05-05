@@ -19,20 +19,22 @@ test('測試功能元素有否基於設定而消失/顯示', async ({ content, c
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
     await expect(csui.locator('section#bjf-feature-jimaku')).toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).toBeAttached()
     await expect(csui.locator('section#bjf-feature-recorder')).not.toBeAttached()
-    await expect(csui.locator('section#bjf-feature-superchat')).not.toBeAttached()
 
     logger.info('正在修改設定')
     const settingsPage = await context.newPage()
     await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('启用同传弹幕过滤').click()
     await settingsPage.getByText('启用快速切片').click()
     await settingsPage.getByText('启用醒目留言').click()
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
 
+    await expect(csui.locator('section#bjf-feature-jimaku')).not.toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).not.toBeAttached()
     await expect(csui.locator('section#bjf-feature-recorder')).toBeAttached()
-    await expect(csui.locator('section#bjf-feature-superchat')).toBeAttached()
 })
 
 test('测试扩展CSS有否影响到外围', async ({ content, isThemeRoom }) => {

@@ -29,7 +29,7 @@ export type SettingSchema = {
 
 
 export const defaultSettings: Readonly<SettingSchema> = {
-    enabledFeatures: ['jimaku'],
+    enabledFeatures: ['jimaku', 'superchat'],
     enabledRecording: [],
     common: {
         enabledPip: false,

@@ -152,8 +152,6 @@ test('測試清空數據庫', async ({ page, front: room, api }) => {
     await page.bringToFront()
     const feature = page.getByText('功能设定')
     await feature.click()
-
-    await page.getByText('启用醒目留言').click() // default is disabled
     
     const btns = await page.locator('section#settings\\.features').getByText('启用离线记录').all()
     for (const btn of btns) {
