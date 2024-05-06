@@ -1,7 +1,5 @@
 import { Input, type InputProps, Typography } from '@material-tailwind/react';
-
 import type { RefAttributes } from "react";
-
 
 export type AffixInputProps = {
     suffix?: string

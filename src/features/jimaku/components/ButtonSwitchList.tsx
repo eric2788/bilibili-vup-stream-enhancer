@@ -10,7 +10,6 @@ function ButtonSwitchList(props: ButtonSwitchListProps): JSX.Element {
 
     const { onClick, switched } = props
 
-
     return (
         <Fragment>
             <button

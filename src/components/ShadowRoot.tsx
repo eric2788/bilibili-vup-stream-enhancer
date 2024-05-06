@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import ReactShadowRoot from "react-shadow-root"
 import ShadowRootContext from "~contexts/ShadowRootContext"
 

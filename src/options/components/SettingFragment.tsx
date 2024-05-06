@@ -1,6 +1,6 @@
 import {
     forwardRef,
-    useCallback, useEffect, useImperativeHandle, useRef, useState,
+    useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState,
     type Ref
 } from 'react';
 import PromiseHandler from '~components/PromiseHandler';
@@ -92,18 +92,18 @@ const SettingFragmentContent = forwardRef(function SettingFragmentContent<T exte
 
     const stateProxy = asStateProxy(useBinding(deepCopy(beforeSettings)))
 
+    // create a memo function for checking modified status
+    // only before settings changed or after settings changed, the modified status will be changed
+    const isModified = useCallback(() => JSON.stringify(beforeSettings) !== JSON.stringify(stateProxy.state), [beforeSettings])
+
     useImperativeHandle(ref, () => ({
         async saveSettings() {
             if (!isModified()) return // if not modified, do nothing
             await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, { ...stateProxy.state }) // set the settings to storage
             setBeforeSettings(deepCopy(stateProxy.state)) // update before settings so that to update check modified status
         },
-        fragmentKey: fragmentKey
+        fragmentKey
     }), [beforeSettings]);
-
-    // create a memo function for check modified status
-    // only before settings changed or after settings changed, the modified status will be changed
-    const isModified = useCallback(() => JSON.stringify(beforeSettings) !== JSON.stringify(stateProxy.state), [beforeSettings])
 
     // create beforeunload event listener for alert user when leaving page without saving
     useEffect(() => {

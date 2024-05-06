@@ -1,16 +1,16 @@
-import { Fragment, useCallback, useContext, useRef, useState } from 'react';
+import { Fragment, useCallback, useContext, useState } from 'react';
 import { getTimeStamp, randomString, toStreamingTime } from '~utils/misc';
 
 import { sendForward } from '~background/forwards';
 import ContentContext from '~contexts/ContentContexts';
+import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 import db from '~database';
 import { useBLiveSubscriber } from '~hooks/message';
+import { useTransaction } from '~hooks/optimizer';
 import { parseJimaku } from '~utils/bilibili';
 import ButtonArea from './ButtonArea';
 import JimakuArea from './JimakuArea';
 import type { Jimaku } from "./JimakuLine";
-import { useTransaction } from '~hooks/optimizer';
-import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 
 export type JimakuCaptureLayerProps = {
     offlineRecords: Jimaku[]

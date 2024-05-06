@@ -1,20 +1,20 @@
 import type { FeatureHookRender } from "..";
 
 
-import { Spinner } from "@material-tailwind/react";
 import { getSuperChatList } from "~api/bilibili";
 import OfflineRecordsProvider from "~components/OfflineRecordsProvider";
+import SuperChatFeatureContext from "~contexts/SuperChatFeatureContext";
 import { randomString, toStreamingTime, toTimer } from "~utils/misc";
+import SuperChatButtonSkeleton from "./components/SuperChatButtonSkeleton";
 import SuperChatCaptureLayer from "./components/SuperChatCaptureLayer";
 import { type SuperChatCard } from "./components/SuperChatItem";
-import SuperChatFeatureContext from "~contexts/SuperChatFeatureContext";
 
 
 export const FeatureContext = SuperChatFeatureContext
 
 const handler: FeatureHookRender = async (settings, info) => {
 
-    const { useStreamingTime } = settings['settings.features'].common
+    const { common: { useStreamingTime }, enabledRecording } = settings['settings.features']
 
     const list = await getSuperChatList(info.room)
     const superchats: SuperChatCard[] = (list ?? [])
@@ -46,24 +46,12 @@ const handler: FeatureHookRender = async (settings, info) => {
             filter={(superchat) => superchats.every(s => s.id !== superchat.scId)}
             sortBy="timestamp"
             reverse={true}
-            loading={
-                <div
-                    style={{
-                        left: 48,
-                        top: 96,
-                        width: 85,
-                        height: 85
-                    }}
-                    className="absolute rounded-full bg-white p-3 drop-shadow-lg flex flex-col justify-center items-center gap-3 text-black">
-                    <Spinner />
-                    <div>醒目留言</div>
-                </div>
-            }
+            loading={<SuperChatButtonSkeleton />}
             error={(err) => <></>}
         >
             {(records) => {
                 const offlineRecords = [...superchats, ...records.map((r) => ({ ...r, id: r.scId, persist: true }))]
-                return (info.status === 'online' || offlineRecords.length > 0) && <SuperChatCaptureLayer offlineRecords={offlineRecords} />
+                return (info.status === 'online' || (enabledRecording.includes('superchat') && offlineRecords.length > 0)) && <SuperChatCaptureLayer offlineRecords={offlineRecords} />
             }}
         </OfflineRecordsProvider>
     ]

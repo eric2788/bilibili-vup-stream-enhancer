@@ -5,8 +5,8 @@ import BJFThemeProvider from '~components/BJFThemeProvider';
 import { useBinding } from '~hooks/binding';
 import { useForwarder } from '~hooks/forwarder';
 import { useLoader } from '~hooks/loader';
-import fragments, { type Schema, type SettingFragments, type Settings } from '~options/fragments';
 import SettingFragment, { type SettingFragmentRef } from '~options/components/SettingFragment';
+import fragments, { type Schema, type SettingFragments, type Settings } from '~options/fragments';
 import { download, readAsJson } from '~utils/file';
 import { sendMessager } from '~utils/messaging';
 import { arrayEqual, removeInvalidKeys } from '~utils/misc';
@@ -17,6 +17,7 @@ import { toast } from 'sonner/dist';
 import PromiseHandler from '~components/PromiseHandler';
 import Tutorial, { type TutorialRefProps, type TutorialStep } from '~components/Tutorial';
 import GenericContext from '~contexts/GenericContext';
+import { useFileInput } from '~hooks/input';
 import { useStorageWatch } from '~hooks/storage';
 import { getMV2Settings, removeAllMV2Settings } from '~migrations';
 import injectToaster from '~toaster';
@@ -92,11 +93,41 @@ function SettingPage(): JSX.Element {
     const toggleSection = (key: keyof typeof fragments) => section[key] = !section[key]
 
     const form = useRef<HTMLFormElement>()
-    const fileImport = useRef<HTMLInputElement>()
     const fragmentRefs = fragmentKeys.map(key => useRef<SettingFragmentRef<typeof key>>())
 
     const processing = useStorageWatch('processing', 'session', false)
     const forwarder = useForwarder('command', 'pages')
+    
+    const { inputRef: fileImport, selectFiles: importSettings } = useFileInput(async (files) => {
+        const file = files[0]
+        const importing = (async () => {
+            const settings = (await readAsJson(file)) as Settings
+            if (!(settings instanceof Object)) {
+                throw new Error('导入的设定文件格式错误。')
+            }
+            if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
+                throw new Error('导入的设定文件格式错误。')
+            }
+            await Promise.all(fragmentRefs.map((ref) => {
+                const fragmentKey = ref.current.fragmentKey
+                const { defaultSettings } = fragments[fragmentKey]
+                const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
+                return ref.current.importSettings(importContent)
+            }))
+        })();
+        toast.promise(importing, {
+            loading: '正在导入设定...',
+            success: '设定已经导入成功。',
+            error: err => '导入设定失败: ' + err.message
+        })
+        await importing
+        if (!processing) {
+            // 向所有页面发送重启指令
+            forwarder.sendForward('content-script', { command: 'restart' })
+        }
+    },
+        err => toast.error('导入设定失败: ', { description: err.message })
+    )
 
     const migrateSettings = async () => {
         if (!window.confirm('这将覆盖所有受影响的原有设定，确定继续？')) return
@@ -126,51 +157,6 @@ function SettingPage(): JSX.Element {
             // 向所有页面发送重启指令
             forwarder.sendForward('content-script', { command: 'restart' })
         }
-    }
-
-    const importSettings = async () => {
-        const listener = async (e: Event) => {
-            const target = e.target as HTMLInputElement
-            if (target.files.length === 0) return
-            const file = target.files[0]
-            try {
-                const importing = (async () => {
-                    const settings = (await readAsJson(file)) as Settings
-                    if (!(settings instanceof Object)) {
-                        throw new Error('导入的设定文件格式错误。')
-                    }
-                    if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
-                        throw new Error('导入的设定文件格式错误。')
-                    }
-                    await Promise.all(fragmentRefs.map((ref) => {
-                        const fragmentKey = ref.current.fragmentKey
-                        const { defaultSettings } = fragments[fragmentKey]
-                        const importContent = removeInvalidKeys({ ...defaultSettings, ...settings[fragmentKey] }, defaultSettings as Schema<SettingFragments[typeof fragmentKey]>)
-                        return ref.current.importSettings(importContent)
-                    }))
-                })();
-                toast.promise(importing, {
-                    loading: '正在导入设定...',
-                    success: '设定已经导入成功。',
-                    error: err => '导入设定失败: ' + err.message
-                })
-                await importing
-                if (!processing) {
-                    // 向所有页面发送重启指令
-                    forwarder.sendForward('content-script', { command: 'restart' })
-                }
-            } catch (err: Error | any) {
-                console.error(err)
-                toast.error('导入设定失败: ', {
-                    description: err.message
-                })
-            } finally {
-                fileImport.current.files = null
-                fileImport.current.removeEventListener('change', listener)
-            }
-        }
-        fileImport.current.addEventListener('change', listener)
-        fileImport.current.click()
     }
 
     const saveAllSettings = async () => {

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useRowOptimizer } from '~hooks/optimizer';
 
 // here must be a subset of database Jimaku schema
@@ -8,8 +9,6 @@ export type Jimaku = {
     uname: string
     hash: string
 }
-
-
 
 export type JimakuLineProps = {
     item: Jimaku
@@ -30,5 +29,4 @@ function JimakuLine({ item, show, index, observer }: JimakuLineProps): JSX.Eleme
     )
 }
 
-
-export default JimakuLine
+export default memo(JimakuLine)

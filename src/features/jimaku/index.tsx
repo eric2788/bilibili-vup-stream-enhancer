@@ -12,6 +12,8 @@ import { retryCatcher } from "~utils/fetch";
 import { findOrCreateElement } from '~utils/react-node';
 import type { FeatureHookRender } from "..";
 import JimakuCaptureLayer from './components/JimakuCaptureLayer';
+import JimakuAreaSkeleton from './components/JimakuAreaSkeleton';
+import JimakuAreaSkeletonError from './components/JimakuAreaSkeletonError';
 
 
 
@@ -82,9 +84,8 @@ export function App(): JSX.Element {
 const handler: FeatureHookRender = async (settings, info) => {
 
     const dev = settings['settings.developer']
-    const { noNativeVtuber, jimakuZone: jimakuSettings, buttonZone: buttonSettings } = settings['settings.features']['jimaku']
-    const { backgroundHeight, backgroundColor, color, firstLineSize, lineGap, size, order } = jimakuSettings
-    const { backgroundListColor } = buttonSettings
+    const { noNativeVtuber, jimakuZone: jimakuSettings } = settings['settings.features']['jimaku']
+    const { order } = jimakuSettings
 
     const playerSection = document.querySelector(dev.elements.jimakuArea)
     const jimakuArea = findOrCreateElement('div', 'jimaku-area')
@@ -106,37 +107,8 @@ const handler: FeatureHookRender = async (settings, info) => {
                     settings={settings}
                     table="jimakus"
                     reverse={order === 'top'}
-                    loading={
-                        <>
-                            <div style={{ height: backgroundHeight, backgroundColor }} className="flex justify-center items-start">
-                                <h1 style={{ color, fontSize: firstLineSize, marginTop: lineGap }} className="animate-pulse font-bold">字幕加载中...</h1>
-                            </div>
-                            <div style={{ backgroundColor: backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
-                                {...Array(3).fill(0).map((_, i) => {
-                                    // make random skeleton width
-                                    const width = [120, 160, 130][i]
-                                    return (
-                                        <div key={i} style={{ width: width }} className="m-[5px] px-[20px] py-[10px] rounded-md text-[15px] animate-pulse bg-gray-300">
-                                            &nbsp;
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </>
-                    }
-                    error={(err, retry) => (
-                        <>
-                            <div style={{ height: backgroundHeight, backgroundColor }} className="flex flex-col justify-start text-lg items-center gap-3 text-red-400">
-                                <h1 style={{ fontSize: firstLineSize, margin: `${lineGap}px 0px` }} className="font-bold">加载失败</h1>
-                                <span style={{ fontSize: size }}>{String(err)}</span>
-                            </div>
-                            <div style={{ backgroundColor: backgroundListColor }} className="text-center overflow-x-auto flex justify-center gap-3">
-                                <button onClick={retry} className="m-[5px] px-[20px] py-[10px] text-[15px] bg-red-700 rounded-md">
-                                    重试
-                                </button>
-                            </div>
-                        </>
-                    )}
+                    loading={<JimakuAreaSkeleton />}
+                    error={(err, retry) => <JimakuAreaSkeletonError error={err} retry={retry} />}
                 >
                     {(data) => <JimakuCaptureLayer offlineRecords={data} />}
                 </OfflineRecordsProvider>
