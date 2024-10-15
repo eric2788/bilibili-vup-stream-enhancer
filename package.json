@@ -39,7 +39,7 @@
     "media-chrome": "^2.2.5",
     "mpegts.js": "^1.7.3",
     "n-danmaku": "^2.2.1",
-    "plasmo": "^0.86.2",
+    "plasmo": "^0.89.3",
     "react": "18.2.0",
     "react-contexify": "^6.0.0",
     "react-dom": "18.2.0",
