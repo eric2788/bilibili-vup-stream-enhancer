@@ -1,6 +1,8 @@
 name: Build And Test Extensions
 
 on:
+    schedule:
+        - cron: '0 0 1 * *'
     push: 
         branches: [develop]
         paths:
@@ -104,7 +106,7 @@ jobs:
                 if-no-files-found: ignore
     e2e-test:
       runs-on: ubuntu-latest
-      if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[run ci]')) }}
+      if: ${{ contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[run ci]')) }}
       needs: [build, test]
       strategy:
           fail-fast: false
