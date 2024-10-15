@@ -1,5 +1,4 @@
 import { useCallback, type ChangeEvent } from 'react';
-import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~options/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
 
@@ -230,34 +229,5 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
     );
 }
 
-export async function shouldInit(settings: SettingSchema, info: StreamInfo): Promise<boolean> {
-
-    if (!info) {
-        // do log
-        console.info('無法取得直播資訊，已略過')
-        return false
-    }
-
-    if (info.status === 'offline' && settings.enabledRecording.length === 0) {
-        console.info('直播為下綫狀態，且沒有啓用離綫儲存，已略過。')
-        return false
-    }
-
-    if (settings.common.onlyVtuber) {
-
-        if (info.uid !== '0') {
-            await ensureIsVtuber(info)
-        }
-
-        if (!info.isVtuber) {
-            // do log
-            console.info('不是 VTuber, 已略過')
-            return false
-        }
-
-    }
-
-    return true
-}
 
 export default FeatureSettings
