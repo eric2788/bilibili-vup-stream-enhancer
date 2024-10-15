@@ -23,6 +23,7 @@ npm-debug.log*
 # local env files
 .env*
 .vscode/
+.hintrc
 
 out/
 build/
