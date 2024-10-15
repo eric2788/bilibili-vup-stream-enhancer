@@ -50,7 +50,7 @@ export async function serializeBlobAsString(blob: Blob): Promise<string> {
             const base64 = dataUrl.split(',')[1];
             resolve(base64);
         }
-        reader.onerror = () => reject(reader.error) 
+        reader.onerror = () => reject(reader.error)
         reader.readAsDataURL(blob)
     });
 }
@@ -74,7 +74,7 @@ export async function serializeBlobAsNumbers(blob: Blob): Promise<number[]> {
             const buffer = new Uint8Array(reader.result as ArrayBuffer)
             resolve(Array.from(buffer))
         }
-        reader.onerror = () => reject(reader.error) 
+        reader.onerror = () => reject(reader.error)
         reader.readAsArrayBuffer(blob)
     });
 }
@@ -97,11 +97,11 @@ export async function screenshotFromVideo(media: HTMLVideoElement): Promise<Blob
 }
 
 export function toArrayBuffer(like: ArrayBufferLike): ArrayBuffer {
-    if (like instanceof SharedArrayBuffer) {
-        console.debug('converting SharedArrayBuffer to ArrayBuffer')
-        const arr = new Uint8Array(new ArrayBuffer(like.byteLength))
-        arr.set(new Uint8Array(like), 0)
-        return arr.buffer
+    if (like instanceof ArrayBuffer) {
+        return like
     }
-    return like
+    console.debug('converting SharedArrayBuffer to ArrayBuffer')
+    const arr = new Uint8Array(new ArrayBuffer(like.byteLength))
+    arr.set(new Uint8Array(like), 0)
+    return arr.buffer
 }

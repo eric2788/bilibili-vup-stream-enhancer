@@ -17,9 +17,14 @@ class BufferRecorder extends Recorder<PlayerOptions> {
     }
 
     private async onBufferArrived(order: number, buffer: ArrayBufferLike): Promise<void> {
-        const ab = toArrayBuffer(buffer)
-        const blob = new Blob([ab], { type: 'application/octet-stream' })
-        return this.saveChunk(blob, order)
+        try {
+            const ab = toArrayBuffer(buffer)
+            const blob = new Blob([ab], { type: 'application/octet-stream' })
+            return this.saveChunk(blob, order)
+        }catch(err){
+            console.error('failed to save chunk: ', err)
+            throw err
+        }
     }
 
     async loadChunkData(flush: boolean = true): Promise<ChunkData> {
