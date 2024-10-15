@@ -95,3 +95,13 @@ export async function screenshotFromVideo(media: HTMLVideoElement): Promise<Blob
         canvas.onerror = rej
     })
 }
+
+export function toArrayBuffer(like: ArrayBufferLike): ArrayBuffer {
+    if (like instanceof SharedArrayBuffer) {
+        console.debug('converting SharedArrayBuffer to ArrayBuffer')
+        const arr = new Uint8Array(new ArrayBuffer(like.byteLength))
+        arr.set(new Uint8Array(like), 0)
+        return arr.buffer
+    }
+    return like
+}

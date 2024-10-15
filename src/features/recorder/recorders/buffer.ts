@@ -1,8 +1,8 @@
 import { recordStream, type PlayerOptions, type VideoInfo } from "~players";
 import type { StreamPlayer } from "~types/media";
 import { Recorder } from "~types/media";
+import { toArrayBuffer } from "~utils/binary";
 import { type ChunkData } from ".";
-import type { StreamUrls } from "~background/messages/get-stream-urls";
 
 class BufferRecorder extends Recorder<PlayerOptions> {
 
@@ -16,8 +16,9 @@ class BufferRecorder extends Recorder<PlayerOptions> {
         this.info = this.player.videoInfo
     }
 
-    private async onBufferArrived(order: number, buffer: ArrayBuffer): Promise<void> {
-        const blob = new Blob([buffer], { type: 'application/octet-stream' })
+    private async onBufferArrived(order: number, buffer: ArrayBufferLike): Promise<void> {
+        const ab = toArrayBuffer(buffer)
+        const blob = new Blob([ab], { type: 'application/octet-stream' })
         return this.saveChunk(blob, order)
     }
 
