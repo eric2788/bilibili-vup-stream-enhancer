@@ -60,7 +60,10 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
 
                 const portals = await hook(settings, info)
                 // 返回禁用狀態的話則直接跳過渲染
-                if (!portals) {
+                if (typeof portals === 'string') {
+                    toast.warning(portals, { position: 'top-center' })
+                    return
+                } else if (!portals) {
                     console.info(`房間 ${info.room} 已被 ${key} 功能禁用，已略過`)
                     return
                 }
