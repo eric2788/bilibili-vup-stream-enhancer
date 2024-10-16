@@ -95,7 +95,7 @@ const handler: FeatureHookRender = async (settings, info) => {
     if (noNativeVtuber && (await retryCatcher(() => isNativeVtuber(info.uid), 5))) {
         // do log
         console.info('檢測到為國V, 已略過')
-        return undefined // 返回 undefined 以禁用此功能
+        return undefined // 返回 undefined 以禁用此功能且不發送任何警告
     }
 
     return [
