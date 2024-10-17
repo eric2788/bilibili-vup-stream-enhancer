@@ -11,6 +11,7 @@ import { useShardReceiver } from "~hooks/stream"
 import '~style.css'
 import { downloadBlob } from "~utils/file"
 import { toTimer } from "~utils/misc"
+import { toArrayBuffer } from "~utils/binary"
 
 const urlParams = new URLSearchParams(window.location.search);
 const ffmpegID = urlParams.get('id')
@@ -65,8 +66,9 @@ function Converter(props: ConverterProps): JSX.Element {
             })
             const original = new Blob(info.content, { type: info.videoInfo.mimeType })
             const fixed = await ffmpeg.fixInfoAndCut(original, info.duration, info.videoInfo.extension)
-            setResult(() => new Blob([fixed], { type: info.videoInfo.mimeType }))
-            downloadBlob(new Blob([fixed], { type: info.videoInfo.mimeType }), info.filename)
+            const buffer = toArrayBuffer(fixed)
+            setResult(() => new Blob([buffer], { type: info.videoInfo.mimeType }))
+            downloadBlob(new Blob([buffer], { type: info.videoInfo.mimeType }), info.filename)
         },
         async () => { },
         (err) => {

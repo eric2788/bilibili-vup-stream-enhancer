@@ -9,7 +9,7 @@ import { useFFMpeg } from "~hooks/ffmpeg"
 import { useAsyncEffect } from "~hooks/life-cycle"
 import { useShardSender } from "~hooks/stream"
 import { Recorder } from "~types/media"
-import { screenshotFromVideo } from "~utils/binary"
+import { screenshotFromVideo, toArrayBuffer } from "~utils/binary"
 import { downloadBlob } from "~utils/file"
 import { sendMessager } from "~utils/messaging"
 import { randomString } from '~utils/misc'
@@ -132,7 +132,8 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
                 })
             } else {
                 const fixed = await ff.fixInfoAndCut(original, duration, chunkData.info.extension)
-                downloadBlob(new Blob([fixed], { type: chunkData.info.mimeType }), filename)
+                const buffer = toArrayBuffer(fixed)
+                downloadBlob(new Blob([buffer], { type: chunkData.info.mimeType }), filename)
             }
 
         })();

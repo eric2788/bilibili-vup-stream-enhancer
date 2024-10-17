@@ -8,7 +8,7 @@ export type EventType = keyof StreamParseEvent
 export type StreamParseEvent = {
     'loaded': {},
     'error': Error,
-    'buffer': ArrayBuffer
+    'buffer': ArrayBufferLike
 }
 
 export type EventHandler<E extends EventType> = (event: StreamParseEvent[E]) => void

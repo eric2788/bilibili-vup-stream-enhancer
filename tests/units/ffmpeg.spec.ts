@@ -33,7 +33,7 @@ test('測試 ffmpeg.wasm 轉換 mp4 到 gif', async ({ context, page, modules })
 
     expect(info.duration).toBeGreaterThan(0)
 
-    await fs.writeFile('out/input.mp4', mp4Content, {})
+    await fs.writeFile('out/input.mp4', new Uint8Array(mp4Content), {})
 
     const mp4 = atob(mp4Content.toString('base64')).split('').map(c => c.charCodeAt(0))
     await page.evaluate(async (mp4) => {
