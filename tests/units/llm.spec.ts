@@ -7,23 +7,26 @@ test('嘗試使用 Cloudflare AI 對話', { tag: "@scoped" }, async () => {
 
     test.skip(!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN, '請設定 CF_ACCOUNT_ID 和 CF_API_TOKEN 環境變數')
 
-    // await modules['llm'].loadToPage()
-    // await modules['utils'].loadToPage()
+    const llm = createLLMProvider('qwen', process.env.CF_ACCOUNT_ID, process.env.CF_API_TOKEN)
 
-    // const res = await page.evaluate(async ({ accountId, apiToken }) => {
-    //     const { llms } = window as any
-    //     console.log('llms: ', llms)
-    //     const llm = await llms.createLLMProvider('cloudflare', accountId, apiToken)
-    //     return await llm.prompt('你好')
-    // }, { accountId: process.env.CF_ACCOUNT_ID, apiToken: process.env.CF_API_TOKEN })
-
-    const llm = await createLLMProvider('qwen', process.env.CF_ACCOUNT_ID, process.env.CF_API_TOKEN)
+    logger.info('正在测试 json 返回请求...')
     const res = await llm.prompt('你好')
 
     logger.info('response: ', res)
     expect(res).not.toBeUndefined()
     expect(res).not.toBe('')
 
+    logger.info('正在测试 SSE 请求...')
+    const res2 = llm.promptStream('地球为什么是圆的?')
+
+    let msg = '';
+    for await (const r of res2) {
+        logger.info('response: ', r)
+        msg += r
+    }
+
+    expect(msg).not.toBeUndefined()
+    expect(msg).not.toBe('')
 })
 
 test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modules }) => {
@@ -32,6 +35,7 @@ test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modul
         return !!window.ai;
     })
 
+    logger.debug('Gemini Nano supported: ', supported)
     test.skip(!supported, 'Gemini Nano 不支援此瀏覽器')
 
     await modules['llm'].loadToPage()
@@ -50,21 +54,25 @@ test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modul
 
 test('嘗試使用 Remote Worker 對話', { tag: "@scoped" }, async () => {
 
-    // await modules['llm'].loadToPage()
-    // await modules['utils'].loadToPage()
+    const llm = createLLMProvider('worker')
 
-    // const res = await page.evaluate(async () => {
-    //     const { llms } = window as any
-    //     console.log('llms: ', llms)
-    //     const llm = await llms.createLLMProvider('worker')
-    //     return await llm.prompt('你好')
-    // })
-
-    const llm = await createLLMProvider('worker')
+    logger.info('正在测试 json 返回请求...')
     const res = await llm.prompt('你好')
 
     logger.info('response: ', res)
     expect(res).not.toBeUndefined()
     expect(res).not.toBe('')
+
+    logger.info('正在测试 SSE 请求...')
+    const res2 = llm.promptStream('地球为什么是圆的?')
+
+    let msg = '';
+    for await (const r of res2) {
+        logger.info('response: ', r)
+        msg += r
+    }
+
+    expect(msg).not.toBeUndefined()
+    expect(msg).not.toBe('')
 
 })
