@@ -11,13 +11,21 @@ export default class GeminiNano implements LLMProviders {
     }
 
     async prompt(chat: string): Promise<string> {
-        using session = await this.asSession()
-        return session.prompt(chat)
+        const session = await this.asSession()
+        try {
+            return session.prompt(chat)
+        } finally {
+            session[Symbol.dispose]()
+        }
     }
 
     async *promptStream(chat: string): AsyncGenerator<string> {
-        using session = await this.asSession()
-        return session.promptStream(chat)
+        const session = await this.asSession()
+        try {
+            return session.promptStream(chat)
+        } finally {
+            session[Symbol.dispose]()
+        }
     }
 
     async asSession(): Promise<Session<LLMProviders>> {

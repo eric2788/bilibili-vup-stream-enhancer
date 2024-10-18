@@ -9,15 +9,12 @@ test('嘗試使用 Cloudflare AI 對話', async ({ page, modules }) => {
     await modules['llm'].loadToPage()
     await modules['utils'].loadToPage()
 
-    const ret = await page.evaluate(async () => {
+    const ret = await page.evaluate(async ({ accountId, apiToken }) => {
         const { llms } = window as any
         console.log('llms: ', llms)
-        const llm = await llms.createLLMProvider('cloudflare',
-            process.env.CF_ACCOUNT_ID,
-            process.env.CF_API_TOKEN
-        )
+        const llm = await llms.createLLMProvider('cloudflare', accountId, apiToken)
         return await llm.prompt('你好')
-    })
+    }, { accountId: process.env.CF_ACCOUNT_ID, apiToken: process.env.CF_API_TOKEN })
 
     logger.info('response: ', ret)
     await expect(ret).not.toBeEmpty()
@@ -29,6 +26,7 @@ test('嘗試使用 Gemini Nano 對話', async ({ page, modules }) => {
         return !!window.ai;
     })
 
+    logger.debug('Gemini Nano supported: ', supported)
     test.skip(!supported, 'Gemini Nano 不支援此瀏覽器')
 
     await modules['llm'].loadToPage()
@@ -59,5 +57,5 @@ test('嘗試使用 Remote Worker 對話', async ({ page, modules }) => {
 
     logger.info('response: ', ret)
     await expect(ret).not.toBeEmpty()
-    
+
 })

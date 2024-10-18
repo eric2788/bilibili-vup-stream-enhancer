@@ -19,7 +19,7 @@ const llms = {
 
 export type LLMTypes = keyof typeof llms
 
-export async function createLLMProvider(type: LLMTypes, ...args: any[]): Promise<LLMProviders> {
+async function createLLMProvider(type: LLMTypes, ...args: any[]): Promise<LLMProviders> {
     const LLM = llms[type].bind(this, ...args)
     return new LLM()
 }
