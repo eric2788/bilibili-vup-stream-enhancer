@@ -1,4 +1,4 @@
-import cloudflare from './cloudflare-ai'
+import qwen from './cf-qwen'
 import nano from './gemini-nano'
 import worker from './remote-worker'
 
@@ -12,14 +12,16 @@ export interface LLMProviders {
 export type Session<T> = Disposable & Omit<T, 'asSession' | 'validate'>
 
 const llms = {
-    cloudflare,
+    qwen,
     nano,
     worker
 }
 
-export type LLMTypes = keyof typeof llms
+export type LLMs = typeof llms
 
-export async function createLLMProvider(type: LLMTypes, ...args: any[]): Promise<LLMProviders> {
+export type LLMTypes = keyof LLMs
+
+async function createLLMProvider<K extends LLMTypes, M extends LLMs[K]>(type: K, ...args: ConstructorParameters<M>): Promise<LLMProviders> {
     const LLM = llms[type].bind(this, ...args)
     return new LLM()
 }

@@ -20,6 +20,7 @@ export default class RemoteWorker implements LLMProviders {
             },
             body: JSON.stringify({ prompt: chat })
         })
+        if (!res.ok) throw new Error(await res.text())
         const json = await res.json()
         return json.response
     }
@@ -32,6 +33,7 @@ export default class RemoteWorker implements LLMProviders {
             },
             body: JSON.stringify({ prompt: chat, stream: true })
         })
+        if (!res.ok) throw new Error(await res.text())
         if (!res.body) throw new Error('Remote worker response body is not readable')
         const reader = res.body.getReader()
         const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
