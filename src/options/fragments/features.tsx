@@ -76,8 +76,10 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     const toggleRecord = (feature: FeatureType) => {
         if (state.enabledRecording.includes(feature)) {
             state.enabledRecording = state.enabledRecording.filter(f => f !== feature)
-        } else {
+        } else if (window.indexedDB) {
             state.enabledRecording.push(feature)
+        } else {
+            toast.error('当前浏览器不支持 IndexedDB，无法启用离线记录。', { position: 'top-center' })
         }
     }
 
