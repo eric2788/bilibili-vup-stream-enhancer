@@ -4,6 +4,7 @@ import * as danmaku from './forwards/danmaku'
 import * as jimaku from './forwards/jimaku'
 import * as redirect from './forwards/redirect'
 import * as streamContent from './forwards/stream-content'
+import * as jimakuSummarize from './forwards/summerize'
 
 export type ForwardData = typeof forwards
 
@@ -153,5 +154,6 @@ const forwards = {
     'redirect': redirect,
     'danmaku': danmaku,
     'blive-data': bliveData,
-    'stream-content': streamContent
+    'stream-content': streamContent,
+    'jimaku-summarize': jimakuSummarize
 }

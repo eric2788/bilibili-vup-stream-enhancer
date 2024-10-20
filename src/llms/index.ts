@@ -21,7 +21,7 @@ export type LLMs = typeof llms
 
 export type LLMTypes = keyof LLMs
 
-async function createLLMProvider<K extends LLMTypes, M extends LLMs[K]>(type: K, ...args: ConstructorParameters<M>): Promise<LLMProviders> {
+function createLLMProvider<K extends LLMTypes, M extends LLMs[K]>(type: K, ...args: ConstructorParameters<M>): LLMProviders {
     const LLM = llms[type].bind(this, ...args)
     return new LLM()
 }

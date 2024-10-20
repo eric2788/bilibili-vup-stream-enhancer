@@ -38,9 +38,9 @@ function AIFragment({ state, useHandler }: StateProxy<AISchema>): JSX.Element {
         try {
             let provider: LLMProviders;
             if (state.provider === 'qwen') {
-                provider = await createLLMProvider(state.provider, state.accountId, state.apiToken)
+                provider = createLLMProvider(state.provider, state.accountId, state.apiToken)
             } else {
-                provider = await createLLMProvider(state.provider)
+                provider = createLLMProvider(state.provider)
             }
             await provider.validate()
             toast.success('配置可用！')
@@ -68,7 +68,7 @@ function AIFragment({ state, useHandler }: StateProxy<AISchema>): JSX.Element {
                     <Selector<typeof state.provider>
                         className="col-span-2"
                         data-testid="ai-provider"
-                        label="AI 提供商"
+                        label="技术来源"
                         value={state.provider}
                         onChange={e => state.provider = e}
                         options={[

@@ -105,3 +105,25 @@ export function toArrayBuffer(like: ArrayBufferLike): ArrayBuffer {
     arr.set(new Uint8Array(like), 0)
     return arr.buffer
 }
+
+export async function* parseSSEResponses(reader: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>>, endStr?: string): AsyncGenerator<string> {
+    const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
+    while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const decoded = decoder.decode(value, { stream: true })
+        const textValues = decoded.split('\n\n') // sometimes it will fetch multiple lines
+        for (const textValue of textValues) {
+            if (textValue.trim() === '') continue
+            if (!textValue.startsWith('data:')) continue
+            const jsonValue = textValue.slice(5).trim()
+            if (endStr && jsonValue === endStr) break
+            try {
+                const { response } = JSON.parse(jsonValue)
+                yield response
+            } catch (err) {
+                throw new Error(`error while parsing '${jsonValue}': ${err.message ?? err}`)
+            }
+        }
+    }
+}

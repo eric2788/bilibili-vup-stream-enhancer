@@ -82,7 +82,8 @@
       "*://api.live.bilibili.com/*",
       "*://live.bilibili.com/*",
       "*://*.bilivideo.com/*",
-      "*://*.ericlamm.xyz/*"
+      "*://*.ericlamm.xyz/*",
+      "*://*.cloudflare.com/*"
     ],
     "permissions": [
       "notifications",
