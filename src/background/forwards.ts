@@ -90,6 +90,9 @@ export function isForwardMessage<T extends object>(message: any): message is For
  * forwarder.addHandler((data) => {
  *   console.log('Received message:', data)
  * })
+ * forwarder.addHandlerOnce((data) => {
+ *  console.log('Received message:', data)
+ * })
  * forwarder.sendForward('background', { message: 'Hello' })
  */
 export function getForwarder<K extends keyof ForwardData>(command: K, target: ChannelType): Forwarder<K> {
@@ -132,6 +135,14 @@ export function getForwarder<K extends keyof ForwardData>(command: K, target: Ch
             chrome.runtime.onMessage.addListener(fn)
             return () => chrome.runtime.onMessage.removeListener(fn)
         },
+        addHandlerOnce: (handler: (data: R) => void): VoidCallback => {
+            const fn = listener((data: R) => {
+                handler(data)
+                chrome.runtime.onMessage.removeListener(fn)
+            })
+            chrome.runtime.onMessage.addListener(fn)
+            return () => chrome.runtime.onMessage.removeListener(fn)
+        },
         sendForward: <C extends ChannelType>(toTarget: C, body: T, queryInfo?: ChannelQueryInfo[C]): void => {
             sendForward<K, T, C>(toTarget, command, body, queryInfo)
         }
@@ -145,6 +156,7 @@ export function useDefaultHandler<T extends object>(): ForwardHandler<T> {
 
 export type Forwarder<K extends keyof ForwardData> = {
     addHandler: (handler: (data: ForwardResponse<ForwardData[K]>) => void) => VoidCallback
+    addHandlerOnce: (handler: (data: ForwardResponse<ForwardData[K]>) => void) => VoidCallback
     sendForward: <C extends ChannelType>(toTarget: C, body: ForwardBody<ForwardData[K]>, queryInfo?: ChannelQueryInfo[C]) => void
 }
 
