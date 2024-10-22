@@ -451,7 +451,7 @@ test('測試导航', async ({ room, content, serviceWorker }) => {
 
 })
 
-test('測試 强制啓動 模式', { tag: '@scoped' }, async ({ context, optionPageUrl, page, content }) => {
+test('測試 强制啓動 模式', async ({ context, optionPageUrl, page, content }) => {
 
     logger.info('進入離綫的直播間...')
     // this room is always offline (guess what)
