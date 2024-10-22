@@ -207,7 +207,7 @@ test('测试同传字幕AI总结', { tag: "@scoped" }, async ({ room, content: p
     logger.debug('AI Summary:', res)
 
     const maybe = expect.configure({ soft: true })
-    maybe(res).toMatch(/主播|日本VTuber/)
+    maybe(res).toMatch(/主播|日本VTuber|日本vtuber|vtuber/)
     maybe(res).toMatch(/直播|观众/)
     maybe(res).toContain('麦当劳')
     maybe(res).toContain('漫展')

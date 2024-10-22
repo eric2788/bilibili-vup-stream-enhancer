@@ -7,7 +7,11 @@ test('嘗試使用 Cloudflare AI 對話', { tag: "@scoped" }, async () => {
 
     test.skip(!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN, '請設定 CF_ACCOUNT_ID 和 CF_API_TOKEN 環境變數')
 
-    const llm = createLLMProvider('qwen', process.env.CF_ACCOUNT_ID, process.env.CF_API_TOKEN)
+    const llm = createLLMProvider({
+        provider: 'cloudflare',
+        accountId: process.env.CF_ACCOUNT_ID,
+        apiToken: process.env.CF_API_TOKEN
+    })
 
     logger.info('正在测试 json 返回请求...')
     const res = await llm.prompt('你好')
@@ -44,7 +48,7 @@ test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modul
     const ret = await page.evaluate(async () => {
         const { llms } = window as any
         console.log('llms: ', llms)
-        const llm = await llms.createLLMProvider('nano')
+        const llm = await llms.createLLMProvider({ provider: 'nano' })
         return await llm.prompt('你好')
     })
 
@@ -54,7 +58,7 @@ test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modul
 
 test('嘗試使用 Remote Worker 對話', { tag: "@scoped" }, async () => {
 
-    const llm = createLLMProvider('worker')
+    const llm = createLLMProvider({ provider: 'worker' })
 
     logger.info('正在测试 json 返回请求...')
     const res = await llm.prompt('你好')

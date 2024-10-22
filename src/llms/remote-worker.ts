@@ -1,9 +1,15 @@
 import type { LLMProviders, Session } from "~llms";
+import type { SettingSchema } from "~options/fragments/llm";
 import { parseSSEResponses } from "~utils/binary";
-
 
 // for my worker, so limited usage
 export default class RemoteWorker implements LLMProviders {
+
+    private readonly model?: string
+
+    constructor(settings: SettingSchema) {
+        this.model = settings.model || undefined
+    }
 
     async validate(): Promise<void> {
         const res = await fetch('https://llm.ericlamm.xyz/status')
@@ -19,7 +25,7 @@ export default class RemoteWorker implements LLMProviders {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ prompt: chat })
+            body: JSON.stringify({ prompt: chat, model: this.model })
         })
         if (!res.ok) throw new Error(await res.text())
         const json = await res.json()
@@ -32,7 +38,7 @@ export default class RemoteWorker implements LLMProviders {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ prompt: chat, stream: true })
+            body: JSON.stringify({ prompt: chat, stream: true, model: this.model })
         })
         if (!res.ok) throw new Error(await res.text())
         if (!res.body) throw new Error('Remote worker response body is not readable')

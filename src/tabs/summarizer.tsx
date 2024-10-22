@@ -1,27 +1,17 @@
+import '~style.css';
+
 import { Typography } from "@material-tailwind/react";
 import icon from 'raw:assets/icon.png';
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
 import { useForwarder } from "~hooks/forwarder";
 
 import ChatBubble from "~components/ChatBubble";
-import createLLMProvider, { type LLMProviders } from "~llms";
-import type { AISchema } from "~options/features/jimaku/components/AIFragment";
-import '~style.css';
+import createLLMProvider from "~llms";
 import { getSettingStorage } from "~utils/storage";
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('roomId')
 const roomTitle = urlParams.get('title')
-
-function createLLM(schema: AISchema): LLMProviders {
-    switch (schema.provider) {
-        case 'worker':
-        case 'nano':
-            return createLLMProvider(schema.provider)
-        case 'qwen':
-            return createLLMProvider(schema.provider, schema.accountId, schema.apiToken)
-    }
-}
 
 const loadingText = '正在加载同传字幕总结.....'
 
@@ -52,8 +42,8 @@ function App() {
 
     const summarize = useCallback(async (danmakus: string[]) => {
         try {
-            const { jimaku: { aiZone } } = await getSettingStorage('settings.features')
-            const llm = createLLM(aiZone)
+            const llmSettings = await getSettingStorage('settings.llm')
+            const llm = createLLMProvider(llmSettings)
             const summaryStream = llm.promptStream(`这位是一名在b站直播间直播的日本vtuber说过的话,请根据下文对话猜测与观众的互动内容,并用中文总结一下他们的对话:\n\n${danmakus.join('\n')}`)
             setLoading(false)
             for await (const words of summaryStream) {

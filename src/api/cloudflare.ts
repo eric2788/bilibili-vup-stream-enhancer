@@ -16,7 +16,7 @@ export async function runAI(data: any, { token, account, model }: { token: strin
     return json
 }
 
-export async function *runAIStream(data: any, { token, account, model }: { token: string, account: string, model: string }): AsyncGenerator<string> {
+export async function* runAIStream(data: any, { token, account, model }: { token: string, account: string, model: string }): AsyncGenerator<string> {
     const res = await fetch(`${BASE_URL}/accounts/${account}/ai/run/${model}`, {
         method: 'POST',
         headers: {
@@ -35,12 +35,18 @@ export async function *runAIStream(data: any, { token, account, model }: { token
     }
 }
 
-export async function validateAIToken(accountId: string, token: string): Promise<boolean> {
-    const res = await fetch(`${BASE_URL}/accounts/${accountId}/ai/models/search?per_page=1`, {
+export async function validateAIToken(accountId: string, token: string, model: string): Promise<string | boolean> {
+    const res = await fetch(`${BASE_URL}/accounts/${accountId}/ai/models/search?search=${model}&per_page=1`, {
         headers: {
-            Authorization: `Bearer ${this.apiToken}`
+            Authorization: `Bearer ${token}`
         }
     })
     const data = await res.json() as Result<any>
-    return data.success
+    if (!data.success) {
+        return false
+    } else if (data.result.length === 0) {
+        return '找不到指定 AI 模型'
+    } else {
+        return true
+    }
 }

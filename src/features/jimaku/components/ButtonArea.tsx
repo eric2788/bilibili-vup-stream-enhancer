@@ -73,7 +73,7 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
                             弹出同传视窗
                         </JimakuButton>
                     }
-                    {aiZone.enabled && (
+                    {aiZone.summarizeEnabled && (
                         <JimakuButton onClick={summerize}>
                             同传字幕AI总结
                         </JimakuButton>

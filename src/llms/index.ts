@@ -1,4 +1,6 @@
-import qwen from './cf-qwen'
+import type { SettingSchema as LLMSchema } from '~options/fragments/llm'
+
+import cloudflare from './cloudflare-ai'
 import nano from './gemini-nano'
 import worker from './remote-worker'
 
@@ -12,7 +14,7 @@ export interface LLMProviders {
 export type Session<T> = Disposable & Omit<T, 'asSession' | 'validate'>
 
 const llms = {
-    qwen,
+    cloudflare,
     nano,
     worker
 }
@@ -21,9 +23,10 @@ export type LLMs = typeof llms
 
 export type LLMTypes = keyof LLMs
 
-function createLLMProvider<K extends LLMTypes, M extends LLMs[K]>(type: K, ...args: ConstructorParameters<M>): LLMProviders {
-    const LLM = llms[type].bind(this, ...args)
-    return new LLM()
+function createLLMProvider(settings: LLMSchema): LLMProviders {
+    const type = settings.provider
+    const LLM = llms[type]
+    return new LLM(settings)
 }
 
 export default createLLMProvider
