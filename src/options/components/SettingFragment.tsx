@@ -99,6 +99,7 @@ const SettingFragmentContent = forwardRef(function SettingFragmentContent<T exte
     useImperativeHandle(ref, () => ({
         async saveSettings() {
             if (!isModified()) return // if not modified, do nothing
+            console.debug('saving: ', fragmentKey, stateProxy.state)
             await setSettingStorage<T, Schema<SettingFragments[T]>>(fragmentKey, { ...stateProxy.state }) // set the settings to storage
             setBeforeSettings(deepCopy(stateProxy.state)) // update before settings so that to update check modified status
         },

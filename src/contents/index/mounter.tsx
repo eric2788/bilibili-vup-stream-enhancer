@@ -8,7 +8,7 @@ import ContentContext from "~contexts/ContentContexts"
 import type { FeatureType } from "~features"
 import features from "~features"
 import type { Settings } from "~options/fragments"
-import { shouldInit } from "~options/fragments"
+import { shouldInit } from "~options/shouldInit"
 import { getStreamInfoByDom } from "~utils/bilibili"
 import { injectAdapter } from "~utils/inject"
 import { addBLiveMessageCommandListener, sendMessager } from "~utils/messaging"
@@ -60,7 +60,10 @@ function createMountPoints(plasmo: PlasmoSpec, info: StreamInfo): RootMountable[
 
                 const portals = await hook(settings, info)
                 // 返回禁用狀態的話則直接跳過渲染
-                if (!portals) {
+                if (typeof portals === 'string') {
+                    toast.warning(portals, { position: 'top-center' })
+                    return
+                } else if (!portals) {
                     console.info(`房間 ${info.room} 已被 ${key} 功能禁用，已略過`)
                     return
                 }
@@ -116,6 +119,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
 
             const settings = await getFullSettingStroage()
             const enabled = settings['settings.features'].enabledFeatures
+            const forceBoot = settings['settings.developer'].extra.forceBoot
 
             // 如果沒有取得直播資訊，就嘗試使用 DOM 取得
             if (!info) {
@@ -126,6 +130,11 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
             if (!info) {
                 console.warn('無法取得直播資訊，已略過: ', roomId)
                 return
+            }
+
+            // 強制啓動
+            if (forceBoot) {
+                info.status = 'online'
             }
 
             if (!(await shouldInit(settings, info))) {
@@ -141,7 +150,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
                 toast.warning('检测到你尚未登录, 本扩展的功能将会严重受限, 建议你先登录B站。', { position: 'top-center' })
             }
 
-            // hook adapter (only when online)
+            // hook adapter (only when online or forceBoot)
             if (info.status === 'online') {
                 console.info('開始注入適配器....')
                 const adapterType = settings["settings.capture"].captureMechanism

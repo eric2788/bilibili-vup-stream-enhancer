@@ -69,15 +69,16 @@ function App(): JSX.Element {
 
   const { info, settings } = streamInfo
 
-  const { "settings.display": displaySettings } = settings
+  const { "settings.display": displaySettings, "settings.developer": developerSettings } = settings
 
-  // 狀態為離綫時，此處不需要顯示按鈕
+  // 狀態為離綫時，除非强制啓動為 true
+  // 此處不需要顯示按鈕
   // 離綫下載按鈕交給 feature UI 處理
   if (info.status === 'offline') {
     return <></>
   }
 
-  const screenStatus = useWebScreenChange(settings['settings.developer'].classes)
+  const screenStatus = useWebScreenChange(developerSettings.classes)
   const { bool: open, setFalse: closeDrawer, toggle } = useToggle(false)
 
   const tutorialRef = useRef<TutorialRefProps>()
