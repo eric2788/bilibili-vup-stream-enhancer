@@ -41,8 +41,8 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
     const [show, setShow] = useState(!info.isTheme)
 
     const summerize = async () => {
-        if (jimakus.length < 10) {
-            toast.warning('至少需要有10条同传字幕才可总结。')
+        if (jimakus.length < 25) {
+            toast.warning('至少需要有25条同传字幕才可总结。')
             return
         }
         await sendMessager('open-tab', { tab: 'summarizer', params: { roomId: info.room, title: info.title }, active: true, singleton: true })

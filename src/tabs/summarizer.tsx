@@ -40,6 +40,7 @@ function App() {
             return
         }
         setTitle(roomTitle ?? `B站直播间 ${roomId}`)
+        // only run once after success
         const remover = forwarder.addHandler((data) => {
             if (data.roomId !== roomId) return
             console.debug('received ', data.jimakus.length, 'danmakus')
@@ -51,9 +52,6 @@ function App() {
 
     const summarize = useCallback(async (danmakus: string[]) => {
         try {
-            if (danmakus.length < 10) {
-                throw new Error('至少需要有10条同传字幕才可总结。')
-            }
             const { jimaku: { aiZone } } = await getSettingStorage('settings.features')
             const llm = createLLM(aiZone)
             const summaryStream = llm.promptStream(`这位是一名在b站直播间直播的日本vtuber说过的话,请根据下文对话猜测与观众的互动内容,并用中文总结一下他们的对话:\n\n${danmakus.join('\n')}`)
@@ -64,7 +62,11 @@ function App() {
         } catch (err) {
             setLoading(false)
             console.error(err)
-            setError('未知错误: ' + err.message)
+            setError('错误: ' + err.message)
+        } finally {
+            if (summary === '') {
+                setError('同传总结返回了空的回应。')
+            }
         }
     }, [])
 
