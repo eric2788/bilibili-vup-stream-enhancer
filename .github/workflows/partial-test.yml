@@ -3,9 +3,9 @@ name: Test Only @scoped
 on:
     push:
         branches: 
-          - 'hotfix/**'
-          - 'feature/**'
-          - 'bugfix/**'
+          - '*/*'
+          - '!master'
+          - '!develop'
         paths:
           - 'src/**'
           - 'tests/**'
