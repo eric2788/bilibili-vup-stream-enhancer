@@ -54,6 +54,20 @@ test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modul
 
     logger.info('response: ', ret)
     await expect(ret).not.toBeEmpty()
+
+    const ret2 = await page.evaluate(async () => {
+        const { llms } = window as any
+        const llm = llms.createLLMProvider({ provider: 'nano' })
+        const res = llm.promptStream('地球为什么是圆的?')
+        let msg = '';
+        for await (const r of res) {
+            console.log('response: ', r)
+            msg = r
+        }
+        return msg
+    })
+
+    logger.info('stream response: ', ret2)
 })
 
 test('嘗試使用 Remote Worker 對話', { tag: "@scoped" }, async () => {

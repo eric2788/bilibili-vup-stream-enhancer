@@ -27,7 +27,7 @@ function ChatBubble(props: ChatBubbleProps): JSX.Element {
                 {messages.map((message, index) => (
                     <div key={index} className="max-w-full grid">
                         <div data-testid={`${name}-bubble-chat-${index}`} className="px-3.5 py-2 bg-gray-100 rounded justify-start items-center gap-3 inline-flex">
-                            <h5 className={`text-gray-900 text-sm font-normal leading-snug ${loading ? 'animate-pulse' : ''}`}>{message.text}</h5>
+                            <div className={`text-gray-900 text-sm font-normal leading-snug list-inside ${loading ? 'animate-pulse' : ''}`}>{message.text}</div>
                         </div>
                         {message.time && (
                             <div data-testid={`${name}-bubble-time-${index}`} className="justify-end items-center inline-flex mb-2.5">

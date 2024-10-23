@@ -5,13 +5,14 @@ import nano from './gemini-nano'
 import worker from './remote-worker'
 
 export interface LLMProviders {
+    cumulative: boolean
     validate(): Promise<void>
     prompt(chat: string): Promise<string>
     promptStream(chat: string): AsyncGenerator<string>
     asSession(): Promise<Session<LLMProviders>>
 }
 
-export type Session<T> = Disposable & Omit<T, 'asSession' | 'validate'>
+export type Session<T> = Disposable & Omit<T, 'asSession' | 'validate' | 'cumulative'>
 
 const llms = {
     cloudflare,

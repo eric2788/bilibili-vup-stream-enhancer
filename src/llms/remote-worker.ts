@@ -11,6 +11,8 @@ export default class RemoteWorker implements LLMProviders {
         this.model = settings.model || undefined
     }
 
+    cumulative: boolean = true
+
     async validate(): Promise<void> {
         const res = await fetch('https://llm.ericlamm.xyz/status')
         const json = await res.json()
@@ -55,5 +57,5 @@ export default class RemoteWorker implements LLMProviders {
             [Symbol.dispose]: () => { }
         }
     }
-    
+
 }

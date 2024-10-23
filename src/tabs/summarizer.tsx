@@ -2,12 +2,13 @@ import '~style.css';
 
 import { Typography } from "@material-tailwind/react";
 import icon from 'raw:assets/icon.png';
-import { useCallback, useDeferredValue, useEffect, useState } from "react";
+import { Fragment, useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useForwarder } from "~hooks/forwarder";
 
 import ChatBubble from "~components/ChatBubble";
 import createLLMProvider from "~llms";
 import { getSettingStorage } from "~utils/storage";
+import Markdown from 'markdown-to-jsx';
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('roomId')
@@ -18,11 +19,15 @@ const loadingText = '正在加载同传字幕总结.....'
 function App() {
 
     const [title, setTitle] = useState('加载中')
-    const [loading, setLoading] = useState(true)
     const [summary, setSummary] = useState<string>(loadingText)
     const [error, setError] = useState('')
     const deferredSummary = useDeferredValue(summary)
     const forwarder = useForwarder('jimaku-summarize', 'pages')
+
+    const loading = useMemo(
+        () => summary === loadingText && !error,
+        [summary, error]
+    )
 
     useEffect(() => {
         if (!roomId) {
@@ -45,12 +50,14 @@ function App() {
             const llmSettings = await getSettingStorage('settings.llm')
             const llm = createLLMProvider(llmSettings)
             const summaryStream = llm.promptStream(`这位是一名在b站直播间直播的日本vtuber说过的话,请根据下文对话猜测与观众的互动内容,并用中文总结一下他们的对话:\n\n${danmakus.join('\n')}`)
-            setLoading(false)
             for await (const words of summaryStream) {
-                setSummary(summary => summary === loadingText ? words : summary + words)
+                if (llm.cumulative) {
+                    setSummary(summary => summary === loadingText ? words : summary + words)
+                } else {
+                    setSummary(words)
+                }
             }
         } catch (err) {
-            setLoading(false)
             console.error(err)
             setError('错误: ' + err.message)
         } finally {
@@ -72,7 +79,7 @@ function App() {
                             avatar={icon}
                             loading={loading}
                             name="同传字幕总结"
-                            messages={[{ text: deferredSummary }]}
+                            messages={[{ text: <Markdown options={{ wrapper: Fragment }} >{deferredSummary}</Markdown> }]}
                             footer={error && <Typography variant="small" color="red" className="font-semibold">{error}</Typography>}
                         />
                     </div>

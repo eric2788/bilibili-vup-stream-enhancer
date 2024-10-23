@@ -19,6 +19,8 @@ export default class CloudFlareAI implements LLMProviders {
         this.model = settings.model || CloudFlareAI.DEFAULT_MODEL
     }
 
+    cumulative: boolean = true
+
     async validate(): Promise<void> {
         const success = await validateAIToken(this.accountId, this.apiToken, this.model)
         if (typeof success === 'boolean' && !success) throw new Error('Cloudflare API 验证失败')
