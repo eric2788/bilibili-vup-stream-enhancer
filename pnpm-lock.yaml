@@ -29,6 +29,9 @@ importers:
       '@material-tailwind/react':
         specifier: ^2.1.9
         version: 2.1.9(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@mlc-ai/web-llm':
+        specifier: ^0.2.73
+        version: 0.2.73
       '@plasmohq/messaging':
         specifier: ^0.6.2
         version: 0.6.2(react@18.2.0)
@@ -135,6 +138,9 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
+      '@webgpu/types':
+        specifier: ^0.1.49
+        version: 0.1.49
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -855,6 +861,9 @@ packages:
   '@mischnic/json-sourcemap@0.1.1':
     resolution: {integrity: sha512-iA7+tyVqfrATAIsIRWQG+a7ZLLD0VaOCKV2Wd/v4mqIU3J9c4jx9p7S0nw1XH3gJCKNBOOwACOPYYSUu9pgT+w==}
     engines: {node: '>=12.0.0'}
+
+  '@mlc-ai/web-llm@0.2.73':
+    resolution: {integrity: sha512-v9eS05aptZYNBhRZ7KEq5dr1kMESHvkdwru9tNY1oS1GDDEBjUt4Y/u06ejvP3qF4VatCakEezzJT3SkuMhDnQ==}
 
   '@motionone/animation@10.17.0':
     resolution: {integrity: sha512-ANfIN9+iq1kGgsZxs+Nz96uiNcPLGTXwfNo2Xz/fcJXniPYpaz/Uyrfa+7I5BPLxCP82sh7quVDudf1GABqHbg==}
@@ -1945,6 +1954,9 @@ packages:
 
   '@vue/shared@3.3.4':
     resolution: {integrity: sha512-7OjdcV8vQ74eiz1TZLzZP4JwqM5fA94K6yntPS5Z25r9HDuGNzaGdgvwKYq6S+MxwF0TFRwe50fIR/MYnakdkQ==}
+
+  '@webgpu/types@0.1.49':
+    resolution: {integrity: sha512-NMmS8/DofhH/IFeW+876XrHVWel+J/vdcFCHLDqeJgkH9x0DeiwjVd8LcBdaxdG/T7Rf8VUAYsA8X1efMzLjRQ==}
 
   abortcontroller-polyfill@1.7.5:
     resolution: {integrity: sha512-JMJ5soJWP18htbbxJjG7bG6yuI6pRhgJ0scHHTfkUjf6wjP912xZWvM+A4sJK3gqd9E8fcPbDnOefbA9Th/FIQ==}
@@ -3042,6 +3054,10 @@ packages:
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
     engines: {node: '>=10'}
+
+  loglevel@1.9.2:
+    resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
+    engines: {node: '>= 0.6.0'}
 
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
@@ -4673,6 +4689,10 @@ snapshots:
       '@lezer/lr': 1.4.0
       json5: 2.2.3
 
+  '@mlc-ai/web-llm@0.2.73':
+    dependencies:
+      loglevel: 1.9.2
+
   '@motionone/animation@10.17.0':
     dependencies:
       '@motionone/easing': 10.17.0
@@ -6145,6 +6165,8 @@ snapshots:
 
   '@vue/shared@3.3.4': {}
 
+  '@webgpu/types@0.1.49': {}
+
   abortcontroller-polyfill@1.7.5: {}
 
   acorn@8.12.1: {}
@@ -7202,6 +7224,8 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       is-unicode-supported: 0.1.0
+
+  loglevel@1.9.2: {}
 
   loose-envify@1.4.0:
     dependencies:

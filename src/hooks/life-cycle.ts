@@ -75,3 +75,33 @@ export function useTimeoutElement(before: JSX.Element, after: JSX.Element, timeo
 
     return element;
 }
+
+/**
+ * A React hook that ensures the provided disposable resource is properly disposed of
+ * when the component is unmounted.
+ *
+ * @param disposable - The resource to be disposed of, which can be either a `Disposable`
+ * or an `AsyncDisposable`. The resource must implement either the `Symbol.dispose` or
+ * `Symbol.asyncDispose` method.
+ *
+ * @example
+ * ```typescript
+ * const MyComponent = () => {
+ *   const disposableResource = useMemo(() => createDisposableResource(), []);
+ *   withDisposable(disposableResource);
+ *   
+ *   return <div>My Component</div>;
+ * };
+ * ```
+ */
+export function useDisposable(disposable: Disposable | AsyncDisposable) {
+    useEffect(() => {
+        return () => {
+            if (!!disposable[Symbol.dispose]) {
+                disposable[Symbol.dispose]();
+            } else if (!!disposable[Symbol.asyncDispose]) {
+                disposable[Symbol.asyncDispose]();
+            }
+        }
+    }, [])
+}

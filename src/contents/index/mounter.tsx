@@ -173,7 +173,7 @@ function createApp(roomId: string, plasmo: PlasmoSpec, info: StreamInfo): App {
                             onClick: () => this.start()
                         },
                         position: 'top-left',
-                        duration: 6000000,
+                        duration: Infinity,
                         dismissible: false
                     })
                     return

@@ -3,21 +3,23 @@ import type { SettingSchema as LLMSchema } from '~options/fragments/llm'
 import cloudflare from './cloudflare-ai'
 import nano from './gemini-nano'
 import worker from './remote-worker'
+import webllm from './web-llm'
 
 export interface LLMProviders {
     cumulative: boolean
-    validate(): Promise<void>
+    validate(progress?: (p: number, t: string) => void): Promise<void>
     prompt(chat: string): Promise<string>
     promptStream(chat: string): AsyncGenerator<string>
     asSession(): Promise<Session<LLMProviders>>
 }
 
-export type Session<T> = Disposable & Omit<T, 'asSession' | 'validate' | 'cumulative'>
+export type Session<T> = AsyncDisposable & Omit<T, 'asSession' | 'validate' | 'cumulative'>
 
 const llms = {
     cloudflare,
     nano,
-    worker
+    worker,
+    webllm
 }
 
 export type LLMs = typeof llms

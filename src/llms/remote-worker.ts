@@ -54,7 +54,7 @@ export default class RemoteWorker implements LLMProviders {
         console.warn('Remote worker session is not supported')
         return {
             ...this,
-            [Symbol.dispose]: () => { }
+            [Symbol.asyncDispose]: async () => { }
         }
     }
 

@@ -19,7 +19,7 @@ export default class GeminiNano implements LLMProviders {
             return session.prompt(chat)
         } finally {
             console.debug('[gemini nano] done')
-            session[Symbol.dispose]()
+            await session[Symbol.asyncDispose]()
         }
     }
 
@@ -33,7 +33,7 @@ export default class GeminiNano implements LLMProviders {
             }
         } finally {
             console.debug('[gemini nano] done')
-            session[Symbol.dispose]()
+            await session[Symbol.asyncDispose]()
         }
     }
 
@@ -82,7 +82,7 @@ class GeminiAssistant implements Session<LLMProviders> {
         }
     }
 
-    [Symbol.dispose](): void {
+    async [Symbol.asyncDispose]() {
         this.assistant.destroy()
     }
 }
@@ -105,7 +105,7 @@ class GeminiSummarizer implements Session<LLMProviders> {
         }
     }
 
-    [Symbol.dispose](): void {
+    async [Symbol.asyncDispose]() {
         this.summarizer.destroy()
     }
 

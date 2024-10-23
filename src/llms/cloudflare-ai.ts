@@ -41,7 +41,7 @@ export default class CloudFlareAI implements LLMProviders {
         console.warn('Cloudflare AI session is not supported')
         return {
             ...this,
-            [Symbol.dispose]: () => { }
+            [Symbol.asyncDispose]: async () => { }
         }
     }
 
