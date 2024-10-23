@@ -203,7 +203,7 @@ test('测试同传字幕AI总结', { tag: "@scoped" }, async ({ room, content: p
     logger.info('正在測試AI总結結果... (15s)')
     await summarizer.waitForTimeout(15000)
     await expect(summarizer.getByText('错误')).toBeHidden({ timeout: 5000 })
-    const res = await summarizer.getByTestId('同传字幕总结-bubble-chat-0').locator('h5.leading-snug').textContent()
+    const res = await summarizer.getByTestId('同传字幕总结-bubble-chat-0').locator('div.leading-snug').textContent()
     logger.debug('AI Summary:', res)
 
     const maybe = expect.configure({ soft: true })

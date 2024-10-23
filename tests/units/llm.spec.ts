@@ -48,7 +48,7 @@ test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modul
     const ret = await page.evaluate(async () => {
         const { llms } = window as any
         console.log('llms: ', llms)
-        const llm = await llms.createLLMProvider({ provider: 'nano' })
+        const llm = llms.createLLMProvider({ provider: 'nano' })
         return await llm.prompt('你好')
     })
 
