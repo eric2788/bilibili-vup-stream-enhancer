@@ -105,7 +105,7 @@ function SettingPage(): JSX.Element {
             if (!(settings instanceof Object)) {
                 throw new Error('导入的设定文件格式错误。')
             }
-            if (!arrayEqual(Object.keys(settings), fragmentKeys)) {
+            if (!Object.keys(settings).every(key => (fragmentKeys as string[]).includes(key))) {
                 throw new Error('导入的设定文件格式错误。')
             }
             await Promise.all(fragmentRefs.map((ref) => {
