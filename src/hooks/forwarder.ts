@@ -2,6 +2,7 @@ import {
     getForwarder,
     type ChannelType,
     type ForwardData,
+    type Forwarder,
     type ForwardResponse
 } from '~background/forwards'
 
@@ -18,17 +19,22 @@ import { useEffect, useMemo } from 'react'
  * - `sendForward`: A function that sends a message with the specified command to the specified channel. The message body is passed as an argument to this function.
  *
  * @example
- * const { addHandler, sendForward } = useForwarder('myCommand', 'background')
+ * const { addHandler, addHandlerOnce, sendForward } = useForwarder('myCommand', 'background')
  *
  * // Add a handler for 'myCommand' messages on the 'background' channel
  * addHandler((data) => {
  *   console.log('Received data:', data)
  * })
+ * 
+ * // Add a one-time handler for 'myCommand' messages on the 'background' channel
+ * addHandlerOnce((data) => {
+ *  console.log('Received data:', data)
+ * })
  *
  * // Send a 'myCommand' message to the 'background' channel
  * sendForward('background', { myData: 'Hello, world!' })
  */
-export function useForwarder<K extends keyof ForwardData>(key: K, target: ChannelType) {
+export function useForwarder<K extends keyof ForwardData>(key: K, target: ChannelType): Forwarder<K> {
 
     type R = ForwardResponse<ForwardData[K]>
     const removeFunc = new Set<VoidCallback>()
@@ -44,6 +50,11 @@ export function useForwarder<K extends keyof ForwardData>(key: K, target: Channe
     return useMemo(() => ({
         addHandler: (handler: (data: R) => void): VoidCallback => {
             const remover = forwarder.addHandler(handler)
+            removeFunc.add(remover)
+            return remover // auto remove on unmount or manual remove
+        },
+        addHandlerOnce: (handler: (data: R) => void): VoidCallback => {
+            const remover = forwarder.addHandlerOnce(handler)
             removeFunc.add(remover)
             return remover // auto remove on unmount or manual remove
         },

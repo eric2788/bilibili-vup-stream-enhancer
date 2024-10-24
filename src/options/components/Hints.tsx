@@ -16,7 +16,6 @@ function Hints(props: HintsProps): JSX.Element {
         <Fragment>
             <Typography
                 variant="small"
-
                 className="mt-2 flex items-center gap-1 font-normal dark:text-gray-400"
             >
                 <svg

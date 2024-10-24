@@ -10,6 +10,7 @@ import ButtonFragment, { buttonDefaultSettings, type ButtonSchema } from "./comp
 import DanmakuZone, { danmakuDefaultSettings, type DanmakuSchema } from "./components/DanmakuFragment"
 import JimakuZone, { jimakuDefaultSettings, type JimakuSchema } from "./components/JimakuFragment"
 import ListingFragment, { listingDefaultSettings, type ListingSchema } from "./components/ListingFragment"
+import AIFragment, { aiDefaultSettings, type AISchema } from "./components/AIFragment"
 
 
 export const title: string = '同传弹幕过滤'
@@ -28,6 +29,7 @@ export type FeatureSettingSchema = {
     danmakuZone: DanmakuSchema,
     buttonZone: ButtonSchema,
     listingZone: ListingSchema
+    aiZone: AISchema
 }
 
 export const defaultSettings: Readonly<FeatureSettingSchema> = {
@@ -39,7 +41,8 @@ export const defaultSettings: Readonly<FeatureSettingSchema> = {
     jimakuZone: jimakuDefaultSettings,
     danmakuZone: danmakuDefaultSettings,
     buttonZone: buttonDefaultSettings,
-    listingZone: listingDefaultSettings
+    listingZone: listingDefaultSettings,
+    aiZone: aiDefaultSettings
 }
 
 const zones: {
@@ -66,6 +69,11 @@ const zones: {
             Zone: ListingFragment,
             title: '同传名单设定',
             key: 'listingZone'
+        },
+        {
+            Zone: AIFragment,
+            title: 'AI 设定',
+            key: 'aiZone'
         }
     ]
 

@@ -1,9 +1,9 @@
 import { useCallback, useRef } from "react";
 
-export function useFileInput(onFileChange: (files: FileList) => Promise<void>, onError?: (e: Error | any) => void, deps: any[] = []){
+export function useFileInput(onFileChange: (files: FileList) => Promise<void>, onError?: (e: Error | any) => void, deps: any[] = []) {
 
     const inputRef = useRef<HTMLInputElement>()
-    const selectFiles = useCallback(function(): Promise<void> {
+    const selectFiles = useCallback(function (): Promise<void> {
         return new Promise((resolve, reject) => {
             const listener = async (e: Event) => {
                 try {

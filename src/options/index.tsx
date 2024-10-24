@@ -17,7 +17,7 @@ import { toast } from 'sonner/dist';
 import PromiseHandler from '~components/PromiseHandler';
 import Tutorial, { type TutorialRefProps, type TutorialStep } from '~components/Tutorial';
 import GenericContext from '~contexts/GenericContext';
-import { useFileInput } from '~hooks/input';
+import { useFileInput } from '~hooks/form';
 import { useStorageWatch } from '~hooks/storage';
 import { getMV2Settings, removeAllMV2Settings } from '~migrations';
 import injectToaster from '~toaster';

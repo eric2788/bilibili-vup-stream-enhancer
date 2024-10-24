@@ -151,7 +151,7 @@ export async function sendRequest<T = any>(request: RequestBody): Promise<T> {
 }
 
 
-export type CacheInfo<T> ={
+export type CacheInfo<T> = {
   data: T
   timestamp: number
 }

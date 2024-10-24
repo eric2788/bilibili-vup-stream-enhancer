@@ -125,6 +125,96 @@ test('測試彈出同傳視窗', async ({ room, context, optionPageUrl, page, co
     await expect(checkbox).not.toBeChecked()
 })
 
+test('测试同传字幕AI总结', async ({ room, content: p, context, optionPageUrl, page }) => {
+    
+    test.slow()
+    logger.info('正在修改設定...')
+    const settingsPage = await context.newPage()
+    await settingsPage.bringToFront()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.waitForTimeout(1000)
+
+    await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('AI 设定').click()
+    await settingsPage.getByText('启用同传字幕AI总结').click()
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.waitForTimeout(2000)
+
+    logger.info('正在測試AI总结...')
+    await page.bringToFront()
+    const buttonList = await getButtonList(p)
+    expect(buttonList.length).toBe(3)
+    await expect(buttonList[2]).toHaveText('同传字幕AI总结')
+
+
+    await p.locator('#subtitle-list').waitFor({ state: 'visible' })
+    const conversations = [
+        '大家好',
+        '早上好',
+        '知道我今天吃了什么吗?',
+        '是麦当劳哦!',
+        '"不就个麦当劳而已吗"不是啦',
+        '是最近那个很热门的新品',
+        '对，就是那个',
+        '然后呢, 今天久违的出门了',
+        '对，平时都是宅在家里的呢',
+        '"终于长大了"喂w',
+        '然后今天去了漫展来着',
+        '很多人呢',
+        '之前的我看到那么多人肯定社恐了',
+        '但今次意外的没有呢',
+        '"果然是长大了"也是呢',
+        '然后呢, 今天买了很多东西',
+        '插画啊，手办啊，周边之类的',
+        '荷包大出血w',
+        '不过觉得花上去应该值得的...吧?',
+        '喂，好过分啊',
+        '不过确实不应该花那么多钱的',
+        '然后呢，回家途中看到了蟑螂的尸体',
+        '太恶心了',
+        '然后把我一整天好心情搞没了w',
+        '"就因为一个蟑螂"对www',
+        '不过跟你们谈完反而心情好多了',
+        '谢谢大家',
+        '那么今天的杂谈就到这里吧',
+        '下次再见啦',
+        '拜拜~'
+    ]
+
+    for (const danmaku of conversations.map(t => `主播:${t}`)) {
+        await room.sendDanmaku(`【${danmaku}】`)
+    }
+    await p.waitForTimeout(3000)
+
+    let subtitleList = await p.locator('#subtitle-list > p').filter({ hasText: '主播:' }).all()
+    expect(subtitleList.length).toBe(conversations.length)
+
+    const newWindow = context.waitForEvent('page', { predicate: p => p.url().includes('summarizer.html') })
+    await buttonList[2].click()
+    const summarizer = await newWindow
+    await summarizer.bringToFront()
+    const loader = summarizer.getByText('正在加载同传字幕总结')
+    await expect(loader).toBeVisible()
+    await summarizer.waitForTimeout(3000)
+
+    await expect(summarizer.getByText('错误')).toBeHidden({ timeout: 5000 })
+    await expect(loader).toBeHidden({ timeout: 30000 })
+
+    logger.info('正在測試AI总結結果... (15s)')
+    await summarizer.waitForTimeout(15000)
+    await expect(summarizer.getByText('错误')).toBeHidden({ timeout: 5000 })
+    const res = await summarizer.getByTestId('同传字幕总结-bubble-chat-0').locator('div.leading-snug').textContent()
+    logger.debug('AI Summary:', res)
+
+    const maybe = expect.configure({ soft: true })
+    maybe(res).toMatch(/主播|日本VTuber|日本vtuber|vtuber/)
+    maybe(res).toMatch(/直播|观众/)
+    maybe(res).toContain('麦当劳')
+    maybe(res).toContain('漫展')
+    maybe(res).toContain('蟑螂')
+
+})
+
 
 test('測試離線記錄彈幕', async ({ room, content: p, context, optionPageUrl, page }) => {
 
@@ -340,7 +430,7 @@ test('測試保存設定後 css 能否生效', async ({ context, content, option
         settingsPage.getByTestId('jimaku-position'),
         '置左'
     )
-    
+
     await settingsPage.getByTestId('jimaku-color').fill('#123456')
 
 

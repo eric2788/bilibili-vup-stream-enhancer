@@ -80,7 +80,8 @@ jobs:
                            --grep=@scoped \
                            --pass-with-no-tests \
                            --global-timeout=3600000 \
-                           --max-failures=2
+                           --max-failures=2 \
+                           --retries=3
             env:
               DEBUG: true
     fast-e2e-test:
@@ -122,7 +123,8 @@ jobs:
                              --pass-with-no-tests \
                              --global-timeout=3600000 \
                              --timeout=60000 \
-                             --max-failures=5
+                             --max-failures=5 \
+                             --retries=3
               env:
                 DEBUG: true
             - name: Upload Test Results

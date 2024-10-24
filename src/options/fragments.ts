@@ -5,6 +5,7 @@ import * as display from './fragments/display'
 import * as features from './fragments/features'
 import * as listings from './fragments/listings'
 import * as version from './fragments/version'
+import * as llm from './fragments/llm'
 
 
 interface SettingFragment<T extends object> {
@@ -28,6 +29,7 @@ const fragments = {
     'settings.listings': listings,
     'settings.capture': capture,
     'settings.display': display,
+    'settings.llm': llm,
     'settings.developer': developer,
     'settings.version': version
 }
