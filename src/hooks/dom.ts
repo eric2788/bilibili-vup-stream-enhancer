@@ -1,3 +1,4 @@
+import { useInterval } from "@react-hooks-library/core"
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -57,4 +58,43 @@ export function useKeepBottom<E extends HTMLElement>(enabled: boolean, calculate
     }, [])
 
     return { ref: refCallback, element: ref, keepBottom }
+}
+
+
+
+
+/**
+ * Custom hook that queries the DOM for an element matching the given selector.
+ * Optionally, it can remount and re-query the DOM at a specified interval.
+ *
+ * @param {string} selector - The CSS selector to query the DOM.
+ * @param {boolean} [remount=false] - If true, the hook will re-query the DOM at the specified interval.
+ * @returns {Element | null} - The DOM element matching the selector, or null if no element is found.
+ *
+ * @example
+ * // Usage in a React component
+ * const MyComponent = () => {
+ *   const element = useQuerySelector('#my-element', true);
+ *   
+ *   useEffect(() => {
+ *     if (element) {
+ *       console.log('Element found:', element);
+ *     }
+ *   }, [element]);
+ *   
+ *   return <div>Check the console for the element.</div>;
+ * };
+ */
+export function useQuerySelector<E extends Element>(selector: string, remount: boolean = false): E | null {
+    
+    const [element, setElement] = useState<Element | null>(document.querySelector(selector))
+
+    useInterval(() => {
+        const el = document.querySelector(selector)
+        if (el) {
+            setElement(el)
+        }
+    }, 500, { paused: !remount && !!element, immediate: true })
+
+    return element as E
 }
