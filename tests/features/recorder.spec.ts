@@ -52,7 +52,7 @@ test('測試界面元素是否存在', async ({ content }) => {
     await expect(screenshot).toBeVisible()
 })
 
-test('測試界面按鈕有否根據設定顯示', async ({ content, context, optionPageUrl }) => {
+test('測試界面按鈕有否根據設定顯示', { tag: "@scoped" }, async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByTestId('record-button')
     const timer = content.getByTestId('record-timer')
