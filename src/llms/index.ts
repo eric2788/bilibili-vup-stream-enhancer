@@ -5,15 +5,20 @@ import nano from './gemini-nano'
 import worker from './remote-worker'
 import webllm from './web-llm'
 
+export type LLMEvent = {
+    progress: (p: number, t: string) => void
+}
+
 export interface LLMProviders {
     cumulative: boolean
-    validate(progress?: (p: number, t: string) => void): Promise<void>
+    on<E extends keyof LLMEvent>(event: E, listener: LLMEvent[E]): void
+    validate(): Promise<void>
     prompt(chat: string): Promise<string>
     promptStream(chat: string): AsyncGenerator<string>
     asSession(): Promise<Session<LLMProviders>>
 }
 
-export type Session<T> = AsyncDisposable & Omit<T, 'asSession' | 'validate' | 'cumulative'>
+export type Session<T extends LLMProviders> = AsyncDisposable & Pick<T, 'prompt' | 'promptStream'>
 
 const llms = {
     cloudflare,

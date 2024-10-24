@@ -1,3 +1,4 @@
+import { prebuiltAppConfig } from "@mlc-ai/web-llm"
 import type { LLMTypes } from "~llms"
 
 export type ModelList = {
@@ -18,14 +19,7 @@ const models: ModelList[] = [
     },
     {
         providers: [ 'webllm' ],
-        models: [
-            'Qwen2-7B-Instruct-q4f32_1-MLC',
-            'Qwen2.5-14B-Instruct-q4f16_1-MLC',
-            'gemma-2-9b-it-q4f16_1-MLC',
-            'Qwen2.5-3B-Instruct-q0f16-MLC',
-            'Phi-3-mini-128k-instruct-q0f16-MLC',
-            'Phi-3.5-mini-instruct-q4f16_1-MLC-1k'
-        ]
+        models: prebuiltAppConfig.model_list.map(m => m.model_id)
     }
 ]
 

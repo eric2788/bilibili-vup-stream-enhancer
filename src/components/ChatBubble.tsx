@@ -23,7 +23,7 @@ function ChatBubble(props: ChatBubbleProps): JSX.Element {
         <div className="flex gap-2.5 mb-4">
             <Avatar src={avatar} />
             <div className="grid">
-                <h5 data-testid={`${name}-bubble-username`} className="text-gray-900 text-sm font-semibold leading-snug pb-1">{name}</h5>
+                <h5 data-testid={`${name}-bubble-username`} className="text-gray-700 dark:text-gray-500 text-sm font-semibold leading-snug pb-1">{name}</h5>
                 {messages.map((message, index) => (
                     <div key={index} className="max-w-full grid">
                         <div data-testid={`${name}-bubble-chat-${index}`} className="px-3.5 py-2 bg-gray-100 rounded justify-start items-center gap-3 inline-flex">
