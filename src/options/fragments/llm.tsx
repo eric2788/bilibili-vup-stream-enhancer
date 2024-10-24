@@ -78,13 +78,12 @@ function LLMSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Elem
     const onValidate = async () => {
         setValidating(true)
         const provider = createLLMProvider(state)
-        const validation = provider.validate((p, t) => {
+        provider.on('progress', (p, t) => {
             if (toastValidating.current) {
-                toast.loading(`${t}... (${Math.round(p * 100)}%)`, {
-                    id: toastValidating.current
-                })
+                toast.loading(t, { id: toastValidating.current })
             }
         })
+        const validation = provider.validate()
         toast.dismiss()
         toastValidating.current = toast.promise(validation, {
             loading: `正在验证配置...`,

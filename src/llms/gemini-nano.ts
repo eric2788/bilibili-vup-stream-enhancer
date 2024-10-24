@@ -1,8 +1,10 @@
-import type { LLMProviders, Session } from "~llms"
+import type { LLMEvent, LLMProviders, Session } from "~llms"
 
 export default class GeminiNano implements LLMProviders {
-
+    
     cumulative: boolean = false
+
+    on<E extends keyof LLMEvent>(event: E, listener: LLMEvent[E]): void {}
 
     async validate(): Promise<void> {
         if (!window.ai) throw new Error('你的浏览器没有启用 AI 功能')

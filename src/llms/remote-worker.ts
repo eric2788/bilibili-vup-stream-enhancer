@@ -1,4 +1,4 @@
-import type { LLMProviders, Session } from "~llms";
+import type { LLMEvent, LLMProviders, Session } from "~llms";
 import type { SettingSchema } from "~options/fragments/llm";
 import { parseSSEResponses } from "~utils/binary";
 
@@ -12,6 +12,8 @@ export default class RemoteWorker implements LLMProviders {
     }
 
     cumulative: boolean = true
+
+    on<E extends keyof LLMEvent>(event: E, listener: LLMEvent[E]): void {}
 
     async validate(): Promise<void> {
         const res = await fetch('https://llm.ericlamm.xyz/status')

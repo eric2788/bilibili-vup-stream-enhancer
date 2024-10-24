@@ -1,5 +1,5 @@
 import { runAI, runAIStream, validateAIToken } from "~api/cloudflare";
-import type { LLMProviders, Session } from "~llms";
+import type { LLMEvent, LLMProviders, Session } from "~llms";
 import type { SettingSchema } from "~options/fragments/llm";
 
 export default class CloudFlareAI implements LLMProviders {
@@ -18,6 +18,9 @@ export default class CloudFlareAI implements LLMProviders {
         // only text generation model for now
         this.model = settings.model || CloudFlareAI.DEFAULT_MODEL
     }
+
+    // mot support progress
+    on<E extends keyof LLMEvent>(event: E, listener: LLMEvent[E]): void {}
 
     cumulative: boolean = true
 
