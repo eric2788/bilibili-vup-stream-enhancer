@@ -62,13 +62,13 @@ function testModel(model: string, { trash = false, provider = 'worker' }: { tras
 
 test.slow()
 
-test('测试 @cf/qwen/qwen1.5-14b-chat-awq 模型的AI总结结果', { tag: "@scoped" }, testModel('@cf/qwen/qwen1.5-14b-chat-awq'))
+test('测试 @cf/qwen/qwen1.5-14b-chat-awq 模型的AI总结结果', testModel('@cf/qwen/qwen1.5-14b-chat-awq'))
 
-test('测试 @cf/qwen/qwen1.5-7b-chat-awq 模型的AI总结结果', { tag: "@scoped" }, testModel('@cf/qwen/qwen1.5-7b-chat-awq'))
+test('测试 @cf/qwen/qwen1.5-7b-chat-awq 模型的AI总结结果', testModel('@cf/qwen/qwen1.5-7b-chat-awq'))
 
-test('测试 @cf/qwen/qwen1.5-1.8b-chat 模型的AI总结结果', { tag: "@scoped" }, testModel('@cf/qwen/qwen1.5-1.8b-chat'))
+test('测试 @cf/qwen/qwen1.5-1.8b-chat 模型的AI总结结果', testModel('@cf/qwen/qwen1.5-1.8b-chat'))
 
 // this model is too trash that cannot have any keywords
-test('测试 @hf/google/gemma-7b-it 模型的AI总结结果', { tag: "@scoped" }, testModel('@hf/google/gemma-7b-it', { trash: true }))
+test('测试 @hf/google/gemma-7b-it 模型的AI总结结果', testModel('@hf/google/gemma-7b-it', { trash: true }))
 
-test('测试 @hf/nousresearch/hermes-2-pro-mistral-7b 模型的AI总结结果', { tag: "@scoped" }, testModel('@hf/nousresearch/hermes-2-pro-mistral-7b'))
+test('测试 @hf/nousresearch/hermes-2-pro-mistral-7b 模型的AI总结结果', testModel('@hf/nousresearch/hermes-2-pro-mistral-7b'))

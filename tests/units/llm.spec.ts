@@ -5,7 +5,7 @@ import createLLMProvider from "~llms"
 
 test.slow()
 
-test('嘗試使用 Cloudflare AI 對話', { tag: "@scoped" }, async () => {
+test('嘗試使用 Cloudflare AI 對話', async () => {
 
     test.skip(!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN, '請設定 CF_ACCOUNT_ID 和 CF_API_TOKEN 環境變數')
 
@@ -35,7 +35,7 @@ test('嘗試使用 Cloudflare AI 對話', { tag: "@scoped" }, async () => {
     expect(msg).not.toBe('')
 })
 
-test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modules }) => {
+test('嘗試使用 Gemini Nano 對話', async ({ page, modules }) => {
 
     const supported = await page.evaluate(async () => {
         return !!window.ai;
@@ -72,7 +72,7 @@ test('嘗試使用 Gemini Nano 對話', { tag: "@scoped" }, async ({ page, modul
     logger.info('stream response: ', ret2)
 })
 
-test('嘗試使用 Remote Worker 對話', { tag: "@scoped" }, async () => {
+test('嘗試使用 Remote Worker 對話', async () => {
 
     const llm = createLLMProvider({ provider: 'worker' })
 
@@ -97,7 +97,7 @@ test('嘗試使用 Remote Worker 對話', { tag: "@scoped" }, async () => {
 
 })
 
-test('嘗試使用 Web LLM 對話', { tag: "@scoped" }, async ({ modules, page }) => {
+test('嘗試使用 Web LLM 對話', async ({ modules, page }) => {
 
     test.setTimeout(0)
     await modules['llm'].loadToPage()

@@ -125,7 +125,7 @@ test('測試彈出同傳視窗', async ({ room, context, optionPageUrl, page, co
     await expect(checkbox).not.toBeChecked()
 })
 
-test('测试同传字幕AI总结', { tag: "@scoped" }, async ({ room, content: p, context, optionPageUrl, page }) => {
+test('测试同传字幕AI总结', async ({ room, content: p, context, optionPageUrl, page }) => {
     
     test.slow()
     logger.info('正在修改設定...')
