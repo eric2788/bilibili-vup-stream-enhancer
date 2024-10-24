@@ -12,6 +12,7 @@ import { toast } from "sonner/dist";
 import { sendMessager } from "~utils/messaging";
 import { sendForward } from "~background/forwards";
 import { sleep } from "~utils/misc";
+import { useQuerySelector } from "~hooks/dom";
 
 export type ButtonAreaProps = {
     clearJimaku: VoidFunction
@@ -50,6 +51,11 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
         sendForward('pages', 'jimaku-summarize', { roomId: info.room, jimakus: jimakus.map(j => j.text) })
     }
 
+    const upperHeaderAreaElement = useQuerySelector(upperHeaderArea)
+    if (info.isTheme && upperHeaderAreaElement === null) {
+        console.warn(`找不到上方标题界面元素 ${upperHeaderArea}，可能无法插入切換按鈕列表的按钮`)
+    }
+
     return (
         <Fragment>
             {show && (
@@ -80,11 +86,11 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
                     )}
                 </div>
             )}
-            {info.isTheme && document.querySelector(upperHeaderArea) !== null && createPortal(
+            {info.isTheme && upperHeaderAreaElement !== null && createPortal(
                 <TailwindScope>
                     <ButtonSwitchList switched={show} onClick={() => setShow(!show)} />
                 </TailwindScope>,
-                document.querySelector(upperHeaderArea)
+                upperHeaderAreaElement
             )}
         </Fragment>
     )

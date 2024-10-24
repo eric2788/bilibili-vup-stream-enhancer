@@ -1,7 +1,7 @@
 import type React from "react";
 import { Item, Menu, useContextMenu, type ItemParams } from 'react-contexify';
 import { toast } from 'sonner/dist';
-import { useKeepBottom } from '~hooks/keep-bottom';
+import { useKeepBottom } from '~hooks/dom';
 import { useScrollOptimizer } from '~hooks/optimizer';
 import { getSettingStorage, setSettingStorage } from '~utils/storage';
 

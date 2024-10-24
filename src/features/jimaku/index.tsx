@@ -14,6 +14,7 @@ import type { FeatureHookRender } from "..";
 import JimakuCaptureLayer from './components/JimakuCaptureLayer';
 import JimakuAreaSkeleton from './components/JimakuAreaSkeleton';
 import JimakuAreaSkeletonError from './components/JimakuAreaSkeletonError';
+import { useQuerySelector } from "~hooks/dom";
 
 
 
@@ -35,7 +36,7 @@ export function App(): JSX.Element {
 
     const dev = settings['settings.developer']
 
-    const danmakuArea = document.querySelector(dev.elements.danmakuArea)
+    const danmakuArea = useQuerySelector(dev.elements.danmakuArea)
     if (!danmakuArea) {
         toast.warning(`找不到弹幕区域 ${dev.elements.danmakuArea}，部分功能可能无法正常工作`)
     }

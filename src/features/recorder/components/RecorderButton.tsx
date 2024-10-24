@@ -4,6 +4,7 @@ import { useContext, useState, type MutableRefObject } from "react"
 import TailwindScope from "~components/TailwindScope"
 import ContentContext from "~contexts/ContentContexts"
 import RecorderFeatureContext from "~contexts/RecorderFeatureContext"
+import { useQuerySelector } from "~hooks/dom"
 import { useForceRender } from "~hooks/force-update"
 import { useComputedStyle, useContrast } from "~hooks/styles"
 import type { Recorder } from "~types/media"
@@ -25,7 +26,7 @@ function RecorderButton(props: RecorderButtonProps): JSX.Element {
     const [recording, setRecording] = useState(false)
     const update = useForceRender()
     const { headInfoArea } = settings['settings.developer'].elements
-    const { backgroundImage } = useComputedStyle(document.querySelector(headInfoArea))
+    const { backgroundImage } = useComputedStyle(useQuerySelector(headInfoArea))
 
     useInterval(() => {
         if (!recorder.current) return

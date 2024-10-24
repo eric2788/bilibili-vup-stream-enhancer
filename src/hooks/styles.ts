@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 
 export function useComputedStyle(element: Element): CSSStyleDeclaration {
-    return useMemo(() => window.getComputedStyle(element), [element]);
+    return useMemo(() => element ? window.getComputedStyle(element) : {} as CSSStyleDeclaration, [element]);
 }
 
 export function useContrast(background: Element) {
