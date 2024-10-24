@@ -248,15 +248,12 @@ test('測試從遠端獲取開發者設定', async ({ page }) => {
     await page.getByText('开发者相关').click()
 
     const inputUpperButtonArea = page.getByTestId('elements.upperButtonArea')
-    await expect(inputUpperButtonArea).toHaveValue('.lower-row .left-ctnr')
     await inputUpperButtonArea.fill('inputUpperButtonArea changed')
 
     const liveTitle = page.getByTestId('elements.liveTitle')
-    await expect(liveTitle).toHaveValue('.live-skin-main-text.small-title')
     await liveTitle.fill('liveTitle changed')
 
     const liveFullScreenClass = page.getByTestId('classes.screenFull')
-    await expect(liveFullScreenClass).toHaveValue('fullscreen-fix')
     await liveFullScreenClass.fill('liveFullScreenClass changed')
 
     await page.getByText('保存设定').click()
@@ -287,6 +284,47 @@ test('測試從遠端獲取開發者設定', async ({ page }) => {
     })
 
     expect(storageStr).toBe(JSON.stringify(remote))
+})
+
+test('測試恢復開發者設定至默認值', async ({ page }) => {
+
+    logger.info('正在修改开发者相关....')
+
+    await page.getByText('开发者相关').click()
+
+    const inputUpperButtonArea = page.getByTestId('elements.upperButtonArea')
+    await expect(inputUpperButtonArea).toHaveValue('.lower-row .left-ctnr')
+    await inputUpperButtonArea.fill('inputUpperButtonArea changed')
+
+    const liveTitle = page.getByTestId('elements.liveTitle')
+    await expect(liveTitle).toHaveValue('.live-skin-main-text.small-title')
+    await liveTitle.fill('liveTitle changed')
+
+    const liveFullScreenClass = page.getByTestId('classes.screenFull')
+    await expect(liveFullScreenClass).toHaveValue('fullscreen-fix')
+    await liveFullScreenClass.fill('liveFullScreenClass changed')
+
+    await page.getByText('保存设定').click()
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    logger.info('正在验证开发者相关....')
+    await page.getByText('开发者相关').click()
+    await expect(inputUpperButtonArea).toHaveValue('inputUpperButtonArea changed')
+    await expect(liveTitle).toHaveValue('liveTitle changed')
+    await expect(liveFullScreenClass).toHaveValue('liveFullScreenClass changed')
+
+    logger.info('正在恢复开发者相关至默认值....')
+    page.once('dialog', dialog => dialog.accept())
+    await page.getByText('重置设定').click()
+
+    await page.getByText('已成功重置至默认设定').waitFor({ state: 'visible' })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    logger.info('正在验证开发者相关有否被重置....')
+    await page.getByText('开发者相关').click()
+    await expect(inputUpperButtonArea).not.toHaveValue('inputUpperButtonArea changed')
+    await expect(liveTitle).not.toHaveValue('liveTitle changed')
+    await expect(liveFullScreenClass).not.toHaveValue('liveFullScreenClass changed')
 })
 
 test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {

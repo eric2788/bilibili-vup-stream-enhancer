@@ -4,7 +4,7 @@ import { toast } from 'sonner/dist';
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { Leaves } from "~types/common";
 import { sendMessager } from '~utils/messaging';
-import { setSettingStorage } from '~utils/storage';
+import { removeSettingStorage, setSettingStorage } from '~utils/storage';
 
 export type SettingSchema = {
     elements: {
@@ -233,22 +233,41 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
             success: '已成功获取最新版本，请重新加载网页。',
             error: (err) => '获取最新版本失败: ' + err.message
         })
-        await fetching
+    }
+
+    const resetDefault = async () => {
+        if (!window.confirm('这将覆盖开发者相关至插件默认设定。')) return
+        const removing = removeSettingStorage('settings.developer')
+        toast.promise(removing, {
+            loading: '正在重置开发者相关设定...',
+            success: '已成功重置至默认设定，请重新加载网页。',
+            error: (err) => '重置设定失败: ' + err.message
+        })
     }
 
     return (
         <div className="col-span-2 container grid grid-cols-1 gap-5 w-full">
             <Alert
-                className="bg-[#f8d7da] text-[#721c24]"
+                className="bg-[#f8d7da] text-[#721c24] items-center"
                 icon={alertIcon}
                 action={
-                    <Button
-                        onClick={fetchDeveloper}
-                        size="sm"
-                        className="!absolute top-3 right-3 text-white bg-red-500"
-                    >
-                        获取最新版本
-                    </Button>}
+                    <div className="flex gap-1 flex-grow justify-end">
+                        <Button
+                            onClick={fetchDeveloper}
+                            size="sm"
+                            className=" text-white bg-red-500"
+                        >
+                            获取最新版本
+                        </Button>
+                        <Button
+                            onClick={resetDefault}
+                            size="sm"
+                            className=" text-white bg-green-500"
+                        >
+                            重置设定
+                        </Button>
+                    </div>
+                }
             >
                 若你本身并不熟悉网页开发，请尽量别碰这里的设定
             </Alert>
