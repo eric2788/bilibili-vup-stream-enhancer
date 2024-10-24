@@ -19,7 +19,7 @@ test('測試所有設定區塊能否展開', async ({ page }) => {
     await form.waitFor({ state: 'attached' })
     expect(form).toBeDefined()
     const sections = await form.locator('> section').all()
-    expect(sections.length).toBe(6)
+    expect(sections.length).toBe(7)
     for (const section of sections) {
         await section.click()
     }

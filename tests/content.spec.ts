@@ -451,7 +451,9 @@ test('測試导航', async ({ room, content, serviceWorker }) => {
 
 })
 
-test('測試 强制啓動 模式', async ({ context, optionPageUrl, page, content }) => {
+test('測試 强制啓動 模式', async ({ context, optionPageUrl, page, content, isThemeRoom }) => {
+
+    test.skip(isThemeRoom, '此測試不適用於大海報房間')
 
     logger.info('進入離綫的直播間...')
     // this room is always offline (guess what)
