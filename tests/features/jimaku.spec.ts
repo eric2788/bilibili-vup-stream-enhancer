@@ -377,7 +377,7 @@ test('測試右鍵同傳字幕來屏蔽同傳發送者', async ({ content, room,
 
 })
 
-test('測試全屏時字幕區塊是否存在 + 顯示切換', { tag: "@scoped" }, async ({ content: p, room, isThemeRoom }) => {
+test('測試全屏時字幕區塊是否存在 + 顯示切換', async ({ content: p, room, isThemeRoom }) => {
 
     test.skip(isThemeRoom, '此測試不適用於大海報房間')
 
