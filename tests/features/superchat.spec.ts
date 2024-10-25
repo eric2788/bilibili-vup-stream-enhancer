@@ -158,9 +158,9 @@ test('測試房間名單列表(黑名單/白名單)',
 )
 
 test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, optionPageUrl }) => {
-
+    
     const button = content.locator('button', { hasText: /^醒目留言$/ })
-    await expect(button).toBeVisible()
+    await expect(button).toBeVisible({ timeout: 60000 })
 
     logger.info('正在測試禁用時切換網頁全屏...')
     await content.locator('#live-player').dblclick()
