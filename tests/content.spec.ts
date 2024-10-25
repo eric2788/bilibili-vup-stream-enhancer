@@ -4,7 +4,7 @@ import { receiveOneBLiveMessage } from "./utils/bilibili";
 import { random } from "./utils/misc";
 
 
-test('測試主元素是否存在', async ({ content }) => {
+test('測試主元素是否存在', { tag: "@scoped" }, async ({ content }) => {
 
     const csui = content.locator('bjf-csui')
     await csui.waitFor({ state: 'attached', timeout: 10000 })
@@ -12,7 +12,7 @@ test('測試主元素是否存在', async ({ content }) => {
     await expect(csui.locator('#bjf-root')).toBeAttached()
 })
 
-test('測試功能元素有否基於設定而消失/顯示', async ({ content, context, optionPageUrl }) => {
+test('測試功能元素有否基於設定而消失/顯示', { tag: "@scoped" }, async ({ content, context, optionPageUrl }) => {
 
     // 默認只開了同傳字幕
     const csui = content.locator('bjf-csui')
@@ -72,7 +72,7 @@ test('测试扩展CSS有否影响到外围', async ({ content, isThemeRoom }) =>
 })
 
 
-test('測試貼邊浮動按鈕和主菜單區塊是否存在', async ({ content }) => {
+test('測試貼邊浮動按鈕和主菜單區塊是否存在', { tag: "@scoped" }, async ({ content }) => {
 
     const button = content.getByText('功能菜单')
     await expect(button).toBeAttached()
@@ -89,7 +89,7 @@ test('測試貼邊浮動按鈕和主菜單區塊是否存在', async ({ content 
 })
 
 
-test('測試是否挂接成功', async ({ room }) => {
+test('測試是否挂接成功', { tag: "@scoped" }, async ({ room }) => {
 
     logger.info('正在等待挂接成功...')
 
@@ -110,7 +110,7 @@ test('測試是否挂接成功', async ({ room }) => {
 })
 
 
-test('測試名單列表(黑名單/白名單)', async ({ context, content, optionPageUrl, room }) => {
+test('測試名單列表(黑名單/白名單)', { tag: "@scoped" }, async ({ context, content, optionPageUrl, room }) => {
 
     const button = content.getByText('功能菜单')
     await expect(button).toBeVisible()
@@ -139,7 +139,7 @@ test('測試名單列表(黑名單/白名單)', async ({ context, content, optio
 })
 
 
-test('測試进入设置按鈕', async ({ context, content, optionPageUrl }) => {
+test('測試进入设置按鈕', { tag: "@scoped" }, async ({ context, content, optionPageUrl }) => {
 
     await content.getByText('功能菜单').click()
     await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
@@ -154,7 +154,7 @@ test('測試进入设置按鈕', async ({ context, content, optionPageUrl }) => 
 })
 
 
-test('測試添加到黑名单按鈕', async ({ content, page, room }) => {
+test('測試添加到黑名单按鈕', { tag: "@scoped" }, async ({ content, page, room }) => {
 
     await content.getByText('功能菜单').click()
     await content.locator('#bjf-main-menu').waitFor({ state: 'visible' })
@@ -170,7 +170,7 @@ test('測試添加到黑名单按鈕', async ({ content, page, room }) => {
 
 })
 
-test('測試重新启动按鈕', async ({ content, optionPageUrl, context }) => {
+test('測試重新启动按鈕', { tag: "@scoped" }, async ({ content, optionPageUrl, context }) => {
 
 
     const settingsPage = await context.newPage()
@@ -195,7 +195,7 @@ test('測試重新启动按鈕', async ({ content, optionPageUrl, context }) => 
 })
 
 
-test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content }) => {
+test('測試弹出直播视窗按鈕', { tag: "@scoped" }, async ({ context, optionPageUrl, content }) => {
 
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -275,11 +275,11 @@ test('測試弹出直播视窗按鈕', async ({ context, optionPageUrl, content 
         return document.querySelector('video').currentTime
     })
     expect(afterCurrentTime).toBeGreaterThan(beforeCurrentTime)
-    
+
     const beforeBufferEnd = await monitor.evaluate(async () => {
         const video = document.querySelector('video')
         return video.buffered.end(video.buffered.length - 1)
-    }) 
+    })
     await monitor.waitForTimeout(3000)
     const afterBufferEnd = await monitor.evaluate(() => {
         const video = document.querySelector('video')
@@ -308,7 +308,7 @@ test('測試大海報房間下返回非海报界面按鈕', async ({ context, ro
 
 })
 
-test('測試全屏時有否根據設定顯示隱藏浮動按鈕', async ({ content, context, optionPageUrl }) => {
+test('測試全屏時有否根據設定顯示隱藏浮動按鈕', { tag: "@scoped" }, async ({ content, context, optionPageUrl }) => {
 
     const button = content.getByText('功能菜单')
     await expect(button).toBeVisible()
