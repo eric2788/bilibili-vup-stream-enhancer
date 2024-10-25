@@ -1,7 +1,7 @@
 import { request, type APIRequestContext } from "@playwright/test";
-import { sendInternal } from "~background/messages";
+import { Mutex } from 'async-mutex';
 import type { StreamUrls } from "~background/messages/get-stream-urls";
-import type { V1Response, StreamUrlResponse } from "~types/bilibili";
+import type { StreamUrlResponse, V1Response } from "~types/bilibili";
 import logger from "./logger";
 
 export interface LiveRoomInfo {
@@ -35,6 +35,8 @@ export default class BilbiliApi {
         return new BilbiliApi(context)
     }
 
+    private readonly mutex = new Mutex()
+
     /**
      * 构造BilbiliApi的新实例。
      * @param context - API请求的上下文。
@@ -48,9 +50,14 @@ export default class BilbiliApi {
      * @throws 如果获取操作失败，则抛出错误。
      */
     private async fetch<T = any>(path: string): Promise<T> {
-        const res = await this.context.get(path)
-        if (!res.ok()) throw new Error(`获取bilibili API失败：${res.statusText()}`)
-        return await res.json()
+        const release = await this.mutex.acquire()
+        try {
+            const res = await this.context.get(path)
+            if (!res.ok()) throw new Error(`获取bilibili API失败：${res.statusText()}`)
+            return await res.json()
+        } finally {
+            release()
+        }
     }
 
     /**
