@@ -16,6 +16,7 @@ import { randomString } from '~utils/misc'
 import createRecorder from "../recorders"
 import ProgressText from "./ProgressText"
 import RecorderButton from "./RecorderButton"
+import { useQuerySelector } from "~hooks/dom"
 
 export type RecorderLayerProps = {
     urls: StreamUrls
@@ -202,7 +203,11 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
         screenshot()
     })
 
-    if (hiddenUI || document.querySelector(upperHeaderArea) === null) {
+    const upperHeaderAreaElement = useQuerySelector(upperHeaderArea)
+    if (hiddenUI || upperHeaderAreaElement === null) {
+        if (!hiddenUI) {
+            console.warn(upperHeaderArea, 'is not attached yet')
+        }
         return null
     }
 
@@ -212,7 +217,7 @@ function RecorderLayer(props: RecorderLayerProps): JSX.Element {
             record={clipRecord}
             screenshot={screenshot}
         />,
-        document.querySelector(upperHeaderArea)
+        upperHeaderAreaElement
     )
 
 }

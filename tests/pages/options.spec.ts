@@ -4,6 +4,7 @@ import { expect, test } from '@tests/fixtures/background'
 import BilibiliPage from '@tests/helpers/bilibili-page'
 import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
+import { mkdir, writeFile } from 'fs/promises'
 import type { MV2Settings } from '~migrations/schema'
 
 test.beforeEach(async ({ page, extensionId }) => {
@@ -146,13 +147,45 @@ test('測試導出導入設定', async ({ page }) => {
     await expect(inputLineGap).toHaveValue('7')
 })
 
+// 向下兼容，即舊版設定檔沒有某些新設定區塊，依然可以導入
+test('測試導入向下兼容設定', async ({ page }) => {
+    await mkdir('out', { recursive: true })
+
+    {
+        logger.info('正在嘗試導入空設定....')
+        await writeFile('out/empty.json', '{}')
+
+        const fileChoosing = page.waitForEvent('filechooser')
+        await page.getByText('导入设定').click()
+        const fileChooser = await fileChoosing
+        await fileChooser.setFiles('out/empty.json')
+
+        await page.getByText('导入的设定文件格式错误。').waitFor({ state: 'visible' })
+    }
+
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    {
+        logger.info('正在嘗試導入正確設定....')
+        await writeFile('out/valid.json', JSON.stringify({ 'settings.version': {} }))
+
+        const fileChoosing = page.waitForEvent('filechooser')
+        await page.getByText('导入设定').click()
+        const fileChooser = await fileChoosing
+        await fileChooser.setFiles('out/valid.json')
+
+        await page.getByText('设定已经导入成功。').waitFor({ state: 'visible' })
+    }
+
+})
+
 
 test('測試清空數據庫', async ({ page, front: room, api }) => {
 
     await page.bringToFront()
     const feature = page.getByText('功能设定')
     await feature.click()
-    
+
     const btns = await page.locator('section#settings\\.features').getByText('启用离线记录').all()
     for (const btn of btns) {
         await btn.click()
@@ -517,7 +550,7 @@ test('測試导航', async ({ page, serviceWorker }) => {
 test('測試點擊使用指南', async ({ context, page }) => {
 
     await page.getByText('功能设定').click()
-    
+
     const tutorial = context.waitForEvent('page')
     await page.getByText('使用指南').click()
     const tutorialPage = await tutorial

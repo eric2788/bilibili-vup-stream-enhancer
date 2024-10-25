@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom'
 import styled from '@emotion/styled'
 import type { SettingSchema } from "~options/fragments/developer"
+import { useQuerySelector } from "~hooks/dom"
 
 export type JimakuVisibleButtonProps = {
     toggle: VoidFunction
@@ -21,7 +22,7 @@ const Div = styled.div`
 
 function JimakuVisibleButton({ toggle, visible, dev }: JimakuVisibleButtonProps): JSX.Element {
 
-    const element = document.querySelector(dev.elements.upperInputArea)
+    const element = useQuerySelector(dev.elements.upperInputArea)
     if (!element) {
         console.warn(`找不到元素 ${dev.elements.upperInputArea}，部分功能可能无法正常工作`)
         return null

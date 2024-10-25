@@ -105,6 +105,9 @@ function SettingPage(): JSX.Element {
             if (!(settings instanceof Object)) {
                 throw new Error('导入的设定文件格式错误。')
             }
+            if (Object.keys(settings).length === 0) {
+                throw new Error('导入的设定文件格式错误。')
+            }
             if (!Object.keys(settings).every(key => (fragmentKeys as string[]).includes(key))) {
                 throw new Error('导入的设定文件格式错误。')
             }
@@ -117,8 +120,7 @@ function SettingPage(): JSX.Element {
         })();
         toast.promise(importing, {
             loading: '正在导入设定...',
-            success: '设定已经导入成功。',
-            error: err => '导入设定失败: ' + err.message
+            success: '设定已经导入成功。'
         })
         await importing
         if (!processing) {
