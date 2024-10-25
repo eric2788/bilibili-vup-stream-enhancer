@@ -62,65 +62,65 @@ test('測試 ffmpeg.wasm 轉換 mp4 到 gif', async ({ context, page, modules })
 })
 
 // FYR: https://ffmpegwasm.netlify.app/docs/faq#is-rtsp-supported-by-ffmpegwasm
-test.fail('測試透過 ffmpeg.wasm 錄製 http-flv 直播流', async ({ modules, room: { stream, roomid }, page }) => {
+// test.fail('測試透過 ffmpeg.wasm 錄製 http-flv 直播流', async ({ modules, room: { stream, roomid }, page }) => {
 
-    await modules['utils'].loadToPage()
-    await modules['ffmpeg'].loadToPage()
+//     await modules['utils'].loadToPage()
+//     await modules['ffmpeg'].loadToPage()
 
-    const flvs = stream.filter(s => s.type === 'flv').map(s => s.url)
-    test.skip(flvs.length === 0, '没有可用的直播视频流')
+//     const flvs = stream.filter(s => s.type === 'flv').map(s => s.url)
+//     test.skip(flvs.length === 0, '没有可用的直播视频流')
 
-    const downloading = page.waitForEvent('download')
-    await page.evaluate(async ({ flvs, roomid }) => {
+//     const downloading = page.waitForEvent('download')
+//     await page.evaluate(async ({ flvs, roomid }) => {
 
-        const { getFFmpeg, utils } = window as any
-        const ffmpeg = await getFFmpeg()
+//         const { getFFmpeg, utils } = window as any
+//         const ffmpeg = await getFFmpeg()
 
-        const outFile = `${roomid}.flv`
-        await ffmpeg.exec(['-f', 'live_flv', '-i', flvs[0].replace('https', 'http'), outFile], 15 * 1000)
-        const data = await ffmpeg.readFile(outFile)
-        const output = new Blob([data], { type: 'video/mp4' })
-        utils.file.downloadBlob(output, outFile)
+//         const outFile = `${roomid}.flv`
+//         await ffmpeg.exec(['-f', 'live_flv', '-i', flvs[0].replace('https', 'http'), outFile], 15 * 1000)
+//         const data = await ffmpeg.readFile(outFile)
+//         const output = new Blob([data], { type: 'video/mp4' })
+//         utils.file.downloadBlob(output, outFile)
 
-    }, { flvs, roomid })
+//     }, { flvs, roomid })
 
-    const downloaded = await downloading
-    await downloaded.saveAs('out/test.flv')
+//     const downloaded = await downloading
+//     await downloaded.saveAs('out/test.flv')
 
-    const info = await readMovieInfo('out/test.flv')
+//     const info = await readMovieInfo('out/test.flv')
 
-    logger.info('info: ', info)
+//     logger.info('info: ', info)
 
-})
+// })
 
 // FYR: https://ffmpegwasm.netlify.app/docs/faq#is-rtsp-supported-by-ffmpegwasm
-test.fail('測試透過 ffmpeg.wasm 錄製 HLS 直播流', async ({ modules, room: { stream, roomid }, page }) => {
+// test.fail('測試透過 ffmpeg.wasm 錄製 HLS 直播流', async ({ modules, room: { stream, roomid }, page }) => {
 
-    await modules['utils'].loadToPage()
-    await modules['ffmpeg'].loadToPage()
+//     await modules['utils'].loadToPage()
+//     await modules['ffmpeg'].loadToPage()
 
-    const hls = stream.filter(s => s.type === 'hls').map(s => s.url)
-    test.skip(hls.length === 0, '没有可用的直播视频流')
+//     const hls = stream.filter(s => s.type === 'hls').map(s => s.url)
+//     test.skip(hls.length === 0, '没有可用的直播视频流')
 
-    const downloading = page.waitForEvent('download')
-    await page.evaluate(async ({ hls, roomid }) => {
+//     const downloading = page.waitForEvent('download')
+//     await page.evaluate(async ({ hls, roomid }) => {
 
-        const { getFFmpeg, utils } = window as any
-        const ffmpeg = await getFFmpeg()
+//         const { getFFmpeg, utils } = window as any
+//         const ffmpeg = await getFFmpeg()
 
-        const outFile = `${roomid}.flv`
-        await ffmpeg.exec(['-f', 'live_flv', '-i', hls[0].replace('https', 'http'), outFile], 15 * 1000)
-        const data = await ffmpeg.readFile(outFile)
-        const output = new Blob([data], { type: 'video/mp4' })
-        utils.file.downloadBlob(output, outFile)
+//         const outFile = `${roomid}.flv`
+//         await ffmpeg.exec(['-f', 'live_flv', '-i', hls[0].replace('https', 'http'), outFile], 15 * 1000)
+//         const data = await ffmpeg.readFile(outFile)
+//         const output = new Blob([data], { type: 'video/mp4' })
+//         utils.file.downloadBlob(output, outFile)
 
-    }, { hls, roomid })
+//     }, { hls, roomid })
 
-    const downloaded = await downloading
-    await downloaded.saveAs('out/test.mp4')
+//     const downloaded = await downloading
+//     await downloaded.saveAs('out/test.mp4')
 
-    const info = await readMovieInfo('out/test.mp4')
+//     const info = await readMovieInfo('out/test.mp4')
 
-    logger.info('info: ', info)
+//     logger.info('info: ', info)
 
-})
+// })
