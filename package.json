@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "pnpm clean && plasmo dev",
     "dev:opera": "pnpm dev --target=opera-mv3",
-    "build": "plasmo build --no-minify",
+    "build": "plasmo build --no-optimize",
     "package": "plasmo package",
     "clean": "run-script-os",
     "clean:nix": "rm -rf build && rm -rf .plasmo",
