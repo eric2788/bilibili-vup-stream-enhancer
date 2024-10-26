@@ -1,10 +1,10 @@
-import { Alert, Button, Input, Typography } from '@material-tailwind/react';
-import { Fragment, type ChangeEvent } from 'react';
+import { Alert, Button, Input, Switch, Typography } from '@material-tailwind/react';
+import { Fragment, type ChangeEvent, type ExoticComponent } from 'react';
 import { toast } from 'sonner/dist';
 import type { ExposeHandler, StateProxy } from "~hooks/binding";
 import type { Leaves } from "~types/common";
 import { sendMessager } from '~utils/messaging';
-import { setSettingStorage } from '~utils/storage';
+import { removeSettingStorage, setSettingStorage } from '~utils/storage';
 
 export type SettingSchema = {
     elements: {
@@ -32,6 +32,9 @@ export type SettingSchema = {
     attr: {
         chatUserId: string;
         chatDanmaku: string;
+    };
+    extra: {
+        forceBoot: boolean;
     };
 };
 
@@ -61,13 +64,16 @@ export const defaultSettings: Readonly<SettingSchema> = {
     attr: {
         chatUserId: 'data-uid', // 聊天条 用户id 属性
         chatDanmaku: 'data-danmaku' // 聊天条 弹幕 属性
+    },
+    extra: {
+        forceBoot: false // 在直播间下线时依然强制启动
     }
 }
 
 export const title = '开发者相关'
 
 export const description = [
-    '此设定区块是控制抓取元素的设定，这里的默认数值都是针对当前版本的B站页面。',
+    '此设定区块是控制抓取元素或其他实验性功能的设定，这里的默认数值都是针对当前版本的B站页面。',
     '若B站页面发生改版, 本扩展将无法抓取元素致无法运作。除了等待本扩展的修复版本更新外, 有JS开发经验的用户可以自行修改此区块的数值以适应新版面。',
     '至于没有JS开发经验的用户，则尽量不要碰这里的设定，否则有可能导致扩展无法正常运作。'
 ]
@@ -82,6 +88,11 @@ type ElementDefinerList = {
     [title: string]: ElementDefiner[]
 }
 
+type ComponentDefiner<T> = {
+    Component: ExoticComponent<any>,
+    handler: (e: ChangeEvent<HTMLInputElement>) => T,
+    props?: (prop: { key: string, label: string, value: T, handler: (e: ChangeEvent<HTMLInputElement>) => T }) => object
+}
 
 const elementDefiners: ElementDefinerList = {
     "元素捕捉": [
@@ -167,13 +178,33 @@ const elementDefiners: ElementDefinerList = {
             label: "聊天条 弹幕 属性",
             key: "attr.chatDanmaku"
         },
+    ],
+    "其他设定": [
+        {
+            label: "在直播间下线时依然强制启动",
+            key: "extra.forceBoot"
+        }
     ]
+}
+
+const componentDefiners: Record<string, ComponentDefiner<any>> = {
+    'string': {
+        Component: Input,
+        handler: (e: ChangeEvent<HTMLInputElement>) => e.target.value
+    },
+    'boolean': {
+        Component: Switch,
+        handler: (e: ChangeEvent<HTMLInputElement>) => e.target.checked,
+        props: ({ key, label, value, handler }) => ({
+            checked: value,
+            onChange: handler,
+            label: <Typography className="font-medium">{label}</Typography>
+        })
+    }
 }
 
 
 function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Element {
-
-    const handler = useHandler<ChangeEvent<HTMLInputElement>, string>((e) => e.target.value)
 
     const alertIcon = (
         <svg
@@ -192,7 +223,7 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
 
     const fetchDeveloper = async () => {
         if (!window.confirm('这将覆盖开发者相关所有目前设定。')) return
-        const fetching = (async function(){
+        const fetching = (async function () {
             const { data, error } = await sendMessager('fetch-developer')
             if (error) throw new Error(error)
             await setSettingStorage('settings.developer', data)
@@ -200,24 +231,43 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
         toast.promise(fetching, {
             loading: '正在获取远端最新开发者设定...',
             success: '已成功获取最新版本，请重新加载网页。',
-            error: (err) => '获取最新版本失败: '+err.message
+            error: (err) => '获取最新版本失败: ' + err.message
         })
-        await fetching
+    }
+
+    const resetDefault = async () => {
+        if (!window.confirm('这将覆盖开发者相关至插件默认设定。')) return
+        const removing = removeSettingStorage('settings.developer')
+        toast.promise(removing, {
+            loading: '正在重置开发者相关设定...',
+            success: '已成功重置至默认设定，请重新加载网页。',
+            error: (err) => '重置设定失败: ' + err.message
+        })
     }
 
     return (
         <div className="col-span-2 container grid grid-cols-1 gap-5 w-full">
             <Alert
-                className="bg-[#f8d7da] text-[#721c24]"
+                className="bg-[#f8d7da] text-[#721c24] items-center"
                 icon={alertIcon}
                 action={
-                    <Button
-                        onClick={fetchDeveloper}
-                        size="sm"
-                        className="!absolute top-3 right-3 text-white bg-red-500"
-                    >
-                        获取最新版本
-                    </Button>}
+                    <div className="flex gap-1 flex-grow justify-end">
+                        <Button
+                            onClick={fetchDeveloper}
+                            size="sm"
+                            className=" text-white bg-red-500"
+                        >
+                            获取最新版本
+                        </Button>
+                        <Button
+                            onClick={resetDefault}
+                            size="sm"
+                            className=" text-white bg-green-500"
+                        >
+                            重置设定
+                        </Button>
+                    </div>
+                }
             >
                 若你本身并不熟悉网页开发，请尽量别碰这里的设定
             </Alert>
@@ -226,16 +276,23 @@ function DeveloperSettings({ state, useHandler }: StateProxy<SettingSchema>): JS
                     <Typography variant="h3">
                         {title}
                     </Typography>
-                    {definers.map(({ label, key }) => (
-                        <Input
-                            data-testid={key}
-                            key={key}
-                            crossOrigin="anonymous"
-                            variant="static"
-                            label={label}
-                            value={(state as ExposeHandler<SettingSchema>).get(key)}
-                            onChange={handler(key)} />
-                    ))}
+                    {definers.map(({ label, key }) => {
+                        const value = (state as ExposeHandler<SettingSchema>).get(key)
+                        const { Component, handler, props } = componentDefiners[typeof value]
+                        const onChange = useHandler<ChangeEvent<HTMLInputElement>, typeof value>(handler)(key)
+                        return (
+                            <Component
+                                data-testid={key}
+                                key={key}
+                                crossOrigin="anonymous"
+                                {...(props ? props({ key, label, value, handler: onChange }) : {
+                                    value,
+                                    label,
+                                    onChange,
+                                })}
+                            />
+                        )
+                    })}
                 </Fragment>
             ))}
         </div>

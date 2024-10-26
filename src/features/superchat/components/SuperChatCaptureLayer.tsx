@@ -1,16 +1,15 @@
-import { useCallback, useContext, useRef, useState } from "react"
+import { useCallback, useContext, useState } from "react"
 import { getTimeStamp, randomString, toStreamingTime } from "~utils/misc"
 
-import { useInterval } from "@react-hooks-library/core"
 import ContentContext from "~contexts/ContentContexts"
+import SuperChatFeatureContext from "~contexts/SuperChatFeatureContext"
 import db from "~database"
+import { useWebScreenChange } from "~hooks/bilibili"
 import { useBLiveSubscriber } from "~hooks/message"
+import { useTransaction } from "~hooks/optimizer"
 import SuperChatArea from "./SuperChatArea"
 import SuperChatFloatingButton from "./SuperChatFloatingButton"
 import type { SuperChatCard } from "./SuperChatItem"
-import { useTransaction } from "~hooks/optimizer"
-import { useWebScreenChange } from "~hooks/bilibili"
-import SuperChatFeatureContext from "~contexts/SuperChatFeatureContext"
 
 export type SuperChatCaptureLayerProps = {
     offlineRecords: SuperChatCard[]

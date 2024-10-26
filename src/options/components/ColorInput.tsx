@@ -1,7 +1,5 @@
 import type { RefAttributes } from 'react';
-
 import { Input, type InputProps } from '@material-tailwind/react';
-
 import type { HexColor } from "~types/common";
 
 

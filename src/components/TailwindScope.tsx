@@ -9,10 +9,10 @@ import ShadowRoot from '~components/ShadowRoot';
  * @param {boolean} [props.dark] - Optional. Specifies whether the dark mode should be applied.
  * @returns {JSX.Element} The rendered TailwindScope component.
  */
-function TailwindScope({ children, dark }: { children: React.ReactNode, dark?: boolean }): JSX.Element {
+function TailwindScope({ children, dark, noWrap = false }: { children: React.ReactNode, dark?: boolean, noWrap?: boolean }): JSX.Element {
     return (
         <div className={dark === true ? `dark` : ''}>
-            <ShadowRoot styles={[styleText]}>
+            <ShadowRoot styles={[styleText]} noWrap={noWrap}>
                 {children}
             </ShadowRoot>
         </div>

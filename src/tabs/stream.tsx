@@ -27,10 +27,11 @@ import loadStream from '~players';
 import { sendMessager } from '~utils/messaging';
 import { useAsyncEffect } from '~hooks/life-cycle';
 
-const urlParams = new URLSearchParams(window.location.search);
-const roomId = urlParams.get('roomId');
-const title = urlParams.get('title')
-const owner = urlParams.get('owner')
+const qs = new URLSearchParams(window.location.search);
+const roomId = qs.get('roomId');
+const title = qs.get('title')
+const owner = qs.get('owner')
+const mutedDefault = qs.get('muted') === 'true'
 
 document.title = `${owner} 的直播间: ${title}`
 
@@ -162,6 +163,7 @@ function MonitorApp({ urls }: { urls: StreamUrls }): JSX.Element {
                         slot="media"
                         playsInline
                         autoPlay
+                        muted={mutedDefault}
                     />
                     <MediaLoadingIndicator slot="loading"></MediaLoadingIndicator>
                     <MediaControlBar className="flex justify-between">

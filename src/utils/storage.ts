@@ -48,6 +48,16 @@ export async function getFullSettingStroage(): Promise<Settings> {
 }
 
 /**
+ * Removes a setting from the storage.
+ *
+ * @param key - The key of the setting to be removed. It should be one of the keys of `SettingFragments`.
+ * @returns A promise that resolves when the setting is removed.
+ */
+export async function removeSettingStorage(key: keyof SettingFragments): Promise<void> {
+    return storage.remove(key)
+}
+
+/**
  * Executes a callback function while setting a processing flag in the session storage.
  * @param callback - The callback function to be executed.
  * @returns A promise that resolves to the result of the callback function.

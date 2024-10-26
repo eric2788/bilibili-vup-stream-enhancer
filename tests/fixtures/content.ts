@@ -64,9 +64,12 @@ export const test = extensionBase.extend<ContentFixtures & ContentOptions>({
 
 export const expect = test.expect
 
-test.beforeEach(async ({ context }) => {
+test.beforeEach(async ({ context, isThemeRoom }) => {
     context.on('console', (msg) => {
         if (!msg.text().includes('bilibili-vup-stream-enhancer')) return
         logger.debug(msg.text().replace('bilibili-vup-stream-enhancer', 'console'))
     })
+    if (isThemeRoom) {
+        test.slow()
+    }
 })

@@ -19,20 +19,22 @@ test('測試功能元素有否基於設定而消失/顯示', async ({ content, c
     await csui.waitFor({ state: 'attached', timeout: 10000 })
 
     await expect(csui.locator('section#bjf-feature-jimaku')).toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).toBeAttached()
     await expect(csui.locator('section#bjf-feature-recorder')).not.toBeAttached()
-    await expect(csui.locator('section#bjf-feature-superchat')).not.toBeAttached()
 
     logger.info('正在修改設定')
     const settingsPage = await context.newPage()
     await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
     await settingsPage.getByText('功能设定').click()
+    await settingsPage.getByText('启用同传弹幕过滤').click()
     await settingsPage.getByText('启用快速切片').click()
     await settingsPage.getByText('启用醒目留言').click()
     await settingsPage.getByText('保存设定').click()
     await settingsPage.close()
 
+    await expect(csui.locator('section#bjf-feature-jimaku')).not.toBeAttached()
+    await expect(csui.locator('section#bjf-feature-superchat')).not.toBeAttached()
     await expect(csui.locator('section#bjf-feature-recorder')).toBeAttached()
-    await expect(csui.locator('section#bjf-feature-superchat')).toBeAttached()
 })
 
 test('测试扩展CSS有否影响到外围', async ({ content, isThemeRoom }) => {
@@ -449,3 +451,33 @@ test('測試导航', async ({ room, content, serviceWorker }) => {
 
 })
 
+test('測試 强制啓動 模式', async ({ context, optionPageUrl, page, content, isThemeRoom }) => {
+
+    test.skip(isThemeRoom, '此測試不適用於大海報房間')
+
+    logger.info('進入離綫的直播間...')
+    // this room is always offline (guess what)
+    await page.goto('https://live.bilibili.com/21849412', { waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(3000)
+    logger.info('測試主元素是否不存在...')
+    await expect(content.getByText('功能菜单')).toBeHidden()
+    await expect(content.locator('section#bjf-feature-jimaku')).not.toBeAttached()
+    await expect(content.locator('section#bjf-feature-superchat')).not.toBeAttached()
+
+    logger.info('正在修改設定...')
+    const settingsPage = await context.newPage()
+    await settingsPage.goto(optionPageUrl, { waitUntil: 'domcontentloaded' })
+    await settingsPage.getByText('开发者相关').click()
+    await settingsPage.getByText('在直播间下线时依然强制启动').check()
+    await settingsPage.getByText('保存设定').click()
+    await settingsPage.close()
+
+    logger.info('正在刷新頁面...')
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(3000)
+    logger.info('測試主元素是否存在...')
+    await expect(content.getByText('功能菜单')).toBeVisible()
+    await expect(content.locator('section#bjf-feature-jimaku')).toBeAttached()
+    await expect(content.locator('section#bjf-feature-superchat')).toBeAttached()
+
+})

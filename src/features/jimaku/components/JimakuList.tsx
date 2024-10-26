@@ -1,7 +1,7 @@
 import type React from "react";
 import { Item, Menu, useContextMenu, type ItemParams } from 'react-contexify';
 import { toast } from 'sonner/dist';
-import { useKeepBottom } from '~hooks/keep-bottom';
+import { useKeepBottom } from '~hooks/dom';
 import { useScrollOptimizer } from '~hooks/optimizer';
 import { getSettingStorage, setSettingStorage } from '~utils/storage';
 
@@ -9,11 +9,11 @@ import type { Jimaku } from "./JimakuLine";
 import JimakuLine from './JimakuLine';
 
 import styleText from 'data-text:react-contexify/dist/ReactContexify.css';
-import { useContext, useRef } from "react";
+import { useContext } from "react";
 import 'react-contexify/dist/ReactContexify.css';
+import ShadowStyle from "~components/ShadowStyle";
 import JimakuFeatureContext from "~contexts/JimakuFeatureContext";
 import type { UserRecord } from "~options/features/jimaku/components/ListingFragment";
-import ShadowStyle from "~components/ShadowStyle";
 
 
 export type JimakuListProps = {

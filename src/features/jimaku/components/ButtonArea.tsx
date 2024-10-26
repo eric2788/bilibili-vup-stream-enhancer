@@ -8,6 +8,11 @@ import type { Jimaku } from "./JimakuLine";
 import { createPortal } from "react-dom";
 import ButtonSwitchList from "./ButtonSwitchList";
 import TailwindScope from "~components/TailwindScope";
+import { toast } from "sonner/dist";
+import { sendMessager } from "~utils/messaging";
+import { sendForward } from "~background/forwards";
+import { sleep } from "~utils/misc";
+import { useQuerySelector } from "~hooks/dom";
 
 export type ButtonAreaProps = {
     clearJimaku: VoidFunction
@@ -17,7 +22,7 @@ export type ButtonAreaProps = {
 function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
 
     const { settings, info } = useContext(ContentContext)
-    const { jimakuZone, buttonZone: btnStyle, jimakuPopupWindow } = useContext(JimakuFeatureContext)
+    const { jimakuZone, buttonZone: btnStyle, jimakuPopupWindow, aiZone } = useContext(JimakuFeatureContext)
 
     const { order } = jimakuZone
     const { enabledRecording } = settings["settings.features"]
@@ -35,6 +40,21 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
     })
 
     const [show, setShow] = useState(!info.isTheme)
+
+    const summerize = async () => {
+        if (jimakus.length < 25) {
+            toast.warning('至少需要有25条同传字幕才可总结。')
+            return
+        }
+        await sendMessager('open-tab', { tab: 'summarizer', params: { roomId: info.room, title: info.title }, active: true, singleton: true })
+        await sleep(2000)
+        sendForward('pages', 'jimaku-summarize', { roomId: info.room, jimakus: jimakus.map(j => j.text) })
+    }
+
+    const upperHeaderAreaElement = useQuerySelector(upperHeaderArea)
+    if (info.isTheme && upperHeaderAreaElement === null) {
+        console.warn(`找不到上方标题界面元素 ${upperHeaderArea}，可能无法插入切換按鈕列表的按钮`)
+    }
 
     return (
         <Fragment>
@@ -59,13 +79,18 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
                             弹出同传视窗
                         </JimakuButton>
                     }
+                    {aiZone.summarizeEnabled && (
+                        <JimakuButton onClick={summerize}>
+                            同传字幕AI总结
+                        </JimakuButton>
+                    )}
                 </div>
             )}
-            {info.isTheme && document.querySelector(upperHeaderArea) !== null && createPortal(
+            {info.isTheme && upperHeaderAreaElement !== null && createPortal(
                 <TailwindScope>
                     <ButtonSwitchList switched={show} onClick={() => setShow(!show)} />
                 </TailwindScope>,
-                document.querySelector(upperHeaderArea)
+                upperHeaderAreaElement
             )}
         </Fragment>
     )

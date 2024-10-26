@@ -24,7 +24,8 @@ function ButtonList(): JSX.Element {
     const openMonitor = createPopupWindow(`stream.html`, {
         roomId: info.room,
         title: info.title,
-        owner: info.username
+        owner: info.username,
+        muted: enabledPip.toString() //in iframe, only muted video can autoplay
     })
 
     return (

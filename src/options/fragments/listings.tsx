@@ -1,6 +1,5 @@
 
 import { Fragment, type ChangeEvent } from 'react';
-import { type StreamInfo } from '~api/bilibili';
 import DataTable, { type TableHeader } from '~options/components/DataTable';
 import { removeArr } from '~utils/misc';
 
@@ -87,12 +86,5 @@ function ListingSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     )
 }
 
-export async function shouldInit(settings: Readonly<SettingSchema>, info: StreamInfo): Promise<boolean> {
-    if (settings.blackListRooms.some((r) => r.room === info.room || r.room === info.shortRoom) === !settings.useAsWhiteListRooms) {
-        console.info('房間已被列入黑名單，已略過')
-        return false
-    }
-    return true
-}
 
 export default ListingSettings

@@ -6,6 +6,7 @@ import type { StreamUrls } from "~background/messages/get-stream-urls"
 import { Strategy } from "@tests/utils/misc"
 import type { LiveRoomInfo } from "@tests/helpers/bilibili-api"
 import fs from 'fs/promises'
+import { chromium } from "@playwright/test"
 
 export type IntegrationFixtures = {
     modules: Record<string, FileModule>
@@ -72,7 +73,18 @@ export const test = base.extend<IntegrationFixtures>({
         }
         test.skip(!selected || !stream || stream.length === 0, '无法获取直播流')
         await use({ stream, ...selected })
-    }
+    },
+
+    // context: async ({ }, use) => {
+    //     const context = await chromium.launchPersistentContext('', {
+    //         headless: false,
+    //         args: [
+    //             `--disable-web-security`,
+    //         ],
+    //     });
+    //     await use(context);
+    //     await context.close();
+    // },
 })
 
 export const expect = test.expect

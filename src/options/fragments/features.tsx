@@ -1,5 +1,4 @@
 import { useCallback, type ChangeEvent } from 'react';
-import { ensureIsVtuber, type StreamInfo } from '~api/bilibili';
 import SwitchListItem from '~options/components/SwitchListItem';
 import { sendMessager } from '~utils/messaging';
 
@@ -29,7 +28,7 @@ export type SettingSchema = {
 
 
 export const defaultSettings: Readonly<SettingSchema> = {
-    enabledFeatures: ['jimaku'],
+    enabledFeatures: ['jimaku', 'superchat'],
     enabledRecording: [],
     common: {
         enabledPip: false,
@@ -76,8 +75,10 @@ function FeatureSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
     const toggleRecord = (feature: FeatureType) => {
         if (state.enabledRecording.includes(feature)) {
             state.enabledRecording = state.enabledRecording.filter(f => f !== feature)
-        } else {
+        } else if (window.indexedDB) {
             state.enabledRecording.push(feature)
+        } else {
+            toast.error('当前浏览器不支持 IndexedDB，无法启用离线记录。', { position: 'top-center' })
         }
     }
 
@@ -228,34 +229,5 @@ function TrashIconButton({ table, title }: { table: TableType, title: string }):
     );
 }
 
-export async function shouldInit(settings: SettingSchema, info: StreamInfo): Promise<boolean> {
-
-    if (!info) {
-        // do log
-        console.info('無法取得直播資訊，已略過')
-        return false
-    }
-
-    if (info.status === 'offline' && settings.enabledRecording.length === 0) {
-        console.info('直播為下綫狀態，且沒有啓用離綫儲存，已略過。')
-        return false
-    }
-
-    if (settings.common.onlyVtuber) {
-
-        if (info.uid !== '0') {
-            await ensureIsVtuber(info)
-        }
-
-        if (!info.isVtuber) {
-            // do log
-            console.info('不是 VTuber, 已略過')
-            return false
-        }
-
-    }
-
-    return true
-}
 
 export default FeatureSettings

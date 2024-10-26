@@ -4,6 +4,7 @@ import { expect, test } from '@tests/fixtures/background'
 import BilibiliPage from '@tests/helpers/bilibili-page'
 import logger from '@tests/helpers/logger'
 import { getSuperChatList } from '@tests/utils/playwright'
+import { mkdir, writeFile } from 'fs/promises'
 import type { MV2Settings } from '~migrations/schema'
 
 test.beforeEach(async ({ page, extensionId }) => {
@@ -19,7 +20,7 @@ test('測試所有設定區塊能否展開', async ({ page }) => {
     await form.waitFor({ state: 'attached' })
     expect(form).toBeDefined()
     const sections = await form.locator('> section').all()
-    expect(sections.length).toBe(6)
+    expect(sections.length).toBe(7)
     for (const section of sections) {
         await section.click()
     }
@@ -146,6 +147,38 @@ test('測試導出導入設定', async ({ page }) => {
     await expect(inputLineGap).toHaveValue('7')
 })
 
+// 向下兼容，即舊版設定檔沒有某些新設定區塊，依然可以導入
+test('測試導入向下兼容設定', async ({ page }) => {
+    await mkdir('out', { recursive: true })
+
+    {
+        logger.info('正在嘗試導入空設定....')
+        await writeFile('out/empty.json', '{}')
+
+        const fileChoosing = page.waitForEvent('filechooser')
+        await page.getByText('导入设定').click()
+        const fileChooser = await fileChoosing
+        await fileChooser.setFiles('out/empty.json')
+
+        await page.getByText('导入的设定文件格式错误。').waitFor({ state: 'visible' })
+    }
+
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    {
+        logger.info('正在嘗試導入正確設定....')
+        await writeFile('out/valid.json', JSON.stringify({ 'settings.version': {} }))
+
+        const fileChoosing = page.waitForEvent('filechooser')
+        await page.getByText('导入设定').click()
+        const fileChooser = await fileChoosing
+        await fileChooser.setFiles('out/valid.json')
+
+        await page.getByText('设定已经导入成功。').waitFor({ state: 'visible' })
+    }
+
+})
+
 
 test('測試清空數據庫', async ({ page, front: room, api }) => {
 
@@ -153,8 +186,6 @@ test('測試清空數據庫', async ({ page, front: room, api }) => {
     const feature = page.getByText('功能设定')
     await feature.click()
 
-    await page.getByText('启用醒目留言').click() // default is disabled
-    
     const btns = await page.locator('section#settings\\.features').getByText('启用离线记录').all()
     for (const btn of btns) {
         await btn.click()
@@ -250,15 +281,12 @@ test('測試從遠端獲取開發者設定', async ({ page }) => {
     await page.getByText('开发者相关').click()
 
     const inputUpperButtonArea = page.getByTestId('elements.upperButtonArea')
-    await expect(inputUpperButtonArea).toHaveValue('.lower-row .left-ctnr')
     await inputUpperButtonArea.fill('inputUpperButtonArea changed')
 
     const liveTitle = page.getByTestId('elements.liveTitle')
-    await expect(liveTitle).toHaveValue('.live-skin-main-text.small-title')
     await liveTitle.fill('liveTitle changed')
 
     const liveFullScreenClass = page.getByTestId('classes.screenFull')
-    await expect(liveFullScreenClass).toHaveValue('fullscreen-fix')
     await liveFullScreenClass.fill('liveFullScreenClass changed')
 
     await page.getByText('保存设定').click()
@@ -289,6 +317,47 @@ test('測試從遠端獲取開發者設定', async ({ page }) => {
     })
 
     expect(storageStr).toBe(JSON.stringify(remote))
+})
+
+test('測試恢復開發者設定至默認值', async ({ page }) => {
+
+    logger.info('正在修改开发者相关....')
+
+    await page.getByText('开发者相关').click()
+
+    const inputUpperButtonArea = page.getByTestId('elements.upperButtonArea')
+    await expect(inputUpperButtonArea).toHaveValue('.lower-row .left-ctnr')
+    await inputUpperButtonArea.fill('inputUpperButtonArea changed')
+
+    const liveTitle = page.getByTestId('elements.liveTitle')
+    await expect(liveTitle).toHaveValue('.live-skin-main-text.small-title')
+    await liveTitle.fill('liveTitle changed')
+
+    const liveFullScreenClass = page.getByTestId('classes.screenFull')
+    await expect(liveFullScreenClass).toHaveValue('fullscreen-fix')
+    await liveFullScreenClass.fill('liveFullScreenClass changed')
+
+    await page.getByText('保存设定').click()
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    logger.info('正在验证开发者相关....')
+    await page.getByText('开发者相关').click()
+    await expect(inputUpperButtonArea).toHaveValue('inputUpperButtonArea changed')
+    await expect(liveTitle).toHaveValue('liveTitle changed')
+    await expect(liveFullScreenClass).toHaveValue('liveFullScreenClass changed')
+
+    logger.info('正在恢复开发者相关至默认值....')
+    page.once('dialog', dialog => dialog.accept())
+    await page.getByText('重置设定').click()
+
+    await page.getByText('已成功重置至默认设定').waitFor({ state: 'visible' })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+
+    logger.info('正在验证开发者相关有否被重置....')
+    await page.getByText('开发者相关').click()
+    await expect(inputUpperButtonArea).not.toHaveValue('inputUpperButtonArea changed')
+    await expect(liveTitle).not.toHaveValue('liveTitle changed')
+    await expect(liveFullScreenClass).not.toHaveValue('liveFullScreenClass changed')
 })
 
 test('測試設定數據從MV2遷移', async ({ serviceWorker, page }) => {
@@ -481,7 +550,7 @@ test('測試导航', async ({ page, serviceWorker }) => {
 test('測試點擊使用指南', async ({ context, page }) => {
 
     await page.getByText('功能设定').click()
-    
+
     const tutorial = context.waitForEvent('page')
     await page.getByText('使用指南').click()
     const tutorialPage = await tutorial

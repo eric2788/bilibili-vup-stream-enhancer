@@ -11,6 +11,9 @@
     "./src/adapters/*.js"
   ],
   "compilerOptions": {
+    "types": [
+      "@webgpu/types"
+    ],
     "jsx": "react-jsx",
     "paths": {
       "~*": [

@@ -4,9 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
-
-* {
-    font-family: Microsoft JhengHei;
+@layer base {
+    ul, ol, menu {
+        list-style: revert;
+    }
+    * {
+        font-family: Microsoft JhengHei;
+    }
 }
 
 

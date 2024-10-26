@@ -1,7 +1,9 @@
-import { Fragment, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react';
 
 import { Rnd } from 'react-rnd';
 import ConditionalWrapper from '~components/ConditionalWrapper';
+import ShadowStyle from '~components/ShadowStyle';
+import TailwindScope from '~components/TailwindScope';
 import ContentContext from '~contexts/ContentContexts';
 import JimakuFeatureContext from '~contexts/JimakuFeatureContext';
 import { useWebScreenChange } from '~hooks/bilibili';
@@ -11,8 +13,6 @@ import { rgba } from '~utils/misc';
 import type { Jimaku } from "./JimakuLine";
 import JimakuList from './JimakuList';
 import JimakuVisibleButton from './JimakuVisibleButton';
-import ShadowStyle from '~components/ShadowStyle';
-import TailwindScope from '~components/TailwindScope';
 
 const createAreaStyleSheet = (jimakuStyle: JimakuSchema) => `
 

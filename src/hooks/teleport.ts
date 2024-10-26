@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 
 export type TeleportSettings<T> = {
@@ -63,6 +63,6 @@ export function useTeleport<T>(state: T, settings: TeleportSettings<T>) {
 
 }
 
-const Teleport = memo(({ children, container }: { children: JSX.Element, container?: Element }): React.ReactNode => {
+const Teleport = ({ children, container }: { children: JSX.Element, container?: Element }): React.ReactNode => {
     return container ? createPortal(children, container) : children
-})
+}

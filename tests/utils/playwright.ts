@@ -1,5 +1,4 @@
-import type { Expect, Locator } from "@playwright/test"
-import type { ContentFixtures, ContentOptions } from "@tests/fixtures/content";
+import type { Expect, Locator } from "@playwright/test";
 import type { PageFrame } from "@tests/helpers/page-frame";
 
 /**
@@ -57,7 +56,7 @@ export async function getSuperChatList(section: Locator, options?: {
  * )
  * ```
  */
-export function testFeatureRoomList(feature: string, expect: Expect<Locator>, locate: (content: PageFrame) => Locator): (args: any) => Promise<void> {
+export function testFeatureRoomList(feature: string, expect: Expect<any>, locate: (content: PageFrame) => Locator): (args: any) => Promise<void> {
 
     return async ({ room, content, context, optionPageUrl }) => {
 

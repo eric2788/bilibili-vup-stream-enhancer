@@ -50,7 +50,7 @@ export async function serializeBlobAsString(blob: Blob): Promise<string> {
             const base64 = dataUrl.split(',')[1];
             resolve(base64);
         }
-        reader.onerror = () => reject(reader.error) 
+        reader.onerror = () => reject(reader.error)
         reader.readAsDataURL(blob)
     });
 }
@@ -74,7 +74,7 @@ export async function serializeBlobAsNumbers(blob: Blob): Promise<number[]> {
             const buffer = new Uint8Array(reader.result as ArrayBuffer)
             resolve(Array.from(buffer))
         }
-        reader.onerror = () => reject(reader.error) 
+        reader.onerror = () => reject(reader.error)
         reader.readAsArrayBuffer(blob)
     });
 }
@@ -94,4 +94,36 @@ export async function screenshotFromVideo(media: HTMLVideoElement): Promise<Blob
         canvas.toBlob(res, 'image/jpeg')
         canvas.onerror = rej
     })
+}
+
+export function toArrayBuffer(like: ArrayBufferLike): ArrayBuffer {
+    if (like instanceof ArrayBuffer) {
+        return like
+    }
+    console.debug('converting SharedArrayBuffer to ArrayBuffer')
+    const arr = new Uint8Array(new ArrayBuffer(like.byteLength))
+    arr.set(new Uint8Array(like), 0)
+    return arr.buffer
+}
+
+export async function* parseSSEResponses(reader: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>>, endStr?: string): AsyncGenerator<string> {
+    const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
+    while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const decoded = decoder.decode(value, { stream: true })
+        const textValues = decoded.split('\n\n') // sometimes it will fetch multiple lines
+        for (const textValue of textValues) {
+            if (textValue.trim() === '') continue
+            if (!textValue.startsWith('data:')) continue
+            const jsonValue = textValue.slice(5).trim()
+            if (endStr && jsonValue === endStr) break
+            try {
+                const { response } = JSON.parse(jsonValue)
+                yield response
+            } catch (err) {
+                throw new Error(`error while parsing '${jsonValue}': ${err.message ?? err}`)
+            }
+        }
+    }
 }

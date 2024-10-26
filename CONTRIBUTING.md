@@ -117,11 +117,12 @@ tests/
 5. 有关如何编写贡献代码，请参阅 [入门指南](#入门指南) 。
 
 
-#### 如要在本地运行测试:
-- 请先运行 `pnpm dlx playwright install` 安装 PlayWright 的浏览器引擎
-- 完成后，运行 `pnpm build && pnpm test:prepare` 编译并部署测试环境
-- 最后，运行 `pnpm test` 运行测试 (或者用 playwright vscode 插件运行测试)
-- 每次更新后可以运行 `pnpm test:rebuild` 重新编译并部署测试环境
+> [!TIP]
+> #### 如要在本地运行测试:
+> - 请先运行 `pnpm dlx playwright install` 安装 PlayWright 的浏览器引擎
+> - 完成后，运行 `pnpm build && pnpm test:prepare` 编译并部署测试环境
+> - 最后，运行 `pnpm test` 运行测试 (或者用 playwright vscode 插件运行测试)
+> - 每次更新后可以运行 `pnpm test:rebuild` 重新编译并部署测试环境
 
 ### 关于自动测试
 
