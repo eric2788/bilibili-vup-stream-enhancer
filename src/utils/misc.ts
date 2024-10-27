@@ -202,3 +202,28 @@ export function setNestedValue<T extends object, K extends Leaves<T>>(obj: T, pa
     const lastObj = keys.reduce((o, p) => o[p], obj)
     lastObj[lastKey] = value
 }
+
+
+
+/**
+ * Formats a version string by ensuring it follows the major.minor.patch format.
+ * If there are additional segments beyond the patch version, they are appended
+ * as a hyphenated suffix.
+ *
+ * @param version - The version string to format.
+ * @returns The formatted version string.
+ *
+ * @example
+ * ```typescript
+ * formatVersion("1.2.3"); // "1.2.3"
+ * formatVersion("1.2.3.4"); // "1.2.3-4"
+ * formatVersion("1.2.3.4.5"); // "1.2.3-45"
+ * formatVersion("1.2"); // "1.2"
+ * ```
+ */
+export function formatVersion(version: string): string {
+    const digits = version.split('.')
+    if (digits.length < 3) return version
+    const [majar, minor, patch, ...noise] = digits
+    return `${majar}.${minor}.${patch}${noise.length ? `-${noise.join('')}` : ''}`
+}
