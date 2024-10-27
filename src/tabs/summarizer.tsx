@@ -52,7 +52,7 @@ function App() {
             const llmSettings = await getSettingStorage('settings.llm')
             const llm = createLLMProvider(llmSettings)
             llm.on('progress', (p, t) => setProgressText(() => p < 1 ? t : ''))
-            const summaryStream = llm.promptStream(`这位是一名在b站直播间直播的日本vtuber说过的话,请根据下文对话猜测与观众的互动内容,并用中文总结一下他们的对话:\n\n${danmakus.join('\n')}`)
+            const summaryStream = llm.promptStream(`这位是一名在b站直播间直播的日本vtuber说过的话${roomTitle ? `,其标题为"${roomTitle}"` : ''},请根据下文对话猜测与观众的互动内容,并用中文总结一下他们的对话:\n\n${danmakus.join('\n')}`)
             for await (const words of summaryStream) {
                 if (llm.cumulative) {
                     setSummary(summary => summary === loadingText ? words : summary + words)
