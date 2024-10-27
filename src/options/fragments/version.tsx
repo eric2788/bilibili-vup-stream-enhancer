@@ -6,6 +6,7 @@ import type { StateProxy } from "~hooks/binding"
 import SwitchListItem from "~options/components/SwitchListItem"
 import type { ReleaseInfo } from "~types/github"
 import semver from 'semver';
+import { formatVersion } from "~utils/misc"
 
 
 export type SettingSchema = {
@@ -65,7 +66,7 @@ function VersionSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.
                         {([current, last]: ReleaseInfo[]) => (
                             <div className="md:flex justify-between text-center md:text-left space-y-3 md:space-y-0">
                                 <div>
-                                    {semver.lt(current.tag_name, last.tag_name) ? (
+                                    {semver.lt(formatVersion(current.tag_name), formatVersion(last.tag_name)) ? (
                                         <Typography color="red" className="font-bold mb-4">
                                             你有可用的更新
                                         </Typography>

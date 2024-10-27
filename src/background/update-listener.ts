@@ -5,6 +5,7 @@ import { type MV2Settings } from '~migrations/schema'
 import semver from 'semver'
 import migrateFromMV2 from '~migrations'
 import { getLatestRelease } from '~api/github'
+import { formatVersion } from "~utils/misc"
 
 chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDetails) => {
 
@@ -42,7 +43,7 @@ chrome.runtime.onInstalled.addListener(async (data: chrome.runtime.InstalledDeta
 
         const lastVersion = (await localStorage.get('last_version')) ?? '0.12.4'
         const mv2 = await storage.get<MV2Settings>('settings')
-        if (mv2 && semver.lt(lastVersion, '2.0.0')) {
+        if (mv2 && semver.lt(formatVersion(lastVersion), '2.0.0')) {
             try {
                 await migrateFromMV2()
                 await sendInternal('notify', {
@@ -67,7 +68,7 @@ getSettingStorage('settings.version').then(async (settings) => {
     if (!settings.autoCheckUpdate) return
     const currentVersion = chrome.runtime.getManifest().version
     const latest = await getLatestRelease()
-    if (semver.lt(currentVersion, latest.tag_name)) {
+    if (semver.lt(formatVersion(currentVersion), formatVersion(latest.tag_name))) {
         await sendInternal('notify', {
             type: 'list',
             title: 'bilibili-vup-stream-enhancer 已推出新版本',
@@ -85,4 +86,3 @@ getSettingStorage('settings.version').then(async (settings) => {
         })
     }
 })
-
