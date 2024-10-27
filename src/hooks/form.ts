@@ -5,6 +5,12 @@ export function useFileInput(onFileChange: (files: FileList) => Promise<void>, o
     const inputRef = useRef<HTMLInputElement>()
     const selectFiles = useCallback(function (): Promise<void> {
         return new Promise((resolve, reject) => {
+            const finallize = () => {
+                inputRef.current.removeEventListener('change', listener)
+                inputRef.current.removeEventListener('cancel', finallize)
+                inputRef.current.files = null
+                resolve()
+            }
             const listener = async (e: Event) => {
                 try {
                     const files = (e.target as HTMLInputElement).files
@@ -15,12 +21,11 @@ export function useFileInput(onFileChange: (files: FileList) => Promise<void>, o
                     onError?.(e)
                     reject(e)
                 } finally {
-                    inputRef.current.removeEventListener('change', listener)
-                    inputRef.current.files = null
-                    resolve()
+                    finallize()
                 }
             }
             inputRef.current.addEventListener('change', listener)
+            inputRef.current.addEventListener('cancel', finallize)
             inputRef.current.click()
         })
     }, deps)
