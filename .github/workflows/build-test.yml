@@ -94,7 +94,7 @@ jobs:
                 echo "Enabled Debug Mode"
                 export DEBUG=true
               fi
-              pnpm test -- --project=${{ matrix.project }} --max-failures=5
+              pnpm test -- --project=${{ matrix.project }} --max-failures=2
           - name: Upload Test Results
             if: always() && steps.test.conclusion != 'skipped'
             uses: actions/upload-artifact@v4
