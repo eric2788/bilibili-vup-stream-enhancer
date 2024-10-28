@@ -61,7 +61,27 @@ export const useAsyncEffect = <R = void>(
 };
 
 
-
+/**
+ * A React hook that switches between two JSX elements after a specified timeout.
+ *
+ * @param before - The initial JSX element to display before the timeout.
+ * @param after - The JSX element to display after the timeout.
+ * @param timeout - The duration (in milliseconds) to wait before switching to the `after` element.
+ * @returns The current JSX element, which will be `before` initially and `after` after the timeout.
+ *
+ * @example
+ * ```typescript
+ * const MyComponent = () => {
+ *   const element = useTimeoutElement(
+ *     <div>Loading...</div>,
+ *     <div>Loaded!</div>,
+ *     3000
+ *   );
+ *
+ *   return <div>{element}</div>;
+ * };
+ * ```
+ */
 export function useTimeoutElement(before: JSX.Element, after: JSX.Element, timeout: number) {
     const [element, setElement] = useState(before);
 

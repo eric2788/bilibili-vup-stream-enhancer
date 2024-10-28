@@ -1,10 +1,45 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
+/**
+ * Represents the body of a request to open a new tab.
+ * 
+ * @example
+ * // Example of a request body to open a new tab with a specific URL
+ * const requestBody: RequestBody = {
+ *     url: "https://example.com",
+ *     active: true
+ * };
+ * 
+ * @example
+ * // Example of a request body with additional parameters and singleton criteria
+ * const requestBody: RequestBody = {
+ *     url: "https://example.com",
+ *     params: { ref: "newsletter" },
+ *     singleton: ["ref"]
+ * };
+ */
 export type RequestBody = {
+    /**
+     * The URL to open in the new tab.
+     */
     url?: string
+    /**
+     * The identifier of the tab to open.
+     */
     tab?: string
+    /**
+     * Whether the new tab should be active.
+     */
     active?: boolean
+    /**
+     * Additional parameters to include in the request.
+     */
     params?: Record<string, string>
+    /**
+     * Indicates if the tab should be a singleton. 
+     * If an array of strings is provided, it represents 
+     * only check the equality of those query params.
+     */
     singleton?: boolean | string[]
 }
 

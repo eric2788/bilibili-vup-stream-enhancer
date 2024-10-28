@@ -22,6 +22,27 @@ export type StreamContent = {
     blob: Blob | Blob[]
 }
 
+/**
+ * Hook to handle sending shard data through a forwarder channel.
+ *
+ * @param {ChannelType} channel - The channel to send data through.
+ * @returns {Function} A function to send stream content through the specified channel.
+ *
+ * @example
+ * const sendStreamContent = useShardSender(channel);
+ * 
+ * const streamContent = {
+ *   id: 'unique-id',
+ *   blob: new Blob(['data']),
+ *   duration: 120,
+ *   videoInfo: { title: 'Sample Video' },
+ *   filename: 'video.mp4'
+ * };
+ * 
+ * sendStreamContent(channel, streamContent)
+ *   .then(() => console.log('Stream content sent successfully'))
+ *   .catch(error => console.error('Failed to send stream content', error));
+ */
 export function useShardSender(channel: ChannelType) {
     const forwarder = useForwarder('stream-content', channel)
 
@@ -94,6 +115,31 @@ export type ReceiveInfo = {
     ready: (channel: ChannelType) => void
 }
 
+/**
+ * Custom hook to receive and manage stream data in chunks.
+ *
+ * @param id - The unique identifier for the stream.
+ * @param channel - The channel type for communication.
+ * @returns An object containing stream information, progress, error, and a ready function.
+ *
+ * @example
+ * const { info, progress, error, ready } = useShardReceiver('stream-id', 'channel-type');
+ * 
+ * useEffect(() => {
+ *   if (progress === 100) {
+ *     console.log('Stream fully received:', info);
+ *   }
+ * }, [progress]);
+ * 
+ * useEffect(() => {
+ *   if (error) {
+ *     console.error('Error receiving stream:', error);
+ *   }
+ * }, [error]);
+ * 
+ * // Send ready signal to start receiving stream data
+ * ready('channel-type');
+ */
 export function useShardReceiver(id: string, channel: ChannelType): ReceiveInfo {
 
     const forwarder = useForwarder('stream-content', channel)

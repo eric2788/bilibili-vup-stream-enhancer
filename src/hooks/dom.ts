@@ -1,4 +1,4 @@
-import { useInterval } from "@react-hooks-library/core"
+import { useInterval, useMutationObserver } from "@react-hooks-library/core"
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -63,30 +63,23 @@ export function useKeepBottom<E extends HTMLElement>(enabled: boolean, calculate
 
 
 
+
 /**
- * Custom hook that queries the DOM for an element matching the given selector.
- * Optionally, it can remount and re-query the DOM at a specified interval.
+ * Custom hook that returns an element matching the specified selector.
+ * It uses `useState` to store the element and `useInterval` to periodically
+ * update the element if it changes in the DOM.
  *
- * @param {string} selector - The CSS selector to query the DOM.
- * @param {boolean} [remount=false] - If true, the hook will re-query the DOM at the specified interval.
- * @returns {Element | null} - The DOM element matching the selector, or null if no element is found.
+ * @template E - The type of the element to be returned.
+ * @param {string} selector - The CSS selector to query the element.
+ * @returns {E | null} - The element matching the selector or null if not found.
  *
  * @example
- * // Usage in a React component
- * const MyComponent = () => {
- *   const element = useQuerySelector('#my-element', true);
- *   
- *   useEffect(() => {
- *     if (element) {
- *       console.log('Element found:', element);
- *     }
- *   }, [element]);
- *   
- *   return <div>Check the console for the element.</div>;
- * };
+ * ```typescript
+ * const myElement = useQuerySelector<HTMLDivElement>('#my-div');
+ * ```
  */
-export function useQuerySelector<E extends Element>(selector: string, remount: boolean = false): E | null {
-    
+export function useQuerySelector<E extends Element>(selector: string): E | null {
+
     const [element, setElement] = useState<Element | null>(document.querySelector(selector))
 
     useInterval(() => {
@@ -94,7 +87,7 @@ export function useQuerySelector<E extends Element>(selector: string, remount: b
         if (el) {
             setElement(el)
         }
-    }, 500, { paused: !remount && !!element, immediate: true })
+    }, 500, { paused: !!element, immediate: true })
 
     return element as E
 }
