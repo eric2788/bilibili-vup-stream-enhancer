@@ -41,7 +41,7 @@ const handler: FeatureHookRender = async (settings, info) => {
     // 返回的则是在内容脚本中的每个部件渲染，支援 react portal 以使用与网页元素挂钩
     // 如果不使用portal, 则默认在扩展专用的 shadow-root 进行渲染
     // 如果你不想在内容脚本中渲染任何东西，可以返回空数组 []
-    // 如果你想基于条件禁用功能，可以返回 undefined
+    // 如果你想基于条件禁用功能，可以返回 undefined；如果要返回禁用信息提示，可返回 string
     return [
         <div>Hello, World!</div>, // 在 shadow-root 内渲染
         createPortal(<div>Hello, World!</div>, document.body) // 在网页元素内渲染

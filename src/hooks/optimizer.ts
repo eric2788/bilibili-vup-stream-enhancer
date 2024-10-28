@@ -95,6 +95,28 @@ export function useRowOptimizer<E extends HTMLElement>(observerRef: React.Mutabl
 }
 
 
+/**
+ * Custom hook that manages a transaction-like process where data is collected and processed at specified intervals.
+ *
+ * @template T - The type of data being processed.
+ * @param {number} interval - The interval in milliseconds at which the callback is invoked.
+ * @param {(data: T) => void} callback - The callback function to process each piece of data.
+ * @returns {(data: T) => void} - A function to push data into the transaction queue.
+ *
+ * @example
+ * ```typescript
+ * const processTransaction = (data: string) => {
+ *   console.log('Processing:', data);
+ * };
+ *
+ * const pushData = useTransaction<string>(1000, processTransaction);
+ *
+ * pushData('data1');
+ * pushData('data2');
+ * // After 1 second, 'Processing: data1' will be logged.
+ * // After another second, 'Processing: data2' will be logged.
+ * ```
+ */
 export function useTransaction<T>(interval: number, callback: (data: T) => void) {
 
     const dataRef = useRef<T[]>([])

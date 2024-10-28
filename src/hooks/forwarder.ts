@@ -16,6 +16,7 @@ import { useEffect, useMemo } from 'react'
  *
  * @returns {Object} An object with two properties:
  * - `addHandler`: A function that takes a handler function as an argument. The handler function will be called with the data when a message with the specified command is received on the specified channel. The handler function is automatically removed when the component unmounts.
+ * - `addHandlerOnce`: A function that takes a handler function as an argument. The handler function will be called with the data when a message with the specified command is received on the specified channel. The handler function is automatically removed after it is called once.
  * - `sendForward`: A function that sends a message with the specified command to the specified channel. The message body is passed as an argument to this function.
  *
  * @example

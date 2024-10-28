@@ -1,5 +1,5 @@
 import { Button, Input, Tooltip, Typography } from "@material-tailwind/react"
-import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react"
+import { Fragment, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react"
 import { toast } from "sonner/dist"
 import type { StateProxy } from "~hooks/binding"
 import type { LLMTypes } from "~llms"
