@@ -1,4 +1,4 @@
-import { useInterval } from "@react-hooks-library/core"
+import { useInterval, useMutationObserver } from "@react-hooks-library/core"
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -86,7 +86,8 @@ export function useKeepBottom<E extends HTMLElement>(enabled: boolean, calculate
  * };
  */
 export function useQuerySelector<E extends Element>(selector: string, remount: boolean = false): E | null {
-    
+
+    const boundary = useRef<HTMLElement>(document.body)
     const [element, setElement] = useState<Element | null>(document.querySelector(selector))
 
     useInterval(() => {
@@ -94,7 +95,15 @@ export function useQuerySelector<E extends Element>(selector: string, remount: b
         if (el) {
             setElement(el)
         }
-    }, 500, { paused: !remount && !!element, immediate: true })
+    }, 500, { paused: !!element, immediate: true })
+
+    useMutationObserver(boundary, (mutations) => {
+        for (const mutation of mutations) {
+            if (remount && Array.from(mutation.removedNodes).some((node) => node === element)) {
+                setElement(null)
+            }
+        }
+    }, { subtree: true })
 
     return element as E
 }
