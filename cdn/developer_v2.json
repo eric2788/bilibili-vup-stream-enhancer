@@ -25,6 +25,9 @@
         "attr": {
             "chatUserId": "data-uid",
             "chatDanmaku": "data-danmaku"
+        },
+        "extra": {
+            "forceBoot": false
         }
     }
 }
