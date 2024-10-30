@@ -12,6 +12,7 @@
 - [同传字幕过滤](#同传字幕过滤)
     - [右键菜单来屏蔽同传字幕发送者](#1-右键菜单来屏蔽同传字幕发送者)
     - [同传弹幕彈出式视窗](#2-同传弹幕彈出式视窗)
+    - [同传字幕AI总结](#3-同传字幕AI总结)
 - [醒目留言](#醒目留言)
     - [醒目留言按钮可以被拖拽](#1-醒目留言按钮可以被拖拽)
 - [快速切片](#快速切片)
@@ -87,6 +88,20 @@
 同样地，此选项默认是关闭的，你需要在设置中打开该选项。
 
 ![jimaku-popup-1](https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/tutorials/jimaku/jimaku-popup-1.png)
+
+### 3. 同传字幕AI总结
+
+此选项默认是关闭的，你需要在设置中打开该选项。
+
+![jimaku-summarize-2](https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/tutorials/jimaku/jimaku-summarize-2.png)
+
+打开后，进入直播间将能看到同传字幕AI总结按钮。你需要最少有 25 条同传字幕才能呼叫同传总结。
+
+![jimaku-summarize-3](https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/tutorials/jimaku/jimaku-summarize-3.png)
+
+点击后会弹出一个新的窗口，显示AI总结的内容。
+
+![jimaku-summarize-1](https://cdn.jsdelivr.net/gh/eric2788/bilibili-vup-stream-enhancer@web/tutorials/jimaku/jimaku-summarize-1.png)
 
 
 ## 醒目留言
