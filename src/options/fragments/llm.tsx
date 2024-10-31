@@ -5,6 +5,7 @@ import type { StateProxy } from "~hooks/binding"
 import type { LLMTypes } from "~llms"
 import createLLMProvider from "~llms"
 import models from "~llms/models"
+import PasswordInput from "~options/components/PasswordInput"
 import Selector from "~options/components/Selector"
 
 export type SettingSchema = {
@@ -14,7 +15,7 @@ export type SettingSchema = {
     accountId?: string
     apiToken?: string
 
-    // cloudflare and worker settings
+    // if provider can select model
     model?: string
 }
 
@@ -120,18 +121,16 @@ function LLMSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Elem
                         <Typography className="underline" as="a" href="https://linux.do/t/topic/34037" target="_blank">点击此处</Typography>
                         查看如何获得 Cloudflare API Token 和 Account ID
                     </Hints>
-                    <Input
+                    <PasswordInput
                         data-testid="cf-account-id"
-                        crossOrigin="anonymous"
                         variant="static"
                         required
                         label="Cloudflare Account ID"
                         value={state.accountId}
                         onChange={handler('accountId')}
                     />
-                    <Input
+                    <PasswordInput
                         data-testid="cf-api-token"
-                        crossOrigin="anonymous"
                         variant="static"
                         required
                         label="Cloudflare API Token"
