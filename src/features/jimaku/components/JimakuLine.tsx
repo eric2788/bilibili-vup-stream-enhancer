@@ -23,7 +23,7 @@ function JimakuLine({ item, show, index, observer }: JimakuLineProps): JSX.Eleme
     const ref = useRowOptimizer<HTMLParagraphElement>(observer)
 
     return (
-        <p ref={ref} onContextMenu={show} jimaku-hash={item.hash} jimaku-index={index}>
+        <p ref={ref} title={item.date} onContextMenu={show} jimaku-hash={item.hash} jimaku-index={index}>
             {item.text}
         </p>
     )
