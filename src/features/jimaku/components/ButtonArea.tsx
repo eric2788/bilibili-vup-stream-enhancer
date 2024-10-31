@@ -48,7 +48,11 @@ function ButtonArea({ clearJimaku, jimakus }: ButtonAreaProps): JSX.Element {
         }
         await sendMessager('open-tab', { tab: 'summarizer', params: { roomId: info.room, title: info.title }, active: true, singleton: true })
         await sleep(2000)
-        sendForward('pages', 'jimaku-summarize', { roomId: info.room, jimakus: jimakus.map(j => j.text) })
+        const summarize = jimakus.map(jimaku => `[${jimaku.date}] ${jimaku.text}`)
+        if (order === 'top') {
+            summarize.reverse()
+        }
+        sendForward('pages', 'jimaku-summarize', { roomId: info.room, jimakus: summarize })
     }
 
     const upperHeaderAreaElement = useQuerySelector(upperHeaderArea)
