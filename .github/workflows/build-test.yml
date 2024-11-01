@@ -2,7 +2,7 @@ name: Build And Test Extensions
 
 on:
     schedule:
-        - cron: '0 20 1 * *'
+        - cron: '0 12 1 * *'
     push: 
         branches: [develop]
         paths:
