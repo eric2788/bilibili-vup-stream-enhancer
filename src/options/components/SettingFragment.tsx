@@ -67,7 +67,7 @@ function SettingFragment<T extends keyof SettingFragments>(props: SettingFragmen
                     </svg>
                 }
             >
-                <div className="container p-5 text-black dark:text-white bg-gray-200 dark:bg-gray-700 rounded-b-lg border border-[#d1d5db] dark:border-[#4b4b4b6c] border-l border-r transition-all ease-out duration-200 transform">
+                <div className="container bjf-scrollbar p-5 text-black dark:text-white bg-gray-200 dark:bg-gray-700 rounded-b-lg border border-[#d1d5db] dark:border-[#4b4b4b6c] border-l border-r transition-all ease-out duration-200 transform">
                     <PromiseHandler promise={fetchSettings}>
                         <PromiseHandler.Response>
                             {settings => (
