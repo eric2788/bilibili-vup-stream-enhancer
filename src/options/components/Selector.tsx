@@ -44,7 +44,7 @@ function Selector<T = any>(props: SelectorProps<T>): JSX.Element {
                     </svg>
                 </div>
                 <div style={{ zIndex: 99 }} className={`origin-top relative w-full max-h-40 overflow-y-auto rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 ${isOpen ? 'transition-all ease-out duration-200 transform opacity-100 scale-100' : 'transition-all ease-in duration-75 transform opacity-0 scale-75'}`} role="menu" aria-orientation="vertical">
-                    <div className={`py-1 overflow-visible ${isOpen ? 'visible' : 'hidden'}`} role="none">
+                    <div className={`py-1 ${isOpen ? 'visible' : 'hidden'}`} role="none">
                         {props.options.map((option, index) => (
                             <a key={index} onClick={() => selectOption(option)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-gray-300" role="menuitem">{option.label}</a>
                         ))}
