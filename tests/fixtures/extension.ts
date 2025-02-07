@@ -50,8 +50,7 @@ export const extensionBase = base.extend<ExtensionFixtures, ExtensionOptions & E
             headless: false,
             args: [
                 `--disable-extensions-except=${pathToExtension}`,
-                `--load-extension=${pathToExtension}`,
-                ...(process.env.CI ? ['--headless=new'] : [])
+                `--load-extension=${pathToExtension}`
             ],
         });
         await use(context);

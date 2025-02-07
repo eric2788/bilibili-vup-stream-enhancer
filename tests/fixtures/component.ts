@@ -6,7 +6,6 @@ import type { StreamUrls } from "~background/messages/get-stream-urls"
 import { Strategy } from "@tests/utils/misc"
 import type { LiveRoomInfo } from "@tests/helpers/bilibili-api"
 import fs from 'fs/promises'
-import { chromium } from "@playwright/test"
 
 export type IntegrationFixtures = {
     modules: Record<string, FileModule>

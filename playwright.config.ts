@@ -52,19 +52,19 @@ export default defineConfig<GlobalOptions>({
       timeout: 0,
       use: {
         isThemeRoom: true,
-        channel: 'chrome'
+        channel: 'chromium'
       }
     },
     {
       name: 'units',
       testMatch: '**/units/*.spec.ts',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
       timeout: 300000,
     },
     {
       name: 'integrations',
       testMatch: '**/integrations/*.spec.ts',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
       timeout: 300000,
     },
     {
@@ -77,7 +77,7 @@ export default defineConfig<GlobalOptions>({
     },
     {
       name: 'chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
       testIgnore: [
         '**/integrations/**',
         '**/units/**',
@@ -95,7 +95,7 @@ export default defineConfig<GlobalOptions>({
     {
       name: 'chrome-theme',
       dependencies: ['theme-setup'],
-      use: { ...devices['Desktop Chrome'], channel: 'chrome', isThemeRoom: true },
+      use: { ...devices['Desktop Chrome'], channel: 'chromium', isThemeRoom: true },
       testIgnore: [
         '**/integrations/**',
         '**/units/**',
@@ -104,7 +104,7 @@ export default defineConfig<GlobalOptions>({
     {
       name: 'local',
       use: {
-        ...devices['Desktop Chrome'], channel: 'chrome',
+        ...devices['Desktop Chrome'], channel: 'chromium',
         roomId: envInt('ROOM_ID'),
         isThemeRoom: envBool('IS_THEME_ROOM'),
         maxPage: envInt('MAX_PAGE'),
