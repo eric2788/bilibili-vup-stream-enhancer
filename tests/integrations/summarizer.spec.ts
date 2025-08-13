@@ -35,14 +35,31 @@ const prompt = `这位是一名在b站直播间直播的日本vtuber说过的话
     '拜拜~'
 ].join('\n')}` as const
 
-function testModel(model: string, { trash = false, provider = 'worker' }: { trash?: boolean, provider?: LLMTypes } = {}) {
+function testModel(model: string, { trash = false, provider = 'cloudflare' }: { trash?: boolean, provider?: LLMTypes } = {}) {
+    
+    if (provider === 'cloudflare') {
+        test.skip(!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN, '请设置 CF_ACCOUNT_ID 环境变量以测试 Cloudflare AI 模型')
+    }
+
+    if (provider === 'openai') {
+        test.skip(!process.env.OPENAI_API_KEY, '请设置 OPENAI_API_KEY 环境变量以测试 OpenAI 模型')
+    }
+
+    test.skip(!model, '请提供模型名称以测试 AI 总结结果')
+    
     return async function () {
 
         logger.info(`正在测试模型 ${model} ...`)
 
         const llm = createLLMProvider({
             provider,
-            model
+            model,
+
+            cf_accountId: process.env.CF_ACCOUNT_ID,
+            cf_apiToken: process.env.CF_API_TOKEN,
+
+            openai_apiKey: process.env.OPENAI_API_KEY,
+            openai_baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
         })
 
         const res = await llm.prompt(prompt)
@@ -62,6 +79,8 @@ function testModel(model: string, { trash = false, provider = 'worker' }: { tras
 
 test.slow()
 
+// Cloudflare
+
 test('测试 @cf/qwen/qwen1.5-14b-chat-awq 模型的AI总结结果', testModel('@cf/qwen/qwen1.5-14b-chat-awq'))
 
 test('测试 @cf/qwen/qwen1.5-7b-chat-awq 模型的AI总结结果', testModel('@cf/qwen/qwen1.5-7b-chat-awq'))
@@ -72,3 +91,8 @@ test('测试 @cf/qwen/qwen1.5-1.8b-chat 模型的AI总结结果', testModel('@cf
 test('测试 @hf/google/gemma-7b-it 模型的AI总结结果', testModel('@hf/google/gemma-7b-it', { trash: true }))
 
 test('测试 @hf/nousresearch/hermes-2-pro-mistral-7b 模型的AI总结结果', testModel('@hf/nousresearch/hermes-2-pro-mistral-7b'))
+
+// OpenAI
+
+test(`测试 ${process.env.OPENAI_MODEL} 模型的AI总结结果`, testModel(process.env.OPENAI_MODEL, { provider: 'openai' }))
+

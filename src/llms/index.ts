@@ -2,8 +2,8 @@ import type { SettingSchema as LLMSchema } from '~options/fragments/llm'
 
 import cloudflare from './cloudflare-ai'
 import nano from './gemini-nano'
-import worker from './remote-worker'
 import webllm from './web-llm'
+import openai from './open-ai'
 
 export type LLMEvent = {
     progress: (p: number, t: string) => void
@@ -13,6 +13,7 @@ export interface LLMProviders {
     cumulative: boolean
     on<E extends keyof LLMEvent>(event: E, listener: LLMEvent[E]): void
     validate(): Promise<void>
+    models(): Promise<string[]>
     prompt(chat: string): Promise<string>
     promptStream(chat: string): AsyncGenerator<string>
     asSession(): Promise<Session<LLMProviders>>
@@ -23,8 +24,8 @@ export type Session<T extends LLMProviders> = AsyncDisposable & Pick<T, 'prompt'
 const llms = {
     cloudflare,
     nano,
-    worker,
-    webllm
+    webllm,
+    openai
 }
 
 export type LLMs = typeof llms

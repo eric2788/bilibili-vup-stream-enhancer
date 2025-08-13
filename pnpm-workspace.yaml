@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - lmdb
+  - msgpackr-extract
+  - sharp

@@ -10,7 +10,7 @@ function PasswordInput(props: PasswordInputProps): JSX.Element {
     const { bool: show, toggle } = useToggle(false)
 
     return <Input
-        crossOrigin="annoymous"
+        crossOrigin="anonymous"
         {...props}
         type={show ? 'text' : 'password'}
         icon={show ? (

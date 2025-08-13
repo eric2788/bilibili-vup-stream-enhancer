@@ -1,6 +1,7 @@
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import type { LLMEvent, LLMProviders, Session } from "~llms";
 import type { SettingSchema } from "~options/fragments/llm";
+import { prebuiltAppConfig } from "@mlc-ai/web-llm"
 
 export default class WebLLM implements LLMProviders {
 
@@ -37,6 +38,10 @@ export default class WebLLM implements LLMProviders {
         for await (const chunk of res) {
             yield chunk
         }
+    }
+
+    async models(): Promise<string[]> {
+        return prebuiltAppConfig.model_list.map(m => m.model_id)
     }
 
     async asSession(): Promise<Session<LLMProviders>> {

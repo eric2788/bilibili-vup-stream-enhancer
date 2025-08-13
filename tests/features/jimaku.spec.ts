@@ -127,6 +127,11 @@ test('測試彈出同傳視窗', async ({ room, context, optionPageUrl, page, co
 
 test('测试同传字幕AI总结', async ({ room, content: p, context, optionPageUrl, page }) => {
     
+    // use openai
+    test.skip(!process.env.OPENAI_API_KEY, '请设置 OPENAI_API_KEY 环境变量以测试 AI 总结功能')
+    // use cloudflare
+    // test.skip(!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN, '请设置 CF_ACCOUNT_ID 和 CF_API_TOKEN 环境变量以测试 Cloudflare AI 总结功能')
+
     test.slow()
     logger.info('正在修改設定...')
     const settingsPage = await context.newPage()
@@ -137,6 +142,35 @@ test('测试同传字幕AI总结', async ({ room, content: p, context, optionPag
     await settingsPage.getByText('功能设定').click()
     await settingsPage.getByText('AI 设定').click()
     await settingsPage.getByText('启用同传字幕AI总结').click()
+    
+    await settingsPage.getByText('AI 模型设定').click()
+    // use openai
+    await selectOption(
+        settingsPage.getByTestId('ai-provider'),
+        'OpenAI 兼容节点 (云)'
+    )
+    await settingsPage.getByTestId('openai-base-url').fill(process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1')
+    await settingsPage.getByTestId('openai-api-key').fill(process.env.OPENAI_API_KEY || '')
+
+    // 切换模型之前，有可能已经显示获取模型失败，需要按下刷取
+    try {
+        await settingsPage.getByText('重新获取').click()
+    } catch(err) {
+        logger.debug(err)
+        logger.warn('找不到重新获取按钮，可能是因为已经获取过模型列表')
+    }
+
+    await selectOption(
+        settingsPage.getByTestId('ai-model'),
+        process.env.OPENAI_MODEL || 'gpt-3.5-turbo'
+    )
+
+    // use cloudflare
+    // await selectOption(
+    //     settingsPage.getByTestId('ai-provider'),
+    //     'Cloudflare AI (云)'
+    // )
+
     await settingsPage.getByText('保存设定').click()
     await settingsPage.waitForTimeout(2000)
 
