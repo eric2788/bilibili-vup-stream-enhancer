@@ -157,7 +157,7 @@ function LLMSettings({ state, useHandler }: StateProxy<SettingSchema>): JSX.Elem
                     <Input
                         data-testid="openai-base-url"
                         variant="static"
-                        crossOrigin={'annoymous'}
+                        crossOrigin={'anonymous'}
                         label="OpenAI Base URL (可选)"
                         value={state.openai_baseUrl}
                         onChange={handler('openai_baseUrl')}
