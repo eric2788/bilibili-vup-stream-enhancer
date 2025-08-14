@@ -96,8 +96,9 @@ export async function isNativeVtuber(uid: string | number): Promise<boolean> {
 export async function requestUserInfo(mid: string): Promise<WbiAccInfoResponse> {
 
     const now: number = Math.round(Date.now() / 1000)
-    const wrid = await w_rid(mid, now)
-    const url = `https://api.bilibili.com/x/space/wbi/acc/info?platform=web&token=&web_location=1550101&wts=${now}&mid=${mid}&w_rid=${wrid}`
+    const query: string = `mid=${mid}&platform=web&token=&web_location=1550101`
+    const wrid = await w_rid(query, now)
+    const url = `https://api.bilibili.com/x/space/wbi/acc/info?${query}&wts=${now}&w_rid=${wrid}`
 
     const res = await sendRequest<V1Response<WbiAccInfoResponse>>({
         url,

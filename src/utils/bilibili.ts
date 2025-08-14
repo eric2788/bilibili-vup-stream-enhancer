@@ -61,15 +61,19 @@ export async function generateWbi(): Promise<string> {
     return temp.slice(0, 32)
 }
 
+
 /**
- * Generates a unique identifier for a user based on their UID and a timestamp.
- * If the salt value is not found or expired, it generates a new one and saves it to local storage.
- * The generated identifier is calculated using the salt, UID, platform, token, web location, and timestamp.
- * @param uid The user's UID.
- * @param wts The timestamp value.
- * @returns A Promise that resolves to the generated identifier.
+ * Generates a w_rid hash for Bilibili API requests using the wbi_salt
+ * @param query - The query string to be hashed
+ * @param wts - Timestamp in seconds
+ * @returns Promise that resolves to the MD5 hash of the query + wts + salt
+ * @remarks
+ * The function checks if a cached wbi_salt exists and is not expired (24h).
+ * If no valid salt exists, it generates a new one via generateWbi().
+ * The salt is stored in localStorage with an expiration timestamp.
+ * The final hash is created by concatenating: query + wts + salt
  */
-export async function w_rid(uid: string, wts: number): Promise<string> {
+export async function w_rid(query: string, wts: number): Promise<string> {
     let salt = await localStorage.get<string>('wbi_salt')
     const lastUpdate = await localStorage.get<number>('wbi_salt_last_update')
     if (!salt || !lastUpdate || Date.now() - lastUpdate > 1000 * 60 * 60 * 24) {
@@ -81,8 +85,7 @@ export async function w_rid(uid: string, wts: number): Promise<string> {
         console.info(`wbi_salt saved to local storage`)
     }
     const c: string = salt
-    const b: string = `mid=${uid}&platform=web&token=&web_location=1550101`
-    const a: string = `${b}&wts=${wts}${c}` // mid + platform + token + web_location + 时间戳wts + 一个固定值
+    const a: string = `${query}&wts=${wts}${c}` // mid + platform + token + web_location + 时间戳wts + 一个固定值
     return await md5(a)
 }
 
