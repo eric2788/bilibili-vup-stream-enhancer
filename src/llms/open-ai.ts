@@ -35,7 +35,7 @@ export default class OpenAICompatible implements LLMProviders {
     if (!response.choices || response.choices.length === 0) {
       throw new Error("No response from OpenAI API");
     }
-    return response.choices[0].message.content;
+    return response.choices[0].message.content ?? "";
   }
 
   async *promptStream(chat: string): AsyncGenerator<string> {
