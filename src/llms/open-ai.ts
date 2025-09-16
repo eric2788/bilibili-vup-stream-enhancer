@@ -58,7 +58,7 @@ export default class OpenAICompatible implements LLMProviders {
   }
 
   async asSession(): Promise<Session<LLMProviders>> {
-    console.warn("Cloudflare AI session is not supported");
+    console.warn("OpenAI session is not supported");
     return {
       ...this,
       [Symbol.asyncDispose]: async () => {}
