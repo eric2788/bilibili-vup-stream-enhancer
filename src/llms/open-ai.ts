@@ -20,9 +20,14 @@ export default class OpenAICompatible implements LLMProviders {
   on<E extends keyof LLMEvent>(event: E, listener: LLMEvent[E]): void {}
 
   async validate(): Promise<void> {
-    const models = await this.models();
+    let models: string[];
+    try {
+      models = await this.models();
+    } catch (err: any) {
+      throw new Error(`Failed to fetch models from OpenAI API: ${err?.message || err}`);
+    }
     if (models.length === 0) {
-      throw new Error("No models available in OpenAI API");
+      throw new Error("No models available in OpenAI API. The API key may be invalid, or there may be a network/authentication issue.");
     }
   }
 
