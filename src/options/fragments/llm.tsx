@@ -2,7 +2,7 @@ import { Alert, Button, Input, Tooltip, Typography } from "@material-tailwind/re
 import { Fragment, useRef, useState, type ChangeEvent, type ReactNode } from "react"
 import { toast } from "sonner/dist"
 import type { StateProxy } from "~hooks/binding"
-import { useForceRender, useForceUpdate } from "~hooks/force-update"
+import { useForceUpdate } from "~hooks/force-update"
 import { usePromise } from "~hooks/promise"
 import type { LLMTypes } from "~llms"
 import createLLMProvider from "~llms"
