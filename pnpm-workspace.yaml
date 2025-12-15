@@ -5,3 +5,5 @@ onlyBuiltDependencies:
   - lmdb
   - msgpackr-extract
   - sharp
+packages:
+  - '.'
