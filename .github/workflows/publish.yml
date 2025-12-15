@@ -43,7 +43,7 @@ jobs:
               with:
                   path: build/
             - name: Browser Platform Publish
-              uses: PlasmoHQ/bpp@v3.6.1
+              uses: PlasmoHQ/bpp@v3.8.0
               with:
                 verbose: ${{ inputs.dry-run }}
                 keys: |
