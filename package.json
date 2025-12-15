@@ -1,7 +1,7 @@
 {
   "name": "bilibili-vup-stream-enhancer",
   "displayName": "Bilibili Vup Stream Enhancer",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "为管人观众在观看直播时提供更多功能",
   "author": "Eric Lam <tsukiko852@gmail.com>",
   "license": "MIT",
