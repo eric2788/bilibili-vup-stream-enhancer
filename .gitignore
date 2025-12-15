@@ -6,6 +6,9 @@
 /.pnp
 .pnp.js
 *.cache.json
+.pnpm
+.pnpm-local
+.pnpmrc
 
 # testing
 /coverage

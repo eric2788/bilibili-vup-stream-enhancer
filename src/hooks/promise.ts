@@ -1,4 +1,4 @@
-import { type Reducer, useEffect, useReducer } from 'react'
+import { type Reducer, useCallback, useEffect, useReducer } from 'react'
 
 type State<T> = {
   data: T | null
@@ -51,9 +51,14 @@ export function usePromise<T>(promise: Promise<T> | (() => Promise<T>), deps: an
     loading: true,
   })
 
+  const memoizedPromise = useCallback(
+    () => promise instanceof Function ? promise() : promise, 
+    deps
+  )
+
   useEffect(() => {
     dispatch({ type: "LOADING" });
-    (promise instanceof Function ? promise() : promise)
+    memoizedPromise()
       .then((data) => {
         dispatch({ type: "SUCCESS", payload: data })
       })
@@ -61,7 +66,7 @@ export function usePromise<T>(promise: Promise<T> | (() => Promise<T>), deps: an
         console.warn(error)
         dispatch({ type: "ERROR", payload: error })
       })
-  }, [promise, ...deps])
+  }, [memoizedPromise])
 
   return [state.data, state.error, state.loading] as const
 }

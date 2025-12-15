@@ -39,6 +39,10 @@ export default class GeminiNano implements LLMProviders {
         }
     }
 
+    async models(): Promise<string[]> {
+        return [];
+    }
+
     async asSession(): Promise<Session<LLMProviders>> {
 
         if (window.ai.summarizer) {

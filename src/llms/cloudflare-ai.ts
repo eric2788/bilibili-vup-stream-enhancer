@@ -1,4 +1,4 @@
-import { runAI, runAIStream, validateAIToken } from "~api/cloudflare";
+import { CLOUDFLARE_MODELS, runAI, runAIStream, validateAIToken } from "~api/cloudflare";
 import type { LLMEvent, LLMProviders, Session } from "~llms";
 import type { SettingSchema } from "~options/fragments/llm";
 
@@ -12,14 +12,14 @@ export default class CloudFlareAI implements LLMProviders {
     private readonly model: string
 
     constructor(settings: SettingSchema) {
-        this.accountId = settings.accountId
-        this.apiToken = settings.apiToken
+        this.accountId = settings.cf_accountId
+        this.apiToken = settings.cf_apiToken
 
         // only text generation model for now
         this.model = settings.model || CloudFlareAI.DEFAULT_MODEL
     }
 
-    // mot support progress
+    // not support progress
     on<E extends keyof LLMEvent>(event: E, listener: LLMEvent[E]): void {}
 
     cumulative: boolean = true
@@ -36,8 +36,12 @@ export default class CloudFlareAI implements LLMProviders {
         return res.result.response
     }
 
-    async *promptStream(chat: string): AsyncGenerator<string> {
+    promptStream(chat: string): AsyncGenerator<string> {
         return runAIStream(this.wrap(chat), { token: this.apiToken, account: this.accountId, model: this.model })
+    }
+
+    async models(): Promise<string[]> {
+        return CLOUDFLARE_MODELS
     }
 
     async asSession(): Promise<Session<LLMProviders>> {
